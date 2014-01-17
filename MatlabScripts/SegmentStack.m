@@ -22,7 +22,10 @@ else
 end
 
 if params.Parallel           % parallelise if we can!
-    parfor i=1:s(3)
+    %should change from s(3) to frs but the integers in frs might not be
+    %consective so it fails. Perhaps check if splitting would be an option
+    
+    parfor i = 1:s(3)
         fprintf('segmenting frame (P) %i\n', i);
         im = double(Stack(:,:,i));
 %         im = im/max(im(:))*255;
@@ -40,7 +43,8 @@ else
         i = frs(t);
         fprintf('segmenting frame %i\n', i);
         im = double(Stack(:,:,i));
-        im = im/max(im(:))*255;
+        %commented as also in parallel version
+        %im = im/max(im(:))*255;
         if NoPreviousLabels
             [Ilabel ,Clabel,ColIm] = SegmentIm(im,params.show,params);
         else
