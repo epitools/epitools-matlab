@@ -1,18 +1,18 @@
 %% SETUP
 
-addpath('/farm/home/tourni01/Projects/2-ImageAnalysis/28b-RepackagingMatlabScripts/MatlabScripts')
+addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/MatlabScripts')
 % make sure matlab has access to this java file!
-javaaddpath('/farm/home/tourni01/Projects/2-ImageAnalysis/28b-RepackagingMatlabScripts/OME_LOCI_TOOLS/loci_tools.jar')
-addpath('/farm/home/tourni01/Projects/2-ImageAnalysis/28b-RepackagingMatlabScripts/OME_LOCI_TOOLS')
+javaaddpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS/loci_tools.jar')
+addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
 
 %matlabpool      % setup multithreading capacity
 
 %% READING ORIGINAL MICROSCOPY DATA
 
-DataDirec = 'Data/0';
+DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/0';
 
 % create directory where to store results of analysis
-AnaDirec = [DataDirec,'/Analysis'];
+AnaDirec = [DataDirec,'/Analysis2'];
 mkdir(AnaDirec)
 
 
@@ -55,7 +55,7 @@ for i =1:length(lst)
     fprintf('Working on %s\n', lst(i).name);
    
     
-    parfor f = 1:res.NT
+    parfor f = 1:res.NT 
         ImStack = res.images(:,:,:,f);
         [im,Surf] = createProjection(ImStack,SmoothingRadius,ProjectionDepthThreshold,SurfSmoothness1,SurfSmoothness2,InspectResults);
         ProjIm(:,:,f+d) = im;
@@ -70,7 +70,7 @@ StackView(ProjIm);
 
 matlabpool close
 %% REGISTRATION
-matlabpool 8
+matlabpool 2
 
 RegIm = RegisterStack(ProjIm);
 
@@ -83,8 +83,9 @@ matlabpool close
 
 
 
-%% SEGMENTATION
+%% SEGMENTATION CURRENTLY SET FOR 10 FRAMES ONLY, on new iMac with 4C ~10min/frame
 
+matlabpool 4
 
 % Segmentation parameters:
 params.mincellsize=25;          % area of cell in pixels
@@ -100,13 +101,14 @@ params.sigma3=2;
 params.LargeCellSizeThres = 3000;
 params.MergeCriteria = 0.35;
 %final joining
-params.IBoundMax = 137;          % 30 for YM data
+params.IBoundMax = 80;          % 30 for YM data
 
 % show steps
 params.show = false;
+%Parallel true very slow, check [ ]
 params.Parallel  = true;
 
-[ILabels , CLabels , ColIms] = SegmentStack(RegIm, params);
+[ILabels , CLabels , ColIms] = SegmentStack(RegIm(:,:,1:10), params);
 
 StackView(ColIms)
 
@@ -114,14 +116,15 @@ save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params')
 
 % save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params','NX','NY','NT')
 
+matlabpool close
 
-%%
+%% Add elipse crop to avoid tracking false structures.
 
 BW = GetEllipse(RegIm(:,:,1));
 
 CLabelsEll = zeros(size(RegIm));
 
-for f = 1 : 100
+for f = 1 : 10
     I1 = CLabels(:,:,f);
     I1(BW < 1) = 0;
     Ls = unique(I1);
@@ -131,6 +134,10 @@ for f = 1 : 100
     CLabelsEll(:,:,f) = I2;
 end
 StackView(CLabelsEll)
+
+CLabels = CLabelsEll;
+
+save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params')
 
 %% TRACKING
 
