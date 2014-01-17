@@ -3,13 +3,11 @@
 addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/MatlabScripts')
 %make sure matlab has access to this java file!
 javaaddpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS/loci_tools.jar')
-addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
-
-%matlabpool      % setup multithreading capacity
+addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS') 
 
 %% READING ORIGINAL MICROSCOPY DATA
 
-DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/0/Test1Output';
+DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/1/Neo1_huygens_output/';
 
 % create directory where to store results of analysis
 AnaDirec = [DataDirec,'/Analysis'];
@@ -49,8 +47,8 @@ fprintf('Started projection at %s',datestr(now));
 
 %Paramaters
 SmoothingRadius = 1.;           % how much smoothing to apply to original data (1-5)
-SurfSmoothness1 = 50;           % 1st surface fitting, surface stiffness ~100
-SurfSmoothness2 = 30;           % 2nd surface fitting, stiffness ~50
+SurfSmoothness1 = 30;           % 1st surface fitting, surface stiffness ~100
+SurfSmoothness2 = 20;           % 2nd surface fitting, stiffness ~50
 ProjectionDepthThreshold = 1.2; % how much up/down to gather data from surface
 
 %Number of time points to be analyzed
@@ -97,7 +95,7 @@ StackView(ProjIm);
 fprintf('Finished projection at %s',datestr(now));
 
 %% REGISTRATION
-matlabpool 2
+%matlabpool 2
 
 RegIm = RegisterStack(ProjIm);
 
@@ -107,7 +105,7 @@ StackView(RegIm);
 %saving results
 save([AnaDirec,'/RegIm'],'RegIm');
 
-matlabpool close
+%matlabpool close
 
 
 %% CLAHE - Contrast-Limited Adaptive Histogram Equalization
@@ -120,15 +118,16 @@ fprintf('Started CLAHE at %s',datestr(now));
 RegIm_clahe = zeros(size(RegIm,1), size(RegIm,2), size(RegIm,3), 'double');
 
 %needs prior conversion for method
-RegIm_uint16 = zeros(size(RegIm,2), size(RegIm,2), 'uint16');
+RegIm_uint8 = zeros(size(RegIm,2), size(RegIm,2), 'uint8');
 
 %pre-alloacation for speed
-RegIm_clahe_uint16 = zeros(size(RegIm,2), size(RegIm,2), 'uint16');
+RegIm_clahe_uint8 = zeros(size(RegIm,2), size(RegIm,2), 'uint8');
 
 for i=1:size(RegIm,3)
-    RegIm_uint16 = uint16(RegIm(:,:,i));
-    RegIm_clahe_uint16 = adapthisteq(RegIm_uint16,'NumTiles',[70 70],'ClipLimit',0.02);
-    RegIm_clahe(:,:,i) = double(RegIm_clahe_uint16); 
+    %parameter needs to be adapted for specific image input: uint16>uint8
+    RegIm_uint8 = uint8(RegIm(:,:,i));
+    RegIm_clahe_uint8 = adapthisteq(RegIm_uint8,'NumTiles',[70 70],'ClipLimit',0.02);
+    RegIm_clahe(:,:,i) = double(RegIm_clahe_uint8); 
 end
 
 
@@ -139,7 +138,7 @@ fprintf('Stopped CLAHE at %s',datestr(now));
 %% SEGMENTATION modified for clahe!
 fprintf('Started SEGMENTATION at %s',datestr(now));
 
-matlabpool 4
+%matlabpool 4
 
 % Segmentation parameters:
 params.mincellsize=25;          % area of cell in pixels
@@ -175,7 +174,7 @@ NX = size(RegIm,1);
 NY = size(RegIm,2);
 NT = size(RegIm,3);
 
-save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params','NX','NY','NT')
+save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params','NX','NY','NT','-v7.3')
 
 matlabpool close
 
