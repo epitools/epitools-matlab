@@ -9,10 +9,10 @@ addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
 
 %% READING ORIGINAL MICROSCOPY DATA
 
-DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/0';
+DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/2';
 
 % create directory where to store results of analysis
-AnaDirec = [DataDirec,'/Analysis2'];
+AnaDirec = [DataDirec,'/Analysis'];
 mkdir(AnaDirec)
 
 
@@ -20,13 +20,30 @@ Filemask = 'decadGFP_103h_63XNE0_JHIII_f';
 
 lst = dir(DataDirec);  
 
+%% find out list index of first file based on Filemask
+
+first_index = 0;
+
+for i =1:length(lst)
+    
+    %first indeces will most likely be folders and non-relevant files
+    %so skip
+    if isempty(strfind(lst(i).name,Filemask)); 
+        continue; 
+    else
+        first_index = i;
+        break;
+    end;
+
+end
+
 %% read first file
 
-FullDataFile = [DataDirec,'/',lst(6).name];
+FullDataFile = [DataDirec,'/',lst(4).name];
 Series = 1;
 res = ReadMicroscopyData(FullDataFile, Series);
 
-%%
+%% Projection
 
 %Paramaters
 SmoothingRadius = 1.;           % how much smoothing to apply to original data (1-5)
@@ -34,7 +51,7 @@ SurfSmoothness1 = 50;          % 1st surface fitting, surface stiffness ~100
 SurfSmoothness2 = 30;           % 2nd surface fitting, stiffness ~50
 ProjectionDepthThreshold = 1.2; % how much up/down to gather data from surface
 %
-NT = 10;
+NT = res.NT;
 
 RegIm = zeros(res.NY,res.NX,NT);
 Surfaces = zeros(res.NY,res.NX,NT);
@@ -44,10 +61,10 @@ InspectResults = false;         % show fit or not
 
 Series = 1;
 
-matlabpool 3
+matlabpool 2
 d = 0;
 
-for i =1:length(lst)
+for i =1:length(lst) %first_index 
     if isempty(strfind(lst(i).name,Filemask)); continue; end;
     FullDataFile = [DataDirec,'/',lst(i).name];
     res = ReadMicroscopyData(FullDataFile, Series); 
