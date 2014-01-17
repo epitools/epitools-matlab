@@ -9,7 +9,7 @@ addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
 
 %% READING ORIGINAL MICROSCOPY DATA
 
-DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/0/Test1Output';
+DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/shINX2/nub4_decagfp_shINX2290306_4_20131219_83650 AM/0';
 
 % create directory where to store results of analysis
 AnaDirec = [DataDirec,'/Analysis'];
@@ -38,19 +38,19 @@ for i =1:length(lst)
 
 end
 
-%% read first file
+%% read first file (Check correctness manually from console ouput!)
 
 FullDataFile = [DataDirec,'/',lst(first_index).name];
 Series = 1;
 res = ReadMicroscopyData(FullDataFile, Series);
 
 %% Setup parameters for Projection
-fprintf('Started projection at %s',datestr(now));
+fprintf('Started projection at %s\n',datestr(now));
 
 %Paramaters
 SmoothingRadius = 1.;           % how much smoothing to apply to original data (1-5)
-SurfSmoothness1 = 50;           % 1st surface fitting, surface stiffness ~100
-SurfSmoothness2 = 30;           % 2nd surface fitting, stiffness ~50
+SurfSmoothness1 = 20;           % 1st surface fitting, surface stiffness ~100
+SurfSmoothness2 = 10;           % 2nd surface fitting, stiffness ~50
 ProjectionDepthThreshold = 1.2; % how much up/down to gather data from surface
 
 %Number of time points to be analyzed
@@ -64,6 +64,8 @@ ProjIm = zeros(res.NY,res.NX,NT);
 InspectResults = false;         % show fit or not
 
 Series = 1;
+
+%Run Projection
 
 %matlabpool 2
 d = 0;
@@ -94,10 +96,10 @@ StackView(ProjIm);
 
 %matlabpool close
 
-fprintf('Finished projection at %s',datestr(now));
+fprintf('Finished projection at %s\n',datestr(now));
 
 %% REGISTRATION
-matlabpool 2
+%matlabpool 2
 
 RegIm = RegisterStack(ProjIm);
 
@@ -107,14 +109,14 @@ StackView(RegIm);
 %saving results
 save([AnaDirec,'/RegIm'],'RegIm');
 
-matlabpool close
+%matlabpool close
 
 
 %% CLAHE - Contrast-Limited Adaptive Histogram Equalization
 
 %help: http://www.mathworks.ch/ch/help/images/ref/adapthisteq.html
 
-fprintf('Started CLAHE at %s',datestr(now));
+fprintf('Started CLAHE at %s\n',datestr(now));
 
 %pre-allocate output
 RegIm_clahe = zeros(size(RegIm,1), size(RegIm,2), size(RegIm,3), 'double');
@@ -127,14 +129,15 @@ RegIm_clahe_uint16 = zeros(size(RegIm,2), size(RegIm,2), 'uint16');
 
 for i=1:size(RegIm,3)
     RegIm_uint16 = uint16(RegIm(:,:,i));
-    RegIm_clahe_uint16 = adapthisteq(RegIm_uint16,'NumTiles',[70 70],'ClipLimit',0.02);
+    RegIm_clahe_uint16 = adapthisteq(RegIm_uint16,'NumTiles',...
+                         [40 40],'clipLimit',0.1);
     RegIm_clahe(:,:,i) = double(RegIm_clahe_uint16); 
 end
 
 
 StackView(RegIm_clahe);
 
-fprintf('Stopped CLAHE at %s',datestr(now));
+fprintf('Stopped CLAHE at %s\n',datestr(now));
 
 %% SEGMENTATION modified for clahe!
 fprintf('Started SEGMENTATION at %s',datestr(now));
