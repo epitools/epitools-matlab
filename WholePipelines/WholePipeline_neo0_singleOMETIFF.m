@@ -9,7 +9,7 @@ addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
 
 %% READING ORIGINAL MICROSCOPY DATA
 
-DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/0/h3_separated_files_omeConverter/data/';
+DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/0/h3_separated_files_omeConverter/data';
 
 % create directory where to store results of analysis
 AnaDirec = [DataDirec,'/Analysis'];
@@ -89,10 +89,23 @@ save([AnaDirec,'/RegIm'],'RegIm');
 matlabpool close
 
 
+%% CLAHE - Contrast-Limited Adaptive Histogram Equalization
 
-%% SEGMENTATION
+RegIm_clahe = zeros(size(RegIm,1), size(RegIm,2), size(RegIm,3), 'double');
 
-matlabpool 4
+for i=1:3
+    RegIm_uint8 = uint8(RegIm(:,:,i));
+    RegIm_clahe_uint8 = adapthisteq(RegIm_uint8,'NumTiles',[70 70],'ClipLimit',0.005);
+    RegIm_clahe(:,:,i) = double(RegIm_clahe_uint8); 
+end
+
+
+StackView(RegIm_clahe);
+
+
+%% SEGMENTATION modified for clahe!
+
+matlabpool 3
 
 % Segmentation parameters:
 params.mincellsize=25;          % area of cell in pixels
@@ -114,11 +127,9 @@ params.IBoundMax = 30;          % 30 for YM data
 params.show = false;
 params.Parallel  = true;
 
-[ILabels , CLabels , ColIms] = SegmentStack(RegIm, params);
+[ILabels , CLabels , ColIms] = SegmentStack(RegIm_clahe, params);
 
 StackView(ColIms)
-
-save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params')
 
 % save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params','NX','NY','NT')
 
@@ -130,7 +141,7 @@ BW = GetEllipse(RegIm(:,:,1));
 
 CLabelsEll = zeros(size(RegIm));
 
-for f = 1 : 100
+for f = 1 : size(RegIm,3)
     I1 = CLabels(:,:,f);
     I1(BW < 1) = 0;
     Ls = unique(I1);
@@ -141,9 +152,25 @@ for f = 1 : 100
 end
 StackView(CLabelsEll)
 
-%% TRACKING
+
+%% Save ellipse selection changes
+
+CLabels = CLabelsEll;
+
+save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params')
+
+
+%% Open matlabpool for Tracking
+
+matlabpool 3
+
+%% TRACKING 
 
 load([AnaDirec,'/SegResults']);
+
+NX = size(RegIm,1);
+NY = size(RegIm,2);
+NT = size(RegIm,3);
 
 params.TrackingRadius = 15;
 output = 'ILabelsCorrected';
@@ -172,4 +199,6 @@ save([AnaDirec,'/SegResultsCorrected'], 'RegIm','ILabels', 'CLabels' ,'ColIms','
 StackView(ColIms);
 StackView(CLabels);
 
+%% Close workers
 
+matlabpool close
