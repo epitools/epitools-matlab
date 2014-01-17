@@ -143,6 +143,12 @@ NT = r.getSizeT();
 
 fprintf('Data format (%i x %i)\n NZ = %i\n NChannels = %i\n NFrames = %i\n Encoding = %s\n', NX,NY,NZ, NC,NT,PixelType);
 
+%OME-TWEAK to allow for OME-TIFF-float formatting
+if PixelType(1) == 'f'
+    fprintf('Tiff-float input: handling as double');
+    PixelType = 'double';
+end
+
 numImages = r.getImageCount();
 images = zeros([NY,NX,NZ,NC,NT],PixelType);
 for i = 1:numImages
