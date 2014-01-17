@@ -1,7 +1,7 @@
 %% SETUP
 
 addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/MatlabScripts')
-% make sure matlab has access to this java file!
+%make sure matlab has access to this java file!
 javaaddpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS/loci_tools.jar')
 addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
 
@@ -9,20 +9,20 @@ addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
 
 %% READING ORIGINAL MICROSCOPY DATA
 
-DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/0';
+DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/0/h3_separated_files_omeConverter/separated';
 
 % create directory where to store results of analysis
-AnaDirec = [DataDirec,'/Analysis2'];
+AnaDirec = [DataDirec,'/Analysis'];
 mkdir(AnaDirec)
 
 
-Filemask = 'decadGFP_103h_63XNE0_JHIII_f';
+Filemask = 'neo0_T000';
 
 lst = dir(DataDirec);  
 
 %% read first file
 
-FullDataFile = [DataDirec,'/',lst(6).name];
+FullDataFile = [DataDirec,'/',lst(4).name];
 Series = 1;
 res = ReadMicroscopyData(FullDataFile, Series);
 
@@ -30,11 +30,13 @@ res = ReadMicroscopyData(FullDataFile, Series);
 
 %Paramaters
 SmoothingRadius = 1.;           % how much smoothing to apply to original data (1-5)
-SurfSmoothness1 = 50;          % 1st surface fitting, surface stiffness ~100
+SurfSmoothness1 = 50;           % 1st surface fitting, surface stiffness ~100
 SurfSmoothness2 = 30;           % 2nd surface fitting, stiffness ~50
 ProjectionDepthThreshold = 1.2; % how much up/down to gather data from surface
-%
-NT = 10;
+
+%Number of time points to be analyzed
+NT = res.NT;
+%NT = 3;
 
 RegIm = zeros(res.NY,res.NX,NT);
 Surfaces = zeros(res.NY,res.NX,NT);
@@ -44,18 +46,20 @@ InspectResults = false;         % show fit or not
 
 Series = 1;
 
-matlabpool 3
+%matlabpool 4
 d = 0;
 
+%%
 for i =1:length(lst)
     if isempty(strfind(lst(i).name,Filemask)); continue; end;
     FullDataFile = [DataDirec,'/',lst(i).name];
-    res = ReadMicroscopyData(FullDataFile, Series); 
+    res = ReadMicroscopyData(FullDataFile, Series);
     res.images = squeeze(res.images); % get rid of empty 
     fprintf('Working on %s\n', lst(i).name);
    
-    
-    parfor f = 1:res.NT 
+    %information seems to not be transmitted correctly 10 time points
+    %appear to be presente while there are only 3, CHECK [ ] 
+    for f = 1:res.NT 
         ImStack = res.images(:,:,:,f);
         [im,Surf] = createProjection(ImStack,SmoothingRadius,ProjectionDepthThreshold,SurfSmoothness1,SurfSmoothness2,InspectResults);
         ProjIm(:,:,f+d) = im;
@@ -68,7 +72,7 @@ end
 % inspect results
 StackView(ProjIm);
 
-matlabpool close
+%matlabpool close
 %% REGISTRATION
 matlabpool 2
 
@@ -83,9 +87,8 @@ matlabpool close
 
 
 
-%% SEGMENTATION CURRENTLY SET FOR 10 FRAMES ONLY, on new iMac with 4C ~10min/frame
+%% SEGMENTATION
 
-matlabpool 4
 
 % Segmentation parameters:
 params.mincellsize=25;          % area of cell in pixels
@@ -105,10 +108,9 @@ params.IBoundMax = 80;          % 30 for YM data
 
 % show steps
 params.show = false;
-%Parallel true very slow, check [ ]
 params.Parallel  = true;
 
-[ILabels , CLabels , ColIms] = SegmentStack(RegIm(:,:,1:10), params);
+[ILabels , CLabels , ColIms] = SegmentStack(RegIm, params);
 
 StackView(ColIms)
 
@@ -116,7 +118,6 @@ save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params')
 
 % save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params','NX','NY','NT')
 
-matlabpool close
 
 %% Add elipse crop to avoid tracking false structures.
 
@@ -124,7 +125,7 @@ BW = GetEllipse(RegIm(:,:,1));
 
 CLabelsEll = zeros(size(RegIm));
 
-for f = 1 : 10
+for f = 1 : 100
     I1 = CLabels(:,:,f);
     I1(BW < 1) = 0;
     Ls = unique(I1);
@@ -134,10 +135,6 @@ for f = 1 : 10
     CLabelsEll(:,:,f) = I2;
 end
 StackView(CLabelsEll)
-
-CLabels = CLabelsEll;
-
-save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params')
 
 %% TRACKING
 
