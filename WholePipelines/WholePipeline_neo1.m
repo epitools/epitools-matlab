@@ -181,7 +181,12 @@ matlabpool close
 
 %% Add elipse crop to avoid tracking false structures. (not needed for deconvolved images)
 
-BW = GetEllipse(RegIm(:,:,1));
+%BW = GetEllipse(RegIm(:,:,1));
+
+%alternative polygonal ROI
+figure;
+imshow(RegIm(:,:,1),[]);
+BW = roipoly;
 
 CLabelsEll = zeros(size(RegIm));
 
@@ -197,7 +202,7 @@ end
 StackView(CLabelsEll)
 
 
-%% Save ellipse selection changes
+%% Save ellipse selection changes, make sure to save the old SegResults as backup in case
 
 save([AnaDirec,'/CLabelsBKP'],'CLabels');
 
@@ -219,7 +224,7 @@ NY = size(RegIm,2);
 NT = size(RegIm,3);
 
 params.TrackingRadius = 15;
-output = 'ILabelsCorrected';
+output = 'ILabelsCorrected_2013_01_22';
 
 try
     P = load([AnaDirec,'/SegResultsCorrected']);
@@ -250,15 +255,15 @@ uiwait(fig);
 params.Parallel = true; 
 
 if(params.Parallel)
-    matlabpool 4
+    matlabpool 2
 end
 
-fprintf('Started SEGMENTATION at %s',datestr(now));
+fprintf('Started SEGMENTATION at %s\n',datestr(now));
 
 IL = load(output);
 [ILabels , CLabels , ColIms] = SegmentStack( RegIm , params , IL.ILabels ,CLabels, ColIms, IL.FramesToRegrow );
 
-fprintf('Stopped SEGMENTATION at %s',datestr(now));
+fprintf('Stopped SEGMENTATION at %s\n',datestr(now));
 
 if(params.Parallel)
     matlabpool close
