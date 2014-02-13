@@ -211,11 +211,7 @@ CLabels = CLabelsEll;
 save([AnaDirec,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','params','-v7.3');
 
 
-%% Open matlabpool for Tracking
-
-
-
-%% TRACKING 
+%% TRACKING (first time - single run)
 
 load([AnaDirec,'/SegResults']);
 
@@ -224,7 +220,7 @@ NY = size(RegIm,2);
 NT = size(RegIm,3);
 
 params.TrackingRadius = 15;
-output = 'ILabelsCorrected_2013_01_22';
+output = ['ILabelsCorrected_',datestr(now,30)];
 
 try
     P = load([AnaDirec,'/SegResultsCorrected']);
@@ -245,6 +241,34 @@ uiwait(fig);
 
 %TrackingGUI takes care of saving a copy of the changes in the current
 %matlab working directory [BACKUP if needed!]
+
+%% REPEAT tracking correction with manually specified file 
+% (skip or run as many times as needed)
+
+load([AnaDirec,'/SegResults']);
+
+NX = size(RegIm,1);
+NY = size(RegIm,2);
+NT = size(RegIm,3);
+
+params.TrackingRadius = 15;
+%save new tracking results with new timestamp
+%e.g. ILabelsCorrected_20140213T144649
+output = ['ILabelsCorrected_',datestr(now,30)];
+
+[filename, pathname] = uigetfile('.mat','Select last tracking file');
+
+try
+    %open last tracking file
+    IL = load([pathname,filename]);
+    fig = TrackingGUIwOldOK(RegIm,IL.ILabels,CLabels,ColIms,output,params,IL.oktrajs,IL.FramesToRegrow);
+catch
+    disp('no previous segmentation')
+end
+
+% wait for corrections to finish (ie after saving using 's')
+uiwait(fig);
+
 
 %% now resegmenting the frames which need it!
 
