@@ -1,4 +1,4 @@
-function fig = TrackingGUI(I1,Ilabel,Clabel,ColLabels,Ilabelsout,params, oldOKs)
+function fig = TrackingGUI(I1,Ilabel,Clabel,ColLabels,Ilabelsout,params, oldOKs, FramesToRegrow_old)
 
 disp('This GUI allows the user to see the tracks automatically build by');
 disp(' celltracking4.cc');
@@ -473,6 +473,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
             case {'s'}
                 fprintf('Saving ... ');
                 ILabels = Ilabel;
+                FramesToRegrow = union(FramesToRegrow,FramesToRegrow_old);
                 save(Ilabelsout,'ILabels','FramesToRegrow','oktrajs');               
                 fprintf('done\n');
                 close(gcf);
