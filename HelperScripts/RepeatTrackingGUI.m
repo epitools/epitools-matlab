@@ -7,15 +7,22 @@
 
 % help: proceed through the selections by pressing cmd + enter
 
+%% SETUP
+
+addpath('/Users/davide/programs/epitools/MatlabScripts')
+%make sure matlab has access to this java file!
+javaaddpath('/Users/davide/programs/epitools/OME_LOCI_TOOLS/loci_tools.jar')
+addpath('/Users/davide/programs/epitools/OME_LOCI_TOOLS') 
+
 %% Repeat tracking correction with manually specified file 
 
-[filename, pathname] = uigetfile('.tif','Select first image of series');
+[filename, pathname] = uigetfile('.mat','Select SegResults.mat');
 
-DataDirec = pathname;
+AnaDirec = pathname;
 
-% directory where results of analysis should be stored
-AnaDirec = [DataDirec,'Analysis'];
 disp(['Retrieving results from:',AnaDirec])
+
+cd(AnaDirec)
 
 %% If this is correct (Check Command Window) proceed to tracking correction
 
