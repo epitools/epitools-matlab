@@ -1,5 +1,11 @@
 %% SETUP
 
+%obtain current path location
+%source: http://books.google.ch/books?id=ELsZk3Ld2KcC&lpg=PA508&ots=ZmkN56k8pd&dq=MLEditorServices&hl=de&pg=PA508#v=onepage&q=MLEditorServices&f=false
+
+current_script_path = matlab.desktop.editor.getActive().Filename;
+fprintf('Current script location:%s\n',current_script_path);
+
 addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/MatlabScripts')
 %make sure matlab has access to this java file!
 javaaddpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS/loci_tools.jar')
@@ -7,7 +13,8 @@ addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
 
 %% READING ORIGINAL MICROSCOPY DATA
 
-DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/1/Neo1_huygens_output/';
+BaseDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM';
+DataDirec = [BaseDirec,'/2/Neo2_huygens_output/'];
 
 % create directory where to store results of analysis
 AnaDirec = [DataDirec,'/Analysis'];
