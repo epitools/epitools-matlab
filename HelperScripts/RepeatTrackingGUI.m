@@ -9,10 +9,18 @@
 
 %% SETUP
 
-addpath('/Users/davide/programs/epitools/MatlabScripts')
+%retrieve needed files from current script location
+%requires Matlab 7+
+current_script_path = matlab.desktop.editor.getActive().Filename;
+fprintf('Script location:%s\n',current_script_path);
+
+[file_path,file_name,file_ext] = fileparts(current_script_path);
+cd(file_path)
+
+addpath([fileparts(file_path),'/MatlabScripts'])
 %make sure matlab has access to this java file!
-javaaddpath('/Users/davide/programs/epitools/OME_LOCI_TOOLS/loci_tools.jar')
-addpath('/Users/davide/programs/epitools/OME_LOCI_TOOLS') 
+javaaddpath([fileparts(file_path),'/OME_LOCI_TOOLS/loci_tools.jar'])
+addpath([fileparts(file_path),'/OME_LOCI_TOOLS']) 
 
 %% Repeat tracking correction with manually specified file 
 
@@ -24,8 +32,6 @@ disp(['Retrieving results from:',AnaDirec])
 
 cd(AnaDirec)
 
-%% If this is correct (Check Command Window) proceed to tracking correction
-
 load([AnaDirec,'/SegResults']);
 
 NX = size(RegIm,1);
@@ -33,6 +39,9 @@ NY = size(RegIm,2);
 NT = size(RegIm,3);
 
 params.TrackingRadius = 15;
+
+%% If this is correct (Check Command Window) proceed to tracking correction
+
 %save new tracking results with new timestamp
 %e.g. ILabelsCorrected_20140213T144649
 output = ['ILabelsCorrected_',datestr(now,30)];
