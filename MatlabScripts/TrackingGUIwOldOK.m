@@ -86,6 +86,7 @@ set(fig,'WindowButtonDownFcn',@wbmFcn)
 
 set(fig,'KeyPressFcn',@keyPrsFcn)
 
+OriginalFrame = [];
 
 
     function cb1Callback(src,evt)
@@ -135,27 +136,37 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                         TrackL = tracklength(CelN);
                     end
                     
+                    %assuming full tracking is marked here
                     if TrackL == s(3)-1
                         PaddedIm(y-2+100:y+2+100,x-2+100:x+2+100,1) = col(1);
                         PaddedIm(y-2+100:y+2+100,x-2+100:x+2+100,2) = col(2);
                         PaddedIm(y-2+100:y+2+100,x-2+100:x+2+100,3) = col(3);
-                        if trackstarts(CelN) == CurrentFrame || trackstarts(CelN) + TrackL == CurrentFrame
-                            PaddedIm(y-2+100:y+2+100,x+100,1) = col(1);
-                            PaddedIm(y-2+100:y+2+100,x+100,2) = col(2);
-                            PaddedIm(y-2+100:y+2+100,x+100,3) = col(3);
-                        end
                         
+               
+                    %and incomplete tracking here    
                     else
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,1) = col(1);
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,2) = col(2);
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,3) = col(3);
                         
+                        %if oktrajs is found a horizontal band is added
                         if CelN~=0 && ~isempty(find(oktrajs == TrajKey(trackstartX(CelN), trackstartY(CelN) ,trackstarts(CelN))))
                             PaddedIm(y+100,x-2+100:x+2+100,1) = col(1);
                             PaddedIm(y+100,x-2+100:x+2+100,2) = col(2);
                             PaddedIm(y+100,x-2+100:x+2+100,3) = col(3);
                         end
                         
+                        %if problem is only due to late start
+                        if CelN~=0
+                            final_frame_no = trackstarts(CelN) + TrackL
+                            movie_length = s(3)
+                            if final_frame_no == movie_length
+                                PaddedIm(y-2+100:y+2+100,x+100,1) = col(1);
+                                PaddedIm(y-2+100:y+2+100,x+100,2) = col(2);
+                                PaddedIm(y-2+100:y+2+100,x+100,3) = col(3);
+                        
+                            end
+                        end
                     end
                 end
             end
@@ -453,17 +464,6 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         end
     end
 
-
-
-
-
-
-
-OriginalFrame = [];
-
-    
-
-
     function Retrack()
         fprintf('Retracking!')
         tic
@@ -474,9 +474,7 @@ OriginalFrame = [];
         toc
 
     end
-
-
-   
+ 
     function RecalculateCellBoundaries()
         for ff = 1:s(3)
             cellBoundaries(:,:,ff) = filter2(fs,Clabel(:,:,ff)) >.5;
@@ -538,10 +536,5 @@ OriginalFrame = [];
         disp(' You can pan the view using the right mouse button');
     
     end
-
-
-  
-        
-      
 
 end
