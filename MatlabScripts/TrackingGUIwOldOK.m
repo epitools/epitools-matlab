@@ -145,26 +145,41 @@ OriginalFrame = [];
                
                     %and incomplete tracking here    
                     else
+                        %base is a 1px smaller cube
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,1) = col(1);
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,2) = col(2);
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,3) = col(3);
                         
-                        %if oktrajs is found a horizontal band is added
-                        if CelN~=0 && ~isempty(find(oktrajs == TrajKey(trackstartX(CelN), trackstartY(CelN) ,trackstarts(CelN))))
-                            PaddedIm(y+100,x-2+100:x+2+100,1) = col(1);
-                            PaddedIm(y+100,x-2+100:x+2+100,2) = col(2);
-                            PaddedIm(y+100,x-2+100:x+2+100,3) = col(3);
-                        end
-                        
-                        %if problem is only due to late start
                         if CelN~=0
-                            final_frame_no = trackstarts(CelN) + TrackL
-                            movie_length = s(3)
-                            if final_frame_no == movie_length
+                            %if track-problem is due to late start, e.g.
+                            %correctly tracked daughter cell, left pixel
+                            %is added
+                            first_frame_no = trackstarts(CelN);
+                            movie_start = 1;
+                            if first_frame_no ~= movie_start
+                                PaddedIm(y+100,x-2+100:x+100,1) = col(1);
+                                PaddedIm(y+100,x-2+100:x+100,2) = col(2);
+                                PaddedIm(y+100,x-2+100:x+100,3) = col(3);
+                            end
+                            
+                            %if track-problem is due to premature end, e.g.
+                            %eliminated cell, right pixel is added
+                            final_frame_no = trackstarts(CelN) + TrackL;
+                            movie_length = s(3);
+                            if final_frame_no ~= movie_length
+                                PaddedIm(y+100,x+100:x+2+100,1) = col(1);
+                                PaddedIm(y+100,x+100:x+2+100,2) = col(2);
+                                PaddedIm(y+100,x+100:x+2+100,3) = col(3);
+                            end
+                            
+                            %if trajectory key is found in oktrajs, 
+                            %a vertical band is added
+                            trajectory_key = TrajKey(...
+                                trackstartX(CelN), trackstartY(CelN) ,trackstarts(CelN)); 
+                            if ~isempty(find(oktrajs == trajectory_key, 1))
                                 PaddedIm(y-2+100:y+2+100,x+100,1) = col(1);
                                 PaddedIm(y-2+100:y+2+100,x+100,2) = col(2);
                                 PaddedIm(y-2+100:y+2+100,x+100,3) = col(3);
-                        
                             end
                         end
                     end
