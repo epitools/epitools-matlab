@@ -3,8 +3,8 @@
 %obtain current path location
 %source: http://books.google.ch/books?id=ELsZk3Ld2KcC&lpg=PA508&ots=ZmkN56k8pd&dq=MLEditorServices&hl=de&pg=PA508#v=onepage&q=MLEditorServices&f=false
 
-current_script_path = matlab.desktop.editor.getActive().Filename;
-fprintf('Current script location:%s\n',current_script_path);
+%current_script_path = matlab.desktop.editor.getActive().Filename;
+%fprintf('Current script location:%s\n',current_script_path);
 
 addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/MatlabScripts')
 %make sure matlab has access to this java file!
@@ -50,7 +50,7 @@ Series = 1;
 res = ReadMicroscopyData(FullDataFile, Series);
 
 %% Setup parameters for Projection
-fprintf('Started projection at %s',datestr(now));
+fprintf('Started projection at %s\n',datestr(now));
 
 %Paramaters
 SmoothingRadius = 1.;           % how much smoothing to apply to original data (1-5)
@@ -70,11 +70,11 @@ InspectResults = false;         % show fit or not
 
 Series = 1;
 
+%spawn matlab workers in case of parfor use (see below)
 %matlabpool 2
 d = 0;
 
-% For loop for all files in the folder (lst) and second parfor for all timepoints
-
+% Loop all files in the folder (lst) and for every image apply projection
 for i =1:length(lst)
     if isempty(strfind(lst(i).name,Filemask)); continue; end;
     FullDataFile = [DataDirec,'/',lst(i).name];
@@ -82,8 +82,8 @@ for i =1:length(lst)
     res.images = squeeze(res.images); % get rid of empty 
     fprintf('Working on %s\n', lst(i).name);
    
-    %information seems to not be transmitted correctly 10 time points
-    %appear to be presente while there are only 3, CHECK [ ] 
+    %parse all time points in the image, substitute with parfor in case
+    %of multiple time points
     for f = 1:res.NT 
         ImStack = res.images(:,:,:,f);
         [im,Surf] = createProjection(ImStack,SmoothingRadius,ProjectionDepthThreshold,SurfSmoothness1,SurfSmoothness2,InspectResults);
@@ -94,15 +94,16 @@ for i =1:length(lst)
     save([AnaDirec,'/ProjIm'],'ProjIm')
     save([AnaDirec,'/Surfaces'],'Surfaces')
 end
+
 % inspect results
 StackView(ProjIm);
 
 %matlabpool close
 
-fprintf('Finished projection at %s',datestr(now));
+fprintf('Finished projection at %s\n',datestr(now));
 
 %% REGISTRATION
-%matlabpool 2
+matlabpool 2
 
 RegIm = RegisterStack(ProjIm);
 
@@ -112,14 +113,14 @@ StackView(RegIm);
 %saving results
 save([AnaDirec,'/RegIm'],'RegIm');
 
-%matlabpool close
+matlabpool close
 
 
 %% CLAHE - Contrast-Limited Adaptive Histogram Equalization
 
 %help: http://www.mathworks.ch/ch/help/images/ref/adapthisteq.html
 
-fprintf('Started CLAHE at %s',datestr(now));
+fprintf('Started CLAHE at %s\n',datestr(now));
 
 %pre-allocate output
 RegIm_clahe = zeros(size(RegIm,1), size(RegIm,2), size(RegIm,3), 'double');
@@ -140,12 +141,16 @@ end
 
 StackView(RegIm_clahe);
 
-fprintf('Stopped CLAHE at %s',datestr(now));
+fprintf('Stopped CLAHE at %s\n',datestr(now));
+
+%% Save CLAHE results if good
+
+save([AnaDirec,'/RegIm_Clahe'],'RegIm_clahe');
 
 %% SEGMENTATION modified for clahe!
-fprintf('Started SEGMENTATION at %s',datestr(now));
+fprintf('Started SEGMENTATION at %s\n',datestr(now));
 
-%matlabpool 4
+matlabpool 4
 
 % Segmentation parameters:
 params.mincellsize=25;          % area of cell in pixels
@@ -169,9 +174,10 @@ params.Parallel  = true;
 
 [ILabels , CLabels , ColIms] = SegmentStack(RegIm_clahe, params);
 
-fprintf('Stopped SEGMENTATION at %s',datestr(now));
+fprintf('Stopped SEGMENTATION at %s\n',datestr(now));
 
-%StackView(ColIms)
+StackView(ColIms)
+
 
 %% If successful save RegIm_clahe as Regim and save 
 
@@ -188,12 +194,26 @@ matlabpool close
 
 %% Add elipse crop to avoid tracking false structures. (not needed for deconvolved images)
 
-%BW = GetEllipse(RegIm(:,:,1));
+BW = GetEllipse(RegIm(:,:,1));
 
-%alternative polygonal ROI
+%% alternative with polygonal ROI
+
 figure;
 imshow(RegIm(:,:,1),[]);
 BW = roipoly;
+
+%% icy version
+
+%initialize icy
+addpath('/Users/l48imac2/Documents/Userdata/Simon/icy/plugins/ylemontag/matlabcommunicator');
+icy_init();
+
+%open video frame and recover roi
+h_vid = icy_vidshow(RegIm)
+[mask, h_roi] = icy_roimask(h_vid);
+BW = mask;
+
+%% apply BW mask 
 
 CLabelsEll = zeros(size(RegIm));
 
