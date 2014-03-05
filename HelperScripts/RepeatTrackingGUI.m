@@ -48,13 +48,16 @@ output = ['ILabelsCorrected_',datestr(now,30)];
 
 [filename, pathname] = uigetfile('.mat','Select last tracking file');
 
-try
+%Removed comments in order to see whether licensing
+%error is the problem. Only solution seems to repeatedly
+%try to obtain the license. (image processing toolbox)
+%try
     %open last tracking file
     IL = load([pathname,filename]);
     fig = TrackingGUIwOldOK(RegIm,IL.ILabels,CLabels,ColIms,output,params,IL.oktrajs,IL.FramesToRegrow);
-catch
-    disp('no previous segmentation')
-end
+%catch
+%    disp('no previous segmentation')
+%end
 
 % wait for corrections to finish (ie after saving using 's')
 uiwait(fig);
