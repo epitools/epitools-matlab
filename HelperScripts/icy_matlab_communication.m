@@ -26,3 +26,7 @@ h_fig = icy_imshow(RegIm(:,:,1))
 
 %% 3.Visualize mask
 icy_imshow(mask)
+
+%% Repeat process for video
+h_vid = icy_vidshow(RegIm)
+[mask, h_roi] = icy_roimask(h_vid);
