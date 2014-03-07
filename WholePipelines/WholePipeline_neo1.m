@@ -299,8 +299,50 @@ if(params.Parallel)
     matlabpool close
 end
 
-% added version option to save ColIms as well /skipped otherwise, added 
+% added version option to save ColIms as well /skipped otherwise, added
+NX = size(RegIm,1);
+NY = size(RegIm,2);
+NT = size(RegIm,3);
+
 save([AnaDirec,'/SegResultsCorrected'], 'RegIm','ILabels', 'CLabels' ,'ColIms','params','NX','NY','NT','IL','-v7.3' );
+
+% Started SEGMENTATION at 07-Mar-2014 11:53:42
+% Stopped SEGMENTATION at 07-Mar-2014 13:03:51
+
+%% Inspect final results
+
+params.TrackingRadius = 15;
+output = 'tmp'
+fig = TrackingGUI(RegIm,ILabels,CLabels,ColIms,output,params);
+uiwait(fig);
+
+%% Final cut with icy 
+
+%initialize icy
+addpath('/Users/l48imac2/Documents/Userdata/Simon/icy/plugins/ylemontag/matlabcommunicator');
+icy_init();
+
+%open video frame and recover roi
+h_vid = icy_vidshow(CLabels)
+[mask, h_roi] = icy_roimask(h_vid);
+BW = mask;
+
+CLabelsEll = zeros(size(RegIm));
+
+for f = 1 : size(RegIm,3)
+    I1 = CLabels(:,:,f);
+    I1(BW < 1) = 0;
+    Ls = unique(I1);
+    
+    I2 = CLabels(:,:,f);
+    I2(~ismember(I2,Ls)) =0;
+    CLabelsEll(:,:,f) = I2;
+end
+
+icy_vidshow(CLabelsEll)
+
+%% Convert to Clabels if good
+CLabels = CLabelsEll;
 
 %% TESTING RESULTS SECTION / enhance for multiple correction procedure
 

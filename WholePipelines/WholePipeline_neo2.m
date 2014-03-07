@@ -320,7 +320,11 @@ if(params.Parallel)
     matlabpool close
 end
 
-% added version option to save ColIms as well /skipped otherwise, added 
+% added version option to save ColIms as well /skipped otherwise, added
+NX = size(RegIm,1);
+NY = size(RegIm,2);
+NT = size(RegIm,3);
+
 save([AnaDirec,'/SegResultsCorrected'], 'RegIm','ILabels', 'CLabels' ,'ColIms','params','NX','NY','NT','IL','-v7.3' );
 
 %% TESTING RESULTS SECTION / enhance for multiple correction procedure
