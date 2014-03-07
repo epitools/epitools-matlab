@@ -9,12 +9,20 @@
 addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/MatlabScripts')
 %make sure matlab has access to this java file!
 javaaddpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS/loci_tools.jar')
-addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS') 
+addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
+
+%% Activate ICY if desired (make sure icy is open at this point)
+
+addpath('/Users/l48imac2/Documents/Userdata/Simon/icy/plugins/ylemontag/matlabcommunicator');
+icy_init();
+
+% to open a single frame: icy_imshow(varName)
+% to open multiple frames: icy_vidshow(varName)
 
 %% READING ORIGINAL MICROSCOPY DATA
 
-BaseDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM';
-DataDirec = [BaseDirec,'/2/Neo2_huygens_output'];
+BaseDirec = '/Users/l48imac2/Documents/Userdata/Simon/marcmclones';
+DataDirec = [BaseDirec,'/0','/Huygens_output'];
 
 % create directory where to store results of analysis
 AnaDirec = [DataDirec,'/Analysis'];
@@ -102,7 +110,7 @@ StackView(ProjIm);
 
 fprintf('Finished projection at %s\n',datestr(now));
 
-%% REGISTRATION
+%% REGISTRATION (REMEMBER TO ACTIVATE MATLABPOOL IN MANAGE CLUSTER PROFILE!)
 matlabpool 2
 
 RegIm = RegisterStack(ProjIm);
@@ -306,7 +314,7 @@ uiwait(fig);
 params.Parallel = true; 
 
 if(params.Parallel)
-    matlabpool 3
+    matlabpool 2
 end
 
 fprintf('Started SEGMENTATION at %s\n',datestr(now));
@@ -320,11 +328,7 @@ if(params.Parallel)
     matlabpool close
 end
 
-% added version option to save ColIms as well /skipped otherwise, added
-NX = size(RegIm,1);
-NY = size(RegIm,2);
-NT = size(RegIm,3);
-
+% added version option to save ColIms as well /skipped otherwise, added 
 save([AnaDirec,'/SegResultsCorrected'], 'RegIm','ILabels', 'CLabels' ,'ColIms','params','NX','NY','NT','IL','-v7.3' );
 
 %% TESTING RESULTS SECTION / enhance for multiple correction procedure
