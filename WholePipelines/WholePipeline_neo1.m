@@ -269,6 +269,12 @@ end
 % wait for corrections to finish (ie after saving using 's')
 uiwait(fig);
 
+%% load data (only if working in new matlab session)
+
+load([AnaDirec,'/SegResults']);
+[filename, pathname] = uigetfile('.mat','Select last tracking file');
+
+output = [pathname, filename];
 
 %% now resegmenting the frames which need it!
 
@@ -279,7 +285,7 @@ uiwait(fig);
 params.Parallel = true; 
 
 if(params.Parallel)
-    matlabpool 2
+    matlabpool 3
 end
 
 fprintf('Started SEGMENTATION at %s\n',datestr(now));
