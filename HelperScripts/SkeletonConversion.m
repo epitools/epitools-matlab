@@ -8,18 +8,20 @@
 
 %% set and output input directory
 
+[filename, pathname] = uigetfile('.mat','Select segmentation file');
+
 %DataDirec = '[path to data]'
-DataDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/0/Test1Output';
+DataDirec = pathname;
 
 %OutputDirec = '[parent folder where to store skeletons]'
-OutputDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM/0/Test1Output/';
+OutputDirec = uigetdir(pathname,'Select where to create the skeleton output folder');
 
 %New directory in OutputDirec where to store the skeletons for each time point
 SkelDirec = [OutputDirec,'/skeletons'];
 mkdir(SkelDirec);
 
 %skeleton file name
-skeleton_name_pattern = '/Neo0_skeleton_';
+skeleton_name_pattern = inputdlg('Input skeleton pattern, e.g. neo0_skeleton_ :');
 
 %% load epitools data structure 
 
@@ -48,5 +50,5 @@ for i = 1:size(CLabels,3)
     time_point_str = num2str(i,'%03.f');
     
     %output skeleton as png image
-    imwrite(lblImg,strcat(SkelDirec,skeleton_name_pattern,time_point_str,'.png'));
+    imwrite(lblImg,strcat(SkelDirec,'/',skeleton_name_pattern{1},time_point_str,'.png'));
 end
