@@ -14,7 +14,7 @@ addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
 %% READING ORIGINAL MICROSCOPY DATA
 
 BaseDirec = '/Users/l48imac2/Documents/Userdata/Simon/decadGFP_103h_63XNE0_JHIII_20130912_84346 AM';
-DataDirec = [BaseDirec,'/2/Neo2_huygens_output/'];
+DataDirec = [BaseDirec,'/2/Neo2_huygens_output'];
 
 % create directory where to store results of analysis
 AnaDirec = [DataDirec,'/Analysis'];
@@ -306,7 +306,7 @@ uiwait(fig);
 params.Parallel = true; 
 
 if(params.Parallel)
-    matlabpool 2
+    matlabpool 3
 end
 
 fprintf('Started SEGMENTATION at %s\n',datestr(now));
