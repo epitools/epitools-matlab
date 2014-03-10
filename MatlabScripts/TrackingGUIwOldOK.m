@@ -122,6 +122,7 @@ OriginalFrame = [];
             PaddedIm = zeros(s(1)+200,s(2)+200,3);
             PaddedIm(100:99+s(1), 100:99+s(2),:) = squeeze(Irgb(:, :,:));
             
+            % 251 marks the threshold for a seed pixel! 
             [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
             for n =1:length(cpy)
                 y = cpy(n); x = cpx(n);
@@ -241,7 +242,8 @@ OriginalFrame = [];
         set(framenum,'String',CurrentFrame);
         drawnow 
     end
-
+    
+    %deletion of a point, intensity 25 is assigned
     function deletePt(x,y,Frame)
         Ilabel(y, x,Frame) = 25;
         Itracks(y,x,Frame) = 0;
@@ -267,29 +269,44 @@ OriginalFrame = [];
         k = 1000000*strt + 1000*cpx + cpy;
     end
 
+    % WBMFCN or WindowButtonMotionFunCtioN
+    % i.e. what happens for MOUSE events
     function wbmFcn(src,evt)
         pt = get(gca,'Currentpoint');
         pt = round([pt(1,1), pt(1,2)]);
         mouseuse  = get(gcf,'SelectionType');
         %PropsOfCell(pt)
         
+        %LEFT MOUSE BUTTON
         if strcmp(mouseuse ,'normal')
             NClicks = NClicks + 1;
             if zoommode
+                % Any modification requires the frame to be resegmented
                 if isempty(find(FramesToRegrow==CurrentFrame) )
                     FramesToRegrow(length(FramesToRegrow)+1) = CurrentFrame;
                 end
+                
+                % NORMAL ACTION, i.e. not delete mode
                 if ~delabelMode
+                    
                     if InspectPt && NeedToRetrack
                         Retrack();
                         NeedToRetrack = true;                        
                     end
+                    
+                    % find all known seeds
                     [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
                     OnASeed = false;
+                    
+                    % loop through all seeds
                     for n =1:length(cpy)
                         y = cpy(n); x = cpx(n);
+                        
+                        %check whether the user hit the seed square
                         if (y > pt(2)-3 + Cpt(1)-WindowSize && y < pt(2)+1 + Cpt(1)-WindowSize && x > pt(1)-3 + Cpt(2)-WindowSize && x < pt(1)+1 + Cpt(2)-WindowSize)
                             n = Itracks(y,x,CurrentFrame);
+                            
+                            % INSPECT
                             if InspectPt && n ~=0
                                 fprintf('Track starts at %i and finishes at %i \n',trackstarts(n),trackstarts(n)+tracklength(n));
                                 if trackstarts(n) ~= 1
@@ -300,12 +317,16 @@ OriginalFrame = [];
                                 end
                             end
                             
+                            % OK
                             if okeydown  && n ~=0 % mark this traj as ok even (delaminating cell or cell created during traj)
                                 oktrajs = [oktrajs , TrajKey(trackstartX(n),trackstartY(n),trackstarts(n))];
                             end
                             
+                            % REMOVE
                             if ~RemoveTrack 
                                 if ~InspectPt && ~okeydown deletePt(x,y,CurrentFrame); end
+                            
+                            % ADD-PARTICLE
                             else
                                 N = Itracks(y,x,CurrentFrame);
                                 Ilabel(Itracks==N) = 253;
@@ -359,6 +380,7 @@ OriginalFrame = [];
             end
         end
         
+        %RIGHT MOUSE BUTTON
         if strcmp(mouseuse ,'alt')
             if zoommode
                 [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
@@ -394,6 +416,7 @@ OriginalFrame = [];
         
         Update();
         
+        % CallBack funtions for NORMAL mode
         function wbmcb(src,evnt)
             cp = get(gca,'CurrentPoint');
             xdat = [xinit,cp(1,1)];
@@ -402,35 +425,39 @@ OriginalFrame = [];
             Cpt(2) = round(Cptinit(2)-cp(1,1)+xinit);
             Update();
         end
+        
         function wbucb(src,evnt)
             set(src,'Pointer','arrow')
             set(src,'WindowButtonMotionFcn','')
             set(src,'WindowButtonUpFcn','')
         end
         
+        % CallBack funtions for DELETE mode
         function wbmcbDel(src,evnt)
             cp = get(gca,'CurrentPoint');
             cp = round([cp(1,1), cp(1,2)]);
             deletePtsAround(cp)
             Update();
         end
+        
         function wbucbDel(src,evnt)
             set(src,'WindowButtonMotionFcn','')
             set(src,'WindowButtonUpFcn','')
         end
         
     end
-        
+    
+    % KEY PRESS FUNCTION
     function keyPrsFcn(src,evt)
         ch = get(gcf,'CurrentCharacter');
         switch ch
-            case {29}
+            case {29} %RIGHT ARROW
                 if CurrentFrame < size(Ilabel,2)
                     CurrentFrame = CurrentFrame+1;
                 end
                 set(slider,'Value', CurrentFrame);
                 Update();
-            case {28}
+            case {28} %LEFT ARROW
                 if CurrentFrame > 1
                     CurrentFrame = CurrentFrame-1;
                 end
@@ -439,11 +466,11 @@ OriginalFrame = [];
             case {'n'}
                 GotoNextProbPt();
                 Update();
-            case {' '}
+            case {' '} %SPACE BAR
                 zoommode = false;
                 Retrack();
                 Update();
-            case {'r'} % retrack!
+            case {'r'} 
                 Retrack();
                 Update();
             case {'s'}
@@ -501,53 +528,84 @@ OriginalFrame = [];
         disp('This GUI allows the user to see the tracks automatically build by');
         disp(' celltracking4.cc');
         disp(' celltracking4 is C code which needs to be compiled for matlab:');
+        
         fprintf('\n');
+        
         disp(' >>mex celltracking4.cc');
+        
         fprintf('\n');
+        
         disp(' The GUI show the seeds as given by ILabels');
         disp('              the boundaries as given by ColLabels');
         disp('              the registered images RegIm as background image');
+        
         fprintf('\n');
+        
         disp(' You can scroll through the time-trajectory using the scroll on the mouse');
         disp(' or the slider or the left/rigth arrows');
+        
         fprintf('\n');
+        
         disp(' You can zoom into the picure by right-clicking into it, you get out of');
         disp(' zoom-mode by pressing the <space> bar');
+        
         fprintf('\n');
+        
         disp(' In zomm-mode the trajectories which go all the was through the stack are');
         disp(' larger, the other are potential problems');
+        
         fprintf('\n');
+        
         disp(' You can delete a seed by clicking on it and place another one by clicking');
         disp(' in a free space. The algo will automatically recalculate the');
         disp(' trajectories.');
+        
         fprintf('\n');
+        
         disp(' by pressing ''i'' (for ''inspect'') before clicking on such a potential problem seed, the');
         disp(' software will take you to the timeframe where it thinks the problem is');
         disp(' (might be just after / before!)');
+        
         fprintf('\n');
+        
         disp(' by pressing ''o'' (for ''ok'') before clicking on such a potential problem seed you');
         disp(' indicate that you have checked this trajectory and altough it does not go');
         disp(' through the whole stack, it will not be flagged as a problem anymore');
         disp(' (could be due to a delamination or a cell division event)');
+        
         fprintf('\n');
+        
         disp(' You can toggle showing the segmentation on/off using ''h'' (for ''hide'')');
+        
         fprintf('\n');
+        
         disp(' if you click the ''final check'' button, you will only be shown the');
         disp(' remaining problem areas');
+        
         fprintf('\n');
+        
         disp(' pressing ''s'' (for ''save'') saves your new seeding into the file specified in ''output''');
+        
         fprintf('\n');
         fprintf('\n');
+       
         disp(' parameters');
+        
         disp(' TrackingRadius: the algo performs a search of the seeds in the next');
         disp(' frame, assigning those that are closest to their former position first');
         disp(' and progressively searching further up to the distance specified in TrackingRadius');
+       
         fprintf('\n');
+        
         disp(' ''t'' to delete an entire track');
+        
         fprintf('\n');
+       
         disp(' ''d'' to ''wipe'' out whole areas of seed, when you want to get rid of lots');
         disp(' of seeds');
+        
         fprintf('\n');
+       
         disp(' You can pan the view using the right mouse button');
     
     end
