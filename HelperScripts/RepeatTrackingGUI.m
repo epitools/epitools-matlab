@@ -61,3 +61,10 @@ output = ['ILabelsCorrected_',datestr(now,30)];
 
 % wait for corrections to finish (ie after saving using 's')
 uiwait(fig);
+
+%% Check if the new size exeeds the previous one!
+load(output);
+
+%% if yes reSize and reSave!
+ILabels = ILabels(1:NX,1:NY,:);
+save(output,'ILabels','FramesToRegrow','oktrajs');
