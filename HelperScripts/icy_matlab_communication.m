@@ -19,7 +19,7 @@ icy_vidshow(RegIm)
 %% Obtain roi sequence drawn on sequence
 
 %% 1.Open image and obtain handle
-h_fig = icy_imshow(RegIm(:,:,1))
+h_fig = icy_imshow(RegIm(:,:,1),'Image title')
 
 %% 2.Draw polyline roi in icy and then return the mask
 [mask, h_roi] = icy_roimask(h_fig);
