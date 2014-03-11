@@ -243,7 +243,8 @@ uiwait(fig);
 %matlab working directory [BACKUP if needed!]
 
 %% REPEAT tracking correction with manually specified file 
-% (skip or run as many times as needed)
+% (skip or run as many times as needed) - Use RepeatTrackingGUI.m if
+% possible!
 
 load([AnaDirec,'/SegResults']);
 
