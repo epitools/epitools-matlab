@@ -310,9 +310,13 @@ NT = size(RegIm,3);
 
 save([AnaDirec,'/SegResultsCorrected'], 'RegIm','ILabels', 'CLabels' ,'ColIms','params','NX','NY','NT','IL','-v7.3' );
 
+% First run with sigma3 = 2
 % Started SEGMENTATION at 07-Mar-2014 11:53:42
 % Stopped SEGMENTATION at 07-Mar-2014 13:03:51
 
+% Second run with sigma3 = 0.1
+% Started SEGMENTATION at 12-Mar-2014 10:58:50
+% Stopped SEGMENTATION at 12-Mar-2014 12:09:19
 %% Inspect final results
 
 params.TrackingRadius = 15;
