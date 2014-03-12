@@ -60,10 +60,3 @@ fig = TrackingGUIwOldOK(RegIm,IL.ILabels,CLabels,ColIms,output,params,IL.oktrajs
 
 % wait for corrections to finish (ie after saving using 's')
 uiwait(fig);
-
-%% Final Check if the new size exeeds the previous one!
-load(output);
-
-%% if yes reSize and reSave!
-ILabels = ILabels(1:NX,1:NY,:);
-save(output,'ILabels','FramesToRegrow','oktrajs');
