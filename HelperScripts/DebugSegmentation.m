@@ -1,5 +1,18 @@
 %% Segmentation debug
 
+%retrieve needed files from current script location
+%requires Matlab 7+
+current_script_path = matlab.desktop.editor.getActive().Filename;
+fprintf('Script location:%s\n',current_script_path);
+
+[file_path,file_name,file_ext] = fileparts(current_script_path);
+cd(file_path)
+
+addpath([fileparts(file_path),'/MatlabScripts'])
+%make sure matlab has access to this java file!
+javaaddpath([fileparts(file_path),'/OME_LOCI_TOOLS/loci_tools.jar'])
+addpath([fileparts(file_path),'/OME_LOCI_TOOLS']) 
+
 %% Setup icy
 
 addpath('/Users/davide/programs/icy_1.3.6.0_updated/plugins/ylemontag/matlabcommunicator');
@@ -8,7 +21,9 @@ icy_init();
 %% Load files
 
 %segmentation
-load([AnaDirec,'/SegResults']);
+[filename, pathname] = uigetfile('.mat','Select segmentation file');
+segmentation_file = [pathname,filename];
+load(segmentation_file);
 
 %tracking correction
 [filename, pathname] = uigetfile('.mat','Select last tracking file');
@@ -17,7 +32,7 @@ IL = load(output);
 
 %% Select frame
 
-frame_no = 4;
+frame_no = 9;
 
 im = double(RegIm(:,:,frame_no));
 labels = IL.ILabels(:,:,frame_no);
@@ -25,8 +40,8 @@ labels = IL.ILabels(:,:,frame_no);
 %% Crop window, keep in mind matlab (x,y) is (y,x) in icy
 
 % dividing cell in frame 4
-icy_x = 730:830;
-icy_y = 580:680;
+% icy_x = 730:830;
+% icy_y = 580:680;
 
 % dividing cell in frame 8
 % icy_x = 760:860;
@@ -35,6 +50,15 @@ icy_y = 580:680;
 % dividing cell in frame 8
 % icy_x = 450:550;
 % icy_y = 630:730;
+
+% dividing cell in frame 7
+% icy_x = 690:790;
+% icy_y = 410:510;
+
+% dividing cell in frame 9
+icy_x = 770:870;
+icy_y = 600:700;
+
 
 im = im(icy_y,icy_x,1);
 labels = labels(icy_y,icy_x,1);
