@@ -29,7 +29,7 @@ skeleton_name_pattern = inputdlg('Input skeleton pattern, e.g. neo0_skeleton_ :'
 %InputFile = [DataDirec, '/Analysis/SegResults'];
 
 %it 2
-InputFile = [DataDirec, '/Analysis/SegResultsCorrected'];
+InputFile = [DataDirec, 'SegResultsCorrected'];
 
 load(InputFile);
 
@@ -50,5 +50,6 @@ for i = 1:size(CLabels,3)
     time_point_str = num2str(i,'%03.f');
     
     %output skeleton as png image
-    imwrite(lblImg,strcat(SkelDirec,'/',skeleton_name_pattern{1},time_point_str,'.png'));
+    output_file_name = strcat('/',skeleton_name_pattern{1},time_point_str,'.png')
+    imwrite(lblImg,[SkelDirec,output_file_name]);
 end
