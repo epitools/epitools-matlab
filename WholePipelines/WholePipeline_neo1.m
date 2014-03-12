@@ -285,6 +285,9 @@ output = [pathname, filename];
 
 params.Parallel = true; 
 
+%for better segmentation results
+params.sigma3 = 0.1;
+
 if(params.Parallel)
     matlabpool 3
 end
