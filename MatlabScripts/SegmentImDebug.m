@@ -51,29 +51,36 @@ frame_no = int2str(params.frame_no);
 if ~GotStartingSeeds
     DoInitialSeeding();
     
-    if debug  icy_imshow(Ilabel(:,:,1)); input('press <enter> to continue','s');  end
+    if debug  icy_imshow(Ilabel(:,:,1), 'Initial seeding'); input('press <enter> to continue','s');  end
 
     MergeSeedsFromLabels(1)
-    if debug  icy_imshow(Ilabel(:,:,1)); input('press <enter> to continue','s');  end
+    if debug  icy_imshow(Ilabel(:,:,1), 'Merged seeds'); input('press <enter> to continue','s');  end
 end
 
 disp('Starting to grow seeds');
 GrowCellsInFrame(1)
-if debug CreateColorBoundaries(); icy_imshow(ColIm,['Frame ',frame_no,' - 1 - GrowCells(',num2str(sigma3,'%.2f'),')']);  end
-input('press <enter> to continue','s');
+if debug CreateColorBoundaries(); 
+    icy_imshow(ColIm,['Frame ',frame_no,' - 1 - GrowCells(',num2str(sigma3,'%.2f'),')']);
+    input('press <enter> to continue','s');
+end
 
 disp('Starting to delabel background');
 DelabelFlatBackground(1)
-if debug CreateColorBoundaries(); icy_imshow(ColIm,['Frame ',frame_no,' - 2 - Delabel Flat Background']);  end
+if debug CreateColorBoundaries(); 
+    icy_imshow(ColIm,['Frame ',frame_no,' - 2 - Delabel Flat Background']);  
+end
 
 disp('Starting to unlabel poor seeds');
 UnlabelPoorSeedsInFrame(1)
-if debug CreateColorBoundaries(); icy_imshow(ColIm,['Frame ',frame_no,' - 3 - Unlabel Poor Seeds (',int2str(IBoundMax),')']);  end
+if debug CreateColorBoundaries(); 
+    icy_imshow(ColIm,['Frame ',frame_no,' - 3 - Unlabel Poor Seeds (',int2str(IBoundMax),')']);  
+end
 
 disp('Starting to neutralise points without label');
 NeutralisePtsNotUnderLabelInFrame(1);
 CreateColorBoundaries()
-if debug  icy_imshow(ColIm,['Frame ',frame_no,' - 4 - Neutralise Points w/o label']);  end
+if debug  icy_imshow(ColIm,['Frame ',frame_no,' - 4 - Neutralise Points w/o label']);  
+end
 
 
 
@@ -254,7 +261,6 @@ if debug  icy_imshow(ColIm,['Frame ',frame_no,' - 4 - Neutralise Points w/o labe
             end
         end
         if debug  figure, hist(IBounds,100); input('press <enter> to continue','s');  end
-         figure, hist(IBounds,100);
     end
 
     function DelabelVeryLargeAreas(f)

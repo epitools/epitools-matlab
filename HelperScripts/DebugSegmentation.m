@@ -25,6 +25,7 @@ icy_init();
 segmentation_file = [pathname,filename];
 load(segmentation_file);
 
+%% if available tracking
 %tracking correction
 [filename, pathname] = uigetfile('.mat','Select last tracking file');
 output = [pathname, filename];
@@ -35,6 +36,13 @@ IL = load(output);
 frame_no = 9;
 
 im = double(RegIm(:,:,frame_no));
+
+%% or custom define
+
+frame_no = 1;
+im = OreR_30hAPF_aSRF_05_apical_ch00;
+
+%% if label information is available repeat
 labels = IL.ILabels(:,:,frame_no);
 
 %% Crop window, keep in mind matlab (x,y) is (y,x) in icy
@@ -66,7 +74,7 @@ labels = labels(icy_y,icy_x,1);
 %% Change parameters
 
 %initial seed parameters
-params.sigma1 = 1;
+params.sigma1 = 5;
 params.MergeCriteria = 0.35;
 params.mincellsize = 25;
 
@@ -88,12 +96,14 @@ params.frame_no = frame_no;
 %show debugging information
 is_debug = true;
 
-%Segmentation
+%% Segmentation (no previous tracking!)
+[Ilabel ,Clabel,ColIm] = SegmentImDebug(im,is_debug,params);
 
+%% if tracking information is available
 [Ilabel ,Clabel,ColIm] = SegmentImDebug(im,is_debug,params,labels);
 
 %% Repetive parameter testing (be shure to limit the code in this case)
 for sigma_i=linspace(0.1,1,10)
-    params.sigma3 = sigma_i;
-    [Ilabel ,Clabel,ColIm] = SegmentImDebug(im,is_debug,params,labels);
+    params.MergeCriteria = sigma_i;
+    [Ilabel ,Clabel,ColIm] = SegmentImDebug(im,is_debug,params);
 end
