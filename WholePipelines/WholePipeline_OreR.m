@@ -11,15 +11,11 @@ addpath([fileparts(file_path),'/OME_LOCI_TOOLS'])
 
 %% Load data
 
-[filename, pathname] = uigetfile('.mat','Select Input mat file');
+[filename, pathname] = uigetfile('.tif','Select Input Image [format: 8-bit single channel tif]');
 image_file = [pathname,filename];
-load(image_file);
+RegIm = imread(image_file);
 
-%% Rename the imported image in order to work with the original pipeline
-
-RegIm = OreR_30hAPF_aSRF_05_apical_ch00;
-
-%% Look at raw data
+%% Inspect loaded image
 
 figure;
 imshow(RegIm,[])
