@@ -297,7 +297,14 @@ end
 uiwait(fig);
 
 
-%% now resegmenting the frames which need it!
+%% load data (only if working in new matlab session)
+
+load([AnaDirec,'/SegResults']);
+[filename, pathname] = uigetfile('.mat','Select last tracking file');
+
+output = [pathname, filename];
+
+%% now resegmenting the frames which need it! Parameter definition
 
 %given the reduced amuont of of frames parallelization is manually set
 %as otherwise always all frames would be resegmented. Judge according
@@ -305,13 +312,19 @@ uiwait(fig);
 
 params.Parallel = true; 
 
+%for better segmentation results
+params.sigma3 = 0.1;
+
 if(params.Parallel)
     matlabpool 3
 end
 
+IL = load(output);
+
+%% Start segmentation
+
 fprintf('Started SEGMENTATION at %s\n',datestr(now));
 
-IL = load(output);
 [ILabels , CLabels , ColIms] = SegmentStack( RegIm , params , IL.ILabels ,CLabels, ColIms, IL.FramesToRegrow );
 
 fprintf('Stopped SEGMENTATION at %s\n',datestr(now));
@@ -326,6 +339,44 @@ NY = size(RegIm,2);
 NT = size(RegIm,3);
 
 save([AnaDirec,'/SegResultsCorrected'], 'RegIm','ILabels', 'CLabels' ,'ColIms','params','NX','NY','NT','IL','-v7.3' );
+
+% Started SEGMENTATION at 24-Apr-2014 17:44:55
+% Stopped SEGMENTATION at 24-Apr-2014 19:00:35
+
+%% Inspect final results
+
+params.TrackingRadius = 15;
+output = 'tmp'
+fig = TrackingGUI(RegIm,ILabels,CLabels,ColIms,output,params);
+uiwait(fig);
+
+%% Final cut with icy 
+
+%initialize icy
+addpath('/Users/l48imac2/Documents/Userdata/Simon/icy/plugins/ylemontag/matlabcommunicator');
+icy_init();
+
+%open video frame and recover roi
+h_vid = icy_vidshow(CLabels)
+[mask, h_roi] = icy_roimask(h_vid);
+BW = mask;
+
+CLabelsEll = zeros(size(RegIm));
+
+for f = 1 : size(RegIm,3)
+    I1 = CLabels(:,:,f);
+    I1(BW < 1) = 0;
+    Ls = unique(I1);
+    
+    I2 = CLabels(:,:,f);
+    I2(~ismember(I2,Ls)) =0;
+    CLabelsEll(:,:,f) = I2;
+end
+
+icy_vidshow(CLabelsEll)
+
+%% Convert to Clabels if good
+CLabels = CLabelsEll;
 
 %% TESTING RESULTS SECTION / enhance for multiple correction procedure
 
