@@ -1,15 +1,13 @@
 %% SETUP
 
-%obtain current path location
-%source: http://books.google.ch/books?id=ELsZk3Ld2KcC&lpg=PA508&ots=ZmkN56k8pd&dq=MLEditorServices&hl=de&pg=PA508#v=onepage&q=MLEditorServices&f=false
+current_script_path = matlab.desktop.editor.getActive().Filename;
+[file_path,file_name,file_ext] = fileparts(current_script_path);
+cd(file_path)
 
-%current_script_path = matlab.desktop.editor.getActive().Filename;
-%fprintf('Current script location:%s\n',current_script_path);
-
-addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/MatlabScripts')
-%make sure matlab has access to this java file!
-javaaddpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS/loci_tools.jar')
-addpath('/Users/l48imac2/Documents/Userdata/Simon/Epitools/OME_LOCI_TOOLS')
+% set epitool script location
+addpath([fileparts(file_path),'/MatlabScripts'])
+javaaddpath([fileparts(file_path),'/OME_LOCI_TOOLS/loci_tools.jar'])
+addpath([fileparts(file_path),'/OME_LOCI_TOOLS'])
 
 %% Activate ICY if desired (make sure icy is open at this point)
 
@@ -109,6 +107,26 @@ StackView(ProjIm);
 %matlabpool close
 
 fprintf('Finished projection at %s\n',datestr(now));
+
+%% Clone projection (code extract from createProjection)
+
+[filename, pathname] = uigetfile('.tif','Select Single Time Point Clone Image [format: 8-bit single channel tif]');
+image_file = [pathname,filename];
+clone_struct = ReadMicroscopyData(image_file, 1);
+clone_channel = clone_struct.images;
+clone_surface = Surfaces(:,:,1);
+
+%prepare output
+s_surface = size(clone_surface);
+clone_projection=zeros(s_surface(1),s_surface(2),'uint8');
+
+for y=1:s_surface(1),
+    for x=1:s_surface(2),
+           if (clone_surface(y,x) > 0)
+             clone_projection(y,x)=clone_channel(y,x,round(clone_surface(y,x)));
+            end
+    end
+end
 
 %% REGISTRATION (REMEMBER TO ACTIVATE MATLABPOOL IN MANAGE CLUSTER PROFILE!)
 matlabpool 2
