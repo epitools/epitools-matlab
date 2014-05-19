@@ -5,7 +5,9 @@ function Segmentation( DataSpecificsPath,params)
 load(DataSpecificsPath);
 load([AnaDirec,'/RegIm']);
 
-[ILabels , CLabels , ColIms] = SegmentStack(RegIm_clahe, params);
+im = RegIm(:,:,1);
+
+[Ilabel ,Clabel,ColIm] = SegmentIm(im,params.show,params);
 
 NX = size(RegIm,1);
 NY = size(RegIm,2);

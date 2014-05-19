@@ -8,12 +8,12 @@ dsp = InspectData('/Users/davide/data/neo/0/gui_trial');
  
 %% Surface Projection
 
-SmoothingRadius = 1.;           % how much smoothing to apply to original data (1-5)
+SmoothingRadius = 1.0;           % how much smoothing to apply to original data (1-5)
 SurfSmoothness1 = 30;           % 1st surface fitting, surface stiffness ~100
 SurfSmoothness2 = 20;           % 2nd surface fitting, stiffness ~50
 ProjectionDepthThreshold = 1.2; % how much up/down to gather data from surface
 
-Projection(dsp,1,30,20,1.2);
+Projection(dsp,SmoothingRadius,SurfSmoothness1,SurfSmoothness2,ProjectionDepthThreshold);
 
 %% Time Series Registration
 

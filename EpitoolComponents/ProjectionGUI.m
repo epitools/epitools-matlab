@@ -68,10 +68,25 @@ function updateAndGather(handles)
     updateLegends(handles,gathered_data);
 
 function gathered_data = gatherData(handles)
-    gathered_data.smoothing_radius = get(handles.smoothing_slider,'value');
-    gathered_data.surface_smoothness_1 = get(handles.surface1_slider,'value');
-    gathered_data.surface_smoothness_2 = get(handles.surface2_slider,'value');
-    gathered_data.projection_depth_threshold = get(handles.depth_slider,'value');
+    
+    params.mincellsize=25;  
+    params.mincellsize = get(handles.surface1_slider,'value');
+    params.sigma1=1;        
+    params.threshold = 25;
+
+    % Grow cells
+    params.sigma3=2;
+    params.LargeCellSizeThres = 3000;
+    params.MergeCriteria = 0.35;
+
+    % Final joining
+    params.IBoundMax = 30;         
+
+    % Performance Options (show=show_steps)
+    params.show = false;
+    params.Parallel  = true;
+
+    gathered_data = params;
     
 function updateLegends(handles,gd)
     caption = sprintf('Smoothing Radius = %.2f', gd.smoothing_radius);

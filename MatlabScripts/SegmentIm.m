@@ -247,7 +247,7 @@ if debug  figure; imshow(ColIm,[]);  end
             end
         end
         if debug  figure, hist(IBounds,100); input('press <enter> to continue','s');  end
-         figure, hist(IBounds,100);
+        if debug  figure, hist(IBounds,100); end
     end
 
     function DelabelVeryLargeAreas(f)

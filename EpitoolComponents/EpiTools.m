@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 19-May-2014 10:58:19
+% Last Modified by GUIDE v2.5 19-May-2014 14:10:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -158,11 +158,36 @@ end
 
 
 
-% --- Executes on button press in pushbutton5.
-function pushbutton5_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton5 (see GCBO)
+% --- Executes on button press in do_segmentation.
+function do_segmentation_Callback(hObject, eventdata, handles)
+% hObject    handle to do_segmentation (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+hMainGui = getappdata(0, 'hMainGui');
+data_specifics = getappdata(hMainGui,'data_specifics')
+
+if(~strcmp(data_specifics,'none'))
+    
+    load(data_specifics);
+    segmentation_file = [AnaDirec,'/SegResults'];
+    if(exist([segmentation_file,'.mat'],'file'))
+        do_overwrite = questdlg('Found previous result','GUI decision',...
+    'Open GUI anyway','Show Result','Show Result');
+        if(strcmp(do_overwrite,'Open GUI anyway'))
+            SegmentationGUI;
+        else
+            %load Clabels here
+            load(segmentation_file);
+            %load(segmentation_file);
+            %StackView(RegIm);
+        end
+    else
+        SegmentationGUI;
+    end
+else
+    fprintf('No Data Set configured\n');
+end
 
 
 % --- Executes on button press in pushbutton6.
@@ -208,3 +233,12 @@ if(~strcmp(data_specifics,'none'))
 else
     fprintf('No Data Set configured\n');
 end
+
+
+% --- Executes on button press in checkbox1.
+function checkbox1_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox1
