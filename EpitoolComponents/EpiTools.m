@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 16-May-2014 13:16:02
+% Last Modified by GUIDE v2.5 19-May-2014 10:58:19
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -106,21 +106,56 @@ hMainGui = getappdata(0, 'hMainGui');
 data_specifics = getappdata(hMainGui,'data_specifics')
 
 if(~strcmp(data_specifics,'none'))
-    ProjectionGUI;
+    
     %TODO check whether Proj is already present otherwise start Projection
     %with relative GUI
     load(data_specifics);
-    load([AnaDirec,'/ProjIm']);
-    StackView(ProjIm);
+    projection_file = [AnaDirec,'/ProjIm'];
+    if(exist([projection_file,'.mat'],'file'))
+        do_overwrite = questdlg('Found previous result','GUI decision',...
+    'Open GUI anyway','Show Result','Show Result');
+        if(strcmp(do_overwrite,'Open GUI anyway'))
+            ProjectionGUI;
+        else
+            load(projection_file);
+            StackView(ProjIm);
+        end
+    else
+        ProjectionGUI;
+    end
 else
     fprintf('No Data Set configured\n');
 end
 
-% --- Executes on button press in pushbutton3.
-function pushbutton3_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton3 (see GCBO)
+% --- Executes on button press in do_registration.
+function do_registration_Callback(hObject, eventdata, handles)
+% hObject    handle to do_registration (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+hMainGui = getappdata(0, 'hMainGui');
+data_specifics = getappdata(hMainGui,'data_specifics')
+
+if(~strcmp(data_specifics,'none'))
+    
+    load(data_specifics);
+    registration_file = [AnaDirec,'/RegIm'];
+    if(exist([registration_file,'.mat'],'file'))
+        do_overwrite = questdlg('Found previous result','GUI decision',...
+    'Open GUI anyway','Show Result','Show Result');
+        if(strcmp(do_overwrite,'Open GUI anyway'))
+            RegistrationGUI;
+        else
+            load(registration_file);
+            StackView(RegIm);
+        end
+    else
+        RegistrationGUI;
+    end
+else
+    fprintf('No Data Set configured\n');
+end
+
 
 
 % --- Executes on button press in pushbutton5.
@@ -142,3 +177,34 @@ function pushbutton7_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in enhance_contrast.
+function enhance_contrast_Callback(hObject, eventdata, handles)
+% hObject    handle to enhance_contrast (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+hMainGui = getappdata(0, 'hMainGui');
+data_specifics = getappdata(hMainGui,'data_specifics')
+
+if(~strcmp(data_specifics,'none'))
+    
+    load(data_specifics);
+    clahe_file = [AnaDirec,'/RegIm_woCLAHE'];
+    if(exist([clahe_file,'.mat'],'file'))
+        do_overwrite = questdlg('Found previous result','GUI decision',...
+    'Open GUI anyway','Show Result','Show Result');
+        if(strcmp(do_overwrite,'Open GUI anyway'))
+            ImproveContrastGUI;
+        else
+            registration_file = [AnaDirec,'/RegIm'];
+            load(registration_file);
+            StackView(RegIm);
+        end
+    else
+        ImproveContrastGUI;
+    end
+else
+    fprintf('No Data Set configured\n');
+end

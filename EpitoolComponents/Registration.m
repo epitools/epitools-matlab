@@ -5,7 +5,11 @@ load(DataSpecificsPath);
 
 load([AnaDirec,'/ProjIm']);
 
+progressbar('Registering images...');
+
 RegIm = RegisterStack(ProjIm);
+
+progressbar(1);
 
 % inspect results
 StackView(RegIm);
