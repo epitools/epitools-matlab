@@ -94,11 +94,12 @@ function run_trackingGUI_Callback(hObject, eventdata, handles)
 gatheredData = gatherData(handles);
 tracking_radius = gatheredData.tracking_radius;
 
-%TODO HARDCODE > load from mainGUI
 hMainGui = getappdata(0, 'hMainGui');
 data_specifics = getappdata(hMainGui,'data_specifics');
 
 TrackingLauncher(data_specifics, tracking_radius);
+
+%write back to the hMainGui, e.g. hMainGUI.tracking.tracking_radius
 
 
 % --- Executes on slider movement.

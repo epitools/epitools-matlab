@@ -103,7 +103,7 @@ function do_projection_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics')
+data_specifics = getappdata(hMainGui,'data_specifics');
 
 if(~strcmp(data_specifics,'none'))
     
@@ -134,7 +134,7 @@ function do_registration_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics')
+data_specifics = getappdata(hMainGui,'data_specifics');
 
 if(~strcmp(data_specifics,'none'))
     
@@ -165,7 +165,7 @@ function do_segmentation_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics')
+data_specifics = getappdata(hMainGui,'data_specifics');
 
 if(~strcmp(data_specifics,'none'))
     
@@ -197,7 +197,7 @@ function do_tracking_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics')
+data_specifics = getappdata(hMainGui,'data_specifics');
 
 if(~strcmp(data_specifics,'none'))
     load(data_specifics);
@@ -226,7 +226,7 @@ function enhance_contrast_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics')
+data_specifics = getappdata(hMainGui,'data_specifics');
 
 if(~strcmp(data_specifics,'none'))
     

@@ -78,5 +78,7 @@ function start_registration_Callback(hObject, eventdata, handles)
 % hObject    handle to start_registration (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-data_specs = '/Users/davide/data/neo/0/gui_trial/Analysis/DataSpecifics';
-Registration(data_specs);
+
+hMainGui = getappdata(0, 'hMainGui');
+data_specifics = getappdata(hMainGui,'data_specifics');
+Registration(data_specifics);

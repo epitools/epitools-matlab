@@ -303,5 +303,7 @@ function test_segmentation_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 gathered_data = gatherData(handles);
-data_specs = '/Users/davide/data/neo/0/gui_trial/Analysis/DataSpecifics';
-SegmentationTest(data_specs,gathered_data);
+
+hMainGui = getappdata(0, 'hMainGui');
+data_specifics = getappdata(hMainGui,'data_specifics');
+SegmentationTest(data_specifics,gathered_data);

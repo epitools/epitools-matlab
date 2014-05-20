@@ -119,8 +119,9 @@ enhancement_limit = gatheredData.enhancement_limit;
 
 %TODO HARDCODE > load from mainGUI
 uint_type = 16;
-data_specs = '/Users/davide/data/neo/0/gui_trial/Analysis/DataSpecifics';
-ImproveContrast(data_specs, uint_type, enhancement_limit);
+hMainGui = getappdata(0, 'hMainGui');
+data_specifics = getappdata(hMainGui,'data_specifics');
+ImproveContrast(data_specifics, uint_type, enhancement_limit);
 
 
 % --- Executes on slider movement.
