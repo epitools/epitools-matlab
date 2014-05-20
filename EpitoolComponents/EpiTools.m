@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 20-May-2014 11:09:29
+% Last Modified by GUIDE v2.5 20-May-2014 20:07:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -212,12 +212,32 @@ else
 end
 
 
-% --- Executes on button press in pushbutton7.
-function pushbutton7_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton7 (see GCBO)
+% --- Executes on button press in do_skeletonConversion.
+function do_skeletonConversion_Callback(hObject, eventdata, handles)
+% hObject    handle to do_skeletonConversion (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+data_specifics = getappdata(hMainGui,'data_specifics');
 
+if(~strcmp(data_specifics,'none'))
+    load(data_specifics);
+    skeleton_files = [AnaDirec,'/skeletons'];
+    if(exist(skeleton_files,'dir'))
+        default_string = 'Show location';
+        do_overwrite = questdlg('Found previous results','GUI decision',...
+    'Open GUI anyway',default_string,default_string);
+        if(strcmp(do_overwrite,default_string))
+            uigetdir(skeleton_files,'This is where the skeletons are');
+        else
+            SkeletonConversionGUI;
+        end
+    else
+        SkeletonConversionGUI
+    end
+else
+    fprintf('No Data Set configured\n');
+end
 
 % --- Executes on button press in enhance_contrast.
 function enhance_contrast_Callback(hObject, eventdata, handles)
