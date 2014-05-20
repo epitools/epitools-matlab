@@ -61,6 +61,19 @@ guidata(hObject, handles);
 % UIWAIT makes TrackingIntroGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+updateAndGather(handles);
+
+function updateAndGather(handles)
+    gathered_data = gatherData(handles);
+    updateLegends(handles,gathered_data);
+
+function gathered_data = gatherData(handles)
+    gathered_data.tracking_radius = get(handles.radius_slider,'value');
+    
+function updateLegends(handles,gd)
+    caption = sprintf('Radius limit = %.2f', gd.tracking_radius);
+    set(handles.radius_label, 'String', caption);
+
 
 % --- Outputs from this function are returned to the command line.
 function varargout = TrackingIntroGUI_OutputFcn(hObject, eventdata, handles) 
@@ -78,6 +91,14 @@ function run_trackingGUI_Callback(hObject, eventdata, handles)
 % hObject    handle to run_trackingGUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+gatheredData = gatherData(handles);
+tracking_radius = gatheredData.tracking_radius;
+
+%TODO HARDCODE > load from mainGUI
+hMainGui = getappdata(0, 'hMainGui');
+data_specifics = getappdata(hMainGui,'data_specifics');
+
+TrackingLauncher(data_specifics, tracking_radius);
 
 
 % --- Executes on slider movement.
@@ -88,7 +109,7 @@ function radius_slider_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
+updateAndGather(handles);
 
 % --- Executes during object creation, after setting all properties.
 function radius_slider_CreateFcn(hObject, eventdata, handles)
@@ -100,3 +121,6 @@ function radius_slider_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+default_tracking_radius = 15;
+set(hObject,'value',default_tracking_radius);
