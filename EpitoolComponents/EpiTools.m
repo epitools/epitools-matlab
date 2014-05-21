@@ -292,46 +292,32 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     icy_is_loaded = getappdata(hMainGui,'icy_is_loaded');
     icy_is_used =   getappdata(hMainGui,'icy_is_used');
     
+    %Check icy path specification
     if(strcmp(icy_path,'none'))
-        %if no icy path was found the user should specify it
-        %TODO could be a one time setup action (store in startup.m or
-        %similar)
-        
+        %user specification if none defined
         icy_path = uigetdir('~/','Please locate /path/to/Icy/plugins/ylemontag/matlabcommunicator');
-        if(icy_path ~= 0)
-            addpath(icy_path);
-            %check path correctness, does a icy_init function exist
-            if(exist('icy_init') == 2)
-                fprintf('Successfully detected ICY at:%s\n',icy_path);
-                %initialize one time
-                icy_init();
-                
-                %set flags
-                icy_is_used = 1;
-                icy_is_loaded = 1;
-            else
-                fprintf('No icy matlab instance found at:%s\n',icy_path);
-                icy_path = 'none';
-            end
-        end
-    else
-        %icy path was found but might be not loaded
-        if(~icy_is_loaded)
-            addpath(icy_path);
-            if(exist('icy_init') ~= 2)
-                fprintf('ERROR, current icy path is not valid: %s\n',icy_path);
-                icy_path = 'none';
-            else
-                icy_init();
-                %set flags
-                icy_is_used = 1;
-                icy_is_loaded = 1;
-            end
-        else
-            icy_is_used = 1;
+        if(icy_path == 0) %user cancel
+            icy_path = 'none';
         end
     end
+
+    %Check if icy is already loaded
+    if(~icy_is_loaded)
+        if(exist([icy_path,'/icy_init.m'],'file'))
+            fprintf('Successfully detected ICY at:%s\n',icy_path);
+            addpath(icy_path);
+            icy_init();
+            icy_is_used = 1;
+            icy_is_loaded = 1;
+        else
+            fprintf('ERROR, current icy path is not valid: %s\n',icy_path);
+            icy_path = 'none';
+        end
+    else
+        icy_is_used = 1;
+    end
     
+    %Check if icy is used
     if(icy_is_used ~= 1) 
         %do not check if icy_path was not set
         set(hObject,'Value',get(hObject,'Min'));
@@ -346,10 +332,6 @@ else
     %checkbox is deselected
     setappdata(hMainGui,'icy_is_used',0);
 end
-
-icy_path =      getappdata(hMainGui,'icy_path')
-icy_is_loaded = getappdata(hMainGui,'icy_is_loaded')
-icy_is_used =   getappdata(hMainGui,'icy_is_used')
 
 
 % --- Executes during object creation, after setting all properties.
