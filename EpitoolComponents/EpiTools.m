@@ -108,6 +108,7 @@ function do_projection_Callback(hObject, eventdata, handles)
 
 hMainGui = getappdata(0, 'hMainGui');
 data_specifics = getappdata(hMainGui,'data_specifics');
+icy_is_used = getappdata(hMainGui,'icy_is_used')
 
 if(~strcmp(data_specifics,'none'))
     
@@ -122,7 +123,15 @@ if(~strcmp(data_specifics,'none'))
             ProjectionGUI;
         else
             load(projection_file);
-            StackView(ProjIm);
+            if(icy_is_used)
+                try
+                icy_vidshow(ProjIm,'Projected data');
+                catch
+                    errordlg('No icy instance found! Please open icy','No icy error');
+                end
+            else
+                StackView(ProjIm);
+            end
         end
     else
         ProjectionGUI;
@@ -292,7 +301,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     icy_is_loaded = getappdata(hMainGui,'icy_is_loaded');
     icy_is_used =   getappdata(hMainGui,'icy_is_used');
     
-    %Check icy path specification
+    %Check if icy's path was specified
     if(strcmp(icy_path,'none'))
         %user specification if none defined
         icy_path = uigetdir('~/','Please locate /path/to/Icy/plugins/ylemontag/matlabcommunicator');
@@ -301,7 +310,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
         end
     end
 
-    %Check if icy is already loaded
+    %Check if icy functions are already loaded
     if(~icy_is_loaded)
         if(exist([icy_path,'/icy_init.m'],'file'))
             fprintf('Successfully detected ICY at:%s\n',icy_path);
