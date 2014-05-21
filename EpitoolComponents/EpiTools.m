@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 20-May-2014 20:07:42
+% Last Modified by GUIDE v2.5 21-May-2014 15:32:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -63,8 +63,12 @@ LoadEpiTools();
 % UIWAIT makes EpiTools wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+%set up app-data
 setappdata(0  , 'hMainGui'    , gcf);
 setappdata(gcf, 'data_specifics', 'none');
+setappdata(gcf, 'icy_is_used', 0);
+setappdata(gcf, 'icy_is_loaded', 0);
+setappdata(gcf, 'icy_path', 'none');
 
 
 % --- Outputs from this function are returned to the command line.
@@ -270,10 +274,86 @@ else
 end
 
 
-% --- Executes on button press in checkbox1.
-function checkbox1_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox1 (see GCBO)
+% --- Executes on button press in use_icy_checkbox.
+function use_icy_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to use_icy_checkbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of checkbox1
+% Hint: get(hObject,'Value') returns toggle state of use_icy_checkbox
+
+hMainGui = getappdata(0, 'hMainGui');
+
+if (get(hObject,'Value') == get(hObject,'Max'))
+    %only enter when tick is activated
+    
+    %get app data
+    icy_path =      getappdata(hMainGui,'icy_path');
+    icy_is_loaded = getappdata(hMainGui,'icy_is_loaded');
+    icy_is_used =   getappdata(hMainGui,'icy_is_used');
+    
+    if(strcmp(icy_path,'none'))
+        %if no icy path was found the user should specify it
+        %TODO could be a one time setup action (store in startup.m or
+        %similar)
+        
+        icy_path = uigetdir('~/','Please locate /path/to/Icy/plugins/ylemontag/matlabcommunicator');
+        if(icy_path ~= 0)
+            addpath(icy_path);
+            %check path correctness, does a icy_init function exist
+            if(exist('icy_init') == 2)
+                fprintf('Successfully detected ICY at:%s\n',icy_path);
+                %initialize one time
+                icy_init();
+                
+                %set flags
+                icy_is_used = 1;
+                icy_is_loaded = 1;
+            else
+                fprintf('No icy matlab instance found at:%s\n',icy_path);
+                icy_path = 'none';
+            end
+        end
+    else
+        %icy path was found but might be not loaded
+        if(~icy_is_loaded)
+            addpath(icy_path);
+            if(exist('icy_init') ~= 2)
+                fprintf('ERROR, current icy path is not valid: %s\n',icy_path);
+                icy_path = 'none';
+            else
+                icy_init();
+                %set flags
+                icy_is_used = 1;
+                icy_is_loaded = 1;
+            end
+        else
+            icy_is_used = 1;
+        end
+    end
+    
+    if(icy_is_used ~= 1) 
+        %do not check if icy_path was not set
+        set(hObject,'Value',get(hObject,'Min'));
+    end
+    
+    %set app data
+    setappdata(hMainGui,'icy_path',icy_path);
+    setappdata(hMainGui,'icy_is_loaded',icy_is_loaded);
+    setappdata(hMainGui,'icy_is_used',icy_is_used);
+    
+else
+    %checkbox is deselected
+    setappdata(hMainGui,'icy_is_used',0);
+end
+
+icy_path =      getappdata(hMainGui,'icy_path')
+icy_is_loaded = getappdata(hMainGui,'icy_is_loaded')
+icy_is_used =   getappdata(hMainGui,'icy_is_used')
+
+
+% --- Executes during object creation, after setting all properties.
+function use_icy_checkbox_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to use_icy_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
