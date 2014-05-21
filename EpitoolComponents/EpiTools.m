@@ -108,7 +108,7 @@ function do_projection_Callback(hObject, eventdata, handles)
 
 hMainGui = getappdata(0, 'hMainGui');
 data_specifics = getappdata(hMainGui,'data_specifics');
-icy_is_used = getappdata(hMainGui,'icy_is_used')
+icy_is_used = getappdata(hMainGui,'icy_is_used');
 
 if(~strcmp(data_specifics,'none'))
     
@@ -137,7 +137,7 @@ if(~strcmp(data_specifics,'none'))
         ProjectionGUI;
     end
 else
-    fprintf('No Data Set configured\n');
+    helpdlg('Please select your Data Set first','No Data Set found');
 end
 
 % --- Executes on button press in do_registration.
@@ -166,7 +166,7 @@ if(~strcmp(data_specifics,'none'))
         RegistrationGUI;
     end
 else
-    fprintf('No Data Set configured\n');
+    helpdlg('Please select your Data Set first','No Data Set found');
 end
 
 
@@ -199,7 +199,7 @@ if(~strcmp(data_specifics,'none'))
         SegmentationGUI;
     end
 else
-    fprintf('No Data Set configured\n');
+    helpdlg('Please select your Data Set first','No Data Set found');
 end
 
 
@@ -221,7 +221,7 @@ if(~strcmp(data_specifics,'none'))
         fprintf('No Segmentation Results founde\n');
     end
 else
-    fprintf('No Data Set configured\n');
+    helpdlg('Please select your Data Set first','No Data Set found');
 end
 
 
@@ -249,7 +249,7 @@ if(~strcmp(data_specifics,'none'))
         SkeletonConversionGUI
     end
 else
-    fprintf('No Data Set configured\n');
+    helpdlg('Please select your Data Set first','No Data Set found');
 end
 
 % --- Executes on button press in enhance_contrast.
@@ -279,7 +279,7 @@ if(~strcmp(data_specifics,'none'))
         ImproveContrastGUI;
     end
 else
-    fprintf('No Data Set configured\n');
+    helpdlg('Please select your Data Set first','No Data Set found');
 end
 
 
