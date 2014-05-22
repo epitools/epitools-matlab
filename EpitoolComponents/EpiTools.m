@@ -218,7 +218,7 @@ if(~strcmp(data_specifics,'none'))
     if(exist([segmentation_file,'.mat'],'file'))
         TrackingIntroGUI;
     else
-        fprintf('No Segmentation Results founde\n');
+        errordlg('Please run the Segmentation first','No Segmentation Results found');
     end
 else
     helpdlg('Please select your Data Set first','No Data Set found');
@@ -246,7 +246,12 @@ if(~strcmp(data_specifics,'none'))
             SkeletonConversionGUI;
         end
     else
-        SkeletonConversionGUI
+        segmentation_file = [AnaDirec,'/SegResults'];
+        if(exist([segmentation_file,'.mat'],'file'))
+            SkeletonConversionGUI;
+        else
+            errordlg('Please run the Segmentation first','No Segmentation Results found');
+        end
     end
 else
     helpdlg('Please select your Data Set first','No Data Set found');
