@@ -44,10 +44,11 @@ for i =1:length(lst)
         Surfaces(:,:,f+d) = Surf;
     end
     d=d+res.NT;
-    save([AnaDirec,'/ProjIm'],'ProjIm')
-    save([AnaDirec,'/Surfaces'],'Surfaces')
     progressbar(i/length(lst));
 end
+
+save([AnaDirec,'/ProjIm'],'ProjIm')
+save([AnaDirec,'/Surfaces'],'Surfaces')
 
 progressbar(1);
 fprintf('Finished projection at %s',datestr(now));
