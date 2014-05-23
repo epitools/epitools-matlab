@@ -1,4 +1,4 @@
-function Registration(DataSpecificsPath)
+function Registration(DataSpecificsPath, params)
 %Registration Registers image sequence in Time to correct for sample movement
 %   DataSpecificsPath - Path Data to analyze (See InspectData function)
 load(DataSpecificsPath);
@@ -12,7 +12,9 @@ RegIm = RegisterStack(ProjIm);
 progressbar(1);
 
 % inspect results
-StackView(RegIm);
+if params.InspectResults
+    StackView(RegIm);
+end
 
 %saving results
 save([AnaDirec,'/RegIm'],'RegIm');
