@@ -47,7 +47,9 @@ save([AnaDirec,'/Surfaces'],'Surfaces')
 progressbar(1);
 fprintf('Finished projection at %s',datestr(now));
 
-StackView(ProjIm);
+if params.InspectResults
+    StackView(ProjIm);
+end
 
 end
 
