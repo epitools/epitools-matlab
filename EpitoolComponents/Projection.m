@@ -42,9 +42,9 @@ for i =1:length(lst)
         [im,Surf] = createProjection(ImStack,SmoothingRadius,ProjectionDepthThreshold,SurfSmoothness1,SurfSmoothness2,InspectResults);
         ProjIm(:,:,f+d) = im;
         Surfaces(:,:,f+d) = Surf;
+        progressbar(((i-1)*res.NT+f)/length(lst)/res.NT);
     end
     d=d+res.NT;
-    progressbar(i/length(lst));
 end
 
 save([AnaDirec,'/ProjIm'],'ProjIm')

@@ -5,9 +5,16 @@ function Segmentation( DataSpecificsPath,params)
 load(DataSpecificsPath);
 load([AnaDirec,'/RegIm']);
 
-im = RegIm(:,:,1);
+if params.SingleFrame
+    %todo: SegmentStack should be able to handle single frames
+    im = RegIm(:,:,1);
+    [Ilabel ,Clabel,ColIm] = SegmentIm(im,params.show,params);
+    figure; imshow(ColIm);
+    return
+else
+    [ILabels ,CLabels,ColIms] = SegmentStack(RegIm,params);
+end
 
-[Ilabel ,Clabel,ColIm] = SegmentIm(im,params.show,params);
 
 NX = size(RegIm,1);
 NY = size(RegIm,2);
