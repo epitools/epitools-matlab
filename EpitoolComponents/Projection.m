@@ -1,5 +1,5 @@
-function Projection(DataSpecificsPath,...
-    SmoothingRadius,SurfSmoothness1,SurfSmoothness2,ProjectionDepthThreshold)
+function Projection(DataSpecificsPath,params)
+
 %SurfaceProjection Discover the surface of the highest intensity signal in
 %the image stack and selectively project the signal lying on that surface
 %
@@ -15,15 +15,9 @@ progressbar('Projecting images...');
 load(DataSpecificsPath);
 res = ReadMicroscopyData(FullDataFile, Series);
 
-%Number of time points to be analyzed
-NT = res.NT;
+Surfaces = zeros(res.NY,res.NX,res.NT);
+ProjIm = zeros(res.NY,res.NX,res.NT);
 
-Surfaces = zeros(res.NY,res.NX,NT);
-ProjIm = zeros(res.NY,res.NX,NT);
-
-InspectResults = false;         % show fit or not
-
-%matlabpool 2
 d = 0;
 
 % For loop for all files in the folder (lst) and second parfor for all timepoints
@@ -39,7 +33,7 @@ for i =1:length(lst)
     %appear to be presente while there are only 3, CHECK [ ] 
     for f = 1:res.NT 
         ImStack = res.images(:,:,:,f);
-        [im,Surf] = createProjection(ImStack,SmoothingRadius,ProjectionDepthThreshold,SurfSmoothness1,SurfSmoothness2,InspectResults);
+        [im,Surf] = createProjection(ImStack,params.SmoothingRadius,params.ProjectionDepthThreshold,params.SurfSmoothness1,params.SurfSmoothness2,params.InspectResults);
         ProjIm(:,:,f+d) = im;
         Surfaces(:,:,f+d) = Surf;
         progressbar(((i-1)*res.NT+f)/length(lst)/res.NT);
