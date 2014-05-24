@@ -79,6 +79,9 @@ function start_registration_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+params.InspectResults = true;         % show fit or not
+params.Parallel = false;               % Use parallelisation?
+
 hMainGui = getappdata(0, 'hMainGui');
 data_specifics = getappdata(hMainGui,'data_specifics');
-Registration(data_specifics);
+Registration(data_specifics,params);

@@ -205,11 +205,10 @@ function start_projection_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-gathered_data = gatherData(handles)
+params = gatherData(handles)
+params.InspectResults = true;         % show fit or not
+params.Parallel = true;               % Use parallelisation?
+
 hMainGui = getappdata(0, 'hMainGui');
 data_specifics = getappdata(hMainGui,'data_specifics');
-Projection(data_specifics,...
-    gathered_data.smoothing_radius,...
-    gathered_data.surface_smoothness_1,...
-    gathered_data.surface_smoothness_2,...
-    gathered_data.projection_depth_threshold);
+Projection(data_specifics,params);

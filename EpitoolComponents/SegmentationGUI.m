@@ -125,6 +125,13 @@ function run_segmentation_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+gathered_data = gatherData(handles);
+gathered_data.SingleFrame = false;
+
+hMainGui = getappdata(0, 'hMainGui');
+data_specifics = getappdata(hMainGui,'data_specifics');
+Segmentation(data_specifics,gathered_data);
+
 
 % --- Executes on slider movement.
 function min_cell_slider_Callback(hObject, eventdata, handles)
@@ -303,7 +310,8 @@ function test_segmentation_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 gathered_data = gatherData(handles);
+gathered_data.SingleFrame = true;
 
 hMainGui = getappdata(0, 'hMainGui');
 data_specifics = getappdata(hMainGui,'data_specifics');
-SegmentationTest(data_specifics,gathered_data);
+Segmentation(data_specifics,gathered_data);

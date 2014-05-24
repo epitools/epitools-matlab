@@ -190,10 +190,10 @@ if(~strcmp(data_specifics,'none'))
         if(strcmp(do_overwrite,'Open GUI anyway'))
             SegmentationGUI;
         else
-            %load Clabels here
+            progressbar('Loading Segmentation file...');
             load(segmentation_file);
-            %load(segmentation_file);
-            %StackView(RegIm);
+            progressbar(1);
+            StackView(ColIms);
         end
     else
         SegmentationGUI;
