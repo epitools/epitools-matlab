@@ -1,7 +1,8 @@
 function RegIm = RegisterStack(ImSeries, params)
 % Registration of the images in the stacks
 % the process uses 2 steps: one coarse and one fine
-%
+% params.SkipFirstRegStep:  a flag for small images when big movements
+%                           don't make sense
 
 if nargin == 1
     params.SkipFirstRegStep = false;
