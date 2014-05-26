@@ -148,38 +148,38 @@ if show  figure; imshow(ColIm,[]);  end
 
     function UnlabelPoorSeedsInFrame()
         L = CellLabels;
-        Il = CellSeeds;
         f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
-        F = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
-        Clist = unique(L);
-        Clist = Clist(Clist~=0);
-        R = [];
+        smoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        labelList = unique(L);
+        labelList = labelList(labelList~=0);
         IBounds = [];
-        for c = 1:length(Clist)
-            mask = L==Clist(c);
+        for c = 1:length(labelList)
+            mask = L==labelList(c);
             [cpy cpx]=find(mask > 0);
+            % find region of that label
             minx = min(cpx); maxx = max(cpx);
             miny = min(cpy); maxy = max(cpy);
             minx = max(minx-5,1); miny = max(miny-5,1);
             maxx = min(maxx+5,ImSize(2)); maxy = min(maxy+5,ImSize(1));
-            m1 = mask(miny:maxy, minx:maxx);
-            F1 = F(miny:maxy, minx:maxx);
-            Di = imdilate(m1, se);
-            Er = imerode(m1, se);
-            Fr = Di - Er;
-            IFr = F1(Fr>0);
-            H = F1(Fr>0);
-            IEr = F1(Er>0);
-            IBound = mean(IFr);
+            % reduced to region
+            reducedMask = mask(miny:maxy, minx:maxx);
+            reducedIm = smoothedIm(miny:maxy, minx:maxx);
+            dilatedMask = imdilate(reducedMask, se);
+            erodedMask = imerode(reducedMask, se);
+            boundaryMask = dilatedMask - erodedMask;
+            boundaryIntensities = reducedIm(boundaryMask>0);
+            H = reducedIm(boundaryMask>0);
+            IEr = reducedIm(erodedMask>0);
+            IBound = mean(boundaryIntensities);
             
-            F2 = Il;
+            F2 = CellSeeds;
             F2(~mask) = 0;
             [cpy cpx]=find(F2 > 252);
-            ICentre = F(cpy , cpx);
+            ICentre = smoothedIm(cpy , cpx);
             
             if ( IBound < IBoundMax && IBound/ICentre < 1.2 ) ...
                     || IBound < IBoundMax *25./30. ...
-                    || min(IFr)==0 ...
+                    || min(boundaryIntensities)==0 ...
                     || sum(H<20)/length(H) > 0.1
                 CellLabels = CellLabels.*uint16(mask==0);
             end
@@ -220,8 +220,6 @@ if show  figure; imshow(ColIm,[]);  end
         
         labelList = unique(CellLabels);
         labelList = labelList(labelList~=0);
-        R = [];
-        IBs = []; Bratios = []; Bratios2 = [];Bratios3 = [];
         c = 1;
         while 1==1          % loop over labels
             labelMask = CellLabels==labelList(c);
@@ -247,81 +245,41 @@ if show  figure; imshow(ColIm,[]);  end
             F2(~labelMask) = 0;
             [cpy cpx]=find(F2 > 253);
             ICentre = smoothedIm(cpy , cpx);
-            try
-            ICentre2 = mean(mean(smoothedIm(max(cpy-1,1):cpy+1 , max(cpx-1,1):cpx+1)));
-            catch
-                fprintf('-'); 
-                c = c+1;  if c > length(labelList); break;  end
-                continue
-            end
-            
+                        
             stdB = std(double(centralIntensity));
-            try
-                sbck = sum(borderIntensities < ICentre+stdB);
-            catch
-                fprintf('+')
-                continue
-            end
-
-            sbound = sum(borderIntensities > ICentre+stdB);
-            ratio = sbck/sbound;
-            R = [R ratio];
             
             % get labels of surrounding cells
-            neighLabels = unique(reducedLabels( dilatedMask > 0 ));
-            neighLabels = neighLabels(neighLabels~=label);
+            neighbourLabels = unique(reducedLabels( dilatedMask > 0 ));
+            neighbourLabels = neighbourLabels(neighbourLabels~=label);
             
-            
-            Bs = [];
             R3s = [];
-            Bounds = {};
-            for i = 1:size(neighLabels)
-                ll = neighLabels(i);
+            for i = 1:size(neighbourLabels)
+                neighbLabel = neighbourLabels(i);
                 B = dilatedMask;
-                B(reducedLabels~=ll)=0;
-                B2 = imdilate(B,se);
-                B3 = B2;
-                B3(reducedLabels~=label) = 0;
-                B3 = (B3 + B) > 0;
+                B(reducedLabels~=neighbLabel)=0;  % slice of neighbour around cell
+                B3 = imdilate(B,se);
+                B3(reducedLabels~=label) = 0;       %slice of cell closest to neighbour
+                B3 = (B3 + B) > 0;                  % combination of both creating boundary region
                 B4 = reducedIm;
-                B4(~B3) = 0;
-                IB = mean(B4(:));
-                Bratio2 = IB/ICentre2;
-                
+                B4(~B3) = 0;                    % intensities at boundary
+                % average nber of points in boundary where int is dodgy/low:
                 R3 = sum(B4(B3) < ICentre+stdB/2.)/size(B4(B3),1);
-                
-                IBs = [IBs IB];
-                Bratios2 = [Bratios2 Bratio2];
-                Bratios3 = [Bratios3 R3];
-                Bs = [Bs IB/ICentre2];
                 R3s = [R3s R3];
-                Bounds{i} = B3;
             end
-            [Br1,mC] = min(Bs);
-            
-            R2 = Br1/mean(Bs(Bs~=mC));
-            Bratios = [Bratios R2];
-            
+                        
             [Br2,mC] = max(R3s);
-            ll = neighLabels(mC);
+            neighbLabel = neighbourLabels(mC);
             
-
-              
-            if Br2 > params.MergeCriteria && label~=0 && ll~=0              % better criteria is proportion of boundary which is 'background' using above criteria
+            if Br2 > params.MergeCriteria && label~=0 && neighbLabel~=0              
                 fprintf('.');
-                MergeLabels(label,ll);
-                CellSeeds = CellSeeds(:,:);
+                MergeLabels(label,neighbLabel);
                 labelList = unique(CellLabels);
                 labelList = labelList(labelList~=0);
-                c = c-1;
+                c = c-1;        % make it recursive!
             end
             
-            
-
-           c = c+1;
-           if c > length(labelList)
-               break
-           end
+            c = c+1;
+            if c > length(labelList)  break;     end
         end
         fprintf('\n');
     end
