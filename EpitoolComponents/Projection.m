@@ -14,6 +14,8 @@ progressbar('Projecting images...');
 
 load(DataSpecificsPath);
 res = ReadMicroscopyData(FullDataFile, Series);
+% todo: need to convert to int8 in a rational way here!
+% can use 95 or 99% quantile of the data and then scale
 
 Surfaces = zeros(res.NY,res.NX,res.NT);
 ProjIm = zeros(res.NY,res.NX,res.NT);
