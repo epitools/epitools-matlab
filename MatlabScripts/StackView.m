@@ -87,7 +87,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         switch size(s,2)
             case 3
                 im = Is(:,:,i);
-                q = quantile(im(:),[.001 .999]);
+                q = quantile(single(im(:)),[.001 .999]);
                 im(im<q(1))=q(1);
 %                 im = im - q(1);
                 im(im>q(2)) = q(2);
