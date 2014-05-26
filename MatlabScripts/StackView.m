@@ -113,7 +113,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         ch = get(gcf,'CurrentCharacter');
         switch ch
             case {' ' , 29 }
-                if i < size(Is,2)
+                if i < size(Is,3)
                     i = i+1;
                 end
                 set(slider,'Value', i);
