@@ -81,7 +81,7 @@ function start_registration_Callback(hObject, eventdata, handles)
 
 params.InspectResults = true;         % show fit or not
 params.Parallel = false;               % Use parallelisation?
-
+params.SkipFirstRegStep = true;
 hMainGui = getappdata(0, 'hMainGui');
 data_specifics = getappdata(hMainGui,'data_specifics');
 Registration(data_specifics,params);
