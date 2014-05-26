@@ -1,5 +1,20 @@
 function R = Register(A,B,Ang,X,Y,mode)
-
+% Register [1 line description ]
+%
+% IN: 
+%   A - 
+%   B - 
+%   Ang - 
+%   X -
+%   Y -
+%   mode - 
+%
+% OUT: 
+%   R - 
+%
+% Author:
+% Copyright:
+                                                                           % add sections & comments
     if nargin < 6 
         mode = 'optimised';
     end

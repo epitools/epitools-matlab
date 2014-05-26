@@ -1,4 +1,21 @@
 function [Ilabels , Clabels , ColIms] = SegmentStack(Stack, params,Ilabels,Clabels,ColIms, frs)
+% SegmentStack segments images extracting the cell outlines
+%
+% IN: 
+%   Stack - 
+%   params - 
+%   Ilabels - 
+%   Clabels -
+%   ColIms - 
+%   frs - 
+%
+% OUT: 
+%   Ilabels - 
+%   Clabels - 
+%   ColIms - 
+%
+% Author:
+% Copyright:
 
 % frs is an optional parameter allowing the user to decide which frames to
 % segment
