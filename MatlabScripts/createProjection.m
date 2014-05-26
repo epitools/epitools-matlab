@@ -58,7 +58,8 @@ tilesize = max(s(1),s(2));
 
 if ShowProcess
     figure
-    surf(xg1,yg1,zg1)                                                       %todo: use better axis for visualisation
+    surf(xg1,yg1,zg1) 
+    zlim([0,max(zg1(:))]);
     shading interp
     colormap(jet(256))
     camlight right
@@ -92,6 +93,7 @@ ynodes = 1:s(1);
 if ShowProcess
     figure
     surf(xg2,yg2,zg2)
+    zlim([0,max(zg2(:))]);
     shading interp
     colormap(jet(256))
     camlight right
