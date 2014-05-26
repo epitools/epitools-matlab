@@ -31,12 +31,6 @@ if nargin < 2
 else
     mincellsize=params.mincellsize;
     sigma1=params.sigma1;
-    %mergeseeds:
-%     maxDistance=params.maxDistance;
-%     maxGradient=params.maxGradient;
-%     iterations=params.iterations;
-%     sigma2=params.sigma2;
-    % grow cells
     sigma3=params.sigma3;
     IBoundMax = params.IBoundMax;
 end
@@ -54,6 +48,7 @@ end
 
 data = double(data);
 data = data*(252/max(max(data(:))));
+data = cast(data,'uint8');
 
 Clabel = zeros(s,'uint16');
 
@@ -95,6 +90,8 @@ if debug  figure; imshow(ColIm,[]);  end
         f1=fspecial( 'gaussian', [s(1) s(2)], sigma3);
         bw=double(Ilabel(:,:,f) > 252); % find labels
         I1 = real(fftshift(ifft2(fft2(data(:,:,1)).*fft2(f1))));
+        I1 = uint8(I1);
+        I1 = mimnormalise(I1);
         Il = double(I1).*(1-bw)+255*bw; % mark labels on image
         ColIm(:,:,1) = double(Il)/255.;
         ColIm(:,:,2) = double(Il)/255.;
@@ -102,7 +99,9 @@ if debug  figure; imshow(ColIm,[]);  end
         ColIm(:,:,1) = .7*double(cellBoundaries(:,:,f)) + ColIm(:,:,1).*(1-double(cellBoundaries(:,:,f)));
         ColIm(:,:,2) = .2*double(cellBoundaries(:,:,f)) + ColIm(:,:,2).*(1-double(cellBoundaries(:,:,f)));
         ColIm(:,:,3) = .2*double(cellBoundaries(:,:,f)) + ColIm(:,:,3).*(1-double(cellBoundaries(:,:,f)));
+        ColIm = cast(ColIm*255, 'uint8');
     end
+
 
     function DoInitialSeeding()
         f1=fspecial( 'gaussian', [s(1) s(2)], sigma1);
@@ -139,28 +138,6 @@ if debug  figure; imshow(ColIm,[]);  end
         end
     end
 
-%     function MergeSeeds()
-%         tic
-%         fprintf('Merging points in frame \n');
-%         for f=1:s(3)
-%             MergeSeedsInFrm(f)
-%         end
-%         toc
-%     end
-% 
-%     function MergeSeedsInFrm(f)
-%         Ilabel2 = double(Ilabel(:,:,f));
-%         f1=fspecial( 'gaussian', [s(1) s(2)], sigma2);
-%         
-%         % Gaussian smoothing for the segmentation of individual cells
-%         I2 = real(fftshift(ifft2(fft2(data(:,:,f)).*fft2(f1))));
-%         
-%         for n=1:iterations,
-%             Ilabel2=mergePositions1(I2,Ilabel2, maxDistance, maxGradient);
-%         end
-%         if debug  figure; imshow(Ilabel2,[]); input('press <enter> to continue','s');  end
-%         Ilabel(:,:,f)=Ilabel2;
-%     end
     
     function GrowCells()
         % first regrow and clean labels
@@ -254,7 +231,6 @@ if debug  figure; imshow(ColIm,[]);  end
             end
         end
         if debug  figure, hist(IBounds,100); input('press <enter> to continue','s');  end
-        if debug  figure, hist(IBounds,100); end
     end
 
     function DelabelVeryLargeAreas(f)
