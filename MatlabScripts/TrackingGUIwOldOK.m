@@ -1,15 +1,15 @@
-function fig = TrackingGUI(I1,Ilabel,Clabel,ColLabels,Ilabelsout,params, oldOKs, FramesToRegrow_old)
+function fig = TrackingGUI(ImageSeries,Ilabel,Clabel,ColLabels,Ilabelsout,params, oldOKs, FramesToRegrow_old)
 
 print_GUI_explanation();
 
 %Parameters
 
 Ilabel = uint8(Ilabel);
-Clabel = uint16(Clabel);
+Clabel = uint16(Clabel);                                                   %unit16 because more than 256 labels possible!
 
 
-s=size(I1);
-I1 = uint8(I1/max(I1(:))*255);  
+s=size(ImageSeries);
+ImageSeries = uint8(ImageSeries/max(ImageSeries(:))*255);  
 
 fs=fspecial('laplacian',0.9);
 
@@ -118,7 +118,7 @@ OriginalFrame = [];
         figure(fig);
         
         if zoommode
-            Irgb = gray2rgb(I1(:,:,CurrentFrame));
+            Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
             PaddedIm = zeros(s(1)+200,s(2)+200,3);
             PaddedIm(100:99+s(1), 100:99+s(2),:) = squeeze(Irgb(:, :,:));
             
@@ -196,7 +196,7 @@ OriginalFrame = [];
             
         else
             
-            Irgb = gray2rgb(I1(:,:,CurrentFrame));
+            Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
             
             [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 253);
             for n =1:length(cpy)
@@ -452,7 +452,7 @@ OriginalFrame = [];
         ch = get(gcf,'CurrentCharacter');
         switch ch
             case {29} %RIGHT ARROW
-                if CurrentFrame < size(Ilabel,2)
+                if CurrentFrame < size(Ilabel,3)
                     CurrentFrame = CurrentFrame+1;
                 end
                 set(slider,'Value', CurrentFrame);
@@ -509,7 +509,14 @@ OriginalFrame = [];
     function Retrack()
         fprintf('Retracking!')
         tic
-        [Itracks, pTracks, tracklength, trackstarts, trackstartX, trackstartY]=cellTracking4(Ilabel,params.TrackingRadius);
+        %output vectors 
+        % Itracks - 
+        % pTracks - 
+        % trackstarts - 
+        % trackstartX -
+        % trackstartY - 
+        [Itracks, pTracks, tracklength, trackstarts, trackstartX, trackstartY]= ....
+            cellTracking4(Ilabel,params.TrackingRadius);
         NC=max(Itracks(:));
         CColors = double(squeeze(label2rgb([1:NC],'jet','k','shuffle')))/255.;
         fprintf('Done! %i Clicks', NClicks)
