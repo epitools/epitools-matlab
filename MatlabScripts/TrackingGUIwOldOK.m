@@ -510,11 +510,13 @@ OriginalFrame = [];
         fprintf('Retracking!')
         tic
         %output vectors 
-        % Itracks - 
-        % pTracks - 
-        % trackstarts - 
-        % trackstartX -
-        % trackstartY - 
+        % Itracks       - 3D information with seed information (255)
+        % pTracks       - position of the track (max 100K) for each time point 
+        %                 (track_id, frame_no, (x,y))
+        % trackstarts   - frame no where the track starts
+        % trackstartX   - initial position X
+        % trackstartY   - initial position Y
+        
         [Itracks, pTracks, tracklength, trackstarts, trackstartX, trackstartY]= ....
             cellTracking4(Ilabel,params.TrackingRadius);
         NC=max(Itracks(:));
