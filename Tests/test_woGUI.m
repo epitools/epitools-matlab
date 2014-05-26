@@ -53,13 +53,16 @@ params.MergeCriteria = 0.35;
 params.IBoundMax = 30;          % 30 for YM data
 
 % Performance Options (show=show_steps)
-params.show = false;
+params.debug = false;
 params.Parallel  = false;
 
 params.SingleFrame = false;
 
 Segmentation(dsp,params);
 
-%% now test that files generated are the same
+% now test that files generated are the same
 CompareFiles('Data/Analysis/SegResults', 'Data/Benchmark/SegResults');
 CompareFiles('Data/Analysis/TrackingStart', 'Data/Benchmark/TrackingStart');
+
+load('/Users/alexandertournier/Documents/CRUK-UCL/Yanlan/epitools/Tests/Data/Analysis/SegResults.mat');
+StackView(ColIms);
