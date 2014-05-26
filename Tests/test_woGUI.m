@@ -18,8 +18,8 @@ dsp = InspectData(TestData);
 %% Surface Projection
 
 params.SmoothingRadius = 1.0;          % how much smoothing to apply to original data (1-5)
-params.SurfSmoothness1 = 30;           % 1st surface fitting, surface stiffness ~100
-params.SurfSmoothness2 = 20;           % 2nd surface fitting, stiffness ~50
+params.SurfSmoothness1 = 100;           % 1st surface fitting, surface stiffness ~100
+params.SurfSmoothness2 = 35;           % 2nd surface fitting, stiffness ~50
 params.ProjectionDepthThreshold = 1.2; % how much up/down to gather data from surface
 params.InspectResults = false;         % show fit or not
 params.Parallel = false;               % Use parallelisation?
@@ -31,6 +31,7 @@ CompareFiles('Data/Analysis/ProjIm' , 'Data/Benchmark/ProjIm');
 CompareFiles('Data/Analysis/Surfaces' , 'Data/Benchmark/Surfaces');
 
 %% Time Series Registration
+params.SkipFirstRegStep = true;
 
 Registration(dsp, params); 
 
