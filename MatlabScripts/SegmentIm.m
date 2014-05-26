@@ -1,4 +1,19 @@
 function [Ilabel ,Clabel,ColIm] = SegmentIm(data,debug, params,Ilabel)
+% SegmentIm segments a single frame extracting the cell outlines
+%
+% IN: 
+%   data -                                                                 % change name!
+%   debug - 
+%   params - 
+%   Ilabel -
+%
+% OUT: 
+%   Ilabel - 
+%   Clabel - 
+%   ColIm - 
+%
+% Author:
+% Copyright:
 
 if nargin < 2
     debug = false;
@@ -71,9 +86,6 @@ NeutralisePtsNotUnderLabelInFrame(1);
 CreateColorBoundaries()
 if debug  figure; imshow(ColIm,[]);  end
 
-
-
-
     function CreateColorBoundaries()
         cellBoundaries = zeros(s,'uint8');
         ColIm = zeros([s(1) s(2) 3],'double');
@@ -91,7 +103,6 @@ if debug  figure; imshow(ColIm,[]);  end
         ColIm(:,:,2) = .2*double(cellBoundaries(:,:,f)) + ColIm(:,:,2).*(1-double(cellBoundaries(:,:,f)));
         ColIm(:,:,3) = .2*double(cellBoundaries(:,:,f)) + ColIm(:,:,3).*(1-double(cellBoundaries(:,:,f)));
     end
-
 
     function DoInitialSeeding()
         f1=fspecial( 'gaussian', [s(1) s(2)], sigma1);
@@ -127,7 +138,6 @@ if debug  figure; imshow(ColIm,[]);  end
             Ilabel(:,:,f) = uint8(I2);
         end
     end
-
 
 %     function MergeSeeds()
 %         tic
@@ -182,9 +192,6 @@ if debug  figure; imshow(ColIm,[]);  end
         end
         toc
     end
-
-
-
 
     function UnlabelPoorSeedsInFrame(f)
         L = Clabel(:,:,f);
@@ -433,8 +440,5 @@ if debug  figure; imshow(ColIm,[]);  end
         F(F2 > 252) = 253;
         Ilabel(:,:,f) = F;
     end
-
-            
-
     
 end
