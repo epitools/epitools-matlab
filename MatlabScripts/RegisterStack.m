@@ -1,4 +1,4 @@
-function RegIm = RegisterStack(ProjIm)
+function RegIm = RegisterStack(ImSeries)
 % Registration of the images in the stacks
 % the process uses 2 steps: one coarse and one fine
 %
@@ -15,8 +15,8 @@ FY = [-15:1:15];
 
 %%
 
-NImages = size(ProjIm,3);
-s = size(ProjIm);
+NImages = size(ImSeries,3);
+s = size(ImSeries);
 ImSize = s(1:2);
 
 %%
@@ -28,8 +28,8 @@ fprintf('Building coarse view of stack ...')
 % building a coarse view of the stack
 Coarse = zeros([ImSize,NImages]);
 for i = 1:NImages           
-    T = ProjIm(:,:,i);
-    T(T<.4) = 0;
+    T = ImSeries(:,:,i);
+    T(T<.4) = 0;                %todo: check this out!! uint8 / uint16 problem
     closeBW = imclose(T,se);
     Ifill = imfill(closeBW,'holes');
     Im2 = imopen(Ifill,se);
@@ -40,7 +40,7 @@ end
 se = strel('disk',5);
 Coarse2 = zeros([ImSize,NImages]);
 parfor i = 1:NImages
-    T = ProjIm(:,:,i);
+    T = ImSeries(:,:,i);
     T = real(fftshift(ifft2(fft2(T).*fft2(f1))));
     closeBW = imclose(T,se);    
     Ifill = imfill(closeBW,'holes');    
@@ -79,11 +79,11 @@ end
 
 %% new projIm
 fprintf('Saving registered images ...\n');
-RegIm = zeros(size(ProjIm));
-RegIm(:,:,1) = ProjIm(:,:,1);
+RegIm = zeros(size(ImSeries));
+RegIm(:,:,1) = ImSeries(:,:,1);
 
 parfor i = 2:NImages
-    im = ApplyReg(RegRes2{i},ProjIm(:,:,i));
+    im = ApplyReg(RegRes2{i},ImSeries(:,:,i));
     RegIm(:,:,i) = im;
 end
 

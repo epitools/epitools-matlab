@@ -58,7 +58,7 @@ tilesize = max(s(1),s(2));
 
 if ShowProcess
     figure
-    surf(xg1,yg1,zg1)
+    surf(xg1,yg1,zg1)                                                       %todo: use better axis for visualisation
     shading interp
     colormap(jet(256))
     camlight right

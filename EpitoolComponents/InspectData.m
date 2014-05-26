@@ -33,7 +33,7 @@ else
     end
 
     FullDataFile = [DataDirec,'/',lst(first_index).name];
-    Series = 1;
+    Series = 1;                                                             %todo: careful this will change when you have multichannel
     res = ReadMicroscopyData(FullDataFile, Series);
 
     %print content of the first image
