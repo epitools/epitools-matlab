@@ -69,22 +69,22 @@ function updateAndGather(handles)
 
 function gathered_data = gatherData(handles)
     
-    gathered_data.smoothing_radius = get(handles.smoothing_slider,'value');
-    gathered_data.surface_smoothness_1 = get(handles.surface1_slider,'value');
-    gathered_data.surface_smoothness_2 = get(handles.surface2_slider,'value');
-    gathered_data.projection_depth_threshold = get(handles.depth_slider,'value');
+    gathered_data.SmoothingRadius = get(handles.smoothing_slider,'value');
+    gathered_data.SurfSmoothness1 = get(handles.surface1_slider,'value');
+    gathered_data.SurfSmoothness2 = get(handles.surface2_slider,'value');
+    gathered_data.ProjectionDepthThreshold = get(handles.depth_slider,'value');
 
 function updateLegends(handles,gd)
-    caption = sprintf('Smoothing Radius = %.2f', gd.smoothing_radius);
+    caption = sprintf('Smoothing Radius = %.2f', gd.SmoothingRadius);
     set(handles.smoothing_label, 'String', caption);
 
-    caption = sprintf('Surface Smoothness 1 = %.0f', gd.surface_smoothness_1);
+    caption = sprintf('Surface Smoothness 1 = %.0f', gd.SurfSmoothness1);
     set(handles.surface1_label, 'String', caption);
     
-    caption = sprintf('Surface Smoothness 2 = %.0f', gd.surface_smoothness_2);
+    caption = sprintf('Surface Smoothness 2 = %.0f', gd.SurfSmoothness2);
     set(handles.surface2_label, 'String', caption);
     
-    caption = sprintf('Projection Depth Threshold = %.2f', gd.projection_depth_threshold);
+    caption = sprintf('Projection Depth Threshold = %.2f', gd.ProjectionDepthThreshold);
     set(handles.depth_label, 'String', caption);
 
 % --- Outputs from this function are returned to the command line.
