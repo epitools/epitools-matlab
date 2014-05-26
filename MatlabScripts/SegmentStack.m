@@ -47,9 +47,9 @@ if params.Parallel           % parallelise if we can!
         im = double(Stack(:,:,i));
 %         im = im/max(im(:))*255;
         if NoPreviousLabels
-            [Ilabel ,Clabel,ColIm] = SegmentIm(im,params.show,params);
+            [Ilabel ,Clabel,ColIm] = SegmentIm(im,params);
         else
-            [Ilabel ,Clabel,ColIm] = SegmentIm(im,false,params,Ilabels(:,:,i));
+            [Ilabel ,Clabel,ColIm] = SegmentIm(im,params,Ilabels(:,:,i));
         end
         Ilabels(:,:,i) = Ilabel;
         Clabels(:,:,i) = Clabel;
@@ -63,9 +63,9 @@ else
         %commented as also in parallel version
         %im = im/max(im(:))*255;
         if NoPreviousLabels
-            [Ilabel ,Clabel,ColIm] = SegmentIm(im,params.show,params);
+            [Ilabel ,Clabel,ColIm] = SegmentIm(im,params);
         else
-            [Ilabel ,Clabel,ColIm] = SegmentIm(im,false,params,Ilabels(:,:,i));
+            [Ilabel ,Clabel,ColIm] = SegmentIm(im,params,Ilabels(:,:,i));
         end
         Ilabels(:,:,i) = Ilabel;
         Clabels(:,:,i) = Clabel;
