@@ -7,7 +7,7 @@ load([AnaDirec,'/ProjIm']);
 
 progressbar('Registering images...');
 
-RegIm = RegisterStack(ProjIm);
+RegIm = RegisterStack(ProjIm,params);
 
 progressbar(1);
 
