@@ -1,11 +1,14 @@
-function [Ilabel ,Clabel,ColIm] = SegmentIm(data,debug, params,Ilabel)
+function [CellSeeds ,CellLabels,ColIm] = SegmentIm(Im, params,CellSeeds)
 % SegmentIm segments a single frame extracting the cell outlines
 %
 % IN: 
-%   data -                                                                 % change name!
-%   debug - 
-%   params - 
-%   Ilabel -
+%   Im        -                                                                
+%   params      - mincellsize  : size of smallest cell expected
+%               - sigma1       : size of gaussian for smoothing image
+%               - sigma3       : size of gaussian for smoothing image
+%               - IBoundMax    : boundary parameter for merging
+%               - debug        : show more info for debugging
+%   Ilabel      - if you have a guess for the seeds, it goes here
 %
 % OUT: 
 %   Ilabel - 
@@ -15,179 +18,151 @@ function [Ilabel ,Clabel,ColIm] = SegmentIm(data,debug, params,Ilabel)
 % Author:
 % Copyright:
 
-if nargin < 2
-    debug = false;
-    %initial seeding
+if nargin < 2    % default parameters
+    show = false;
     mincellsize=100;
     sigma1=3.0;
-    %mergeseeds:
-    maxDistance=200;
-    maxGradient=10;
-    iterations=7;
-    sigma2=6;
-    % grow cells
     sigma3 = 5;
     IBoundMax = 30;
 else
+    show = params.debug;
     mincellsize=params.mincellsize;
     sigma1=params.sigma1;
     sigma3=params.sigma3;
     IBoundMax = params.IBoundMax;
 end
 
-s=size(data);
-s(3) = 1;
+ImSize=size(Im);
 
-if nargin > 3 % ok got seeds to start from!
+%% Do we have initial seeding?
+if nargin > 2 % ok got seeds to start from!
     disp('using Labels provided');
     GotStartingSeeds = true;
 else
     GotStartingSeeds = false;
-    Ilabel = zeros(s,'uint8');
+    CellSeeds = zeros(ImSize,'uint8');
 end
 
-data = double(data);
-data = data*(252/max(max(data(:))));
-data = cast(data,'uint8');
+%%
+Im = double(Im);
+Im = Im*(252/max(max(Im(:))));
+Im = cast(Im,'uint8');                      %todo: check casting
 
-Clabel = zeros(s,'uint16');
+CellLabels = zeros(ImSize,'uint16');            %todo: check casting
 
 se = strel('disk',2);   
 
 
-%Operations
+%% Operations
 if ~GotStartingSeeds
     DoInitialSeeding();
-    
-    if debug  figure; imshow(Ilabel(:,:,1)); input('press <enter> to continue','s');  end
 
-    MergeSeedsFromLabels(1)
-    if debug  figure; imshow(Ilabel(:,:,1),[]); input('press <enter> to continue','s');  end
+    if show  figure; imshow(CellSeeds(:,:)); input('press <enter> to continue','s');  end
+
+    MergeSeedsFromLabels()
+    if show  figure; imshow(CellSeeds(:,:),[]); input('press <enter> to continue','s');  end
 end
 
 
-GrowCellsInFrame(1)
-if debug CreateColorBoundaries(); figure; imshow(ColIm,[]);  end
+GrowCellsInFrame()
+if show CreateColorBoundaries(); figure; imshow(ColIm,[]);  end
 
-DelabelFlatBackground(1)
-if debug CreateColorBoundaries(); figure; imshow(ColIm,[]);  end
+DelabelFlatBackground()
+if show CreateColorBoundaries(); figure; imshow(ColIm,[]);  end
 
-UnlabelPoorSeedsInFrame(1)
-if debug CreateColorBoundaries(); figure; imshow(ColIm,[]);  end
+UnlabelPoorSeedsInFrame()
+if show CreateColorBoundaries(); figure; imshow(ColIm,[]);  end
 
-NeutralisePtsNotUnderLabelInFrame(1);
+NeutralisePtsNotUnderLabelInFrame();
 
 
 CreateColorBoundaries()
-if debug  figure; imshow(ColIm,[]);  end
+if show  figure; imshow(ColIm,[]);  end
+
+
+
+%% helper functions
 
     function CreateColorBoundaries()
-        cellBoundaries = zeros(s,'uint8');
-        ColIm = zeros([s(1) s(2) 3],'double');
-        f = 1;
+        % create nice pic with colors for cells
+        
+        cellBoundaries = zeros(ImSize,'uint8');
+        ColIm = zeros([ImSize(1) ImSize(2) 3],'double');
         fs=fspecial('laplacian',0.9);
-        cellBoundaries(:,:,f) = filter2(fs,Clabel(:,:,1)) >.5;
-        f1=fspecial( 'gaussian', [s(1) s(2)], sigma3);
-        bw=double(Ilabel(:,:,f) > 252); % find labels
-        I1 = real(fftshift(ifft2(fft2(data(:,:,1)).*fft2(f1))));
-        I1 = uint8(I1);
-        I1 = mimnormalise(I1);
+        cellBoundaries(:,:) = filter2(fs,CellLabels(:,:,1)) >.5;
+        f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
+        bw=double(CellSeeds(:,:) > 252); % find labels
+        I1 = real(fftshift(ifft2(fft2(Im(:,:,1)).*fft2(f1))));
         Il = double(I1).*(1-bw)+255*bw; % mark labels on image
         ColIm(:,:,1) = double(Il)/255.;
         ColIm(:,:,2) = double(Il)/255.;
         ColIm(:,:,3) = double(Il)/255.;
-        ColIm(:,:,1) = .7*double(cellBoundaries(:,:,f)) + ColIm(:,:,1).*(1-double(cellBoundaries(:,:,f)));
-        ColIm(:,:,2) = .2*double(cellBoundaries(:,:,f)) + ColIm(:,:,2).*(1-double(cellBoundaries(:,:,f)));
-        ColIm(:,:,3) = .2*double(cellBoundaries(:,:,f)) + ColIm(:,:,3).*(1-double(cellBoundaries(:,:,f)));
-        ColIm = cast(ColIm*255, 'uint8');
+        ColIm(:,:,1) = .7*double(cellBoundaries(:,:)) + ColIm(:,:,1).*(1-double(cellBoundaries(:,:)));
+        ColIm(:,:,2) = .2*double(cellBoundaries(:,:)) + ColIm(:,:,2).*(1-double(cellBoundaries(:,:)));
+        ColIm(:,:,3) = .2*double(cellBoundaries(:,:)) + ColIm(:,:,3).*(1-double(cellBoundaries(:,:)));
+%         ColIm = cast(ColIm*255, 'uint8');                 %todo: typecasting
     end
 
-
     function DoInitialSeeding()
-        f1=fspecial( 'gaussian', [s(1) s(2)], sigma1);
-        f2=fspecial( 'gaussian', [s(1) s(2)], 10);
+        f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma1);
         
         fprintf('Initial seeding in frame \nmincellsize=%i sigma1=%f\n',mincellsize,sigma1);
         
-        for f=1:s(3),
-            fprintf('%i ',f);
-            % Gaussian smoothing for the segmentation of individual cells
-            I2 = real(fftshift(ifft2(fft2(data(:,:,f)).*fft2(f1))));
-            if debug figure; imshow(I2(:,:,1),[]); input('press <enter> to continue','s');  end
-            I2 = I2/max(max(I2))*252.;
-            
-            %Ilab=celllabel2dark(I2, 1, mincellsize);
-            Ilab = findcellsfromregiongrowing( I2 , params.mincellsize, params.threshold);
-
-            if debug  figure; imshow(Ilab(:,:,1),[]); input('press <enter> to continue','s');  end
-            
-            Ilab(Ilab==1) = 0;  % set unallocated pixels to 0
-            
-            Clabel(:,:,f) = Ilab;
-            
-            DelabelVeryLargeAreas(f);
-            DelabelFlatBackground(f);
-            
-            centroids = round(calculateCellPositions(I2,Clabel(:,:,f), false));
-            centroids = centroids(~isnan(centroids(:,1)),:);
-            for n=1:length(centroids);
-                I2(centroids(n,2),centroids(n,1))=255;
-            end
-            
-            Ilabel(:,:,f) = uint8(I2);
+        % Gaussian smoothing for the segmentation of individual cells
+        SmoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        if show figure; imshow(SmoothedIm(:,:,1),[]); input('press <enter> to continue','s');  end
+        
+        SmoothedIm = SmoothedIm/max(max(SmoothedIm))*252.;
+        
+        %% use external c-code to find initial seeds
+        InitialLabelling = findcellsfromregiongrowing( SmoothedIm , params.mincellsize, params.threshold);
+        
+        if show  figure; imshow(InitialLabelling(:,:),[]); input('press <enter> to continue','s');  end
+        
+        InitialLabelling(InitialLabelling==1) = 0;  % set unallocated pixels to 0
+        
+        CellLabels(:,:) = uint16(InitialLabelling);
+        
+        % deal with background
+        DelabelVeryLargeAreas();
+        DelabelFlatBackground();
+        
+        % use true centre of cells as labels
+        centroids = round(calculateCellPositions(SmoothedIm,CellLabels(:,:), false));
+        centroids = centroids(~isnan(centroids(:,1)),:);
+        for n=1:length(centroids);
+            SmoothedIm(centroids(n,2),centroids(n,1))=255;
         end
+        
+        CellSeeds(:,:) = uint8(SmoothedIm);
+        
     end
 
-    
-    function GrowCells()
-        % first regrow and clean labels
-        tic
-        fprintf('Growing cells!\n');
-        for  f = 1 : s(3)
-            fprintf('%i ',f);
-            GrowCellsInFrame(f);
-        end
-        toc
+    function GrowCellsInFrame()
+        f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
+        bw=double(CellSeeds(:,:) > 252); % find labels
+        SmoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        ImWithSeeds = double(SmoothedIm).*(1-bw)+255*bw; % mark labels on image
+        CellLabels = uint16(growcellsfromseeds3(ImWithSeeds,253));
     end
 
-    function GrowCellsInFrame(f)
-        f1=fspecial( 'gaussian', [s(1) s(2)], sigma3);
-        bw=double(Ilabel(:,:,f) > 252); % find labels
-        I1 = real(fftshift(ifft2(fft2(data(:,:,f)).*fft2(f1))));
-        Il = double(I1).*(1-bw)+255*bw; % mark labels on image
-        Ilabel2=growcellsfromseeds3(Il,253);
-        Clabel(:,:,f) = Ilabel2;
-    end
-
-    function UnlabelPoorSeeds()
-        tic
-        fprintf('Removing poor seeds!');
-        for f = 1: s(3)
-            fprintf('%i ',f);
-            UnlabelPoorSeedsInFrame(f);
-            NeutralisePtsNotUnderLabelInFrame(f);
-        end
-        toc
-    end
-
-    function UnlabelPoorSeedsInFrame(f)
-        L = Clabel(:,:,f);
-        Il = Ilabel(:,:,f);
-        f1=fspecial( 'gaussian', [s(1) s(2)], sigma3);
-        F = real(fftshift(ifft2(fft2(data(:,:,f)).*fft2(f1))));
+    function UnlabelPoorSeedsInFrame()
+        L = CellLabels;
+        Il = CellSeeds;
+        f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
+        F = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
         Clist = unique(L);
         Clist = Clist(Clist~=0);
         R = [];
         IBounds = [];
         for c = 1:length(Clist)
-            m = L==Clist(c);
-            l = Clist(c);
-            [cpy cpx]=find(m > 0);
+            mask = L==Clist(c);
+            [cpy cpx]=find(mask > 0);
             minx = min(cpx); maxx = max(cpx);
             miny = min(cpy); maxy = max(cpy);
             minx = max(minx-5,1); miny = max(miny-5,1);
-            maxx = min(maxx+5,s(2)); maxy = min(maxy+5,s(1));
-            m1 = m(miny:maxy, minx:maxx);
+            maxx = min(maxx+5,ImSize(2)); maxy = min(maxy+5,ImSize(1));
+            m1 = mask(miny:maxy, minx:maxx);
             F1 = F(miny:maxy, minx:maxx);
             Di = imdilate(m1, se);
             Er = imerode(m1, se);
@@ -196,45 +171,25 @@ if debug  figure; imshow(ColIm,[]);  end
             H = F1(Fr>0);
             IEr = F1(Er>0);
             IBound = mean(IFr);
-            IBounds = [IBounds IBound];
-            ICentre = mean(IEr);
             
             F2 = Il;
-            F2(~m) = 0;
+            F2(~mask) = 0;
             [cpy cpx]=find(F2 > 252);
             ICentre = F(cpy , cpx);
             
-            stdB = std(double(IEr));
-%             sbck = sum(IFr < ICentre+stdB);
-%             sbound = sum(IFr > ICentre+stdB);
-%             ratio = sbck/sbound;
-%             R = [R ratio];
-%             if isnan(ratio)
-%                     disp('sdf')
-%             end
-                
-%             if ratio > 1 || ratio < 0.2
-            try
             if ( IBound < IBoundMax && IBound/ICentre < 1.2 ) ...
                     || IBound < IBoundMax *25./30. ...
                     || min(IFr)==0 ...
                     || sum(H<20)/length(H) > 0.1
-%                 F2 = Il;
-%                 F2(~m) = 0;
-%                 [cpy cpx]=find(F2 > 252);
-%                 Ilabel(cpy,cpx,f) = 253;
-%                 Ilabel(cpy,cpx,f) = 0;
-                Clabel(:,:,f) = Clabel(:,:,f).*uint16(m==0);
-            end
-            catch
-                disp('sdf')
+                CellLabels = CellLabels.*uint16(mask==0);
             end
         end
-        if debug  figure, hist(IBounds,100); input('press <enter> to continue','s');  end
+        if show  figure, hist(IBounds,100); input('press <enter> to continue','s');  end
     end
 
-    function DelabelVeryLargeAreas(f)
-        L = Clabel(:,:,f);
+    function DelabelVeryLargeAreas()
+        % remove cells which are bigger than LargeCellSizeThres
+        L = CellLabels;
         A  = regionprops(L, 'area');
         As = cat(1, A.Area);
         ls = unique(L);
@@ -248,90 +203,87 @@ if debug  figure; imshow(ColIm,[]);  end
                 L(L==l) = 0;
             end
         end
-        Clabel(:,:,f) = L;
+        CellLabels = L;
     end
 
-    function DelabelFlatBackground(f)
-        L = Clabel(:,:,f);
-        D = data(:,:,f);
+    function DelabelFlatBackground()            %todo: check this is still useful!
+        L = CellLabels;
+        D = Im(:,:);
         L(D==0) = 0;
-        Clabel(:,:,f) = L;
+        CellLabels = L;
     end
 
-    function MergeSeedsFromLabels(f)
-        L = Clabel(:,:,f);
-        I = Ilabel(:,:,f);
-        f1=fspecial( 'gaussian', [s(1) s(2)], sigma3);
-        F = real(fftshift(ifft2(fft2(data(:,:,f)).*fft2(f1))));
-        Clist = unique(L);
-        Clist = Clist(Clist~=0);
+    function MergeSeedsFromLabels()
+        % smoothing
+        f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
+        smoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        
+        labelList = unique(CellLabels);
+        labelList = labelList(labelList~=0);
         R = [];
         IBs = []; Bratios = []; Bratios2 = [];Bratios3 = [];
         c = 1;
-        while 1==1
-            m = L==Clist(c);
-            l = Clist(c);
-            [cpy cpx]=find(m > 0);
+        while 1==1          % loop over labels
+            labelMask = CellLabels==labelList(c);
+            label = labelList(c);
+            [cpy cpx]=find(labelMask > 0);
+            % find region of that label
             minx = min(cpx); maxx = max(cpx);
             miny = min(cpy); maxy = max(cpy);
             minx = max(minx-5,1); miny = max(miny-5,1);
-            maxx = min(maxx+5,s(2)); maxy = min(maxy+5,s(1));
-            m1 = m(miny:maxy, minx:maxx);
-            F1 = F(miny:maxy, minx:maxx);
-            L1 = L(miny:maxy, minx:maxx);
-            Di = imdilate(m1, se);
-            Er = imerode(m1, se);
-            Fr = Di - Er;
-            IFr = F1(Fr>0);
-            H = F1(Fr>0);
-            IEr = F1(Er>0);
-            IBound = mean(IFr);
-            ICentre = mean(IEr);
+            maxx = min(maxx+5,ImSize(2)); maxy = min(maxy+5,ImSize(1));
+            % reduce data to that region
+            reducedLabelMask = labelMask(miny:maxy, minx:maxx);
+            reducedIm = smoothedIm(miny:maxy, minx:maxx);
+            reducedLabels = CellLabels(miny:maxy, minx:maxx);
+            % now find boundaries ...
+            dilatedMask = imdilate(reducedLabelMask, se);
+            erodedMask = imerode(reducedLabelMask, se);
+            borderMask = dilatedMask - erodedMask;
+            borderIntensities = reducedIm(borderMask>0);
+            centralIntensity = reducedIm(erodedMask>0);
             
-            F2 = I;
-            F2(~m) = 0;
+            F2 = CellSeeds;
+            F2(~labelMask) = 0;
             [cpy cpx]=find(F2 > 253);
-            ICentre = F(cpy , cpx);
+            ICentre = smoothedIm(cpy , cpx);
             try
-            ICentre2 = mean(mean(F(max(cpy-1):cpy+1 , max(cpx-1,1):cpx+1)));
+            ICentre2 = mean(mean(smoothedIm(max(cpy-1,1):cpy+1 , max(cpx-1,1):cpx+1)));
             catch
                 fprintf('-'); 
-                c = c+1;  if c > length(Clist); break;  end
+                c = c+1;  if c > length(labelList); break;  end
                 continue
             end
             
-            stdB = std(double(IEr));
+            stdB = std(double(centralIntensity));
             try
-                sbck = sum(IFr < ICentre+stdB);
+                sbck = sum(borderIntensities < ICentre+stdB);
             catch
                 fprintf('+')
                 continue
             end
 
-            sbound = sum(IFr > ICentre+stdB);
+            sbound = sum(borderIntensities > ICentre+stdB);
             ratio = sbck/sbound;
             R = [R ratio];
             
-
-            
             % get labels of surrounding cells
-            ls = unique(L1(Di>0));
-            ls = ls(ls~=l);
+            neighLabels = unique(reducedLabels( dilatedMask > 0 ));
+            neighLabels = neighLabels(neighLabels~=label);
             
             
             Bs = [];
-            lls = [];
             R3s = [];
             Bounds = {};
-            for i = 1:size(ls)
-                ll = ls(i);
-                B = Di;
-                B(L1~=ll)=0;
+            for i = 1:size(neighLabels)
+                ll = neighLabels(i);
+                B = dilatedMask;
+                B(reducedLabels~=ll)=0;
                 B2 = imdilate(B,se);
                 B3 = B2;
-                B3(L1~=l) = 0;
+                B3(reducedLabels~=label) = 0;
                 B3 = (B3 + B) > 0;
-                B4 = F1;
+                B4 = reducedIm;
                 B4(~B3) = 0;
                 IB = mean(B4(:));
                 Bratio2 = IB/ICentre2;
@@ -351,37 +303,32 @@ if debug  figure; imshow(ColIm,[]);  end
             Bratios = [Bratios R2];
             
             [Br2,mC] = max(R3s);
-            ll = ls(mC);
+            ll = neighLabels(mC);
             
-            if l == 257 || l == 486 || l == 487
-                disp('sdf')
-            end
+
               
-            if Br2 > params.MergeCriteria && l~=0 && ll~=0              % better criteria is proportion of boundary which is 'background' using above criteria
+            if Br2 > params.MergeCriteria && label~=0 && ll~=0              % better criteria is proportion of boundary which is 'background' using above criteria
                 fprintf('.');
-                tmp = F1;
-                tmp(~Bounds{mC}) = 0;
-                MergeLabels(l,ll,f);
-                L = Clabel(:,:,f);
-                I = Ilabel(:,:,f);
-                Clist = unique(L);
-                Clist = Clist(Clist~=0);
+                MergeLabels(label,ll);
+                CellSeeds = CellSeeds(:,:);
+                labelList = unique(CellLabels);
+                labelList = labelList(labelList~=0);
                 c = c-1;
             end
             
             
 
            c = c+1;
-           if c > length(Clist)
+           if c > length(labelList)
                break
            end
         end
         fprintf('\n');
     end
 
-    function MergeLabels(l1,l2,f)
-        Cl = Clabel(:,:,f);
-        Il = Ilabel(:,:,f);
+    function MergeLabels(l1,l2)
+        Cl = CellLabels;
+        Il = CellSeeds;
         m1 = Cl==l1;
         m2 = Cl==l2;
         Il1 = Il; Il1(~m1) = 0;
@@ -391,30 +338,30 @@ if debug  figure; imshow(ColIm,[]);  end
         cpx = round((cpx1+cpx2)/2); 
         cpy = round((cpy1+cpy2)/2);
         
-        Ilabel(cpy1,cpx1,f) = 20;       %background level
-        Ilabel(cpy2,cpx2,f) = 20; 
-        if Clabel(cpy,cpx,f)==l1 || Clabel(cpy,cpx,f)==l2
-            Ilabel(cpy,cpx,f) = 255;
+        CellSeeds(cpy1,cpx1) = 20;       %background level
+        CellSeeds(cpy2,cpx2) = 20; 
+        if CellLabels(cpy,cpx)==l1 || CellLabels(cpy,cpx)==l2
+            CellSeeds(cpy,cpx) = 255;
         else
             % center is not actually under any of the previous labels ...
            if sum(m1(:)) > sum(m2(:)) 
-               Ilabel(cpy1,cpx1,f) = 255;
+               CellSeeds(cpy1,cpx1) = 255;
            else
-               Ilabel(cpy2,cpx2,f) = 255;
+               CellSeeds(cpy2,cpx2) = 255;
            end
         end
         Cl(m2) = l1;
-        Clabel(:,:,f) = Cl;
+        CellLabels = Cl;
     end
 
-    function NeutralisePtsNotUnderLabelInFrame(f)
+    function NeutralisePtsNotUnderLabelInFrame()
         % the idea here is to set seeds not labelled to 253 ie invisible to retracking (and to growing, caution!)
-        L = Clabel(:,:,f);
-        F = Ilabel(:,:,f);
+        L = CellLabels;
+        F = CellSeeds;
         F2 = F;
         F2(L~=0) = 0;
         F(F2 > 252) = 253;
-        Ilabel(:,:,f) = F;
+        CellSeeds(:,:) = F;
     end
     
 end
