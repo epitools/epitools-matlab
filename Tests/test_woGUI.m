@@ -64,5 +64,5 @@ Segmentation(dsp,params);
 CompareFiles('Data/Analysis/SegResults', 'Data/Benchmark/SegResults');
 CompareFiles('Data/Analysis/TrackingStart', 'Data/Benchmark/TrackingStart');
 
-load('/Users/alexandertournier/Documents/CRUK-UCL/Yanlan/epitools/Tests/Data/Analysis/SegResults.mat');
-StackView(ColIms);
+% load('/Users/alexandertournier/Documents/CRUK-UCL/Yanlan/epitools/Tests/Data/Analysis/SegResults.mat');
+% StackView(ColIms);
