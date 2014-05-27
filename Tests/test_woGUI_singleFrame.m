@@ -63,4 +63,6 @@ Segmentation(dsp,params);
 % now test that files generated are the same
 CompareFiles('SingleFrame/Analysis/SegResults', 'SingleFrame/Benchmark/SegResults');
 CompareFiles('SingleFrame/Analysis/TrackingStart', 'SingleFrame/Benchmark/TrackingStart');
-
+% 
+% % load('/Users/alexandertournier/Documents/CRUK-UCL/Yanlan/epitools/Tests/SingleFrame/Analysis/SegResults.mat');
+% % figure, imshow(ColIms)
