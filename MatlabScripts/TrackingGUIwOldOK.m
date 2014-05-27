@@ -8,8 +8,18 @@ Ilabel = uint8(Ilabel);
 Clabel = uint16(Clabel);                                                   %unit16 because more than 256 labels possible!
 
 
-s=size(ImageSeries);
-ImageSeries = uint8(ImageSeries/max(ImageSeries(:))*255);  
+ImSize = size(ImageSeries);
+
+% check for single frame
+if numel(ImSize) == 2 % of got a single frame here
+    SingleFrame = true;
+    NFrames = 1;
+else 
+    SingleFrame = false;
+    NFrames = ImSize(3);
+end
+
+ImageSeries = uint8(ImageSeries/max(ImageSeries(:))*255);  %todo : check casting!
 
 fs=fspecial('laplacian',0.9);
 
@@ -40,27 +50,28 @@ AddDummyPt = false;
 InspectPt = false;
 NeedToRetrack = false;
 FramesToRegrow = [];
-cellBoundaries = zeros(s,'int8');
+cellBoundaries = zeros(ImSize,'int8');
 
 Retrack();
 RecalculateCellBoundaries();
 
 
-
-slider = uicontrol( fig ...
-    ,'style'    ,'slider'   ...
-    ,'units'    ,'normalized' ...
-    ,'position' ,[0.17 0.05 0.80 0.04] ...
-    );
-
-% sliderListener = addlistener(slider,'ContinuousValueChange',@sliderActionEventCb);
-set(slider,'Callback',@sliderActionEventCb);
-
-set(fig,'WindowScrollWheelFcn',@figScroll);
-
-set(slider,'max', s(3));
-set(slider,'min', 1);
-set(slider,'Value', 1);
+if ~SingleFrame
+    slider = uicontrol( fig ...
+        ,'style'    ,'slider'   ...
+        ,'units'    ,'normalized' ...
+        ,'position' ,[0.17 0.05 0.80 0.04] ...
+        );
+    
+    % sliderListener = addlistener(slider,'ContinuousValueChange',@sliderActionEventCb);
+    set(slider,'Callback',@sliderActionEventCb);
+    
+    set(fig,'WindowScrollWheelFcn',@figScroll);
+    
+    set(slider,'max', NFrames);
+    set(slider,'min', 1);
+    set(slider,'Value', 1);
+end
 
 Ch1On = false;
 
@@ -86,8 +97,6 @@ set(fig,'WindowButtonDownFcn',@wbmFcn)
 
 set(fig,'KeyPressFcn',@keyPrsFcn)
 
-OriginalFrame = [];
-
 
     function cb1Callback(src,evt)
         Ch1On = get(cbh1,'Value');
@@ -98,7 +107,7 @@ OriginalFrame = [];
         clicks = evt.VerticalScrollCount;
         CurrentFrame = CurrentFrame - clicks;
         CurrentFrame = max(1,CurrentFrame);
-        CurrentFrame = min(s(3),CurrentFrame);
+        CurrentFrame = min(NFrames,CurrentFrame);
         set(slider,'Value', CurrentFrame);
         Update();
     end
@@ -119,8 +128,8 @@ OriginalFrame = [];
         
         if zoommode
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
-            PaddedIm = zeros(s(1)+200,s(2)+200,3);
-            PaddedIm(100:99+s(1), 100:99+s(2),:) = squeeze(Irgb(:, :,:));
+            PaddedIm = zeros(ImSize(1)+200,ImSize(2)+200,3);
+            PaddedIm(100:99+ImSize(1), 100:99+ImSize(2),:) = squeeze(Irgb(:, :,:));
             
             % 251 marks the threshold for a seed pixel! 
             [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
@@ -138,7 +147,7 @@ OriginalFrame = [];
                     end
                     
                     %assuming full tracking is marked here
-                    if TrackL == s(3)-1
+                    if TrackL == NFrames-1
                         PaddedIm(y-2+100:y+2+100,x-2+100:x+2+100,1) = col(1);
                         PaddedIm(y-2+100:y+2+100,x-2+100:x+2+100,2) = col(2);
                         PaddedIm(y-2+100:y+2+100,x-2+100:x+2+100,3) = col(3);
@@ -151,7 +160,7 @@ OriginalFrame = [];
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,2) = col(2);
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,3) = col(3);
                         
-                        if CelN~=0
+                        if CelN~=0 & ~SingleFrame
                             %if track-problem is due to late start, e.g.
                             %correctly tracked daughter cell, left pixel
                             %is added
@@ -166,7 +175,7 @@ OriginalFrame = [];
                             %if track-problem is due to premature end, e.g.
                             %eliminated cell, right pixel is added
                             final_frame_no = trackstarts(CelN) + TrackL;
-                            movie_length = s(3);
+                            movie_length = NFrames;
                             if final_frame_no ~= movie_length
                                 PaddedIm(y+100,x+100:x+2+100,1) = col(1);
                                 PaddedIm(y+100,x+100:x+2+100,2) = col(2);
@@ -201,9 +210,6 @@ OriginalFrame = [];
             [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 253);
             for n =1:length(cpy)
                 y = cpy(n); x = cpx(n);
-                if y == 401 && x==656 
-                    disp('fds')
-                end
                 CelN = Itracks(y,x,CurrentFrame);
                 if CelN ==0
                     col = [1 1 1];
@@ -213,9 +219,9 @@ OriginalFrame = [];
                     TrackL = tracklength(CelN);
                 end
 
-                ymin = max(y-2,1); ymax = min(y+2,s(1));
-                xmin = max(x-2,1); xmax = min(x+2,s(2));
-                if CelN ~=0 && tracklength(CelN) ~= s(3)-1 && isempty(find(oktrajs == TrajKey(trackstartX(CelN), trackstartY(CelN) ,trackstarts(CelN))))
+                ymin = max(y-2,1); ymax = min(y+2,ImSize(1));
+                xmin = max(x-2,1); xmax = min(x+2,ImSize(2));
+                if ~SingleFrame &&  CelN ~=0 && tracklength(CelN) ~= NFrames-1 && isempty(find(oktrajs == TrajKey(trackstartX(CelN), trackstartY(CelN) ,trackstarts(CelN))))
                     Irgb(ymin:ymax,xmin:xmax,:) = 1;
                 else
                     if CelN ==0
@@ -312,7 +318,7 @@ OriginalFrame = [];
                                 if trackstarts(n) ~= 1
                                     CurrentFrame = trackstarts(n)-1;
                                 end
-                                if trackstarts(n)+tracklength(n) ~= s(3)
+                                if trackstarts(n)+tracklength(n) ~= NFrames
                                     CurrentFrame = trackstarts(n)+tracklength(n)+1;
                                 end
                             end
@@ -517,17 +523,28 @@ OriginalFrame = [];
         % trackstartX   - initial position X
         % trackstartY   - initial position Y
         
-        [Itracks, pTracks, tracklength, trackstarts, trackstartX, trackstartY]= ....
-            cellTracking4(Ilabel,params.TrackingRadius);
-        NC=max(Itracks(:));
-        CColors = double(squeeze(label2rgb([1:NC],'jet','k','shuffle')))/255.;
+        if ~SingleFrame
+            [Itracks, pTracks, tracklength, trackstarts, trackstartX, trackstartY]= ....
+                cellTracking4(Ilabel,params.TrackingRadius);
+            NC=max(Itracks(:));
+            CColors = double(squeeze(label2rgb([1:NC],'jet','k','shuffle')))/255.;
+        else
+            
+            Itracks = Clabel.*uint16(Ilabel > 253);
+            NC = max(Clabel(:));
+            tracklength = ones(NC);
+            CColors = double(squeeze(label2rgb([1:NC],'jet','k','shuffle')))/255.;
+            
+        end
+        
+        
         fprintf('Done! %i Clicks', NClicks)
         toc
 
     end
  
     function RecalculateCellBoundaries()
-        for ff = 1:s(3)
+        for ff = 1:NFrames
             cellBoundaries(:,:,ff) = filter2(fs,Clabel(:,:,ff)) >.5;
         end
     end
