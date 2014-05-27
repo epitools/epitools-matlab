@@ -20,29 +20,37 @@ function [Ilabels , Clabels , ColIms] = SegmentStack(Stack, params,Ilabels,Clabe
 % frs is an optional parameter allowing the user to decide which frames to
 % segment
 
-s = size(Stack);
+ImSize = size(Stack);
 
-if nargin <4
-    frs = 1:s(3);
-    Clabels = zeros(s);
-    ColIms = zeros([s(1),s(2),3,s(3)]);
+% check for single frame
+if numel(ImSize) == 2
+    SingleFrame = true;
+    NFrames = 1;
 else
-    fprintf('regrowing frames:');
-    disp(frs);
+    SingleFrame = false;
+    NFrames = ImSize(3);
 end
 
-if nargin <3        % not using previous labels
-    Ilabels = zeros(s);
+if nargin < 4           % growing from previous labels
+    frs = 1:NFrames;
+    Clabels = zeros(ImSize);
+    ColIms = zeros([ImSize(1),ImSize(2),3,NFrames]);
+else
+    fprintf('regrowing frames:');
+end
+
+if nargin < 3        % not using previous labels
+    Ilabels = zeros(ImSize);
     NoPreviousLabels = true;
 else
     NoPreviousLabels = false;
 end
 
 if params.Parallel           % parallelise if we can!
-    %should change from s(3) to frs but the integers in frs might not be
-    %consective so it fails. Perhaps check if splitting would be an option
+    % should change from s(3) to frs but the integers in frs might not be
+    % consective so it fails. Perhaps check if splitting would be an option
     
-    parfor i = 1:s(3)
+    parfor i = 1:NFrames
         fprintf('segmenting frame (P) %i\n', i);
         im = double(Stack(:,:,i));
 %         im = im/max(im(:))*255;
