@@ -17,11 +17,11 @@ dsp = InspectData(TestData);
  
 %% Surface Projection
 
-params.SmoothingRadius = 1.0;          % how much smoothing to apply to original data (1-5)
-params.SurfSmoothness1 = 100;           % 1st surface fitting, surface stiffness ~100
-params.SurfSmoothness2 = 35;           % 2nd surface fitting, stiffness ~50
-params.ProjectionDepthThreshold = 1.2; % how much up/down to gather data from surface
-params.InspectResults = false;         % show fit or not
+params.SmoothingRadius = 1.0;          % how much smoothing to apply to original data - default 1 [1-5]
+params.SurfSmoothness1 = 100;           % 1st surface fitting, surface stiffness - default 100 [50 - 200]
+params.SurfSmoothness2 = 35;           % 2nd surface fitting, stiffness          - default 30 [10 - 50]
+params.ProjectionDepthThreshold = 1.2; % how much up/down to gather data from surface - default 1.2 [1 - 3]
+params.InspectResults = false;         % show fit or not            
 params.Parallel = false;               % Use parallelisation?
 
 Projection(dsp,params);
@@ -47,7 +47,7 @@ params.threshold = 25;
 % Grow cells
 params.sigma3=2;
 params.LargeCellSizeThres = 3000;
-params.MergeCriteria = 0.35;
+params.MergeCriteria = 0.35;        % default 0.35 .. have to play with it
 
 % Final joining
 params.IBoundMax = 30;          % 30 for YM data
