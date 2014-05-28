@@ -21,17 +21,17 @@ function imgsRegistered = stackRegWrapper(imgs, transformationType)
 
 %% Find ij/and mir
 
-javaaddpath([pwd,'/../mij.jar']);
-javaaddpath([pwd,'/../ij.jar']);
+javaaddpath([pwd,'/mij.jar']);
+javaaddpath([pwd,'/ij.jar']);
 
 %start matlab interface
-MIJ.start([pwd,'/../']);
+MIJ.start(pwd);
 
 if nargin < 1
 	%display('need at least 1 input! (stackRegWrapper.m)');
 	%return;
     %loadTestData
-    load([pwd,'/../../Tests/Data/Analysis/ProjIm.mat']);
+    load([pwd,'/../Tests/Data/Analysis/ProjIm.mat']);
     imgs = ProjIm;
 end
 
