@@ -18,20 +18,24 @@ function imgsRegistered = stackRegWrapper(imgs, transformationType)
 %
 % $Revision: 1.0 $ $Date: 2014/02/20 08:00$ $Author: Pangyu Teng $
 % $Revision: 1.1 $ $Date: 2014/05/27 13:00$ $Author: Davide Heller $
+%                  stackRegWrapper now runs independently from FIJI
 
 %% Find ij/and mir
 
-javaaddpath([pwd,'/mij.jar']);
-javaaddpath([pwd,'/ij.jar']);
+m_file_path = mfilename('fullpath');
+m_file_dir = fileparts(m_file_path);
+
+javaaddpath([m_file_dir,'/mij.jar']);
+javaaddpath([m_file_dir,'/ij.jar']);
 
 %start matlab interface
-MIJ.start(pwd);
+MIJ.start(m_file_dir); %could surpress ImageJ log with false flag
 
 if nargin < 1
 	%display('need at least 1 input! (stackRegWrapper.m)');
 	%return;
     %loadTestData
-    load([pwd,'/../Tests/Data/Analysis/ProjIm.mat']);
+    load([m_file_dir,'/../Tests/Data/Analysis/ProjIm.mat']);
     imgs = ProjIm;
 end
 
