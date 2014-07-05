@@ -22,7 +22,7 @@ function varargout = RegistrationGUI(varargin)
 
 % Edit the above text to modify the response to help RegistrationGUI
 
-% Last Modified by GUIDE v2.5 19-May-2014 09:09:04
+% Last Modified by GUIDE v2.5 04-Jul-2014 17:28:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,9 +79,19 @@ function start_registration_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+params.useStackReg = get(handles.useStackReg,'Value');
 params.InspectResults = true;         % show fit or not
 params.Parallel = false;               % Use parallelisation?
 params.SkipFirstRegStep = true;
 hMainGui = getappdata(0, 'hMainGui');
 data_specifics = getappdata(hMainGui,'data_specifics');
 Registration(data_specifics,params);
+
+
+% --- Executes on button press in useStackReg.
+function useStackReg_Callback(hObject, eventdata, handles)
+% hObject    handle to useStackReg (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of useStackReg

@@ -32,9 +32,6 @@ javaaddpath([m_file_dir,'/ij.jar']);
 MIJ.start(m_file_dir); %could surpress ImageJ log with false flag
 
 if nargin < 1
-	%display('need at least 1 input! (stackRegWrapper.m)');
-	%return;
-    %loadTestData
     load([m_file_dir,'/../Tests/Data/Analysis/ProjIm.mat']);
     imgs = ProjIm;
 end
@@ -44,13 +41,8 @@ if nargin < 2
 	disp('Translation used for stackreg registration');
 end
 
-% start FIJI without GUI.
-%Miji(false);
-
 % transfer images from Matlab to FIJI
-MIJ.createImage(imgs);
-%%alternatively, above line can be replaced with below line and changing the input 'imgs' with the 'filename' of a multi-page tiff
-%MIJ.run('Open...', ['path=[' filename ']']);  
+MIJ.createImage('Image to register', imgs, true);
 
 % register
 MIJ.run('StackReg ', ['transformation=' transformationType]);
@@ -63,3 +55,29 @@ MIJ.run('Close');
 	
 % exit FIJI
 MIJ.exit;
+
+%check output data type, if different: reconvert
+original_data_format = class(imgs);
+new_data_format = class(imgsRegistered);
+
+if(~strcmp(new_data_format,original_data_format))
+    
+    if(isa(imgs,'uint16'))
+        converted_imgs = uint16(imgsRegistered);
+    elseif(isa(imgs,'uint8'))
+        converted_imgs = uint8(imgsRegistered);
+    else
+        fprintf('Unknown input format %s\n',img_type);
+    end
+    
+    fprintf('Reconverted %s to %s\n',new_data_format,original_data_format);
+    
+    %check equality and substitute
+    if(~isequal(converted_imgs,imgsRegistered))
+        fprintf('Conversion failed for %s\n',new_data_format);
+    else
+        imgsRegistered = converted_imgs;
+    end
+    
+end
+

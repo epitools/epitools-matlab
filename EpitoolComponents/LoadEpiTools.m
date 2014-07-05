@@ -11,6 +11,7 @@ cd(file_path)
 % set epitool script location
 addpath([fileparts(file_path),'/MatlabScripts'])
 addpath([fileparts(file_path),'/EpitoolComponents/'])
+addpath([fileparts(file_path),'/matlab_imageJ_interface/']);
 javaaddpath([fileparts(file_path),'/OME_LOCI_TOOLS/loci_tools.jar'])
 addpath([fileparts(file_path),'/OME_LOCI_TOOLS'])
 

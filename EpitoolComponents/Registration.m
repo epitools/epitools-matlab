@@ -5,11 +5,14 @@ load(DataSpecificsPath);
 
 load([AnaDirec,'/ProjIm']);
 
-progressbar('Registering images...');
+if(params.useStackReg)
+    RegIm = stackRegWrapper(ProjIm);
+else
+    progressbar('Registering images... (please wait)');
+    RegIm = RegisterStack(ProjIm,params);
+    progressbar(1);
+end
 
-RegIm = RegisterStack(ProjIm,params);
-
-progressbar(1);
 
 % inspect results
 if params.InspectResults
