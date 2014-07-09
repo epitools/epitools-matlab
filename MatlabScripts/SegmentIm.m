@@ -11,11 +11,11 @@ function [CellSeeds ,CellLabels,ColIm] = SegmentIm(Im, params,CellSeeds)
 %   Ilabel      - if you have a guess for the seeds, it goes here
 %
 % OUT: 
-%   Ilabel - 
-%   Clabel - 
-%   ColIm - 
+%   Ilabel -> CellSeeds (uint8 - 253/254/255 are used for assignment)
+%   Clabel -> CellLables (uint16 - bitmap of cells colored with 16bit id)
+%   ColIm  -> Colored image to store tracking information 
 %
-% Author:
+% Author: Alexandre Tournier, Andreas Hoppe.
 % Copyright:
 
 if nargin < 2    % default parameters
@@ -46,7 +46,7 @@ end
 %%
 Im = double(Im);
 Im = Im*(252/max(max(Im(:))));
-Im = cast(Im,'uint8');                      %todo: check casting
+Im = cast(Im,'uint8');                          %todo: check casting
 
 CellLabels = zeros(ImSize,'uint16');            %todo: check casting
 
