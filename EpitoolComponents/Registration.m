@@ -5,6 +5,10 @@ load(DataSpecificsPath);
 
 load([AnaDirec,'/ProjIm']);
 
+if(~isfield(params,'useStackReg'))
+    params.useStackReg = false;
+end
+
 if(params.useStackReg)
     RegIm = stackRegWrapper(ProjIm);
 else

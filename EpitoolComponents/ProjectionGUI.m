@@ -205,7 +205,7 @@ function start_projection_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-params = gatherData(handles)
+params = gatherData(handles);
 params.InspectResults = true;         % show fit or not
 params.Parallel = true;               % Use parallelisation?
 
