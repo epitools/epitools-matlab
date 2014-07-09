@@ -1,4 +1,4 @@
-function ImproveContrast( DataSpecificsPath,uint_type, enhancement_limit)
+function ImproveContrast( DataSpecificsPath, enhancement_limit)
 %ImproveContrast Improve image contrast by applying CLAHE
 %   CLAHE - Contrast-Limited Adaptive Histogram Equalization
 %   DataSpecificsPath - Path Data to analyze (See InspectData function)
@@ -11,15 +11,32 @@ progressbar('Enhancing contrast...');
 %pre-allocate output
 RegIm_clahe = zeros(size(RegIm,1), size(RegIm,2), size(RegIm,3), 'double');
 
+%assuming that images are either 8 or 16bit in input
+load([AnaDirec,'/ProjIm']);
+uint_type = class(ProjIm);
+
 for i=1:size(RegIm,3)
-    %parameter needs to be adapted for specific image input: uint16>uint8
-    if(uint_type == 8)
-        RegIm_uint = uint8(RegIm(:,:,i));
+    %parameter needs to be adapted for specific image input:
+    
+    if(isa(RegIm,'double'))
+        if(uint_type == 8)
+            RegIm_uint = uint8(RegIm(:,:,i));
+        else
+            RegIm_uint = uint16(RegIm(:,:,i));
+        end
     else
-        RegIm_uint = uint16(RegIm(:,:,i));
+        RegIm_uint = RegIm(:,:,i);
     end
+    
+    %todo, this needs to be adaptive for the image size
+    %e.g. compute NumTiles based on a predifined size of tiling (e.g. 30px)
     RegIm_clahe_uint = adapthisteq(RegIm_uint,'NumTiles',[70 70],'ClipLimit',enhancement_limit);
-    RegIm_clahe(:,:,i) = double(RegIm_clahe_uint);
+    
+    if(isa(RegIm,'double'))
+        RegIm_clahe(:,:,i) = double(RegIm_clahe_uint);
+    else
+       RegIm_clahe(:,:,i) = RegIm_clahe_uint; 
+    end
     
     progressbar(i/size(RegIm,3));
 end

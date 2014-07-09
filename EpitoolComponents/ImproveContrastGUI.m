@@ -117,11 +117,9 @@ function run_clahe_Callback(hObject, eventdata, handles)
 gatheredData = gatherData(handles);
 enhancement_limit = gatheredData.enhancement_limit;
 
-%TODO HARDCODE > load from mainGUI
-uint_type = 16;
 hMainGui = getappdata(0, 'hMainGui');
 data_specifics = getappdata(hMainGui,'data_specifics');
-ImproveContrast(data_specifics, uint_type, enhancement_limit);
+ImproveContrast(data_specifics, enhancement_limit);
 
 
 % --- Executes on slider movement.
