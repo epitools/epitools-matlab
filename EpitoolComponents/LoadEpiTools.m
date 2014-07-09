@@ -2,7 +2,7 @@ function LoadEpiTools()
 %SetWorkingDirectory Tells Matlab where to find EpiTools
 
 %obtain absolute location on system
-current_script_path = matlab.desktop.editor.getActive().Filename;
+current_script_path = mfilename('fullpath');
 [file_path,~,~] = fileparts(current_script_path);
 
 %define current working directory!
