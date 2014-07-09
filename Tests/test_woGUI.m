@@ -26,14 +26,25 @@ params.Parallel = false;               % Use parallelisation?
 
 Projection(dsp,params);
 
+load(dsp);
+load([AnaDirec,'/ProjIm']);
+fprintf('>>>>>>>>>> ProjIm is of type %s\n',class(ProjIm));
+clearvars ProjIm
+
 %% now test that files generated are the same
 CompareFiles('Data/Analysis/ProjIm' , 'Data/Benchmark/ProjIm');
 CompareFiles('Data/Analysis/Surfaces' , 'Data/Benchmark/Surfaces');
 
 %% Time Series Registration
 params.SkipFirstRegStep = true;
+params.useStackReg = true;
 
 Registration(dsp, params); 
+
+load(dsp);
+load([AnaDirec,'/RegIm']);
+fprintf('>>>>>>>>>> RegIm is of type %s\n',class(RegIm));
+clearvars RegIm
 
 %%
 % now test that files generated are the same
