@@ -71,7 +71,7 @@ setappdata(gcf, 'icy_is_loaded', 0);
 setappdata(gcf, 'icy_path', 'none');
 
 
-LoadControls(hObject);
+LoadControls(hObject, varargin{1});
 
 
 

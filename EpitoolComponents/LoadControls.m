@@ -1,4 +1,4 @@
-function LoadControls(obj)
+function LoadControls(obj,settingsObj)
 %LOADCONTROLS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -9,21 +9,26 @@ import javax.*
 root        = javax.swing.tree.DefaultMutableTreeNode('Analysis');
 treeModel   = javax.swing.tree.DefaultTreeModel(root);
 tree        = javax.swing.JTree(treeModel);
-leafIcon    = javax.swing.ImageIcon('application-go.png');
-leafIcon2    = javax.swing.ImageIcon('archive-remove.png');
 
-renderer    = javax.swing.tree.DefaultTreeCellRenderer();
+leafIcon            = javax.swing.ImageIcon('images/bricks.png');
+folderIconOpen      = javax.swing.ImageIcon('images/folder-2.png');
+folderIconClosed    = javax.swing.ImageIcon('images/folder-2.png');
+
+renderer            = javax.swing.tree.DefaultTreeCellRenderer();
 renderer.setLeafIcon(leafIcon);
+renderer.setClosedIcon(folderIconClosed);
+renderer.setOpenIcon(folderIconOpen);
+
 tree.setCellRenderer(renderer);
 
 
-vec = {'Registration', 'Projection', 'Segmentation', 'Tracking', 'CLAHE'};
 
-%for i=fieldnames(stgObj.analysis_modules)
- for i=1:5  
-    A_Node = javax.swing.tree.DefaultMutableTreeNode(vec(i));
-    root.add(A_Node)
-    
+vec1 = fieldnames(settingsObj.analysis_modules);
+
+for i=1:length(vec1)
+
+    A_Node = javax.swing.tree.DefaultMutableTreeNode(vec1{i});
+    root.add(A_Node)    
 end
 % A_Node = javax.swing.tree.DefaultMutableTreeNode('Registration');
 % B_Node = javax.swing.tree.DefaultMutableTreeNode('Projection');
