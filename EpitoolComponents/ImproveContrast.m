@@ -21,8 +21,10 @@ for i=1:size(RegIm,3)
     if(isa(RegIm,'double'))
         if(uint_type == 8)
             RegIm_uint = uint8(RegIm(:,:,i));
-        else
+        elseif(uint_type == 16)
             RegIm_uint = uint16(RegIm(:,:,i));
+        else
+            error('I could not determine the pixel depth. Images should have either 8 bit or 16 bit pixel depth')
         end
     else
         RegIm_uint = RegIm(:,:,i);
