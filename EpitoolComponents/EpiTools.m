@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 14-Jul-2014 12:01:37
+% Last Modified by GUIDE v2.5 14-Jul-2014 15:49:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -58,7 +58,7 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-%LoadEpiTools();
+LoadEpiTools();
 
 % UIWAIT makes EpiTools wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -76,29 +76,8 @@ current_script_path = mfilename('fullpath');
 [file_path,~,~] = fileparts(current_script_path);
 setappdata(gcf, 'settings_rootpath', file_path);
 
-%% Find setting file in the arguments passed to calling function
-
-intSettingsFound = 0;
-
-if(size(varargin,2)>=1)
-    for i=1:size(varargin,2)
-        
-        if(isa(varargin{i},'settings'))
-            LoadControls(hObject, varargin{i});
-            intSettingsFound = 1;
-        end
-        
-    end
-end
-    
-if (intSettingsFound == 0)
-
-    varargin{(size(varargin,2)+1)} = settings('IMLS', 'TEST01', 1, 0.1,'','');
-    
-end
 
 
-%set(handles.text8, 'String',varargin{1}.analysis_name)
 
 
 
@@ -129,8 +108,6 @@ if(data_folder ~= 0)
         setappdata(hMainGui, 'data_specifics', data_specifics);
     end  
 end
-
-
 
 
 % --- Executes on button press in do_projection.
@@ -429,26 +406,6 @@ function MMFile_Edit_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-% --------------------------------------------------------------------
-function MMFile_Open_Callback(hObject, eventdata, handles)
-% hObject    handle to MMFile_Open (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-hMainGui = getappdata(0, 'hMainGui');
-strSettingFilePath = uigetdfile('~/','Select the directory of the images to analyze');
-
-if(strSettingFilePath ~= 0)
-
-    load(strSettingFilePath, '-mat');
-    varargin{(size(varargin,2)+1)} = stgObj;
-    
-end
-
-
-
-
 % --------------------------------------------------------------------
 function MmFile_Save_Callback(hObject, eventdata, handles)
 % hObject    handle to MmFile_Save (see GCBO)
@@ -538,25 +495,32 @@ strRootPath = getappdata(hMainGui,'settings_rootpath');
 copyfile(fullfile(strRootPath,...
          'images','emblem-notice.png'));
 [icoInformation] = imread('emblem-notice.png'); 
-strSettingFilePath = uigetfile('.etl','Select analysis file');
 
 
+[strSettingFileName,strSettingFilePath,~] = uigetfile('~/*.etl','Select analysis file');
+
+% If the user select a file to open
 if(strSettingFilePath ~= 0)
 
-    load(strSettingFilePath, '-mat');
+    load([strSettingFilePath,strSettingFileName], '-mat');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
     h = msgbox(sprintf('==================== Loading analysis ==================== \nName: %s  \nVersion: %s \nAuthor: %s \n======================================================\n\ncompleted with success!',...
         stgObj.analysis_name,stgObj.analysis_version,stgObj.user_name ),... 
         'Operation succesfully completed','custom',icoInformation);
     
+
+
+    %% Handles
+    if(isappdata(hMainGui,'settings_objectname'))
+
+        set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
+        set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
+
+        LoadControls(hMainGui, stgObj);
+    end
+    
 end
-
-%% Handles 
-set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
-set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
-
-
 
 
 % --------------------------------------------------------------------
@@ -592,6 +556,25 @@ function F_Save_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Save (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+strRootPath = getappdata(hMainGui,'settings_rootpath');
+stgObj = getappdata(hMainGui,'settings_objectname');
+
+out = questdlg('Would you like to save the current analysis?', 'Save analysis','Yes', 'No','Abort', 'Abort');
+
+switch out
+    case 'Yes'
+    
+        save([stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'], stgObj);
+    
+    case 'No'
+        
+        msgbox('Changes have been discarded');
+        
+end
+
+
+
 
 
 % --------------------------------------------------------------------
@@ -678,5 +661,12 @@ function pushbutton10_Callback(hObject, eventdata, handles)
 % --- Executes on button press in pushbutton11.
 function pushbutton11_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function F_Properties_Callback(hObject, eventdata, handles)
+% hObject    handle to F_Properties (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
