@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 11-Jul-2014 10:25:02
+% Last Modified by GUIDE v2.5 14-Jul-2014 12:01:37
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -69,9 +69,36 @@ setappdata(gcf, 'data_specifics', 'none');
 setappdata(gcf, 'icy_is_used', 0);
 setappdata(gcf, 'icy_is_loaded', 0);
 setappdata(gcf, 'icy_path', 'none');
+setappdata(gcf, 'settings_objectname', '');
+
+%obtain absolute location on system
+current_script_path = mfilename('fullpath');
+[file_path,~,~] = fileparts(current_script_path);
+setappdata(gcf, 'settings_rootpath', file_path);
+
+%% Find setting file in the arguments passed to calling function
+
+intSettingsFound = 0;
+
+if(size(varargin,2)>=1)
+    for i=1:size(varargin,2)
+        
+        if(isa(varargin{i},'settings'))
+            LoadControls(hObject, varargin{i});
+            intSettingsFound = 1;
+        end
+        
+    end
+end
+    
+if (intSettingsFound == 0)
+
+    varargin{(size(varargin,2)+1)} = settings('IMLS', 'TEST01', 1, 0.1,'','');
+    
+end
 
 
-LoadControls(hObject, varargin{1});
+%set(handles.text8, 'String',varargin{1}.analysis_name)
 
 
 
@@ -102,6 +129,8 @@ if(data_folder ~= 0)
         setappdata(hMainGui, 'data_specifics', data_specifics);
     end  
 end
+
+
 
 
 % --- Executes on button press in do_projection.
@@ -407,6 +436,18 @@ function MMFile_Open_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+hMainGui = getappdata(0, 'hMainGui');
+strSettingFilePath = uigetdfile('~/','Select the directory of the images to analyze');
+
+if(strSettingFilePath ~= 0)
+
+    load(strSettingFilePath, '-mat');
+    varargin{(size(varargin,2)+1)} = stgObj;
+    
+end
+
+
+
 
 % --------------------------------------------------------------------
 function MmFile_Save_Callback(hObject, eventdata, handles)
@@ -491,6 +532,29 @@ function F_Open_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+hMainGui = getappdata(0, 'hMainGui');
+strRootPath = getappdata(hMainGui,'settings_rootpath');
+
+copyfile(fullfile(strRootPath,...
+         'images','emblem-notice.png'));
+[icoInformation] = imread('emblem-notice.png'); 
+strSettingFilePath = uigetfile('.etl','Select analysis file');
+
+
+if(strSettingFilePath ~= 0)
+
+    load(strSettingFilePath, '-mat');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+    
+    h = msgbox(sprintf('==================== Loading analysis ==================== \nName: %s  \nVersion: %s \nAuthor: %s \n======================================================\n\ncompleted with success!',...
+        stgObj.analysis_name,stgObj.analysis_version,stgObj.user_name ),... 
+        'Operation succesfully completed','custom',icoInformation);
+    
+end
+
+%% Handles 
+set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
+set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
 
 
 
@@ -552,18 +616,18 @@ function MCredits_Callback(hObject, eventdata, handles)
 
 
 
-function edit1_Callback(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
+function mainTextBoxImagePath_Callback(hObject, eventdata, handles)
+% hObject    handle to mainTextBoxImagePath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit1 as text
-%        str2double(get(hObject,'String')) returns contents of edit1 as a double
+% Hints: get(hObject,'String') returns contents of mainTextBoxImagePath as text
+%        str2double(get(hObject,'String')) returns contents of mainTextBoxImagePath as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function edit1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
+function mainTextBoxImagePath_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to mainTextBoxImagePath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -575,18 +639,18 @@ end
 
 
 
-function edit2_Callback(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
+function mainTextBoxSettingPath_Callback(hObject, eventdata, handles)
+% hObject    handle to mainTextBoxSettingPath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit2 as text
-%        str2double(get(hObject,'String')) returns contents of edit2 as a double
+% Hints: get(hObject,'String') returns contents of mainTextBoxSettingPath as text
+%        str2double(get(hObject,'String')) returns contents of mainTextBoxSettingPath as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function edit2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
+function mainTextBoxSettingPath_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to mainTextBoxSettingPath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
