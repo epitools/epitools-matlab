@@ -1,4 +1,4 @@
-function LoadEpiTools()
+function out = LoadEpiTools()
 %SetWorkingDirectory Tells Matlab where to find EpiTools
 
 %obtain absolute location on system
@@ -16,7 +16,7 @@ addpath([fileparts(file_path),'/matlab_imageJ_interface/']);
 javaaddpath([fileparts(file_path),'/OME_LOCI_TOOLS/loci_tools.jar'])
 addpath([fileparts(file_path),'/OME_LOCI_TOOLS'])
 
-fprintf('Successfully loaded EpiTool functions from: %s\n',fileparts(file_path));
+out = sprintf('Successfully loaded EpiTool functions from: %s\n',fileparts(file_path));
 
 end
 

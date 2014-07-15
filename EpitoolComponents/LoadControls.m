@@ -28,6 +28,15 @@ vec1 = fieldnames(settingsObj.analysis_modules);
 for i=1:length(vec1)
 
     A_Node = javax.swing.tree.DefaultMutableTreeNode(vec1{i});
+    
+    vec2 = fieldnames(settingsObj.analysis_modules.(char(vec1{i})));
+    if (isempty(vec2) == 0)
+        for o=1:length(vec2)
+
+            A_Node.add(javax.swing.tree.DefaultMutableTreeNode(vec2{o}));
+
+        end
+    end
     root.add(A_Node)    
 end
 % A_Node = javax.swing.tree.DefaultMutableTreeNode('Registration');
@@ -58,7 +67,7 @@ scrollpane.setViewportView(tree);
 scrollpane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 scrollpane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 scrollpane.setBorder(javax.swing.BorderFactory.createTitledBorder(''));
-jcontrol(obj, scrollpane,'Position', [0.0 0.023 0.20 0.85]);
+jcontrol(obj, scrollpane,'Position', [0.0 0.023 0.20 0.895]);
 
 
 

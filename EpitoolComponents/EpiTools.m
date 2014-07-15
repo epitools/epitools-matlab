@@ -58,7 +58,7 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-LoadEpiTools();
+stsFunOut = LoadEpiTools();
 
 % UIWAIT makes EpiTools wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -70,11 +70,14 @@ setappdata(gcf, 'icy_is_used', 0);
 setappdata(gcf, 'icy_is_loaded', 0);
 setappdata(gcf, 'icy_path', 'none');
 setappdata(gcf, 'settings_objectname', '');
+setappdata(gcf, 'status_application',stsFunOut);
 
 %obtain absolute location on system
 current_script_path = mfilename('fullpath');
 [file_path,~,~] = fileparts(current_script_path);
 setappdata(gcf, 'settings_rootpath', file_path);
+
+handles_connection(hObject,handles)
 
 
 % --- Outputs from this function are returned to the command line.
@@ -95,14 +98,19 @@ function handles_connection(hObject,handles)
 
 hMainGui = getappdata(0, 'hMainGui');
 
-if(isappdata(hMainGui,'settings_objectname'))
-    stgObj = getappdata(hMainGui,'settings_objectname');
+set(handles.statusbar, 'String', getappdata(hMainGui, 'status_application'));
 
-    set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
-    set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
-    set(handles.figure1, 'Name', ['EpiTools | ', stgObj.analysis_code, ' - ' , stgObj.analysis_name])
-    LoadControls(hMainGui, stgObj);
+if(isappdata(hMainGui,'settings_objectname'))
     
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+    
+        stgObj = getappdata(hMainGui,'settings_objectname');
+
+        set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
+        set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
+        set(handles.figure1, 'Name', ['EpiTools | ', stgObj.analysis_code, ' - ' , stgObj.analysis_name])
+        LoadControls(hMainGui, stgObj);
+    end 
 end
 
 % Update handles structure
