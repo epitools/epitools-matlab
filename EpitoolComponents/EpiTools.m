@@ -670,3 +670,14 @@ function F_Properties_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Properties (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+hMainGui = getappdata(0, 'hMainGui');
+
+if(getappdata(hMainGui,'settings_objectname') ~= 0)
+
+    out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
+    
+else
+    msgbox('No analysis file loaded!'); 
+end
+

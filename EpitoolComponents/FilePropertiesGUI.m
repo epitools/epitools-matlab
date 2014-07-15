@@ -11,9 +11,9 @@ function varargout = FilePropertiesGUI(varargin)
 %
 %      FILEPROPERTIESGUI('Property','Value',...) creates a new FILEPROPERTIESGUI or raises
 %      the existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before FileProperties_OpeningFcn gets called.  An
+%      applied to the GUI before FilePropertiesGUI_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to FileProperties_OpeningFcn via varargin.
+%      stop.  All inputs are passed to FilePropertiesGUI_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 14-Jul-2014 16:47:55
+% Last Modified by GUIDE v2.5 15-Jul-2014 09:51:39
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -32,6 +32,7 @@ gui_State = struct('gui_Name',       mfilename, ...
                    'gui_OutputFcn',  @FilePropertiesGUI_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
+
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -43,24 +44,28 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-% --- Executes just before FileProperties is made visible.
+% --- Executes just before FilePropertiesGUI is made visible.
 function FilePropertiesGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to FileProperties (see VARARGIN)
+% varargin   command line arguments to FilePropertiesGUI (see VARARGIN)
 
-% Choose default command line output for FileProperties
+% Choose default command line output for FilePropertiesGUI
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
+setappdata(0  , 'hFPGui', gcf);
+setappdata(gcf, 'settings_objectname', varargin{1});
+set(handles.figure1,'Visible','on');
 initialize_gui(hObject, handles);
 
-% UIWAIT makes FileProperties wait for user response (see UIRESUME)
+% UIWAIT makes FilePropertiesGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
+waitfor(handles.figure1,'Visible','off');
 
 
 % --- Outputs from this function are returned to the command line.
@@ -72,6 +77,7 @@ function varargout = FilePropertiesGUI_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+close(handles.figure1)
 
 
 % --------------------------------------------------------------------
@@ -80,14 +86,14 @@ function initialize_gui(hObject,handles)
 % we are we are just re-initializing a GUI by calling it from the cmd line
 % while it is up. So, bail out as we dont want to reset the data.
 
-hMainGui = getappdata(0, 'hMainGui');
+hMainGui = getappdata(0, 'hFPGui');
 stgObj = getappdata(hMainGui,'settings_objectname');
 
 set(handles.fp_analysiscode, 'String', stgObj.analysis_code);
 set(handles.fp_analysisname, 'String', stgObj.analysis_name);
 set(handles.fp_analysisversion, 'String', stgObj.analysis_version);
-set(handles.fp_username, 'String', stgObj.user_name);
-set(handles.fp_userdepartment, 'String', stgObj.user_department);
+set(handles.fp_user_name, 'String', stgObj.user_name);
+set(handles.fp_user_department, 'String', stgObj.user_department);
 set(handles.fp_platform_id, 'String', stgObj.platform_id);
 set(handles.fp_platformdescription, 'String', stgObj.platform_desc);
 %set(handles.fp_cpus, 'String', stgObj.platform_units);
@@ -110,6 +116,8 @@ function fp_analysisname_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of fp_analysisname as a double
 
 
+
+
 % --- Executes during object creation, after setting all properties.
 function fp_analysisname_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to fp_analysisname (see GCBO)
@@ -124,18 +132,18 @@ end
 
 
 
-function fp_userdepartment_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_userdepartment (see GCBO)
+function fp_user_name_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_user_name (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of fp_userdepartment as text
-%        str2double(get(hObject,'String')) returns contents of fp_userdepartment as a double
+% Hints: get(hObject,'String') returns contents of fp_user_name as text
+%        str2double(get(hObject,'String')) returns contents of fp_user_name as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_userdepartment_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_userdepartment (see GCBO)
+function fp_user_name_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_user_name (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -147,18 +155,18 @@ end
 
 
 
-function edit11_Callback(hObject, eventdata, handles)
-% hObject    handle to edit11 (see GCBO)
+function fp_user_department_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_user_department (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit11 as text
-%        str2double(get(hObject,'String')) returns contents of edit11 as a double
+% Hints: get(hObject,'String') returns contents of fp_user_department as text
+%        str2double(get(hObject,'String')) returns contents of fp_user_department as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function edit11_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit11 (see GCBO)
+function fp_user_department_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_user_department (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -374,3 +382,32 @@ function fp_analysiscode_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbutton9.
+function pushbutton9_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+hMainGui = getappdata(0, 'hFPGui');
+stgObj = getappdata(hMainGui,'settings_objectname');
+
+if(strcmp(stgObj.analysis_name,get(handles.fp_analysisname, 'String')) == 0)
+    
+    msgbox('Analysis Name field has been changed')
+    stgObj.analysis_name = get(handles.fp_analysisname, 'String');
+    
+    
+end
+h = stgObj;
+handles.output = findobj(h,'Value',1);
+set(handles.figure1,'Visible','off')
+
+
+
+% --- Executes on button press in pushbutton10.
+function pushbutton10_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
