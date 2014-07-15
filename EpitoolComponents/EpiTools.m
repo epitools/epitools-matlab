@@ -404,75 +404,6 @@ function use_icy_checkbox_CreateFcn(hObject, eventdata, handles)
 
 
 % --------------------------------------------------------------------
-function MFile_Callback(hObject, eventdata, handles)
-% hObject    handle to MFile (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function MMFile_Callback(hObject, eventdata, handles)
-% hObject    handle to MMFile (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function MMEdit_Callback(hObject, eventdata, handles)
-% hObject    handle to MMEdit (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function MMAbout_Callback(hObject, eventdata, handles)
-% hObject    handle to MMAbout (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function MMFile_New_Callback(hObject, eventdata, handles)
-% hObject    handle to MMFile_New (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function MMFile_Edit_Callback(hObject, eventdata, handles)
-% hObject    handle to MMFile_Open (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% --------------------------------------------------------------------
-function MmFile_Save_Callback(hObject, eventdata, handles)
-% hObject    handle to MmFile_Save (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function MMFile_Close_Callback(hObject, eventdata, handles)
-% hObject    handle to MMFile_Close (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function MEdit_Callback(hObject, eventdata, handles)
-% hObject    handle to MEdit (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function MActions_Callback(hObject, eventdata, handles)
-% hObject    handle to MActions (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
 function A_Proj_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Proj (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -480,12 +411,13 @@ function A_Proj_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 
 if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
     
     stgObj = getappdata(hMainGui,'settings_objectname');
     stgObj.CreateModule('Projection');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
-    
+    end
 end
 handles_connection(hObject,handles)
 
@@ -498,12 +430,13 @@ function A_StackReg_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 
 if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
     
     stgObj = getappdata(hMainGui,'settings_objectname');
     stgObj.CreateModule('Stack_Registration');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
-    
+    end
 end
 handles_connection(hObject,handles)
 
@@ -516,12 +449,13 @@ function A_CLAHE_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 
 if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
     
     stgObj = getappdata(hMainGui,'settings_objectname');
     stgObj.CreateModule('CLAHE');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
-    
+    end
 end
 handles_connection(hObject,handles)
 
@@ -534,12 +468,13 @@ function A_Segmentation_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 
 if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
     
     stgObj = getappdata(hMainGui,'settings_objectname');
     stgObj.CreateModule('Segmentation');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
-    
+    end
 end
 handles_connection(hObject,handles)
 
@@ -552,12 +487,13 @@ function A_Tracking_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 
 if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
     
     stgObj = getappdata(hMainGui,'settings_objectname');
     stgObj.CreateModule('Tracking');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
-    
+    end
 end
 handles_connection(hObject,handles)
 
@@ -570,12 +506,13 @@ function A_Skeletons_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 
 if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
     
     stgObj = getappdata(hMainGui,'settings_objectname');
     stgObj.CreateModule('Skeletons');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
-    
+    end
 end
 handles_connection(hObject,handles)
 
@@ -587,16 +524,20 @@ function F_New_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
 
+% Check if there is setting file loaded in the application
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        % Ask if you want to save it before generate a new one
+        GBL_SaveAnalysis(hObject, handles)
+
+    end
+end
+
+% Initialize a new setting file and call the form FilePropertiesGUI
 stgObj = settings();
 setappdata(hMainGui, 'settings_objectname', stgObj);
-
-if(getappdata(hMainGui,'settings_objectname') ~= 0)
-
-    FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
-    
-else
-    msgbox('No analysis file loaded!'); 
-end
+FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
 
 % Update handles structure
 handles_connection(hObject, handles)
@@ -665,22 +606,8 @@ function F_Save_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Save (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-hMainGui = getappdata(0, 'hMainGui');
-strRootPath = getappdata(hMainGui,'settings_rootpath');
-stgObj = getappdata(hMainGui,'settings_objectname');
 
-out = questdlg('Would you like to save the current analysis?', 'Save analysis','Yes', 'No','Abort', 'Abort');
-
-switch out
-    case 'Yes'
-    
-        save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
-    
-    case 'No'
-        
-        msgbox('Changes have been discarded');
-        
-end
+GBL_SaveAnalysis(hObject, handles)
 
 
 
@@ -691,6 +618,7 @@ function F_Exit_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Exit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+close(handles.figure1);
 
 
 % --------------------------------------------------------------------
@@ -792,3 +720,25 @@ end
 
 % Update handles structure
 handles_connection(hObject, handles)
+
+
+function GBL_SaveAnalysis(hObject, handles)
+
+hMainGui = getappdata(0, 'hMainGui');
+strRootPath = getappdata(hMainGui,'settings_rootpath');
+stgObj = getappdata(hMainGui,'settings_objectname');
+
+out = questdlg('Would you like to save the current analysis?', 'Save analysis','Yes', 'No','Abort', 'Abort');
+
+switch out
+    case 'Yes'
+    
+        save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
+    
+    case 'No'
+        
+        msgbox('Changes have been discarded');
+        
+end
+
+
