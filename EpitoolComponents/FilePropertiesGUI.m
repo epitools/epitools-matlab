@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 15-Jul-2014 09:51:39
+% Last Modified by GUIDE v2.5 15-Jul-2014 12:05:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,12 +60,12 @@ guidata(hObject, handles);
 
 setappdata(0  , 'hFPGui', gcf);
 setappdata(gcf, 'settings_objectname', varargin{1});
-set(handles.figure1,'Visible','on');
+%set(handles.figure1,'Visible','on');
 initialize_gui(hObject, handles);
 
 % UIWAIT makes FilePropertiesGUI wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
-waitfor(handles.figure1,'Visible','off');
+%uiwait(handles.figure1);
+%waitfor(handles.figure1,'Visible','off');
 
 
 % --- Outputs from this function are returned to the command line.
@@ -77,7 +77,7 @@ function varargout = FilePropertiesGUI_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-close(handles.figure1)
+%close(handles.figure1)
 
 
 % --------------------------------------------------------------------
@@ -89,38 +89,38 @@ function initialize_gui(hObject,handles)
 hMainGui = getappdata(0, 'hFPGui');
 stgObj = getappdata(hMainGui,'settings_objectname');
 
-set(handles.fp_analysiscode, 'String', stgObj.analysis_code);
-set(handles.fp_analysisname, 'String', stgObj.analysis_name);
-set(handles.fp_analysisversion, 'String', stgObj.analysis_version);
+set(handles.fp_analysis_code, 'String', stgObj.analysis_code);
+set(handles.fp_analysis_name, 'String', stgObj.analysis_name);
+set(handles.fp_analysis_version, 'String', stgObj.analysis_version);
 set(handles.fp_user_name, 'String', stgObj.user_name);
 set(handles.fp_user_department, 'String', stgObj.user_department);
 set(handles.fp_platform_id, 'String', stgObj.platform_id);
-set(handles.fp_platformdescription, 'String', stgObj.platform_desc);
-%set(handles.fp_cpus, 'String', stgObj.platform_units);
-set(handles.fp_analysisdirectory, 'String', stgObj.data_analysisdir);
-set(handles.fp_benchmarkdirectory, 'String', stgObj.data_benchmarkdir);
-set(handles.fp_extension, 'String', stgObj.data_extensionmask);
-set(handles.fp_filedirectory, 'String', stgObj.data_fullpath);
+set(handles.fp_platform_desc, 'String', stgObj.platform_desc);
+%set(handles.fp_platform_units, 'String', stgObj.platform_units);
+set(handles.fp_data_analysisdir, 'String', stgObj.data_analysisdir);
+set(handles.fp_data_benchmarkdir, 'String', stgObj.data_benchmarkdir);
+set(handles.fp_data_extensionmask, 'String', stgObj.data_extensionmask);
+set(handles.fp_data_fullpath, 'String', stgObj.data_fullpath);
 
 % Update handles structure
 guidata(handles.figure1, handles);
 
 
 
-function fp_analysisname_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_analysisname (see GCBO)
+function fp_analysis_name_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_analysis_name (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of fp_analysisname as text
-%        str2double(get(hObject,'String')) returns contents of fp_analysisname as a double
+% Hints: get(hObject,'String') returns contents of fp_analysis_name as text
+%        str2double(get(hObject,'String')) returns contents of fp_analysis_name as a double
 
 
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_analysisname_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_analysisname (see GCBO)
+function fp_analysis_name_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_analysis_name (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -200,19 +200,19 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on selection change in fp_cpus.
-function fp_cpus_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_cpus (see GCBO)
+% --- Executes on selection change in fp_platform_units.
+function fp_platform_units_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_platform_units (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns fp_cpus contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from fp_cpus
+% Hints: contents = cellstr(get(hObject,'String')) returns fp_platform_units contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from fp_platform_units
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_cpus_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_cpus (see GCBO)
+function fp_platform_units_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_platform_units (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -224,18 +224,18 @@ end
 
 
 
-function fp_platformdescription_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_platformdescription (see GCBO)
+function fp_platform_desc_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_platform_desc (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of fp_platformdescription as text
-%        str2double(get(hObject,'String')) returns contents of fp_platformdescription as a double
+% Hints: get(hObject,'String') returns contents of fp_platform_desc as text
+%        str2double(get(hObject,'String')) returns contents of fp_platform_desc as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_platformdescription_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_platformdescription (see GCBO)
+function fp_platform_desc_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_platform_desc (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -247,18 +247,18 @@ end
 
 
 
-function fp_analysisversion_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_analysisversion (see GCBO)
+function fp_analysis_version_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_analysis_version (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of fp_analysisversion as text
-%        str2double(get(hObject,'String')) returns contents of fp_analysisversion as a double
+% Hints: get(hObject,'String') returns contents of fp_analysis_version as text
+%        str2double(get(hObject,'String')) returns contents of fp_analysis_version as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_analysisversion_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_analysisversion (see GCBO)
+function fp_analysis_version_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_analysis_version (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -270,18 +270,18 @@ end
 
 
 
-function fp_analysisdirectory_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_analysisdirectory (see GCBO)
+function fp_data_analysisdir_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_data_analysisdir (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of fp_analysisdirectory as text
-%        str2double(get(hObject,'String')) returns contents of fp_analysisdirectory as a double
+% Hints: get(hObject,'String') returns contents of fp_data_analysisdir as text
+%        str2double(get(hObject,'String')) returns contents of fp_data_analysisdir as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_analysisdirectory_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_analysisdirectory (see GCBO)
+function fp_data_analysisdir_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_data_analysisdir (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -293,18 +293,18 @@ end
 
 
 
-function fp_benchmarkdirectory_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_benchmarkdirectory (see GCBO)
+function fp_data_benchmarkdir_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_data_benchmarkdir (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of fp_benchmarkdirectory as text
-%        str2double(get(hObject,'String')) returns contents of fp_benchmarkdirectory as a double
+% Hints: get(hObject,'String') returns contents of fp_data_benchmarkdir as text
+%        str2double(get(hObject,'String')) returns contents of fp_data_benchmarkdir as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_benchmarkdirectory_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_benchmarkdirectory (see GCBO)
+function fp_data_benchmarkdir_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_data_benchmarkdir (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -316,18 +316,18 @@ end
 
 
 
-function fp_extension_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_extension (see GCBO)
+function fp_data_extensionmask_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_data_extensionmask (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of fp_extension as text
-%        str2double(get(hObject,'String')) returns contents of fp_extension as a double
+% Hints: get(hObject,'String') returns contents of fp_data_extensionmask as text
+%        str2double(get(hObject,'String')) returns contents of fp_data_extensionmask as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_extension_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_extension (see GCBO)
+function fp_data_extensionmask_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_data_extensionmask (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -339,18 +339,18 @@ end
 
 
 
-function fp_filedirectory_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_filedirectory (see GCBO)
+function fp_data_fullpath_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_data_fullpath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of fp_filedirectory as text
-%        str2double(get(hObject,'String')) returns contents of fp_filedirectory as a double
+% Hints: get(hObject,'String') returns contents of fp_data_fullpath as text
+%        str2double(get(hObject,'String')) returns contents of fp_data_fullpath as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_filedirectory_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_filedirectory (see GCBO)
+function fp_data_fullpath_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_data_fullpath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -362,18 +362,18 @@ end
 
 
 
-function fp_analysiscode_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_analysiscode (see GCBO)
+function fp_analysis_code_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_analysis_code (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of fp_analysiscode as text
-%        str2double(get(hObject,'String')) returns contents of fp_analysiscode as a double
+% Hints: get(hObject,'String') returns contents of fp_analysis_code as text
+%        str2double(get(hObject,'String')) returns contents of fp_analysis_code as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_analysiscode_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_analysiscode (see GCBO)
+function fp_analysis_code_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_analysis_code (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -390,20 +390,6 @@ function pushbutton9_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-hMainGui = getappdata(0, 'hFPGui');
-stgObj = getappdata(hMainGui,'settings_objectname');
-
-if(strcmp(stgObj.analysis_name,get(handles.fp_analysisname, 'String')) == 0)
-    
-    msgbox('Analysis Name field has been changed')
-    stgObj.analysis_name = get(handles.fp_analysisname, 'String');
-    
-    
-end
-h = stgObj;
-handles.output = findobj(h,'Value',1);
-set(handles.figure1,'Visible','off')
-
 
 
 % --- Executes on button press in pushbutton10.
@@ -411,3 +397,25 @@ function pushbutton10_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton10 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+hFPGui = getappdata(0, 'hFPGui');
+
+stgObj = getappdata(hFPGui,'settings_objectname');
+
+stgFields = fields(stgObj);
+hndFields = fields(handles);
+
+for i=1:length(stgFields)
+    
+    if(sum(strcmp(strcat('fp_',stgFields(i)), hndFields)) > 0)
+        
+        if(strcmp(stgObj.(char(stgFields(i))),get(handles.(char(strcat('fp_',stgFields(i)))), 'String')) == 0)
+        
+            stgObj.(char(stgFields(i))) = get(handles.(char(strcat('fp_',stgFields(i)))), 'String');
+    
+        end
+    end
+end
+
+setappdata(hMainGui, 'settings_objectname', stgObj);
+close(handles.figure1);
