@@ -91,6 +91,20 @@ function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
+% --------------------------------------------------------------------
+function handles_connection(hObject,handles)
+% If the metricdata field is present and the reset flag is false, it means
+% we are we are just re-initializing a GUI by calling it from the cmd line
+% while it is up. So, bail out as we dont want to reset the data.
+
+hMainGui = getappdata(0, 'hMainGui');
+stgObj = getappdata(hMainGui,'settings_objectname');
+
+set(handles.text8, 'String', stgObj.analysis_name);
+
+
+% Update handles structure
+guidata(hObject, handles);
 
 
 % --- Executes on button press in set_data_button.
@@ -521,6 +535,7 @@ if(strSettingFilePath ~= 0)
     end
     
 end
+handles_connection(hObject, handles)
 
 
 % --------------------------------------------------------------------
@@ -565,7 +580,7 @@ out = questdlg('Would you like to save the current analysis?', 'Save analysis','
 switch out
     case 'Yes'
     
-        save([stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'], stgObj);
+        save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
     
     case 'No'
         
@@ -675,9 +690,11 @@ hMainGui = getappdata(0, 'hMainGui');
 
 if(getappdata(hMainGui,'settings_objectname') ~= 0)
 
-    out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
+    FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
     
 else
     msgbox('No analysis file loaded!'); 
 end
 
+% Update handles structure
+handles_connection(hObject, handles)
