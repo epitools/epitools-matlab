@@ -98,10 +98,16 @@ function handles_connection(hObject,handles)
 % while it is up. So, bail out as we dont want to reset the data.
 
 hMainGui = getappdata(0, 'hMainGui');
-stgObj = getappdata(hMainGui,'settings_objectname');
 
-set(handles.text8, 'String', stgObj.analysis_name);
+if(isappdata(hMainGui,'settings_objectname'))
+    stgObj = getappdata(hMainGui,'settings_objectname');
 
+    set(handles.text8, 'String', stgObj.analysis_name);
+    set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
+    set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
+    LoadControls(hMainGui, stgObj);
+    
+end
 
 % Update handles structure
 guidata(hObject, handles);
@@ -495,7 +501,21 @@ function F_New_Callback(hObject, eventdata, handles)
 % hObject    handle to F_New (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
 
+stgObj = settings();
+setappdata(hMainGui, 'settings_objectname', stgObj);
+
+if(getappdata(hMainGui,'settings_objectname') ~= 0)
+
+    FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
+    
+else
+    msgbox('No analysis file loaded!'); 
+end
+
+% Update handles structure
+handles_connection(hObject, handles)
 
 % --------------------------------------------------------------------
 function F_Open_Callback(hObject, eventdata, handles)
@@ -523,18 +543,8 @@ if(strSettingFilePath ~= 0)
         stgObj.analysis_name,stgObj.analysis_version,stgObj.user_name ),... 
         'Operation succesfully completed','custom',icoInformation);
     
-
-
-    %% Handles
-    if(isappdata(hMainGui,'settings_objectname'))
-
-        set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
-        set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
-
-        LoadControls(hMainGui, stgObj);
-    end
-    
 end
+
 handles_connection(hObject, handles)
 
 
