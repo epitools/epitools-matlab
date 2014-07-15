@@ -4,17 +4,17 @@ classdef settings < handle
     
     properties
         analysis_code = '';
-        analysis_name = '';
+        analysis_name = 'Untitled';
         user_name = getenv('USER');
         user_department = 'Not specified';
         platform_id = '';
-        platform_units = '';
+        platform_units = 1;
         platform_desc = system_dependent('getos') ;
-        analysis_version = '';
+        analysis_version = 0;
         analysis_date = date();
         analysis_modules = struct();
-        data_fullpath = mfilename('fullpath');
-        data_imagepath = '';
+        data_fullpath = '~';
+        data_imagepath = '~';
         data_analysisdir = '/Analysis';
         data_benchmarkdir = '/Benchmark';
         data_extensionmask = '.etl';
@@ -22,7 +22,16 @@ classdef settings < handle
     
     methods
         
-        function obj = settings(user_department, analysis_name, platform_units, analysis_version, data_fullpath, data_imagepath)
+        function obj = settings(analysis_name, analysis_version, data_fullpath)
+            
+            if (nargin == 3) 
+                
+                  obj.analysis_name = analysis_name;
+                  obj.analysis_version = analysis_version;
+                  obj.data_fullpath = data_fullpath;
+                
+            end
+
             
             % Get the mac address of the machine running the analysis and
             % format it in the right way [00:00:00:00:00:00]
@@ -32,14 +41,9 @@ classdef settings < handle
             addr_allOneString = addr_allOneString(1:end-1);% strip final comma
             
             % Valorize settings fields
-            obj.analysis_code = strcat(num2str(floor(now())),'.',num2str(round(rand(1)*100)));
-            obj.analysis_name = analysis_name;
-            obj.user_department = user_department;
+            obj.analysis_code = strcat(num2str(floor(now())),'.',num2str(round(rand(1)*100)));   
             obj.platform_id = addr_allOneString;
-            obj.platform_units = platform_units;
-            obj.analysis_version = analysis_version;
-            obj.data_fullpath = data_fullpath;        
-            obj.data_imagepath = data_imagepath;
+            
         end      
         
         
