@@ -77,10 +77,6 @@ current_script_path = mfilename('fullpath');
 setappdata(gcf, 'settings_rootpath', file_path);
 
 
-
-
-
-
 % --- Outputs from this function are returned to the command line.
 function varargout = EpiTools_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -102,9 +98,9 @@ hMainGui = getappdata(0, 'hMainGui');
 if(isappdata(hMainGui,'settings_objectname'))
     stgObj = getappdata(hMainGui,'settings_objectname');
 
-    set(handles.text8, 'String', stgObj.analysis_name);
     set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
     set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
+    set(handles.figure1, 'Name', ['EpiTools | ', stgObj.analysis_code, ' - ' , stgObj.analysis_name])
     LoadControls(hMainGui, stgObj);
     
 end
@@ -137,38 +133,49 @@ function do_projection_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
-icy_is_used = getappdata(hMainGui,'icy_is_used');
 
-if(~strcmp(data_specifics,'none'))
+if(isappdata(hMainGui,'settings_objectname'))
     
-    %TODO check whether Proj is already present otherwise start Projection
-    %with relative GUI
-    load(data_specifics);
-    projection_file = [AnaDirec,'/ProjIm'];
-    if(exist([projection_file,'.mat'],'file'))
-        do_overwrite = questdlg('Found previous result','GUI decision',...
-    'Open GUI anyway','Show Result','Show Result');
-        if(strcmp(do_overwrite,'Open GUI anyway'))
-            ProjectionGUI;
-        else
-            load(projection_file);
-            if(icy_is_used)
-                try
-                icy_vidshow(ProjIm,'Projected data');
-                catch
-                    errordlg('No icy instance found! Please open icy','No icy error');
-                end
-            else
-                StackView(ProjIm);
-            end
-        end
-    else
-        ProjectionGUI;
-    end
-else
-    helpdlg('Please select your Data Set first','No Data Set found');
+    stgObj = getappdata(hMainGui,'settings_objectname');
+    stgObj.CreateModule('Projection');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+    
+    
 end
+handles_connection(hObject,handles)
+
+% data_specifics = getappdata(hMainGui,'data_specifics');
+% icy_is_used = getappdata(hMainGui,'icy_is_used');
+% 
+% if(~strcmp(data_specifics,'none'))
+%     
+%     %TODO check whether Proj is already present otherwise start Projection
+%     %with relative GUI
+%     load(data_specifics);
+%     projection_file = [AnaDirec,'/ProjIm'];
+%     if(exist([projection_file,'.mat'],'file'))
+%         do_overwrite = questdlg('Found previous result','GUI decision',...
+%     'Open GUI anyway','Show Result','Show Result');
+%         if(strcmp(do_overwrite,'Open GUI anyway'))
+%             ProjectionGUI;
+%         else
+%             load(projection_file);
+%             if(icy_is_used)
+%                 try
+%                 icy_vidshow(ProjIm,'Projected data');
+%                 catch
+%                     errordlg('No icy instance found! Please open icy','No icy error');
+%                 end
+%             else
+%                 StackView(ProjIm);
+%             end
+%         end
+%     else
+%         ProjectionGUI;
+%     end
+% else
+%     helpdlg('Please select your Data Set first','No Data Set found');
+% end
 
 % --- Executes on button press in do_registration.
 function do_registration_Callback(hObject, eventdata, handles)
@@ -176,28 +183,31 @@ function do_registration_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
 
-if(~strcmp(data_specifics,'none'))
-    
-    load(data_specifics);
-    registration_file = [AnaDirec,'/RegIm'];
-    if(exist([registration_file,'.mat'],'file'))
-        do_overwrite = questdlg('Found previous result','GUI decision',...
-    'Open GUI anyway','Show Result','Show Result');
-        if(strcmp(do_overwrite,'Open GUI anyway'))
-            RegistrationGUI;
-        else
-            load(registration_file);
-            StackView(RegIm);
-        end
-    else
-        RegistrationGUI;
-    end
-else
-    helpdlg('Please select your Data Set first','No Data Set found');
-end
+
+
+% hMainGui = getappdata(0, 'hMainGui');
+% data_specifics = getappdata(hMainGui,'data_specifics');
+% 
+% if(~strcmp(data_specifics,'none'))
+%     
+%     load(data_specifics);
+%     registration_file = [AnaDirec,'/RegIm'];
+%     if(exist([registration_file,'.mat'],'file'))
+%         do_overwrite = questdlg('Found previous result','GUI decision',...
+%     'Open GUI anyway','Show Result','Show Result');
+%         if(strcmp(do_overwrite,'Open GUI anyway'))
+%             RegistrationGUI;
+%         else
+%             load(registration_file);
+%             StackView(RegIm);
+%         end
+%     else
+%         RegistrationGUI;
+%     end
+% else
+%     helpdlg('Please select your Data Set first','No Data Set found');
+% end
 
 
 
@@ -459,6 +469,17 @@ function A_Proj_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Proj (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+
+if(isappdata(hMainGui,'settings_objectname'))
+    
+    stgObj = getappdata(hMainGui,'settings_objectname');
+    stgObj.CreateModule('Projection');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+    
+    
+end
+handles_connection(hObject,handles)
 
 
 % --------------------------------------------------------------------
@@ -466,6 +487,17 @@ function A_StackReg_Callback(hObject, eventdata, handles)
 % hObject    handle to A_StackReg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+
+if(isappdata(hMainGui,'settings_objectname'))
+    
+    stgObj = getappdata(hMainGui,'settings_objectname');
+    stgObj.CreateModule('Stack_Registration');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+    
+    
+end
+handles_connection(hObject,handles)
 
 
 % --------------------------------------------------------------------
@@ -473,6 +505,17 @@ function A_CLAHE_Callback(hObject, eventdata, handles)
 % hObject    handle to A_CLAHE (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+
+if(isappdata(hMainGui,'settings_objectname'))
+    
+    stgObj = getappdata(hMainGui,'settings_objectname');
+    stgObj.CreateModule('CLAHE');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+    
+    
+end
+handles_connection(hObject,handles)
 
 
 % --------------------------------------------------------------------
@@ -480,6 +523,17 @@ function A_Segmentation_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Segmentation (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+
+if(isappdata(hMainGui,'settings_objectname'))
+    
+    stgObj = getappdata(hMainGui,'settings_objectname');
+    stgObj.CreateModule('Segmentation');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+    
+    
+end
+handles_connection(hObject,handles)
 
 
 % --------------------------------------------------------------------
@@ -487,6 +541,17 @@ function A_Tracking_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Tracking (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+
+if(isappdata(hMainGui,'settings_objectname'))
+    
+    stgObj = getappdata(hMainGui,'settings_objectname');
+    stgObj.CreateModule('Tracking');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+    
+    
+end
+handles_connection(hObject,handles)
 
 
 % --------------------------------------------------------------------
@@ -494,6 +559,17 @@ function A_Skeletons_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Skeletons (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+
+if(isappdata(hMainGui,'settings_objectname'))
+    
+    stgObj = getappdata(hMainGui,'settings_objectname');
+    stgObj.CreateModule('Skeletons');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+    
+    
+end
+handles_connection(hObject,handles)
 
 
 % --------------------------------------------------------------------
