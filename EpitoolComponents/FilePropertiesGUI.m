@@ -96,7 +96,7 @@ set(handles.fp_user_name, 'String', stgObj.user_name);
 set(handles.fp_user_department, 'String', stgObj.user_department);
 set(handles.fp_platform_id, 'String', stgObj.platform_id);
 set(handles.fp_platform_desc, 'String', stgObj.platform_desc);
-%set(handles.fp_platform_units, 'String', stgObj.platform_units);
+set(handles.fp_platform_units, 'Value', stgObj.platform_units);
 set(handles.fp_data_analysisdir, 'String', stgObj.data_analysisdir);
 set(handles.fp_data_benchmarkdir, 'String', stgObj.data_benchmarkdir);
 set(handles.fp_data_extensionmask, 'String', stgObj.data_extensionmask);
@@ -407,13 +407,24 @@ hndFields = fields(handles);
 
 for i=1:length(stgFields)
     
-    if(sum(strcmp(strcat('fp_',stgFields(i)), hndFields)) > 0)
+    if (strcmp(stgFields(i), 'platform_units'))
         
-        if(strcmp(stgObj.(char(stgFields(i))),get(handles.(char(strcat('fp_',stgFields(i)))), 'String')) == 0)
+        strQuery = 'Value';
         
-            stgObj.(char(stgFields(i))) = get(handles.(char(strcat('fp_',stgFields(i)))), 'String');
+    else
+        
+        strQuery = 'String';
+        
+    end
     
+    if(sum(strcmp(strcat('fp_',stgFields(i)), hndFields)) > 0)
+
+        if(strcmp(stgObj.(char(stgFields(i))),get(handles.(char(strcat('fp_',stgFields(i)))), char(strQuery))) == 0)
+            
+            stgObj.(char(stgFields(i))) = get(handles.(char(strcat('fp_',stgFields(i)))), char(strQuery));
+            
         end
+           
     end
 end
 
