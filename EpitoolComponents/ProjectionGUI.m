@@ -55,6 +55,11 @@ function ProjectionGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for ProjectionGUI
 handles.output = hObject;
 
+setappdata(0  , 'hPrjGui', gcf);
+setappdata(gcf, 'settings_objectname', varargin{1});
+setappdata(gcf, 'settings_modulename', 'Projection');
+
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -64,9 +69,28 @@ guidata(hObject, handles);
 updateAndGather(handles);
 
 function updateAndGather(handles)
-    gathered_data = gatherData(handles);
-    updateLegends(handles,gathered_data);
 
+hPrjGui = getappdata(0  , 'hPrjGui');
+stgObj  = getappdata(hPrjGui, 'settings_objectname');
+module_name = getappdata(hPrjGui, 'settings_modulename');
+
+gathered_data = gatherData(handles);
+fieldgd = fields(gathered_data);
+
+for i=1:numel(fieldgd)
+    idx = fieldgd(i);
+    if(isfield(stgObj.analysis_modules.(char(module_name)).settings,char(idx)) == 0)
+        stgObj.AddSetting(module_name, char(idx), gathered_data.(char(idx)));
+    else
+        stgObj.ModifySetting(module_name, char(idx), gathered_data.(char(idx)));
+    end
+end
+
+setappdata(hPrjGui, 'settings_objectname', stgObj);
+updateLegends(handles);
+
+
+% Gather slider values set on the controls
 function gathered_data = gatherData(handles)
     
     gathered_data.SmoothingRadius = get(handles.smoothing_slider,'value');
@@ -74,17 +98,23 @@ function gathered_data = gatherData(handles)
     gathered_data.SurfSmoothness2 = get(handles.surface2_slider,'value');
     gathered_data.ProjectionDepthThreshold = get(handles.depth_slider,'value');
 
-function updateLegends(handles,gd)
-    caption = sprintf('Smoothing Radius = %.2f', gd.SmoothingRadius);
+% Valorise control legends 
+function updateLegends(handles)
+hPrjGui = getappdata(0  , 'hPrjGui');
+stgObj  = getappdata(hPrjGui, 'settings_objectname');
+module_name = getappdata(hPrjGui, 'settings_modulename');
+
+
+    caption = sprintf('Smoothing Radius = %.2f', stgObj.analysis_modules.(char(module_name)).settings.SmoothingRadius);
     set(handles.smoothing_label, 'String', caption);
 
-    caption = sprintf('Surface Smoothness 1 = %.0f', gd.SurfSmoothness1);
+    caption = sprintf('Surface Smoothness 1 = %.0f', stgObj.analysis_modules.(char(module_name)).settings.SurfSmoothness1);
     set(handles.surface1_label, 'String', caption);
     
-    caption = sprintf('Surface Smoothness 2 = %.0f', gd.SurfSmoothness2);
+    caption = sprintf('Surface Smoothness 2 = %.0f', stgObj.analysis_modules.(char(module_name)).settings.SurfSmoothness2);
     set(handles.surface2_label, 'String', caption);
     
-    caption = sprintf('Projection Depth Threshold = %.2f', gd.ProjectionDepthThreshold);
+    caption = sprintf('Projection Depth Threshold = %.2f', stgObj.analysis_modules.(char(module_name)).settings.ProjectionDepthThreshold);
     set(handles.depth_label, 'String', caption);
 
 % --- Outputs from this function are returned to the command line.
@@ -108,7 +138,6 @@ function smoothing_slider_Callback(hObject, eventdata, handles)
 
 updateAndGather(handles);
 
-
 % --- Executes during object creation, after setting all properties.
 function smoothing_slider_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to smoothing_slider (see GCBO)
@@ -124,7 +153,6 @@ end
 default_smoothing_radius = 1;
 set(hObject, 'value', default_smoothing_radius);
 
-
 % --- Executes on slider movement.
 function surface1_slider_Callback(hObject, eventdata, handles)
 % hObject    handle to surface1_slider (see GCBO)
@@ -135,7 +163,6 @@ function surface1_slider_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 updateAndGather(handles);
-
 
 % --- Executes during object creation, after setting all properties.
 function surface1_slider_CreateFcn(hObject, eventdata, handles)
@@ -175,7 +202,6 @@ end
 default_surface_smoothness_2 = 20;
 set(hObject, 'value', default_surface_smoothness_2);
 
-
 % --- Executes on slider movement.
 function depth_slider_Callback(hObject, eventdata, handles)
 % hObject    handle to depth_slider (see GCBO)
@@ -198,6 +224,7 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 default_projection_depth_threshold = 1.2;
 set(hObject, 'value', default_projection_depth_threshold);
+
 
 % --- Executes on button press in start_projection.
 function start_projection_Callback(hObject, eventdata, handles)
