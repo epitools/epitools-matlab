@@ -122,16 +122,16 @@ function set_data_button_Callback(hObject, eventdata, handles)
 % hObject    handle to set_data_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-hMainGui = getappdata(0, 'hMainGui');
-data_folder = uigetdir('~/','Select the directory of the images to analyze');
-
-if(data_folder ~= 0)
-    if(exist(data_folder,'dir'))
-        data_specifics = InspectData(data_folder);
-        setappdata(hMainGui, 'data_specifics', data_specifics);
-    end  
-end
+% 
+% hMainGui = getappdata(0, 'hMainGui');
+% data_folder = uigetdir('~/','Select the directory of the images to analyze');
+% 
+% if(data_folder ~= 0)
+%     if(exist(data_folder,'dir'))
+%         data_specifics = InspectData(data_folder);
+%         setappdata(hMainGui, 'data_specifics', data_specifics);
+%     end  
+% end
 
 
 % --- Executes on button press in do_projection.
