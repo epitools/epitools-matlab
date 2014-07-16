@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 15-Jul-2014 12:05:13
+% Last Modified by GUIDE v2.5 16-Jul-2014 09:26:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -430,3 +430,22 @@ end
 
 setappdata(hMainGui, 'settings_objectname', stgObj);
 close(handles.figure1);
+
+
+% --- Executes on button press in B_SelectDirectory.
+function B_SelectDirectory_Callback(hObject, eventdata, handles)
+% hObject    handle to B_SelectDirectory (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+hFPGui = getappdata(0, 'hFPGui');
+
+stgObj = getappdata(hFPGui,'settings_objectname');
+
+data_folder = uigetdir('~/','Select the directory to save the analysis file');
+
+stgObj.data_fullpath = data_folder;
+
+setappdata(hMainGui, 'settings_objectname', stgObj);
+initialize_gui(hObject,handles)
+
