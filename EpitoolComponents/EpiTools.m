@@ -419,6 +419,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     
     end
 end
+ProjectionGUI(stgObj);
 handles_connection(hObject,handles)
 
 
