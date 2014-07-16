@@ -125,11 +125,11 @@ if planeSize/(1024)^3 >= 2,
 end
 
 numSeries = r.getSeriesCount();
-fprintf('File contains %i datasets\n',numSeries);
+%fprintf('File contains %i datasets\n',numSeries);
 if nargin ==1 
     Serie = 1;
 end
-fprintf('Reading series #%d\n', Serie);
+%fprintf('Reading series #%d\n', Serie);
 r.setSeries(Serie - 1);
 
 metadata = r.getMetadataStore();
@@ -141,11 +141,11 @@ NZ = r.getSizeZ();
 NC = r.getSizeC();
 NT = r.getSizeT();
 
-fprintf('Data format (%i x %i)\n NZ = %i\n NChannels = %i\n NFrames = %i\n Encoding = %s\n', NX,NY,NZ, NC,NT,PixelType);
+%fprintf('Data format (%i x %i)\n NZ = %i\n NChannels = %i\n NFrames = %i\n Encoding = %s\n', NX,NY,NZ, NC,NT,PixelType);
 
 %OME-TWEAK to allow for OME-TIFF-float formatting
 if PixelType(1) == 'f'
-    fprintf('Tiff-float input: handling as double');
+    %fprintf('Tiff-float input: handling as double');
     PixelType = 'double';
 end
 
