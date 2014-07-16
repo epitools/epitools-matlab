@@ -119,5 +119,9 @@ end
 
 struct2xml(stcMetaData, strcat(stgObj.data_imagepath,'/','meta.xml'));
 
+% --------------------------- READING XML FILE ----------------------------
+
+%struct.data = xml_read(strcat(stgObj.data_imagepath,'/','meta.xml'));
+
 end
 
