@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 16-Jul-2014 09:26:14
+% Last Modified by GUIDE v2.5 17-Jul-2014 10:30:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -101,7 +101,7 @@ set(handles.fp_data_analysisdir, 'String', stgObj.data_analysisdir);
 set(handles.fp_data_benchmarkdir, 'String', stgObj.data_benchmarkdir);
 set(handles.fp_data_extensionmask, 'String', stgObj.data_extensionmask);
 set(handles.fp_data_fullpath, 'String', stgObj.data_fullpath);
-
+set(handles.fp_data_imagepath, 'String', stgObj.data_imagepath);
 % Update handles structure
 guidata(handles.figure1, handles);
 
@@ -444,8 +444,63 @@ stgObj = getappdata(hFPGui,'settings_objectname');
 
 data_folder = uigetdir('~/','Select the directory to save the analysis file');
 
-stgObj.data_fullpath = data_folder;
-
+if (data_folder)
+    stgObj.data_fullpath = data_folder;
+end 
+    
 setappdata(hMainGui, 'settings_objectname', stgObj);
 initialize_gui(hObject,handles)
 
+
+% --- Executes on button press in pushbutton12.
+function pushbutton12_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton12 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+hFPGui = getappdata(0, 'hFPGui');
+stgObj = getappdata(hFPGui,'settings_objectname');
+out = CreateMetadata(stgObj);
+
+
+
+function fp_data_imagepath_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_data_imagepath (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of fp_data_imagepath as text
+%        str2double(get(hObject,'String')) returns contents of fp_data_imagepath as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function fp_data_imagepath_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_data_imagepath (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in B_SelectIMGDirectory.
+function B_SelectIMGDirectory_Callback(hObject, eventdata, handles)
+% hObject    handle to B_SelectIMGDirectory (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+hFPGui = getappdata(0, 'hFPGui');
+
+stgObj = getappdata(hFPGui,'settings_objectname');
+
+data_folder = uigetdir('~/','Select the directory where you stored your image files');
+
+if (data_folder)
+    stgObj.data_imagepath = data_folder;
+end 
+    
+setappdata(hMainGui, 'settings_objectname', stgObj);
+initialize_gui(hObject,handles)

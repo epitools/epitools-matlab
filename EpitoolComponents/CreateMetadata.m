@@ -92,11 +92,19 @@ stcMetaData.main.file_time = floor(now());
 
 stcMetaData.main.files = struct();
 filenum = 1;
+
+% Supported image files
+expression = {'\w*(?=.tif|.tiff|.jpg|.jpeg)'};
+
 for i=1:length(lstImageFiles)
 
-    if(lstImageFiles(i).isdir == 1)
+    if (isempty(cell2mat(regexp(lstImageFiles(i).name,expression))) == 1)
         continue;
     end
+    
+    %if(lstImageFiles(i).isdir == 1) )
+    %    continue;
+    %end
     
     stcMetaData.main.files.(strcat('file',num2str(filenum))) = struct();
     temp = ReadMicroscopyData(strcat(stgObj.data_imagepath,'/',lstImageFiles(i).name));
@@ -109,6 +117,10 @@ for i=1:length(lstImageFiles)
     stcMetaData.main.files.(strcat('file',num2str(filenum))).num_channels   =   temp.NC;
     stcMetaData.main.files.(strcat('file',num2str(filenum))).num_timepoints =   temp.NT;
     stcMetaData.main.files.(strcat('file',num2str(filenum))).pixel_type     =   temp.PixelType;
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec           = 1;
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_dim_z     = temp.NZ;
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_channels  =   temp.NC;
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_num_timepoints =   temp.NT;
     
     filenum = filenum + 1;
     
@@ -116,7 +128,7 @@ end
 
 
 % ---------------------------- SAVING XML FILE ----------------------------
-
+out_status = sprintf('Metadata file created correctly', strcat(stgObj.data_imagepath,'/','meta.xml'));
 struct2xml(stcMetaData, strcat(stgObj.data_imagepath,'/','meta.xml'));
 
 % --------------------------- READING XML FILE ----------------------------
