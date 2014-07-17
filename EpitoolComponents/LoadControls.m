@@ -67,7 +67,7 @@ scrollpane.setViewportView(tree);
 scrollpane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 scrollpane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 scrollpane.setBorder(javax.swing.BorderFactory.createTitledBorder(''));
-jcontrol(obj, scrollpane,'Position', [0.0 0.023 0.20 0.895]);
+jcontrol(obj, scrollpane,'Position', [0.0 0.023 0.20 0.91]);
 
 
 
