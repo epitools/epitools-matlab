@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 17-Jul-2014 10:30:15
+% Last Modified by GUIDE v2.5 17-Jul-2014 16:23:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -102,6 +102,24 @@ set(handles.fp_data_benchmarkdir, 'String', stgObj.data_benchmarkdir);
 set(handles.fp_data_extensionmask, 'String', stgObj.data_extensionmask);
 set(handles.fp_data_fullpath, 'String', stgObj.data_fullpath);
 set(handles.fp_data_imagepath, 'String', stgObj.data_imagepath);
+
+
+if (stgObj.data_imagepath)
+    if exist(strcat(stgObj.data_imagepath,'/','meta.xml'), 'file') == 2
+        MetadataFIGXML = xml_read(strcat(stgObj.data_imagepath,'/','meta.xml'));
+        vecFields = fields(MetadataFIGXML.files);
+        tblFiles = table();
+        
+        for i=1:length(vecFields)
+            
+            tblFiles(i,:) = struct2table(MetadataFIGXML.files.(char(vecFields(i))));
+        end
+        tblFiles = table2cell(tblFiles);
+        set(handles.uitable1, 'Data', tblFiles(:,2:end));
+    end
+end
+
+
 % Update handles structure
 guidata(handles.figure1, handles);
 
@@ -459,8 +477,11 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 hFPGui = getappdata(0, 'hFPGui');
+hMainGui = getappdata(0, 'hMainGui');
 stgObj = getappdata(hFPGui,'settings_objectname');
-out = CreateMetadata(stgObj);
+
+stsFunOut = CreateMetadata(stgObj);
+setappdata(hMainGui, 'status_application',stsFunOut);
 
 
 
@@ -500,7 +521,24 @@ data_folder = uigetdir('~/','Select the directory where you stored your image fi
 
 if (data_folder)
     stgObj.data_imagepath = data_folder;
+    stsFunOut = CreateMetadata(stgObj);
 end 
     
 setappdata(hMainGui, 'settings_objectname', stgObj);
+setappdata(hMainGui, 'status_application',stsFunOut);
+
 initialize_gui(hObject,handles)
+
+
+% --- Executes on button press in pushbutton14.
+function pushbutton14_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton14 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton15.
+function pushbutton15_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton15 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
