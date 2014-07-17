@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 14-Jul-2014 15:49:56
+% Last Modified by GUIDE v2.5 17-Jul-2014 16:30:52
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -741,5 +741,3 @@ switch out
         msgbox('Changes have been discarded');
         
 end
-
-
