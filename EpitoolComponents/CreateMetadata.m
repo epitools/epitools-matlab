@@ -81,7 +81,14 @@ end
 % ----------------------------- FILE DISCOVERY ----------------------------
     
 
-lstImageFiles = dir(stgObj.data_imagepath);
+lstFiles = dir(stgObj.data_imagepath);
+
+
+% Supported image files
+regexXML = {'\w*(?=.xml)'};
+
+
+
 
 stcMetaData = struct();
 stcMetaData.main = struct();
@@ -94,23 +101,30 @@ stcMetaData.main.files = struct();
 filenum = 1;
 
 % Supported image files
-expression = {'\w*(?=.tif|.tiff|.jpg|.jpeg)'};
+regexFIG = {'\w*(?=.tif|.tiff|.jpg|.jpeg)'};
 
-for i=1:length(lstImageFiles)
-
-    if (isempty(cell2mat(regexp(lstImageFiles(i).name,expression))) == 1)
+for i=1:length(lstFiles)
+    
+    if(isempty(cell2mat(regexp(lstFiles(i).name,regexXML))) == 0)
+        
+        out_status = sprintf('File %s has been found in %s', lstFiles(i).name, strcat(stgObj.data_imagepath));
+        return
+    end;
+    
+    if (isempty(cell2mat(regexp(lstFiles(i).name,regexFIG))) == 1)
         continue;
     end
+    
     
     %if(lstImageFiles(i).isdir == 1) )
     %    continue;
     %end
     
     stcMetaData.main.files.(strcat('file',num2str(filenum))) = struct();
-    temp = ReadMicroscopyData(strcat(stgObj.data_imagepath,'/',lstImageFiles(i).name));
+    temp = ReadMicroscopyData(strcat(stgObj.data_imagepath,'/',lstFiles(i).name));
     
     stcMetaData.main.files.(strcat('file',num2str(filenum))).location   = stgObj.data_imagepath;
-    stcMetaData.main.files.(strcat('file',num2str(filenum))).name       = lstImageFiles(i).name;
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).name       = lstFiles(i).name;
     stcMetaData.main.files.(strcat('file',num2str(filenum))).dim_x      = temp.NX;
     stcMetaData.main.files.(strcat('file',num2str(filenum))).dim_y      = temp.NY;
     stcMetaData.main.files.(strcat('file',num2str(filenum))).dim_z      = temp.NZ;
