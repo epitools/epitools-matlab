@@ -129,6 +129,31 @@ classdef settings < handle
             
 
         end
+        
+        function AddResult(obj,mdname, arg, value)
+        % Add setting parameter to a certain module * the module has to be
+        % already initialized.
+
+                
+                obj.analysis_modules.(mdname).results.(arg) = value; 
+
+        end
+        
+        function RemoveResult(obj,mdname, arg)
+        % Remove setting parameter to a certain module * the module has to be
+        % already initialized.
+
+                obj.analysis_modules.(mdname).results = rmfield(obj.analysis_modules.(mdname).results,arg);
+        
+        end
+        
+        function ModifyResult(obj,mdname, arg,value)
+        % Modify setting parameter value in a certain module * the module has to be
+        % already initialized.
+                
+                obj.analysis_modules.(mdname).results.(arg) = value; 
+
+        end
 
     end
     
