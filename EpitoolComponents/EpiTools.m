@@ -152,71 +152,6 @@ if(isappdata(hMainGui,'settings_objectname'))
 end
 handles_connection(hObject,handles)
 
-% data_specifics = getappdata(hMainGui,'data_specifics');
-% icy_is_used = getappdata(hMainGui,'icy_is_used');
-% 
-% if(~strcmp(data_specifics,'none'))
-%     
-%     %TODO check whether Proj is already present otherwise start Projection
-%     %with relative GUI
-%     load(data_specifics);
-%     projection_file = [AnaDirec,'/ProjIm'];
-%     if(exist([projection_file,'.mat'],'file'))
-%         do_overwrite = questdlg('Found previous result','GUI decision',...
-%     'Open GUI anyway','Show Result','Show Result');
-%         if(strcmp(do_overwrite,'Open GUI anyway'))
-%             ProjectionGUI;
-%         else
-%             load(projection_file);
-%             if(icy_is_used)
-%                 try
-%                 icy_vidshow(ProjIm,'Projected data');
-%                 catch
-%                     errordlg('No icy instance found! Please open icy','No icy error');
-%                 end
-%             else
-%                 StackView(ProjIm);
-%             end
-%         end
-%     else
-%         ProjectionGUI;
-%     end
-% else
-%     helpdlg('Please select your Data Set first','No Data Set found');
-% end
-
-% --- Executes on button press in do_registration.
-function do_registration_Callback(hObject, eventdata, handles)
-% hObject    handle to do_registration (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-
-
-% hMainGui = getappdata(0, 'hMainGui');
-% data_specifics = getappdata(hMainGui,'data_specifics');
-% 
-% if(~strcmp(data_specifics,'none'))
-%     
-%     load(data_specifics);
-%     registration_file = [AnaDirec,'/RegIm'];
-%     if(exist([registration_file,'.mat'],'file'))
-%         do_overwrite = questdlg('Found previous result','GUI decision',...
-%     'Open GUI anyway','Show Result','Show Result');
-%         if(strcmp(do_overwrite,'Open GUI anyway'))
-%             RegistrationGUI;
-%         else
-%             load(registration_file);
-%             StackView(RegIm);
-%         end
-%     else
-%         RegistrationGUI;
-%     end
-% else
-%     helpdlg('Please select your Data Set first','No Data Set found');
-% end
-
 
 
 % --- Executes on button press in do_segmentation.
@@ -439,6 +374,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     
     end
 end
+RegistrationGUI(stgObj);
 handles_connection(hObject,handles)
 
 
@@ -453,11 +389,13 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
     
     stgObj = getappdata(hMainGui,'settings_objectname');
-    stgObj.CreateModule('CLAHE');
+    stgObj.CreateModule('Contrast_Enhancement');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
     end
 end
+
+ImproveContrastGUI(stgObj);
 handles_connection(hObject,handles)
 
 
