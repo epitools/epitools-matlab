@@ -54,6 +54,10 @@ function ImproveContrastGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for ImproveContrastGUI
 handles.output = hObject;
+handles.output = hObject;
+setappdata(0  , 'hICoGui', gcf);
+setappdata(gcf, 'settings_objectname', varargin{1});
+setappdata(gcf, 'settings_modulename', 'Contrast_Enhancement');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -64,17 +68,46 @@ guidata(hObject, handles);
 updateAndGather(handles);
 
 function updateAndGather(handles)
-    gathered_data = gatherData(handles);
-    updateLegends(handles,gathered_data);
+hICoGui = getappdata(0  , 'hICoGui');
+hMainGui = getappdata(0  , 'hMainGui');
+stgObj  = getappdata(hICoGui, 'settings_objectname');
+module_name = getappdata(hICoGui, 'settings_modulename');
+
+gathered_data = gatherData(handles);
+fieldgd = fields(gathered_data);
+
+for i=1:numel(fieldgd)
+    idx = fieldgd(i);
+    if(isfield(stgObj.analysis_modules.(char(module_name)).settings,char(idx)) == 0)
+        stgObj.AddSetting(module_name, char(idx), gathered_data.(char(idx)));
+    else
+        stgObj.ModifySetting(module_name, char(idx), gathered_data.(char(idx)));
+    end
+end
+
+setappdata(hMainGui, 'settings_objectname', stgObj);
+updateLegends(handles);
+% 
+% function updateAndGather(handles)
+%     gathered_data = gatherData(handles);
+%     updateLegends(handles,gathered_data);
 
 function gathered_data = gatherData(handles)
     gathered_data.enhancement_limit = get(handles.enhancement_slider,'value');
     
-function updateLegends(handles,gd)
-    caption = sprintf('Enhancement limit = %.2f', gd.enhancement_limit);
+
+% Valorise control legends 
+function updateLegends(handles)
+hICoGui = getappdata(0  , 'hICoGui');
+stgObj  = getappdata(hICoGui, 'settings_objectname');
+module_name = getappdata(hICoGui, 'settings_modulename');
+
+
+    caption = sprintf('Enhancement limit = %.2f', stgObj.analysis_modules.(char(module_name)).settings.enhancement_limit);
     set(handles.enhancement_label, 'String', caption);
 
-
+    
+    
 % --- Outputs from this function are returned to the command line.
 function varargout = ImproveContrastGUI_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -117,9 +150,10 @@ function run_clahe_Callback(hObject, eventdata, handles)
 gatheredData = gatherData(handles);
 enhancement_limit = gatheredData.enhancement_limit;
 
-hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
-ImproveContrast(data_specifics, enhancement_limit);
+hICoGui = getappdata(0  , 'hICoGui');
+stgObj  = getappdata(hICoGui, 'settings_objectname');
+
+ImproveContrast(stgObj);
 
 
 % --- Executes on slider movement.
