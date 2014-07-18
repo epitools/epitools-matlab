@@ -103,20 +103,28 @@ set(handles.fp_data_extensionmask, 'String', stgObj.data_extensionmask);
 set(handles.fp_data_fullpath, 'String', stgObj.data_fullpath);
 set(handles.fp_data_imagepath, 'String', stgObj.data_imagepath);
 
+% Valorise file table
 
 if (stgObj.data_imagepath)
     if exist(strcat(stgObj.data_imagepath,'/','meta.xml'), 'file') == 2
+      
         MetadataFIGXML = xml_read(strcat(stgObj.data_imagepath,'/','meta.xml'));
         vecFields = fields(MetadataFIGXML.files);
-        tblFiles = table();
-        
+
         for i=1:length(vecFields)
             
-            tblFiles(i,:) = struct2table(MetadataFIGXML.files.(char(vecFields(i))));
+            arrFiles(i,:) = struct2cell(MetadataFIGXML.files.(char(vecFields(i))));
         end
-        tblFiles = table2cell(tblFiles);
-        set(handles.uitable1, 'Data', tblFiles(:,2:end));
+        
+        set(handles.uitable1, 'Data', arrFiles(:,2:end));
+
+    elseif (isfield(stgObj.analysis_modules.Main, 'data') == 1)
+            
+            
+        set(handles.uitable1, 'Data', stgObj.Main.data);  
+            
     end
+    
 end
 
 
@@ -446,7 +454,11 @@ for i=1:length(stgFields)
     end
 end
 
+stgObj.AddSetting('Main','data',get(handles.uitable1,'Data'));
+
+
 setappdata(hMainGui, 'settings_objectname', stgObj);
+initialize_gui(hObject,handles)
 close(handles.figure1);
 
 
@@ -482,6 +494,7 @@ stgObj = getappdata(hFPGui,'settings_objectname');
 
 stsFunOut = CreateMetadata(stgObj);
 setappdata(hMainGui, 'status_application',stsFunOut);
+initialize_gui(hObject,handles)
 
 
 

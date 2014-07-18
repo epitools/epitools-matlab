@@ -537,7 +537,9 @@ end
 
 % Initialize a new setting file and call the form FilePropertiesGUI
 stgObj = settings();
+stgObj.CreateModule('Main');
 setappdata(hMainGui, 'settings_objectname', stgObj);
+
 FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
 
 % Update handles structure
