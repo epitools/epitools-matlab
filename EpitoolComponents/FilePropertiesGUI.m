@@ -106,22 +106,33 @@ set(handles.fp_data_imagepath, 'String', stgObj.data_imagepath);
 % Valorise file table
 
 if (stgObj.data_imagepath)
-    if exist(strcat(stgObj.data_imagepath,'/','meta.xml'), 'file') == 2
+    
+    if (isfield(stgObj.analysis_modules.Main, 'data') == 1)
+            
+            
+        set(handles.uitable1, 'Data', stgObj.analysis_modules.Main.data);  
+    
+    elseif exist(strcat(stgObj.data_imagepath,'/','meta.xml'), 'file') == 2
       
         MetadataFIGXML = xml_read(strcat(stgObj.data_imagepath,'/','meta.xml'));
         vecFields = fields(MetadataFIGXML.files);
 
         for i=1:length(vecFields)
             
+            MetadataFIGXML.files.(char(vecFields(i))).exec = logical(MetadataFIGXML.files.(char(vecFields(i))).exec);
+            MetadataFIGXML.files.(char(vecFields(i))).exec_dim_z = num2str(MetadataFIGXML.files.(char(vecFields(i))).exec_dim_z);
+            MetadataFIGXML.files.(char(vecFields(i))).exec_channels = num2str(MetadataFIGXML.files.(char(vecFields(i))).exec_channels);
+            MetadataFIGXML.files.(char(vecFields(i))).exec_num_timepoints = num2str(MetadataFIGXML.files.(char(vecFields(i))).exec_num_timepoints);
+            
             arrFiles(i,:) = struct2cell(MetadataFIGXML.files.(char(vecFields(i))));
+
+            
+            
         end
         
         set(handles.uitable1, 'Data', arrFiles(:,2:end));
 
-    elseif (isfield(stgObj.analysis_modules.Main, 'data') == 1)
-            
-            
-        set(handles.uitable1, 'Data', stgObj.Main.data);  
+
             
     end
     
