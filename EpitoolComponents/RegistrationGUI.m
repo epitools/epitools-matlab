@@ -54,14 +54,65 @@ function RegistrationGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for RegistrationGUI
 handles.output = hObject;
+setappdata(0  , 'hRegGui', gcf);
+setappdata(gcf, 'settings_objectname', varargin{1});
+setappdata(gcf, 'settings_modulename', 'Stack_Registration');
 
 % Update handles structure
 guidata(hObject, handles);
 
+
+updateAndGather(handles);
+
 % UIWAIT makes RegistrationGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+function updateAndGather(handles)
+hRegGui = getappdata(0  , 'hRegGui');
+hMainGui = getappdata(0  , 'hMainGui');
+stgObj  = getappdata(hRegGui, 'settings_objectname');
+module_name = getappdata(hRegGui, 'settings_modulename');
 
+gathered_data = gatherData(handles);
+fieldgd = fields(gathered_data);
+
+for i=1:numel(fieldgd)
+    idx = fieldgd(i);
+    if(isfield(stgObj.analysis_modules.(char(module_name)).settings,char(idx)) == 0)
+        stgObj.AddSetting(module_name, char(idx), gathered_data.(char(idx)));
+    else
+        stgObj.ModifySetting(module_name, char(idx), gathered_data.(char(idx)));
+    end
+end
+
+setappdata(hMainGui, 'settings_objectname', stgObj);
+updateLegends(handles);
+
+% Gather slider values set on the controls
+function gathered_data = gatherData(handles)
+    
+    gathered_data.useStackReg = get(handles.useStackReg,'value');
+
+    % Valorise control legends 
+function updateLegends(handles)
+hRehGui = getappdata(0  , 'hRegGui');
+stgObj  = getappdata(hRehGui, 'settings_objectname');
+module_name = getappdata(hRehGui, 'settings_modulename');
+
+
+%     caption = sprintf('Smoothing Radius = %.2f', stgObj.analysis_modules.(char(module_name)).settings.SmoothingRadius);
+%     set(handles.smoothing_label, 'String', caption);
+% 
+%     caption = sprintf('Surface Smoothness 1 = %.0f', stgObj.analysis_modules.(char(module_name)).settings.SurfSmoothness1);
+%     set(handles.surface1_label, 'String', caption);
+%     
+%     caption = sprintf('Surface Smoothness 2 = %.0f', stgObj.analysis_modules.(char(module_name)).settings.SurfSmoothness2);
+%     set(handles.surface2_label, 'String', caption);
+%     
+%     caption = sprintf('Projection Depth Threshold = %.2f', stgObj.analysis_modules.(char(module_name)).settings.ProjectionDepthThreshold);
+%     set(handles.depth_label, 'String', caption);
+    
+   
 % --- Outputs from this function are returned to the command line.
 function varargout = RegistrationGUI_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -78,14 +129,22 @@ function start_registration_Callback(hObject, eventdata, handles)
 % hObject    handle to start_registration (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-params.useStackReg = get(handles.useStackReg,'Value');
-params.InspectResults = true;         % show fit or not
-params.Parallel = false;               % Use parallelisation?
-params.SkipFirstRegStep = true;
+updateAndGather(handles);
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
-Registration(data_specifics,params);
+hRehGui = getappdata(0  , 'hRegGui');
+stgObj  = getappdata(hRehGui, 'settings_objectname');
+module_name = getappdata(hRehGui, 'settings_modulename');
+
+%params = gatherData(handles);
+%params.InspectResults = true;         % show fit or not
+stgObj.AddSetting(module_name,'InspectResults',true);
+%params.Parallel = true;               % Use parallelisation?
+stgObj.AddSetting(module_name,'Parallel',true);
+%params.SkipFirstRegStep = true;
+stgObj.AddSetting(module_name,'SkipFirstRegStep',true);
+
+
+Registration(stgObj);
 
 
 % --- Executes on button press in useStackReg.
