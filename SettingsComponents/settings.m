@@ -61,10 +61,16 @@ classdef settings < handle
         function CreateModule(obj,mdname)
         % Create a setting module to add to the configuration file
             
-            obj.analysis_modules.(mdname) = struct();
-            obj.analysis_modules.(mdname).metadata = struct();
-            obj.analysis_modules.(mdname).settings = struct();
-            obj.analysis_modules.(mdname).results = struct();
+            if (strcmp(mdname, 'Main') == 1)
+               
+                obj.analysis_modules.(mdname) = struct();
+            
+            else
+                obj.analysis_modules.(mdname) = struct();
+                obj.analysis_modules.(mdname).metadata = struct();
+                obj.analysis_modules.(mdname).settings = struct();
+                obj.analysis_modules.(mdname).results = struct();
+            end
             
         end
         
@@ -80,47 +86,50 @@ classdef settings < handle
         function AddSetting(obj,mdname, arg, value)
         % Add setting parameter to a certain module * the module has to be
         % already initialized.
-            obj.analysis_modules.(mdname).settings.(arg) = value; 
+            if (strcmp(mdname, 'Main') == 1)
+               
+                obj.analysis_modules.(mdname).(arg) = value; 
+            
+            else
+                
+                obj.analysis_modules.(mdname).settings.(arg) = value; 
+                
+            end
         end
         
         function RemoveSetting(obj,mdname, arg)
         % Remove setting parameter to a certain module * the module has to be
         % already initialized.
+        
+            if (strcmp(mdname, 'Main') == 1)
+               
+                obj.analysis_modules.(mdname) = rmfield(obj.analysis_modules.(mdname),arg);
             
-            obj.analysis_modules.(mdname).settings = rmfield(obj.analysis_modules.(mdname).settings,arg);
-
+            else
+                
+                obj.analysis_modules.(mdname).settings = rmfield(obj.analysis_modules.(mdname).settings,arg);
+                
+            end
+        
         end
         
         function ModifySetting(obj,mdname, arg,value)
         % Modify setting parameter value in a certain module * the module has to be
         % already initialized.
-        
-            obj.analysis_modules.(mdname).settings.(arg) = value; 
-
-        end
-        
-        function [status] = SaveToFile(obj, type)
-        
-            switch type
-                case 'bin'
-                    save(strcat(obj.analysis_name,'.etl'),obj);
+           
+            if (strcmp(mdname, 'Main') == 1)
+               
+                obj.analysis_modules.(mdname).(arg) = value; 
+            
+            else
                 
-                case 'open'
-                    save(strcat(obj.analysis_name,'.etl'),obj);
+                obj.analysis_modules.(mdname).settings.(arg) = value; 
                 
-                otherwise
-                    error('An error occurred during setting file saving. No file type specified');
-                    status = 1;
-                    return
             end
             
-            
-            status = 0;
-                    
+
         end
-        
-        
-       
+
     end
     
 end
