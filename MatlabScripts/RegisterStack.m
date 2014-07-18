@@ -1,18 +1,18 @@
-function RegIm = RegisterStack(ImSeries, params)
+function RegIm = RegisterStack(ImSeries, stgObj)
 % Registration of the images in the stacks
 % the process uses 2 steps: one coarse and one fine
 % params.SkipFirstRegStep:  a flag for small images when big movements
 %                           don't make sense
 
 if nargin == 1
-    params.SkipFirstRegStep = false;
+    stgObj.SkipFirstRegStep = false;
 end
 
 % Parameters for the coarse registration step
 Ang = [-5:1:5];             % angle differences to explore
 X = [-150:10:150];          % Delta X to explore
 Y = [-150:10:150];          % Delta Y to explore
-if params.SkipFirstRegStep
+if stgObj.SkipFirstRegStep
     Ang = [0];
     X = [0];
     Y = [0];
