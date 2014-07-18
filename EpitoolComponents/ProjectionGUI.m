@@ -71,6 +71,7 @@ updateAndGather(handles);
 function updateAndGather(handles)
 
 hPrjGui = getappdata(0  , 'hPrjGui');
+hMainGui = getappdata(0  , 'hMainGui');
 stgObj  = getappdata(hPrjGui, 'settings_objectname');
 module_name = getappdata(hPrjGui, 'settings_modulename');
 
@@ -86,7 +87,7 @@ for i=1:numel(fieldgd)
     end
 end
 
-setappdata(hPrjGui, 'settings_objectname', stgObj);
+setappdata(hMainGui, 'settings_objectname', stgObj);
 updateLegends(handles);
 
 
@@ -231,11 +232,17 @@ function start_projection_Callback(hObject, eventdata, handles)
 % hObject    handle to start_projection (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-params = gatherData(handles);
-params.InspectResults = true;         % show fit or not
-params.Parallel = true;               % Use parallelisation?
-
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
-Projection(data_specifics,params);
+stgObj  = getappdata(hMainGui, 'settings_objectname');
+
+%params = gatherData(handles);
+%params.InspectResults = true;         % show fit or not
+stgObj.AddSetting('Projection','InspectResults',true);
+%params.Parallel = true;               % Use parallelisation?
+stgObj.AddSetting('Projection','Parallel',true);
+
+updateAndGather(handles);
+
+%data_specifics = getappdata(hMainGui,'data_specifics');
+%Projection(data_specifics);
+Projection(stgObj);

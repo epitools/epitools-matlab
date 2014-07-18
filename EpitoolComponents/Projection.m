@@ -1,5 +1,4 @@
-function Projection(DataSpecificsPath,params)
-
+function [varargout] = Projection(stgObj)
 %SurfaceProjection Discover the surface of the highest intensity signal in
 %the image stack and selectively project the signal lying on that surface
 %
@@ -8,48 +7,123 @@ function Projection(DataSpecificsPath,params)
 %   SurfSmoothness1 - 1st surface fitting, surface stiffness ~100
 %   SurfSmoothness2 - 2nd surface fitting, stiffness ~50
 %   ProjectionDepthThreshold - how much up/down to gather data from surface
+%
+% todo: need to convert to int8 in a rational way here!
+% can use 95 or 99% quantile of the data and then scale 
+
 
 %initialize progressbar
 progressbar('Projecting images...');
 
-load(DataSpecificsPath);
-Data = ReadMicroscopyData(FullDataFile, Series);
-% todo: need to convert to int8 in a rational way here!
-% can use 95 or 99% quantile of the data and then scale
+global_time_index = 0;
+intProcessedFiles = 0;
 
-Surfaces = zeros(Data.NY,Data.NX,Data.NT,'uint8');
-ProjIm = zeros(Data.NY,Data.NX,Data.NT, Data.PixelType);
 
-d = 0;
+% it is more convenient to recall the setting file with as shorter variable
+% name: stgModule 
+stgModule = stgObj.analysis_modules.Projection.settings;
 
-% For loop for all files in the folder (lst) and second parfor for all timepoints
 fprintf('Started projection at %s',datestr(now));
-for i =1:length(lst)
-    if isempty(strfind(lst(i).name,Filemask)); continue; end;
-    FullDataFile = [DataDirec,'/',lst(i).name];
-    Data = ReadMicroscopyData(FullDataFile, Series);
+% For loop for all files in the folder (lst) and second parfor for all timepoints
+
+for i=1:size(stgObj.analysis_modules.Main.data,1)
+    
+    % Discard files where exec property is 0
+    if(logical(cell2mat(stgObj.analysis_modules.Main.data(i,8))) == false)
+        continue;
+    end
+    
+    % If the first file is being processed, then initialize variables
+    % Surface, ProjIm
+    if(intProcessedFiles == 0) 
+        %Surfaces = zeros(Data.NY,Data.NX,Data.NT,'uint8');
+        %ProjIm = zeros(Data.NY,Data.NX,Data.NT, Data.PixelType);
+        
+    
+        Surfaces = zeros(cell2mat(stgObj.analysis_modules.Main.data(i,3)),...
+                         cell2mat(stgObj.analysis_modules.Main.data(i,2)),...
+                         cell2mat(stgObj.analysis_modules.Main.data(i,6)),...
+                         'uint8'); 
+        ProjIm = zeros(cell2mat(stgObj.analysis_modules.Main.data(i,3)),...
+                       cell2mat(stgObj.analysis_modules.Main.data(i,2)),...
+                       cell2mat(stgObj.analysis_modules.Main.data(i,6)),...
+                       char(stgObj.analysis_modules.Main.data(i,7))); 
+
+    end
+    
+    % Obtain image file full path
+    strFullPathFile = [stgObj.data_imagepath,'/',char(stgObj.analysis_modules.Main.data(i,1))];
+    
+    % Read image file data
+    Series = 1;
+    Data = ReadMicroscopyData(strFullPathFile, Series);
     Data.images = squeeze(Data.images); % get rid of empty 
-    fprintf('Working on %s\n', lst(i).name);
+    
+    fprintf('Working on %s\n', char(stgObj.analysis_modules.Main.data(i,1)));
    
     %information seems to not be transmitted correctly 10 time points
     %appear to be presente while there are only 3, CHECK [ ] 
-    for f = 1:Data.NT 
-        ImStack = Data.images(:,:,:,f);
-        [im,Surf] = createProjection(ImStack,params.SmoothingRadius,params.ProjectionDepthThreshold,params.SurfSmoothness1,params.SurfSmoothness2,params.InspectResults);
-        ProjIm(:,:,f+d) = im;
-        Surfaces(:,:,f+d) = Surf;
-        progressbar(((i-1)*Data.NT+f)/length(lst)/Data.NT);
+    
+    idxTimePoints = [];
+    % Prepare vector containing indexes of time points to consider:
+    % all the ranges
+    ans1 = regexp(regexp(char(stgObj.analysis_modules.Main.data(i,11)), '([0-9]*)-([0-9]*)', 'match'),'-','split');
+    
+    for o=1:length((ans1))
+        
+        idxTimePoints = [idxTimePoints,str2double(ans1{o}{1}):str2double(ans1{o}{2})];
+        
     end
-    d=d+Data.NT;
+    
+    % all the singles *ATT: it can generate NAN values (getting rid of
+    % them with line>
+    ans2 = regexp(char(stgObj.analysis_modules.Main.data(i,11)), '([0-9]*)-([0-9]*)', 'split');
+    
+    for o=1:length(ans2)
+    
+        idxTimePoints = [idxTimePoints,str2double(strsplit(ans2{o},','))];
+    
+    end
+    
+    
+    idxTimePoints = idxTimePoints(~isnan(idxTimePoints));
+    idxTimePoints = sort(idxTimePoints);
+    
+
+    for local_time_index = 1:length(idxTimePoints)
+        
+
+        ImStack = Data.images(:,:,:,idxTimePoints(local_time_index));
+        
+        [im,Surf] = createProjection(ImStack,...
+                                     stgModule.SmoothingRadius,...
+                                     stgModule.ProjectionDepthThreshold,...
+                                     stgModule.SurfSmoothness1,...
+                                     stgModule.SurfSmoothness2,...
+                                     stgModule.InspectResults);
+        
+        ProjIm(:,:,local_time_index+global_time_index) = im;
+        Surfaces(:,:,local_time_index+global_time_index) = Surf;
+        
+        progressbar(((local_time_index-1)*length(idxTimePoints)+idxTimePoints(local_time_index))/length(idxTimePoints)/length(idxTimePoints));
+        
+    end
+    
+    global_time_index=global_time_index+length(idxTimePoints);
+    intProcessedFiles = intProcessedFiles+1;
+    
 end
 
-save([AnaDirec,'/ProjIm'],'ProjIm')
-save([AnaDirec,'/Surfaces'],'Surfaces')
+stgObj.AddResult('Projection','projection_path',strcat(stgObj.data_analysisdir,'/ProjIm'));
+stgObj.AddResult('Projection','surface_path',strcat(stgObj.data_analysisdir,'/ProjIm'));
+
+save([stgObj.data_analysisdir,'/ProjIm'],'ProjIm')
+save([stgObj.data_analysisdir,'/Surfaces'],'Surfaces')
 
 progressbar(1);
 fprintf('Finished projection at %s\n',datestr(now));
 
-if params.InspectResults
+if stgModule.InspectResults
     StackView(ProjIm);
 end
 
