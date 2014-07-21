@@ -21,23 +21,61 @@ renderer.setOpenIcon(folderIconOpen);
 
 tree.setCellRenderer(renderer);
 
-
-
 vec1 = fieldnames(settingsObj.analysis_modules);
 
 for i=1:length(vec1)
-
-    A_Node = javax.swing.tree.DefaultMutableTreeNode(vec1{i});
     
+    Module_Node = javax.swing.tree.DefaultMutableTreeNode(vec1{i});
+    %fprintf('%s -', vec1{i});
     vec2 = fieldnames(settingsObj.analysis_modules.(char(vec1{i})));
     if (isempty(vec2) == 0)
         for o=1:length(vec2)
+            
+            SubModule_Node = javax.swing.tree.DefaultMutableTreeNode(vec2{o});
+            %fprintf('%s -', vec2{o});
+            classSubTree = class(settingsObj.analysis_modules.(char(vec1{i})).(char(vec2{o})));
+            
+            switch classSubTree
+                %case 'cell'
+                    
+                    %vec3 = '';
 
-            A_Node.add(javax.swing.tree.DefaultMutableTreeNode(vec2{o}));
-
+                case 'struct'
+                    
+                    if(isempty(fieldnames(settingsObj.analysis_modules.(char(vec1{i})).(char(vec2{o}))))==0)
+                        
+                        vec3 = fieldnames(settingsObj.analysis_modules.(char(vec1{i})).(char(vec2{o})));
+                        %if (isempty(vec3) == 0)
+                        for u=1:length(vec3)
+                            val = settingsObj.analysis_modules.(char(vec1{i})).(char(vec2{o})).(char(vec3{u}));
+                            classVal = class(val);
+                            switch classVal
+                                case 'double'
+                                   val = num2str(val); 
+                                case 'logical'
+                                    
+                                    if (val)
+                                        val = char('true');
+                                    else
+                                        val = char('false');
+                                    end
+                                    
+                            end
+                            
+                            SubModule_Node.add(javax.swing.tree.DefaultMutableTreeNode(sprintf('%s = %s',vec3{u}, val)));
+                            
+                        end
+                        %end    
+                    end
+                    
+            end
+            
+            Module_Node.add(SubModule_Node);
         end
     end
-    root.add(A_Node)    
+    
+    %Module_Node.add(SubModule_Node); 
+    root.add(Module_Node)
 end
 % A_Node = javax.swing.tree.DefaultMutableTreeNode('Registration');
 % B_Node = javax.swing.tree.DefaultMutableTreeNode('Projection');
@@ -54,7 +92,7 @@ end
 % %initHelp();
 % htmlView = javax.swing.JScrollPane(htmlPane);
 % splitPane = javax.swing.JSplitPane(javax.swing.JSplitPane.VERTICAL_SPLIT);
-% 
+%
 % splitPane.setTopComponent(treeView);
 % splitPane.setBottomComponent(htmlView);
 
@@ -67,7 +105,7 @@ scrollpane.setViewportView(tree);
 scrollpane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 scrollpane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 scrollpane.setBorder(javax.swing.BorderFactory.createTitledBorder(''));
-jcontrol(obj, scrollpane,'Position', [0.0 0.023 0.20 0.91]);
+jcontrol(obj, scrollpane,'Position', [0.0 0.023 0.25 0.915]);
 
 
 
