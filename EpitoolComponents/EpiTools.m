@@ -160,30 +160,30 @@ function do_segmentation_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
-
-if(~strcmp(data_specifics,'none'))
-    
-    load(data_specifics);
-    segmentation_file = [AnaDirec,'/SegResults'];
-    if(exist([segmentation_file,'.mat'],'file'))
-        do_overwrite = questdlg('Found previous result','GUI decision',...
-    'Open GUI anyway','Show Result','Show Result');
-        if(strcmp(do_overwrite,'Open GUI anyway'))
-            SegmentationGUI;
-        else
-            progressbar('Loading Segmentation file...');
-            load(segmentation_file);
-            progressbar(1);
-            StackView(ColIms);
-        end
-    else
-        SegmentationGUI;
-    end
-else
-    helpdlg('Please select your Data Set first','No Data Set found');
-end
+% hMainGui = getappdata(0, 'hMainGui');
+% data_specifics = getappdata(hMainGui,'data_specifics');
+% 
+% if(~strcmp(data_specifics,'none'))
+%     
+%     load(data_specifics);
+%     segmentation_file = [AnaDirec,'/SegResults'];
+%     if(exist([segmentation_file,'.mat'],'file'))
+%         do_overwrite = questdlg('Found previous result','GUI decision',...
+%     'Open GUI anyway','Show Result','Show Result');
+%         if(strcmp(do_overwrite,'Open GUI anyway'))
+%             SegmentationGUI;
+%         else
+%             progressbar('Loading Segmentation file...');
+%             load(segmentation_file);
+%             progressbar(1);
+%             StackView(ColIms);
+%         end
+%     else
+%         SegmentationGUI;
+%     end
+% else
+%     helpdlg('Please select your Data Set first','No Data Set found');
+% end
 
 
 % --- Executes on button press in do_tracking.
@@ -235,36 +235,6 @@ if(~strcmp(data_specifics,'none'))
         else
             errordlg('Please run the Segmentation first','No Segmentation Results found');
         end
-    end
-else
-    helpdlg('Please select your Data Set first','No Data Set found');
-end
-
-% --- Executes on button press in enhance_contrast.
-function enhance_contrast_Callback(hObject, eventdata, handles)
-% hObject    handle to enhance_contrast (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
-
-if(~strcmp(data_specifics,'none'))
-    
-    load(data_specifics);
-    clahe_file = [AnaDirec,'/RegIm_woCLAHE'];
-    if(exist([clahe_file,'.mat'],'file'))
-        do_overwrite = questdlg('Found previous result','GUI decision',...
-    'Open GUI anyway','Show Result','Show Result');
-        if(strcmp(do_overwrite,'Open GUI anyway'))
-            ImproveContrastGUI;
-        else
-            registration_file = [AnaDirec,'/RegIm'];
-            load(registration_file);
-            StackView(RegIm);
-        end
-    else
-        ImproveContrastGUI;
     end
 else
     helpdlg('Please select your Data Set first','No Data Set found');
@@ -415,7 +385,8 @@ if(isappdata(hMainGui,'settings_objectname'))
     
     end
 end
-handles_connection(hObject,handles)
+SegmentationGUI(stgObj);
+handles_connection(hObject,handles);
 
 
 % --------------------------------------------------------------------
@@ -434,6 +405,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     
     end
 end
+TrackingIntroGUI(stgObj);
 handles_connection(hObject,handles)
 
 
@@ -453,6 +425,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     
     end
 end
+SkeletonConversion(stgObj);
 handles_connection(hObject,handles)
 
 
