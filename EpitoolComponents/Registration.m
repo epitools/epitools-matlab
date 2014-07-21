@@ -26,7 +26,6 @@ end
 
 
 %saving results
-
 stgObj.AddResult('Stack_Registration','registration_path',strcat(stgObj.data_analysisdir,'/RegIm'));
 save([stgObj.data_analysisdir,'/RegIm'],'RegIm');
 

@@ -24,9 +24,9 @@ for i=1:size(tmpRegObj.RegIm,3)
     %parameter needs to be adapted for specific image input:
     
     if(isa(tmpRegObj.RegIm,'double'))
-        if(uint_type == 8)
+        if(isa(tmpProObj.ProjIm, 'uint8'))
             RegIm_uint = uint8(tmpRegObj.RegIm(:,:,i));
-        elseif(uint_type == 16)
+        elseif(isa(tmpProObj.ProjIm, 'uint16'))
             RegIm_uint = uint16(tmpRegObj.RegIm(:,:,i));
         else
             error('I could not determine the pixel depth. Images should have either 8 bit or 16 bit pixel depth')
@@ -58,10 +58,13 @@ do_overwrite = questdlg('Please decide over the CLAHE image','Overrite decision'
 if(strcmp(do_overwrite,'Overrite original'))
 
     %backup previous result
-    save([stgObj.data_analysisdir,'/RegIm_woCLAHE'],'tmpRegObj.RegIm');
+    stgObj.AddResult('Contrast_Enhancement','clahe_backup_path',strcat(stgObj.data_analysisdir,'/RegIm_woCLAHE'));
+    RegImgOld = tmpRegObj.RegIm;
+    save([stgObj.data_analysisdir,'/RegIm_woCLAHE'],'RegImgOld');
 
     %save new version with contrast enhancement
     RegIm = RegIm_clahe;
+    stgObj.AddResult('Contrast_Enhancement','clahe_path',strcat(stgObj.data_analysisdir,'/RegIm'));
     save([stgObj.data_analysisdir,'/RegIm'],'RegIm');
     
 end
