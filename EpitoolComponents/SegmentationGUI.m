@@ -54,6 +54,9 @@ function SegmentationGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for SegmentationGUI
 handles.output = hObject;
+setappdata(0  , 'hSegGui', gcf);
+setappdata(gcf, 'settings_objectname', varargin{1});
+setappdata(gcf, 'settings_modulename', 'Segmentation');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -64,48 +67,72 @@ guidata(hObject, handles);
 updateAndGather(handles);
 
 function updateAndGather(handles)
-    gathered_data = gatherData(handles);
-    updateLegends(handles,gathered_data);
+hSegGui = getappdata(0  , 'hSegGui');
+hMainGui = getappdata(0  , 'hMainGui');
+stgObj  = getappdata(hSegGui, 'settings_objectname');
+module_name = getappdata(hSegGui, 'settings_modulename');
+
+gathered_data = gatherData(handles);
+fieldgd = fields(gathered_data);
+
+for i=1:numel(fieldgd)
+    idx = fieldgd(i);
+    if(isfield(stgObj.analysis_modules.(char(module_name)).settings,char(idx)) == 0)
+        stgObj.AddSetting(module_name, char(idx), gathered_data.(char(idx)));
+    else
+        stgObj.ModifySetting(module_name, char(idx), gathered_data.(char(idx)));
+    end
+end
+
+setappdata(hMainGui, 'settings_objectname', stgObj);
+updateLegends(handles);
 
 function gathered_data = gatherData(handles)
     
-    params.mincellsize =    get(handles.min_cell_slider,'value');
-    params.sigma1=          get(handles.sigma1_slider,'value');        
-    params.threshold =      get(handles.threshold_slider,'value');
+    gathered_data.mincellsize  =    get(handles.min_cell_slider,'value');
+    gathered_data.sigma1       =    get(handles.sigma1_slider,'value');        
+    gathered_data.threshold    =    get(handles.threshold_slider,'value');
 
     % Grow cells
-    params.sigma3=          get(handles.sigma3_slider, 'value');
-    params.LargeCellSizeThres = get(handles.max_cell_slider,'value');
-    params.MergeCriteria = get(handles.merge_slider,'value');
+    gathered_data.sigma3    =    get(handles.sigma3_slider, 'value');
+    gathered_data.LargeCellSizeThres = get(handles.max_cell_slider,'value');
+    gathered_data.MergeCriteria      = get(handles.merge_slider,'value');
 
     % Final joining
-    params.IBoundMax = get(handles.ibound_slider,'value');         
+    gathered_data.IBoundMax = get(handles.ibound_slider,'value');         
 
     % Performance Options (show=show_steps)
-    params.show = false;
-    params.Parallel  = true;
+    gathered_data.show      = false;
+    gathered_data.Parallel  = true;
 
-    gathered_data = params;
-    
-function updateLegends(handles,gd)
-    setLegend(handles.min_cell_label,...
-        sprintf('Minimal cell size = %.2f',gd.mincellsize));
-    setLegend(handles.sigma1_label,...
-        sprintf('Sigma 1 = %.2f',gd.sigma1));
-    setLegend(handles.threshold_label,...
-        sprintf('Threshold = %.2f',gd.threshold));
-    setLegend(handles.sigma3_label,...
-        sprintf('Sigma 3 = %.2f',gd.sigma3));
-    setLegend(handles.max_cell_label,...
-        sprintf('Maximal cell size = %.2f',gd.LargeCellSizeThres));
-    setLegend(handles.merge_label,...
-        sprintf('Merge criteria = %.2f',gd.MergeCriteria));
-    setLegend(handles.ibound_label,...
-        sprintf('Maximal IBound = %.2f',gd.IBoundMax));
     
     
-function setLegend(label_handle,caption)
-    set(label_handle, 'String', caption);
+function updateLegends(handles)
+hSegGui = getappdata(0  , 'hSegGui');
+stgObj  = getappdata(hSegGui, 'settings_objectname');
+module_name = getappdata(hSegGui, 'settings_modulename');
+
+    
+    caption = sprintf('Minimal cell size = %.2f',stgObj.analysis_modules.(char(module_name)).settings.mincellsize);
+    set(handles.min_cell_label, 'String', caption);
+    
+    caption = sprintf('Sigma 1 = %.2f',stgObj.analysis_modules.(char(module_name)).settings.sigma1);
+    set(handles.sigma1_label, 'String', caption);
+    
+    caption = sprintf('Threshold = %.2f',stgObj.analysis_modules.(char(module_name)).settings.threshold);
+    set(handles.threshold_label, 'String', caption);
+
+    caption = sprintf('Sigma 3 = %.2f',stgObj.analysis_modules.(char(module_name)).settings.sigma3);
+    set(handles.sigma3_label, 'String', caption);
+   
+    caption = sprintf('Maximal cell size = %.2f',stgObj.analysis_modules.(char(module_name)).settings.LargeCellSizeThres);
+    set(handles.max_cell_label, 'String', caption);
+    
+    caption = sprintf('Merge criteria = %.2f',stgObj.analysis_modules.(char(module_name)).settings.MergeCriteria);
+    set(handles.merge_label, 'String', caption);
+    
+    caption = sprintf('Maximal IBound = %.2f',stgObj.analysis_modules.(char(module_name)).settings.IBoundMax);
+    set(handles.ibound_label, 'String', caption);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -125,12 +152,17 @@ function run_segmentation_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-gathered_data = gatherData(handles);
-gathered_data.SingleFrame = false;
+updateAndGather(handles);
 
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
-Segmentation(data_specifics,gathered_data);
+stgObj  = getappdata(hMainGui, 'settings_objectname');
+
+%gathered_data.SingleFrame = false;
+stgObj.AddSetting('Segmentation','SingleFrame',false);
+stgObj.AddSetting('Segmentation','debug',false);
+
+Segmentation(stgObj);
+
 
 
 % --- Executes on slider movement.
@@ -309,9 +341,13 @@ function test_segmentation_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-gathered_data = gatherData(handles);
-gathered_data.SingleFrame = true;
+updateAndGather(handles);
 
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
-Segmentation(data_specifics,gathered_data);
+stgObj  = getappdata(hMainGui, 'settings_objectname');
+
+%gathered_data.SingleFrame = false;
+stgObj.AddSetting('Segmentation','SingleFrame',true);
+stgObj.AddSetting('Segmentation','debug',false);
+
+Segmentation(stgObj);
