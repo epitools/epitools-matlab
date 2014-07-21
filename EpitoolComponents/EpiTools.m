@@ -79,7 +79,6 @@ setappdata(gcf, 'settings_rootpath', file_path);
 
 handles_connection(hObject,handles)
 
-
 % --- Outputs from this function are returned to the command line.
 function varargout = EpiTools_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -95,7 +94,6 @@ function handles_connection(hObject,handles)
 % If the metricdata field is present and the reset flag is false, it means
 % we are we are just re-initializing a GUI by calling it from the cmd line
 % while it is up. So, bail out as we dont want to reset the data.
-
 hMainGui = getappdata(0, 'hMainGui');
 
 set(handles.statusbar, 'String', getappdata(hMainGui, 'status_application'));
@@ -118,7 +116,7 @@ guidata(hObject, handles);
 
 
 % --- Executes on button press in set_data_button.
-function set_data_button_Callback(hObject, eventdata, handles)
+%function set_data_button_Callback(hObject, eventdata, handles)
 % hObject    handle to set_data_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -135,27 +133,27 @@ function set_data_button_Callback(hObject, eventdata, handles)
 
 
 % --- Executes on button press in do_projection.
-function do_projection_Callback(hObject, eventdata, handles)
+%function do_projection_Callback(hObject, eventdata, handles)
 % hObject    handle to do_projection (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-hMainGui = getappdata(0, 'hMainGui');
-
-if(isappdata(hMainGui,'settings_objectname'))
-    
-    stgObj = getappdata(hMainGui,'settings_objectname');
-    stgObj.CreateModule('Projection');
-    setappdata(hMainGui, 'settings_objectname', stgObj);
-    
-    
-end
-handles_connection(hObject,handles)
+% 
+% hMainGui = getappdata(0, 'hMainGui');
+% 
+% if(isappdata(hMainGui,'settings_objectname'))
+%     
+%     stgObj = getappdata(hMainGui,'settings_objectname');
+%     stgObj.CreateModule('Projection');
+%     setappdata(hMainGui, 'settings_objectname', stgObj);
+%     
+%     
+% end
+% handles_connection(hObject,handles)
 
 
 
 % --- Executes on button press in do_segmentation.
-function do_segmentation_Callback(hObject, eventdata, handles)
+%function do_segmentation_Callback(hObject, eventdata, handles)
 % hObject    handle to do_segmentation (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -187,58 +185,58 @@ function do_segmentation_Callback(hObject, eventdata, handles)
 
 
 % --- Executes on button press in do_tracking.
-function do_tracking_Callback(hObject, eventdata, handles)
+%function do_tracking_Callback(hObject, eventdata, handles)
 % hObject    handle to do_tracking (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
-
-if(~strcmp(data_specifics,'none'))
-    load(data_specifics);
-    segmentation_file = [AnaDirec,'/SegResults'];
-    if(exist([segmentation_file,'.mat'],'file'))
-        TrackingIntroGUI;
-    else
-        errordlg('Please run the Segmentation first','No Segmentation Results found');
-    end
-else
-    helpdlg('Please select your Data Set first','No Data Set found');
-end
+% hMainGui = getappdata(0, 'hMainGui');
+% data_specifics = getappdata(hMainGui,'data_specifics');
+% 
+% if(~strcmp(data_specifics,'none'))
+%     load(data_specifics);
+%     segmentation_file = [AnaDirec,'/SegResults'];
+%     if(exist([segmentation_file,'.mat'],'file'))
+%         TrackingIntroGUI;
+%     else
+%         errordlg('Please run the Segmentation first','No Segmentation Results found');
+%     end
+% else
+%     helpdlg('Please select your Data Set first','No Data Set found');
+% end
 
 
 % --- Executes on button press in do_skeletonConversion.
-function do_skeletonConversion_Callback(hObject, eventdata, handles)
+%function do_skeletonConversion_Callback(hObject, eventdata, handles)
 % hObject    handle to do_skeletonConversion (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
-
-if(~strcmp(data_specifics,'none'))
-    load(data_specifics);
-    skeleton_files = [AnaDirec,'/skeletons'];
-    if(exist(skeleton_files,'dir'))
-        default_string = 'Show location';
-        do_overwrite = questdlg('Found previous results','GUI decision',...
-    'Open GUI anyway',default_string,default_string);
-        if(strcmp(do_overwrite,default_string))
-            uigetdir(skeleton_files,'This is where the skeletons are');
-        else
-            SkeletonConversionGUI;
-        end
-    else
-        segmentation_file = [AnaDirec,'/SegResults'];
-        if(exist([segmentation_file,'.mat'],'file'))
-            SkeletonConversionGUI;
-        else
-            errordlg('Please run the Segmentation first','No Segmentation Results found');
-        end
-    end
-else
-    helpdlg('Please select your Data Set first','No Data Set found');
-end
+% hMainGui = getappdata(0, 'hMainGui');
+% data_specifics = getappdata(hMainGui,'data_specifics');
+% 
+% if(~strcmp(data_specifics,'none'))
+%     load(data_specifics);
+%     skeleton_files = [AnaDirec,'/skeletons'];
+%     if(exist(skeleton_files,'dir'))
+%         default_string = 'Show location';
+%         do_overwrite = questdlg('Found previous results','GUI decision',...
+%     'Open GUI anyway',default_string,default_string);
+%         if(strcmp(do_overwrite,default_string))
+%             uigetdir(skeleton_files,'This is where the skeletons are');
+%         else
+%             SkeletonConversionGUI;
+%         end
+%     else
+%         segmentation_file = [AnaDirec,'/SegResults'];
+%         if(exist([segmentation_file,'.mat'],'file'))
+%             SkeletonConversionGUI;
+%         else
+%             errordlg('Please run the Segmentation first','No Segmentation Results found');
+%         end
+%     end
+% else
+%     helpdlg('Please select your Data Set first','No Data Set found');
+% end
 
 
 % --- Executes on button press in use_icy_checkbox.
@@ -300,7 +298,6 @@ else
     setappdata(hMainGui,'icy_is_used',0);
 end
 
-
 % --- Executes during object creation, after setting all properties.
 function use_icy_checkbox_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to use_icy_checkbox (see GCBO)
@@ -314,15 +311,34 @@ function A_Proj_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
+strModuleName = 'Projection';
 
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        
+        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+            
+           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+
+            switch out
+                case 'Yes'
+                    GBL_SaveAnalysis(hObject, handles);
     
-    stgObj = getappdata(hMainGui,'settings_objectname');
-    stgObj.CreateModule('Projection');
-    setappdata(hMainGui, 'settings_objectname', stgObj);
-    
+                case 'No'
+                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+                    return;
+            end 
+            
+        else
+            
+            stgObj.CreateModule(strModuleName);
+            setappdata(hMainGui, 'settings_objectname', stgObj);
+            
+        end
     end
+    
 end
 ProjectionGUI(stgObj);
 handles_connection(hObject,handles)
@@ -334,15 +350,34 @@ function A_StackReg_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
+strModuleName = 'Stack_Registration';
 
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        
+        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+            
+           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+
+            switch out
+                case 'Yes'
+                    GBL_SaveAnalysis(hObject, handles);
     
-    stgObj = getappdata(hMainGui,'settings_objectname');
-    stgObj.CreateModule('Stack_Registration');
-    setappdata(hMainGui, 'settings_objectname', stgObj);
-    
+                case 'No'
+                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+                    return;
+            end 
+            
+        else
+            
+            stgObj.CreateModule(strModuleName);
+            setappdata(hMainGui, 'settings_objectname', stgObj);
+            
+        end
     end
+    
 end
 RegistrationGUI(stgObj);
 handles_connection(hObject,handles)
@@ -354,17 +389,35 @@ function A_CLAHE_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
+strModuleName = 'Contrast_Enhancement';
 
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-    
-    stgObj = getappdata(hMainGui,'settings_objectname');
-    stgObj.CreateModule('Contrast_Enhancement');
-    setappdata(hMainGui, 'settings_objectname', stgObj);
-    
-    end
-end
+        
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        
+        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+            
+           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
 
+            switch out
+                case 'Yes'
+                    GBL_SaveAnalysis(hObject, handles);
+    
+                case 'No'
+                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+                    return;
+            end 
+            
+        else
+            
+            stgObj.CreateModule(strModuleName);
+            setappdata(hMainGui, 'settings_objectname', stgObj);
+            
+        end
+    end
+    
+end
 ImproveContrastGUI(stgObj);
 handles_connection(hObject,handles)
 
@@ -375,15 +428,34 @@ function A_Segmentation_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
+strModuleName = 'Segmentation';
 
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        
+        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+            
+           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+
+            switch out
+                case 'Yes'
+                    GBL_SaveAnalysis(hObject, handles);
     
-    stgObj = getappdata(hMainGui,'settings_objectname');
-    stgObj.CreateModule('Segmentation');
-    setappdata(hMainGui, 'settings_objectname', stgObj);
-    
+                case 'No'
+                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+                    return;
+            end 
+            
+        else
+            
+            stgObj.CreateModule(strModuleName);
+            setappdata(hMainGui, 'settings_objectname', stgObj);
+            
+        end
     end
+    
 end
 SegmentationGUI(stgObj);
 handles_connection(hObject,handles);
@@ -395,15 +467,34 @@ function A_Tracking_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
+strModuleName = 'Tracking';
 
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        
+        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+            
+           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+
+            switch out
+                case 'Yes'
+                    GBL_SaveAnalysis(hObject, handles);
     
-    stgObj = getappdata(hMainGui,'settings_objectname');
-    stgObj.CreateModule('Tracking');
-    setappdata(hMainGui, 'settings_objectname', stgObj);
-    
+                case 'No'
+                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+                    return;
+            end 
+            
+        else
+            
+            stgObj.CreateModule(strModuleName);
+            setappdata(hMainGui, 'settings_objectname', stgObj);
+            
+        end
     end
+    
 end
 TrackingIntroGUI(stgObj);
 handles_connection(hObject,handles)
@@ -415,15 +506,34 @@ function A_Skeletons_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
+strModuleName = 'Skeletons';
 
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        
+        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+            
+           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+
+            switch out
+                case 'Yes'
+                    GBL_SaveAnalysis(hObject, handles);
     
-    stgObj = getappdata(hMainGui,'settings_objectname');
-    stgObj.CreateModule('Skeletons');
-    setappdata(hMainGui, 'settings_objectname', stgObj);
-    
+                case 'No'
+                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+                    return;
+            end 
+            
+        else
+            
+            stgObj.CreateModule(strModuleName);
+            setappdata(hMainGui, 'settings_objectname', stgObj);
+            
+        end
     end
+    
 end
 SkeletonConversion(stgObj);
 handles_connection(hObject,handles)
@@ -441,8 +551,13 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         % Ask if you want to save it before generate a new one
-        GBL_SaveAnalysis(hObject, handles)
-
+        interrupt = GBL_SaveAnalysis(hObject, handles);
+        
+        if (interrupt == 1)
+            return;
+        end
+        
+        
     end
 end
 
@@ -451,7 +566,15 @@ stgObj = settings();
 stgObj.CreateModule('Main');
 setappdata(hMainGui, 'settings_objectname', stgObj);
 
-FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
+out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
+uiwait(out);
+
+GBL_SaveAnalysis(hObject, handles, 1);
+stgObj = getappdata(hMainGui,'settings_objectname');
+
+% logging on external device
+diary(strcat(stgObj.data_fullpath,'/out-',datestr(now,30),'.log'));
+diary on;
 
 % Update handles structure
 handles_connection(hObject, handles)
@@ -478,12 +601,15 @@ if(strSettingFilePath ~= 0)
     load([strSettingFilePath,strSettingFileName], '-mat');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
-    h = msgbox(sprintf('==================== Loading analysis ==================== \nName: %s  \nVersion: %s \nAuthor: %s \n======================================================\n\ncompleted with success!',...
-        stgObj.analysis_name,stgObj.analysis_version,stgObj.user_name ),... 
+    h = msgbox(sprintf('Name: %s  \nVersion: %s \nAuthor: %s \n\ncompleted with success!',...
+        stgObj.analysis_name,...
+        stgObj.analysis_version,...
+        stgObj.user_name ),... 
         'Operation succesfully completed','custom',icoInformation);
     
 end
-
+diary(strcat(stgObj.data_fullpath,'out-',datestr(now,30),'log'));
+diary on;
 handles_connection(hObject, handles)
 
 
@@ -521,17 +647,14 @@ function F_Save_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-GBL_SaveAnalysis(hObject, handles)
-
-
-
-
+GBL_SaveAnalysis(hObject, handles);
 
 % --------------------------------------------------------------------
 function F_Exit_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Exit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+GBL_SaveAnalysis(hObject, handles);
 close(handles.figure1);
 
 
@@ -549,7 +672,6 @@ function MCredits_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-
 function mainTextBoxImagePath_Callback(hObject, eventdata, handles)
 % hObject    handle to mainTextBoxImagePath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -557,7 +679,6 @@ function mainTextBoxImagePath_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of mainTextBoxImagePath as text
 %        str2double(get(hObject,'String')) returns contents of mainTextBoxImagePath as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function mainTextBoxImagePath_CreateFcn(hObject, eventdata, handles)
@@ -570,7 +691,6 @@ function mainTextBoxImagePath_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function mainTextBoxSettingPath_Callback(hObject, eventdata, handles)
@@ -626,8 +746,8 @@ hMainGui = getappdata(0, 'hMainGui');
 
 if(getappdata(hMainGui,'settings_objectname') ~= 0)
 
-    FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
-    
+    out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
+    uiwait(out);
 else
     msgbox('No analysis file loaded!'); 
 end
@@ -636,21 +756,38 @@ end
 handles_connection(hObject, handles)
 
 
-function GBL_SaveAnalysis(hObject, handles)
-
+function argout = GBL_SaveAnalysis(hObject, handles, intForce)
 hMainGui = getappdata(0, 'hMainGui');
 strRootPath = getappdata(hMainGui,'settings_rootpath');
 stgObj = getappdata(hMainGui,'settings_objectname');
 
-out = questdlg('Would you like to save the current analysis?', 'Save analysis','Yes', 'No','Abort', 'Abort');
+if nargin < 3
 
-switch out
-    case 'Yes'
-    
-        save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
-    
-    case 'No'
-        
-        msgbox('Changes have been discarded');
-        
+    intForce = 0;
+
 end
+
+
+if (intForce == 1)
+    
+    save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
+
+else
+    
+       
+    out = questdlg('Would you like to save the current analysis?', 'Save analysis','Yes', 'No','Abort', 'Abort');
+    
+    switch out
+        case 'Yes'
+            
+            save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
+            argout = 0;
+        case 'No'
+            
+            msgbox('Changes have been discarded');
+            argout = 0;
+        case 'Abort'
+            argout = 1;
+    end
+end
+
