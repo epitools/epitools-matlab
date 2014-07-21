@@ -4,7 +4,7 @@ function [ out_status ] = CreateMetadata( varargin )
 %
 % Auth: L. Gatti
 % Date: 16-July-2014 
-% Update: 
+% Update: 21-July-2014
 % 
 % SYNOPSIS r = bfopen(id)
 %          r = bfopen(id, x, y, w, h)
@@ -39,6 +39,20 @@ function [ out_status ] = CreateMetadata( varargin )
 % =========================================================================
 % Copyright (C) 2014 - Lorenzo Gatti - All rights reserved
 %
+% This program contains code licensed under Creative Commons BY-NC-SA 3.0,
+% published in the following documents:
+%
+% - "Gatti L., Trotti A., Rosenblatt Perceptron Algorithm implementation and application in gene 
+%                         function prediction in Saccharomyces cerevisiae, 
+%                         May 2011, University of Milan (IT), All Rights Reserved".
+%
+% - "Del Bene L.,Gatti L.,Koletou M., Yudzin A.,  Epidemic models of Flu outbreaks - Bayesian Data Assimilation 
+%                                                 and Uncertainty Quantification for a SIR-variant model,
+%                                                 July 2013, Eidgen?ssische Technische Hochschule Z?rich (CH),
+%                                                 All Rights Reserved".
+%
+% => Plese quote the author when used in a publication.
+%
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as
 % published by the Free Software Foundation, either version 2 of the
@@ -55,7 +69,6 @@ function [ out_status ] = CreateMetadata( varargin )
 % =========================================================================
 
 % Who am I?
-
 [ST,~] = dbstack();
 
 % ---------------------------- ARGIN VALIDATION ---------------------------
@@ -78,18 +91,49 @@ else
     stgObj = varargin{1};
 end
 
-% ----------------------------- FILE DISCOVERY ----------------------------
-    
-
+% --------------------------- XML File DISCOVERY -------------------------- 
+% Listing files in directory
 lstFiles = dir(stgObj.data_imagepath);
 
-
-% Supported image files
+% Supported metadata files
 regexXML = {'\w*(?=.xml)'};
 
+a = struct2cell(lstFiles);
+
+% in case a xml file has been found
+if(isempty(cell2mat(regexp(a(1,:),regexXML))) == 0)
+    
+    intXMLFileidx = find(~cellfun(@isempty,regexp(a(1,:),regexXML)));
+    
+    out_status = sprintf('File %s has been found in %s', char(a(1,intXMLFileidx)), strcat(stgObj.data_imagepath));
+   
+    outDLG = questdlg(sprintf('A Metadata xml file has been found in the specified folder.\n\n How do you want to proceed?'), 'Loading xml metadata files','Use the xml file found', 'Generate a new one', 'Generate a new one');
+    
+    switch outDLG
+        case 'Use the xml file found'
+            
+            return;
+        
+        case 'Generate a new one'
+            
+           out_status = CreateMetadataFile(stgObj);
+
+    end
+    
+else
+
+   out_status = CreateMetadataFile(stgObj);
+
+end
+    
+end
 
 
+function argout = CreateMetadataFile(stgObj)
+% Listing files in directory
+lstFiles = dir(stgObj.data_imagepath);
 
+% Initialization metadata struct variable: metadata main file
 stcMetaData = struct();
 stcMetaData.main = struct();
 stcMetaData.main.file_analysis_name = stgObj.analysis_name;
@@ -97,28 +141,21 @@ stcMetaData.main.file_analysis_code = stgObj.analysis_code;
 stcMetaData.main.file_date = date();
 stcMetaData.main.file_time = floor(now());
 
+% Initialization metadata struct variable: struct for image files
 stcMetaData.main.files = struct();
+
+% Discovered file counter
 filenum = 1;
 
 % Supported image files
 regexFIG = {'\w*(?=.tif|.tiff|.jpg|.jpeg)'};
 
+% Loop over discovered files
 for i=1:length(lstFiles)
-    
-    if(isempty(cell2mat(regexp(lstFiles(i).name,regexXML))) == 0)
-        
-        out_status = sprintf('File %s has been found in %s', lstFiles(i).name, strcat(stgObj.data_imagepath));
-        return
-    end;
-    
+
     if (isempty(cell2mat(regexp(lstFiles(i).name,regexFIG))) == 1)
         continue;
     end
-    
-    
-    %if(lstImageFiles(i).isdir == 1) )
-    %    continue;
-    %end
     
     stcMetaData.main.files.(strcat('file',num2str(filenum))) = struct();
     temp = ReadMicroscopyData(strcat(stgObj.data_imagepath,'/',lstFiles(i).name));
@@ -132,9 +169,9 @@ for i=1:length(lstFiles)
     stcMetaData.main.files.(strcat('file',num2str(filenum))).num_timepoints =   temp.NT;
     stcMetaData.main.files.(strcat('file',num2str(filenum))).pixel_type     =   temp.PixelType;
     stcMetaData.main.files.(strcat('file',num2str(filenum))).exec           = 1;
-    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_dim_z     = temp.NZ;
-    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_channels  =   temp.NC;
-    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_num_timepoints =   temp.NT;
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_dim_z     = strcat('1-',temp.NZ);
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_channels  =  strcat('1-',temp.NC);
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_num_timepoints =   strcat('1-',temp.NT);
     
     filenum = filenum + 1;
     
@@ -142,7 +179,7 @@ end
 
 
 % ---------------------------- SAVING XML FILE ----------------------------
-out_status = sprintf('Metadata file created correctly', strcat(stgObj.data_imagepath,'/','meta.xml'));
+argout = sprintf('Metadata file created correctly at %s', strcat(stgObj.data_imagepath,'/','meta.xml'));
 struct2xml(stcMetaData, strcat(stgObj.data_imagepath,'/','meta.xml'));
 
 % --------------------------- READING XML FILE ----------------------------

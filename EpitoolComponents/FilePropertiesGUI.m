@@ -546,6 +546,7 @@ data_folder = uigetdir('~/','Select the directory where you stored your image fi
 if (data_folder)
     stgObj.data_imagepath = data_folder;
     stsFunOut = CreateMetadata(stgObj);
+    
 end 
     
 setappdata(hMainGui, 'settings_objectname', stgObj);
