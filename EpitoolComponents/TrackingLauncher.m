@@ -1,20 +1,26 @@
-function TrackingLauncher(DataSpecificsPath,tracking_radius)
+function TrackingLauncher(stgObj)
 %TrackingGUILauncher launches the interface that allows the user to correct
 %the segmentation results of the Epitools segmnetation. Find more
 %explanation in TrackingGUIwOldOK.m 
 
 progressbar('Loading SegResults...(might take some minutes)')
 
-load(DataSpecificsPath);
-load([AnaDirec,'/SegResults']);
+% it is more convenient to recall the setting file with as shorter variable
+% name: stgModule 
+tmpStgObj = stgObj.analysis_modules.Tracking.settings;
+
+tmpSegObj = load([stgObj.data_analysisdir,'/SegResults']);
+
+
+%load([AnaDirec,'/SegResults']);
 
 %Save original sequence dimensions
-NX = size(RegIm,1);
-NY = size(RegIm,2);
-NT = size(RegIm,3);
+NX = size(tmpSegObj.RegIm,1);
+NY = size(tmpSegObj.RegIm,2);
+NT = size(tmpSegObj.RegIm,3);
 
 %Optional parameter for the TrackingGUI
-params.TrackingRadius = tracking_radius;
+%tmpStgObj.TrackingRadius = tracking_radius;
 
 output = ['ILabelsCorrected_',datestr(now,30)];
 
@@ -29,8 +35,8 @@ disp(['Current tracking file: ',filename]);
 IL.ILabels = IL.ILabels(1:NX,1:NY,:);
 
 %open the tracking gui
-fig = TrackingGUIwOldOK(RegIm,IL.ILabels,CLabels,ColIms,...
-    output,params,IL.oktrajs,IL.FramesToRegrow);
+fig = TrackingGUIwOldOK(tmpSegObj.RegIm,IL.ILabels,tmpSegObj.CLabels,tmpSegObj.ColIms,...
+    output,tmpStgObj,IL.oktrajs,IL.FramesToRegrow);
 
 % wait for corrections to finish (ie after saving using 's')
 uiwait(fig);

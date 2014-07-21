@@ -22,7 +22,7 @@ function varargout = TrackingIntroGUI(varargin)
 
 % Edit the above text to modify the response to help TrackingIntroGUI
 
-% Last Modified by GUIDE v2.5 19-May-2014 18:15:41
+% Last Modified by GUIDE v2.5 21-Jul-2014 12:07:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,6 +55,12 @@ function TrackingIntroGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for TrackingIntroGUI
 handles.output = hObject;
 
+setappdata(0  , 'hTrackGui', gcf);
+setappdata(gcf, 'settings_objectname', varargin{1});
+setappdata(gcf, 'settings_modulename', 'Tracking');
+
+
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -64,15 +70,39 @@ guidata(hObject, handles);
 updateAndGather(handles);
 
 function updateAndGather(handles)
-    gathered_data = gatherData(handles);
-    updateLegends(handles,gathered_data);
+hTrackGui = getappdata(0  , 'hTrackGui');
+hMainGui = getappdata(0  , 'hMainGui');
+stgObj  = getappdata(hTrackGui, 'settings_objectname');
+module_name = getappdata(hTrackGui, 'settings_modulename');
+
+gathered_data = gatherData(handles);
+fieldgd = fields(gathered_data);
+
+for i=1:numel(fieldgd)
+    idx = fieldgd(i);
+    if(isfield(stgObj.analysis_modules.(char(module_name)).settings,char(idx)) == 0)
+        stgObj.AddSetting(module_name, char(idx), gathered_data.(char(idx)));
+    else
+        stgObj.ModifySetting(module_name, char(idx), gathered_data.(char(idx)));
+    end
+end
+
+setappdata(hMainGui, 'settings_objectname', stgObj);
+updateLegends(handles);
+
+
 
 function gathered_data = gatherData(handles)
-    gathered_data.tracking_radius = get(handles.radius_slider,'value');
+
+    gathered_data.TrackingRadius = get(handles.TrackingRadius,'value');
     
-function updateLegends(handles,gd)
-    caption = sprintf('Radius limit = %.2f', gd.tracking_radius);
-    set(handles.radius_label, 'String', caption);
+function updateLegends(handles)
+hTrackGui = getappdata(0  , 'hTrackGui');
+stgObj  = getappdata(hTrackGui, 'settings_objectname');
+module_name = getappdata(hTrackGui, 'settings_modulename');
+
+caption = sprintf('Radius limit = %.2f', stgObj.analysis_modules.(char(module_name)).settings.TrackingRadius);
+set(handles.radius_label, 'String', caption);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -91,20 +121,18 @@ function run_trackingGUI_Callback(hObject, eventdata, handles)
 % hObject    handle to run_trackingGUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-gatheredData = gatherData(handles);
-tracking_radius = gatheredData.tracking_radius;
+updateAndGather(handles);
 
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
+stgObj  = getappdata(hMainGui, 'settings_objectname');
 
-TrackingLauncher(data_specifics, tracking_radius);
 
-%write back to the hMainGui, e.g. hMainGUI.tracking.tracking_radius
+TrackingLauncher(stgObj);
 
 
 % --- Executes on slider movement.
-function radius_slider_Callback(hObject, eventdata, handles)
-% hObject    handle to radius_slider (see GCBO)
+function TrackingRadius_Callback(hObject, eventdata, handles)
+% hObject    handle to TrackingRadius (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -113,8 +141,8 @@ function radius_slider_Callback(hObject, eventdata, handles)
 updateAndGather(handles);
 
 % --- Executes during object creation, after setting all properties.
-function radius_slider_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to radius_slider (see GCBO)
+function TrackingRadius_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to TrackingRadius (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
