@@ -27,19 +27,29 @@ output = ['ILabelsCorrected_',datestr(now,30)];
 progressbar(1);
 
 %retrieve previous tracking file
-[filename, pathname] = uigetfile('.mat','Select last tracking file');
-IL = load([pathname,filename]);
-disp(['Current tracking file: ',filename]);
+[filename, pathname] = uigetfile(strcat(stgObj.data_analysisdir,'/','*.mat'),'Select last tracking file');
 
-%patch to avoid the increase in x,y dimensions
-IL.ILabels = IL.ILabels(1:NX,1:NY,:);
+if((isempty(filename) || isempty(pathname) ) == 0)
+    IL = load([pathname,filename]);
+    disp(['Current tracking file: ',filename]);
 
-%open the tracking gui
-fig = TrackingGUIwOldOK(tmpSegObj.RegIm,IL.ILabels,tmpSegObj.CLabels,tmpSegObj.ColIms,...
-    output,tmpStgObj,IL.oktrajs,IL.FramesToRegrow);
+    %patch to avoid the increase in x,y dimensions
+    IL.ILabels = IL.ILabels(1:NX,1:NY,:);
 
-% wait for corrections to finish (ie after saving using 's')
-uiwait(fig);
+    %open the tracking gui
+    fig = TrackingGUIwOldOK(tmpSegObj.RegIm,...
+                            IL.ILabels,...
+                            tmpSegObj.CLabels,...
+                            tmpSegObj.ColIms,...
+                            output,...
+                            tmpStgObj,...
+                            IL.oktrajs,...
+                            IL.FramesToRegrow);
+
+    % wait for corrections to finish (ie after saving using 's')
+    uiwait(fig);
+    
+end
 
 end
 
