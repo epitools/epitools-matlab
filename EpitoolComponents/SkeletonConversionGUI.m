@@ -55,6 +55,12 @@ function SkeletonConversionGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for SkeletonConversionGUI
 handles.output = hObject;
 
+
+setappdata(0  , 'hTrackGui', gcf);
+setappdata(gcf, 'settings_objectname', varargin{1});
+setappdata(gcf, 'settings_modulename', 'Skeletons');
+
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -80,6 +86,6 @@ function run_skeleton_conversion_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 hMainGui = getappdata(0, 'hMainGui');
-data_specifics = getappdata(hMainGui,'data_specifics');
+stgObj  = getappdata(hMainGui, 'settings_objectname');
 
-SkeletonConversion(data_specifics);
+SkeletonConversion(stgObj);

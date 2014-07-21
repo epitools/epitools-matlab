@@ -1,26 +1,28 @@
-function SkeletonConversion(DataSpecificsPath)
+function SkeletonConversion(stgObj)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
-load(DataSpecificsPath);
+%load(DataSpecificsPath);
+tmpStgObj = stgObj.analysis_modules.Skeletons.settings;
+tmpSegObj = load([stgObj.data_analysisdir,'/SegResults']);
 
 progressbar('Loading Segmentation results...');
 
 %TODO substitute with SegResultsCorrected!
-InputFile = [AnaDirec, '/SegResults'];
-load(InputFile);
+%InputFile = [AnaDirec, '/SegResults'];
+%load(InputFile);
 
 progressbar(1);
 progressbar('Creating skeletons...');
 
-SkelDirec = [AnaDirec,'/skeletons'];
-mkdir(SkelDirec);
+%SkelDirec = [AnaDirec,'/skeletons'];
+mkdir([stgObj.data_analysisdir,'/skeletons']);
 
-frame_no = size(CLabels,3);
+frame_no = size(tmpSegObj.CLabels,3);
 
 for i = 1:frame_no
     
-    lblImg = CLabels(:,:,i);
+    lblImg = tmpSegObj.CLabels(:,:,i);
     
     [gx,gy] = gradient(lblImg);
 
@@ -34,7 +36,7 @@ for i = 1:frame_no
     
     %output skeleton as png image
     output_file_name = strcat('/','frame_',time_point_str,'.png');
-    imwrite(lblImg,[SkelDirec,output_file_name]);
+    imwrite(lblImg,[stgObj.data_analysisdir,'/skeletons',output_file_name]);
     
     progressbar(i/frame_no);
 end
