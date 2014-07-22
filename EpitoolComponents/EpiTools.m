@@ -85,7 +85,7 @@ function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+diary off;
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
@@ -350,7 +350,8 @@ if(isappdata(hMainGui,'settings_objectname'))
     end
     
 end
-ProjectionGUI(stgObj);
+out = ProjectionGUI(stgObj);
+uiwait(out);
 handles_connection(hObject,handles)
 
 
@@ -389,7 +390,8 @@ if(isappdata(hMainGui,'settings_objectname'))
     end
     
 end
-RegistrationGUI(stgObj);
+out = RegistrationGUI(stgObj);
+uiwait(out);
 handles_connection(hObject,handles)
 
 
@@ -428,7 +430,8 @@ if(isappdata(hMainGui,'settings_objectname'))
     end
     
 end
-ImproveContrastGUI(stgObj);
+out = ImproveContrastGUI(stgObj);
+uiwait(out);
 handles_connection(hObject,handles)
 
 
@@ -467,7 +470,8 @@ if(isappdata(hMainGui,'settings_objectname'))
     end
     
 end
-SegmentationGUI(stgObj);
+out = SegmentationGUI(stgObj);
+uiwait(out);
 handles_connection(hObject,handles);
 
 
@@ -506,7 +510,8 @@ if(isappdata(hMainGui,'settings_objectname'))
     end
     
 end
-TrackingIntroGUI(stgObj);
+out = TrackingIntroGUI(stgObj);
+uiwait(out);
 handles_connection(hObject,handles)
 
 
@@ -545,7 +550,8 @@ if(isappdata(hMainGui,'settings_objectname'))
     end
     
 end
-SkeletonConversion(stgObj);
+out = SkeletonConversion(stgObj);
+uiwait(out);
 handles_connection(hObject,handles)
 
 
@@ -628,7 +634,36 @@ function F_ImportSettings_Callback(hObject, eventdata, handles)
 % hObject    handle to F_ImportSettings (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+strRootPath = getappdata(hMainGui,'settings_rootpath');
+stgObj = getappdata(hMainGui, 'settings_objectname');
 
+copyfile(fullfile(strRootPath,...
+         'images','emblem-notice.png'));
+[icoInformation] = imread('emblem-notice.png'); 
+
+
+[strSettingFileName,strSettingFilePath,~] = uigetfile('~/*.etl','Select an analysis file to copy the settings from');
+
+% If the user select a file to open
+if(strSettingFilePath ~= 0)
+
+    tmp = load([strSettingFilePath,strSettingFileName], '-mat', 'stgObj');
+    
+    stgObj.analysis_modules = tmp.stgObj.analysis_modules;
+    
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+    
+    h = msgbox([sprintf('For the current analysis file \n\n analysis>  %s  \n\n',...
+                strcat(stgObj.analysis_code,' | ',stgObj.analysis_name,' -  version> ',stgObj.analysis_version)),...
+                sprintf('you imported from the analysis file \n\n analysis>  %s \n\n',...
+                strcat(tmp.stgObj.analysis_code,' | ',tmp.stgObj.analysis_name,' -  version>',tmp.stgObj.analysis_version)),...
+                'all available modules. The operation concluded successfully!'],... 
+        'Importing operation succesfully completed','custom',icoInformation);
+    
+end
+
+handles_connection(hObject, handles)
 
 % --------------------------------------------------------------------
 function E_Undo_Callback(hObject, eventdata, handles)
