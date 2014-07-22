@@ -96,7 +96,11 @@ function handles_connection(hObject,handles)
 % while it is up. So, bail out as we dont want to reset the data.
 hMainGui = getappdata(0, 'hMainGui');
 
-set(handles.statusbar, 'String', getappdata(hMainGui, 'status_application'));
+% -------------------------------------------------------------------------
+% Log status of previous operations on GUI
+% set(handles.statusbar, 'String',getappdata(hMainGui, 'status_application') );
+log2dev( getappdata(hMainGui, 'status_application'), 'hMainGui', 'statusbar', 'FR0001' , 0 );
+% -------------------------------------------------------------------------
 
 if(isappdata(hMainGui,'settings_objectname'))
     
@@ -108,6 +112,12 @@ if(isappdata(hMainGui,'settings_objectname'))
         set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
         set(handles.figure1, 'Name', ['EpiTools | ', stgObj.analysis_code, ' - ' , stgObj.analysis_name])
         LoadControls(hMainGui, stgObj);
+        
+        % -------------------------------------------------------------------------
+        % Log status of previous operations on GUI
+        log2dev(sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, stgObj.analysis_version,stgObj.data_extensionmask  ), 'hMainGui', 'statusbar', 'LD0001', 0 );
+        % -------------------------------------------------------------------------
+        
     end 
 end
 
