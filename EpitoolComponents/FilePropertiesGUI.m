@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 17-Jul-2014 16:23:24
+% Last Modified by GUIDE v2.5 22-Jul-2014 10:27:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -85,7 +85,6 @@ function initialize_gui(hObject,handles)
 % If the metricdata field is present and the reset flag is false, it means
 % we are we are just re-initializing a GUI by calling it from the cmd line
 % while it is up. So, bail out as we dont want to reset the data.
-
 hMainGui = getappdata(0, 'hFPGui');
 stgObj = getappdata(hMainGui,'settings_objectname');
 
@@ -97,11 +96,19 @@ set(handles.fp_user_department, 'String', stgObj.user_department);
 set(handles.fp_platform_id, 'String', stgObj.platform_id);
 set(handles.fp_platform_desc, 'String', stgObj.platform_desc);
 set(handles.fp_platform_units, 'Value', stgObj.platform_units);
-set(handles.fp_data_analysisdir, 'String', stgObj.data_analysisdir);
 set(handles.fp_data_benchmarkdir, 'String', stgObj.data_benchmarkdir);
 set(handles.fp_data_extensionmask, 'String', stgObj.data_extensionmask);
 set(handles.fp_data_fullpath, 'String', stgObj.data_fullpath);
 set(handles.fp_data_imagepath, 'String', stgObj.data_imagepath);
+
+if(isempty(stgObj.data_analysisdir) == 1 && isempty(stgObj.data_fullpath) == 0)
+    
+    stgObj.data_analysisdir = strcat(stgObj.data_fullpath,'/Analysis');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+end
+
+set(handles.fp_data_analysisdir, 'String', stgObj.data_analysisdir);
+
 
 % Valorise file table
 
@@ -467,6 +474,16 @@ end
 
 stgObj.AddSetting('Main','data',get(handles.uitable1,'Data'));
 
+% If analysis folder does not exist even if it was set by the user
+if (isempty(stgObj.data_analysisdir) == 0)
+    if(exist(stgObj.data_analysisdir, 'dir') ~= 7)
+    
+        mkdir(stgObj.data_analysisdir);
+    
+    end
+end
+    
+    
 
 setappdata(hMainGui, 'settings_objectname', stgObj);
 initialize_gui(hObject,handles)
@@ -500,11 +517,15 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 hFPGui = getappdata(0, 'hFPGui');
-hMainGui = getappdata(0, 'hMainGui');
 stgObj = getappdata(hFPGui,'settings_objectname');
 
+% Reset data table loaded 
+stgObj.RemoveSetting('Main', 'data');
+% Recreate or reload xml metadata file
 stsFunOut = CreateMetadata(stgObj);
-setappdata(hMainGui, 'status_application',stsFunOut);
+waitfor(stsFunOut);
+
+% Revalorise controls
 initialize_gui(hObject,handles)
 
 
@@ -555,15 +576,42 @@ setappdata(hMainGui, 'status_application',stsFunOut);
 initialize_gui(hObject,handles)
 
 
-% --- Executes on button press in pushbutton14.
-function pushbutton14_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton14 (see GCBO)
+% --- Executes on button press in B_SelectAnalysisDirectory.
+function B_SelectAnalysisDirectory_Callback(hObject, eventdata, handles)
+% hObject    handle to B_SelectAnalysisDirectory (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+hFPGui = getappdata(0, 'hFPGui');
+
+stgObj = getappdata(hFPGui,'settings_objectname');
+data_folder = uigetdir('~/','Select the directory where you want to store all the results from the current analysis');
+
+if (data_folder)
+    stgObj.data_analysisdir = data_folder;
+
+    
+end 
+    
+setappdata(hMainGui, 'settings_objectname', stgObj);
+initialize_gui(hObject,handles)
 
 
-% --- Executes on button press in pushbutton15.
-function pushbutton15_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton15 (see GCBO)
+% --- Executes on button press in B_SelectBenchDirectory.
+function B_SelectBenchDirectory_Callback(hObject, eventdata, handles)
+% hObject    handle to B_SelectBenchDirectory (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+hFPGui = getappdata(0, 'hFPGui');
+
+stgObj = getappdata(hFPGui,'settings_objectname');
+data_folder = uigetdir('~/','Select the directory where you stored benchmark files for the current analysis');
+
+if (data_folder)
+    stgObj.data_benchmarkdir = data_folder;
+
+end 
+    
+setappdata(hMainGui, 'settings_objectname', stgObj);
+initialize_gui(hObject,handles)
