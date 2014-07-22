@@ -169,9 +169,9 @@ for i=1:length(lstFiles)
     stcMetaData.main.files.(strcat('file',num2str(filenum))).num_timepoints =   temp.NT;
     stcMetaData.main.files.(strcat('file',num2str(filenum))).pixel_type     =   temp.PixelType;
     stcMetaData.main.files.(strcat('file',num2str(filenum))).exec           = 1;
-    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_dim_z     = strcat('1-',temp.NZ);
-    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_channels  =  strcat('1-',temp.NC);
-    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_num_timepoints =   strcat('1-',temp.NT);
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_dim_z     = strcat('1-',num2str(temp.NZ));
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_channels  =  strcat('1-',num2str(temp.NC));
+    stcMetaData.main.files.(strcat('file',num2str(filenum))).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
     
     filenum = filenum + 1;
     
