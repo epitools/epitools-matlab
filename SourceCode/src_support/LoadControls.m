@@ -10,9 +10,9 @@ root        = javax.swing.tree.DefaultMutableTreeNode('Analysis');
 treeModel   = javax.swing.tree.DefaultTreeModel(root);
 tree        = javax.swing.JTree(treeModel);
 
-leafIcon            = javax.swing.ImageIcon('../images/bricks.png');
-folderIconOpen      = javax.swing.ImageIcon('../images/folder-2.png');
-folderIconClosed    = javax.swing.ImageIcon('../images/folder-2.png');
+leafIcon            = javax.swing.ImageIcon('./images/bricks.png');
+folderIconOpen      = javax.swing.ImageIcon('./images/folder-2.png');
+folderIconClosed    = javax.swing.ImageIcon('./images/folder-2.png');
 
 renderer            = javax.swing.tree.DefaultTreeCellRenderer();
 renderer.setLeafIcon(leafIcon);
