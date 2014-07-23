@@ -1,4 +1,4 @@
-classdef ProgressBarParLoops < handle
+classdef progressbar_parallel < handle
     %PROGRESSBAR Progress bar class for matlab loops which also works with parfor.
     %   PROGRESSBAR works by creating a file called progressbar_(random_number).txt in
     %   your working directory, and then keeping track of the loop's
@@ -6,7 +6,7 @@ classdef ProgressBarParLoops < handle
     %   workers cannot communicate with one another so there is no simple way
     %   to know which iterations have finished and which haven't.
     %
-    % METHODS:  ProgressBarParLoops(num); constructs an object and initializes the progress monitor 
+    % METHODS:  progressbar_parallel(num); constructs an object and initializes the progress monitor 
     %                             for a set of N upcoming calculations.
     %           progress(); updates the progress inside your loop and
     %                       displays an updated progress bar.
@@ -15,7 +15,7 @@ classdef ProgressBarParLoops < handle
     %
     % EXAMPLE: 
     %           N = 100;
-    %           p = ProgressBarParLoops(N);
+    %           p = progressbar_parallel(N);
     %           parfor i=1:N
     %              pause(rand); % Replace with real code
     %              p.progress; % Also percent = p.progress;
@@ -23,7 +23,7 @@ classdef ProgressBarParLoops < handle
     %           p.stop; % Also percent = p.stop;
     %
     % To suppress output call constructor with optional parameter 'verbose':
-    %       p = ProgressBarParLoops(N,'verbose',0);
+    %       p = progressbar_parallel(N,'verbose',0);
     %
     % To get percentage numbers from progress and stop methods call them like:
     %       percent = p.progress;
@@ -42,13 +42,11 @@ classdef ProgressBarParLoops < handle
     end
     
     methods
-        function obj = ProgressBarParLoops(N, dev, control, varargin)
+        function obj = progressbar_parallel(N, varargin)
             p = inputParser;
             p.addParamValue('verbose',1,@isscalar);
             p.parse(varargin{:});
             obj.verbose = p.Results.verbose;
-            obj.dev = dev;
-            obj.control = control;
     
             obj.width = 50; % Width of progress bar
 
@@ -64,7 +62,7 @@ classdef ProgressBarParLoops < handle
             fprintf(f, '%d\n', N); % Save N at the top of progress.txt
             fclose(f);
             
-            if obj.verbose; log2dev( ['  0%[>', repmat(' ', 1, obj.width), ']'], obj.dev, obj.control, [], 2); end;
+            %if obj.verbose; log2dev( ['  0%[>', repmat(' ', 1, obj.width), ']'], obj.dev, obj.control, [], 2); end;
             
             
             %if obj.verbose; disp(['  0%[>', repmat(' ', 1, obj.width), ']']); end;
@@ -82,23 +80,23 @@ classdef ProgressBarParLoops < handle
             f = fopen(obj.fname, 'r');
             progress = fscanf(f, '%d');
             fclose(f);
-            percent = (length(progress)-1)/progress(1)*100;
+            percent = (length(progress)-1)/progress(1);
 
-            if obj.verbose
-                perc = sprintf('%3.0f%%', percent); % 4 characters wide, percentage
-                log2dev( strcat([repmat(char(8), 1, (obj.width+9)), char(10), perc, '[', repmat('=', 1, round(percent*obj.width/100)), '>', repmat(' ', 1, obj.width - round(percent*obj.width/100)), ']']), obj.dev, obj.control, [], 2)
+            %if obj.verbose
+            %    perc = sprintf('%3.0f%%', percent); % 4 characters wide, percentage
+            %    log2dev( strcat([repmat(char(8), 1, (obj.width+9)), char(10), perc, '[', repmat('=', 1, round(percent*obj.width/100)), '>', repmat(' ', 1, obj.width - round(percent*obj.width/100)), ']']), obj.dev, obj.control, [], 2)
                 %disp([repmat(char(8), 1, (obj.width+9)), char(10), perc, '[', repmat('=', 1, round(percent*obj.width/100)), '>', repmat(' ', 1, obj.width - round(percent*obj.width/100)), ']']);
-            end           
+            %end           
         end
         
         function percent = stop(obj)
             delete(obj.fname);     
-            percent = 100;
+            percent = 1;
 
-            if obj.verbose
-                log2dev( strcat([repmat(char(8), 1, (obj.width+9)), char(10), '100%[', repmat('=', 1, obj.width+1), ']']), obj.dev, obj.control, [], 2)
+            %if obj.verbose
+            %    log2dev( strcat([repmat(char(8), 1, (obj.width+9)), char(10), '100%[', repmat('=', 1, obj.width+1), ']']), obj.dev, obj.control, [], 2)
                 %disp([repmat(char(8), 1, (obj.width+9)), char(10), '100%[', repmat('=', 1, obj.width+1), ']']);
-            end
+            %end
         end
     end
 end

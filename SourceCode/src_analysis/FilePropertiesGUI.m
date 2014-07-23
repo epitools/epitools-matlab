@@ -100,11 +100,6 @@ set(handles.fp_data_extensionmask, 'String', stgObj.data_extensionmask);
 set(handles.fp_data_fullpath, 'String', stgObj.data_fullpath);
 set(handles.fp_data_imagepath, 'String', stgObj.data_imagepath);
 
-if(isempty(stgObj.data_analysisdir) == 1 && isempty(stgObj.data_fullpath) == 0)
-    
-    stgObj.data_analysisdir = strcat(stgObj.data_fullpath,'/Analysis');
-    setappdata(hMainGui, 'settings_objectname', stgObj);
-end
 
 set(handles.fp_data_analysisdir, 'String', stgObj.data_analysisdir);
 
@@ -496,6 +491,14 @@ for i=1:length(stgFields)
 end
 
 stgObj.AddSetting('Main','data',get(handles.uitable1,'Data'));
+
+
+if(isempty(stgObj.data_analysisdir) == 1 && isempty(stgObj.data_fullpath) == 0)
+    
+    stgObj.data_analysisdir = strcat(stgObj.data_fullpath,'/Analysis');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+end
+
 
 % If analysis folder does not exist even if it was set by the user
 if (isempty(stgObj.data_analysisdir) == 0)

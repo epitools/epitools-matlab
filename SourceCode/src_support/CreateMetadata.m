@@ -141,6 +141,7 @@ function argout = CreateMetadataFile(stgObj)
 % Listing files in directory
 lstFiles = dir(stgObj.data_imagepath);
 
+% Progress output
 progressbar('Discovering image files...');
 
 
@@ -163,10 +164,12 @@ a = struct2cell(lstFiles);
 intIMGFileidx = find(~cellfun(@isempty,regexp(a(1,:),regexFIG)));
 
 
-%if(stgObj.platform_units ~= 1)
-%pbar = ProgressBarParLoops(length(intIMGFileidx),'hFPGui','PBarLoadFiles');
-%    matlabpool('local',stgObj.platform_units);
-%end
+
+if stgObj.platform_units ~= 1 ; matlabpool('local',stgObj.platform_units); end
+
+% In case this process is run in parallel mode, then this computes the real
+% progression of each single worker.
+pbar = progressbar_parallel(length(intIMGFileidx));
 
 % Loop over discovered files
 for i=1:length(intIMGFileidx)
@@ -185,8 +188,9 @@ for i=1:length(intIMGFileidx)
     tmpFileStruct(i,:).exec_channels  =  strcat('1-',num2str(temp.NC));
     tmpFileStruct(i,:).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
     
-    %pbar.progress;
-    progressbar(i/length(intIMGFileidx));
+    % Computing worker progression
+    percent = pbar.progress;
+    progressbar(percent);
     
 end
 
@@ -200,12 +204,12 @@ end
 argout = sprintf('Metadata file created correctly at %s', strcat(stgObj.data_imagepath,'/','meta.xml'));
 struct2xml(stcMetaData, strcat(stgObj.data_imagepath,'/','meta.xml'));
 
-progressbar(1);
 
-%if(stgObj.platform_units ~= 1)
-%pbar.stop;
-%    matlabpool close
-%end
+percent = pbar.stop;
+progressbar(percent);
+
+if stgObj.platform_units ~= 1 ; matlabpool close; end
+
 % --------------------------- READING XML FILE ----------------------------
 
 %struct.data = xml_read(strcat(stgObj.data_imagepath,'/','meta.xml'));
