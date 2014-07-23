@@ -171,7 +171,7 @@ intIMGFileidx = find(~cellfun(@isempty,regexp(a(1,:),regexFIG)));
 % Loop over discovered files
 for i=1:length(intIMGFileidx)
     
-    temp = ReadMicroscopyData(strcat(stgObj.data_imagepath,'/',lstFiles(intIMGFileidx(i)).name));
+    temp = ReadOMEMetadata(strcat(stgObj.data_imagepath,'/',lstFiles(intIMGFileidx(i)).name));
     tmpFileStruct(i,:).location   = stgObj.data_imagepath;
     tmpFileStruct(i,:).name       = lstFiles(intIMGFileidx(i)).name;
     tmpFileStruct(i,:).dim_x      = temp.NX;
