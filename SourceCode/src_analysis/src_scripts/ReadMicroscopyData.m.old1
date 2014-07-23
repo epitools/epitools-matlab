@@ -1,0 +1,56 @@
+function res = ReadMicroscopyData(fileid)
+%%
+% id is the name of the lsm file!
+
+
+r = loci.formats.ChannelFiller();
+r = loci.formats.ChannelSeparator(r);
+r = loci.formats.gui.BufferedImageReader(r);
+%%
+
+tic
+% [pathstr, name, ext] =  fileparts(fileid);
+% if ~strcmp(pathstr, '')
+%     system(sprintf('rm ~/%s' , [name ext]));
+%     system(sprintf('ln -s %s ~/.',fileid));          % there's a bug somewhere in setId, which doesn't accept full filepaths!
+% end
+% lname = [homedir name ext];
+lname = fileid;
+r.close();
+r.setId(lname);
+numSeries = r.getSeriesCount();
+r.setSeries(0);
+w = r.getSizeX();
+h = r.getSizeY();
+z = r.getSizeZ();
+c = r.getSizeC();
+t = r.getSizeT();
+shape = [w h];
+numImages = r.getImageCount();
+imageList = zeros([h,w,z,c,t],'uint16');
+for i = 1:numImages
+    zct = r.getZCTCoords(i - 1);
+    img = r.openImage(i - 1);
+    % convert Java BufferedImage to MATLAB image
+    pix = img.getData.getPixels(0, 0, w, h, []);
+    arr = reshape(pix, shape)';
+    
+    imageList(:,:,zct(1)+1,zct(2)+1,zct(3)+1) = arr;
+end
+fprintf('\n');
+% if ~strcmp(pathstr, '') 
+%     system(sprintf('rm ~/%s ',[name ext]));          % there's a bug somewhere in setId, which doesn't accept full filepaths!
+% end
+toc
+
+res.images = imageList;
+
+res.pixelRes = r.getSeriesMetadata().get('VoxelSizeX');
+res.Notes = r.getSeriesMetadata().get('Recording #1 Notes');
+res.dt = r.getSeriesMetadata().get('TimeInterval');
+if res.dt == 0
+    res.dt = r.getSeriesMetadata().get('TimeStamp1') -r.getSeriesMetadata().get('TimeStamp0') ;
+end 
+res.Objective = r.getSeriesMetadata().get('Recording #1 Objective');
+
+
