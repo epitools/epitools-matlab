@@ -142,7 +142,7 @@ function argout = CreateMetadataFile(stgObj)
 lstFiles = dir(stgObj.data_imagepath);
 
 % Progress output
-progressbar('Discovering image files...');
+%progressbar('Discovering image files...');
 
 
 % Initialization metadata struct variable: metadata main file
@@ -163,16 +163,15 @@ regexFIG = {'\w*(?=.tif|.tiff|.jpg|.jpeg)'};
 a = struct2cell(lstFiles);
 intIMGFileidx = find(~cellfun(@isempty,regexp(a(1,:),regexFIG)));
 
-
+% In case this process is run in parallel mode, then this computes the real
+% progression of each single worker.
+%pbar = progressbar_parallel(length(intIMGFileidx));
+ppm = ParforProgressStarter2('Discovering image files...', length(intIMGFileidx), 0.1, 0, 0, 1);
 
 if stgObj.platform_units ~= 1 ; matlabpool('local',stgObj.platform_units); end
 
-% In case this process is run in parallel mode, then this computes the real
-% progression of each single worker.
-pbar = progressbar_parallel(length(intIMGFileidx));
-
 % Loop over discovered files
-for i=1:length(intIMGFileidx)
+parfor i=1:length(intIMGFileidx)
     
     temp = ReadOMEMetadata(strcat(stgObj.data_imagepath,'/',lstFiles(intIMGFileidx(i)).name));
     tmpFileStruct(i,:).location   = stgObj.data_imagepath;
@@ -189,15 +188,16 @@ for i=1:length(intIMGFileidx)
     tmpFileStruct(i,:).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
     
     % Computing worker progression
-    percent = pbar.progress;
-    progressbar(percent);
-    
+    %percent = pbar.progress;
+    %progressbar(percent);
+    ppm.increment(i)
 end
 
 % Reassing splitted arrays from workers to the main structure
 
 for i=1:length(intIMGFileidx)
-    stcMetaData.main.files.(strcat('file',num2str(i))) = tmpFileStruct(i,:);
+    %stcMetaData.main.files.(strcat('file',num2str(i))) = tmpFileStruct(:,i);
+    stcMetaData.main.files.(strcat('file',num2str(i))) = tmpFileStruct(:,i);
 end
 
 % ---------------------------- SAVING XML FILE ----------------------------
@@ -205,9 +205,9 @@ argout = sprintf('Metadata file created correctly at %s', strcat(stgObj.data_ima
 struct2xml(stcMetaData, strcat(stgObj.data_imagepath,'/','meta.xml'));
 
 
-percent = pbar.stop;
-progressbar(percent);
-
+%percent = pbar.stop;
+%progressbar(percent);
+delete(ppm)
 if stgObj.platform_units ~= 1 ; matlabpool close; end
 
 % --------------------------- READING XML FILE ----------------------------
