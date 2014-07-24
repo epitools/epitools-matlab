@@ -1,17 +1,35 @@
-function fig = StackView(Is, i)
+function fig = StackView(Is, pntDevice, pntAxes, i)
 
-if nargin < 2
+if nargin == 1
+    i = 1;
+    pntDevice = 'new';
+end
+if nargin > 1 && nargin < 4
     i = 1;
 end
 
+switch pntDevice
+    
+    case 'new'
+        
+        fig = figure;
+        
+    otherwise
+        
+        fig = getappdata(0  , pntDevice );
+        handles = guidata(fig);
+        set(handles.(pntAxes), 'Visible', 'on');
 
-fig = figure;
+end
+
+
 
 slider = uicontrol( fig ...
     ,'style'    ,'slider'   ...
     ,'units'    ,'normalized' ...
-    ,'position' ,[0.17 0.05 0.80 0.04] ...
+    ,'position' ,[0.30 0.05 0.65 0.04] ...
     );
+
 
 % if version == '7.9.0.529 (R2009b)'
     %sliderListener = addlistener(slider,'Action',@sliderActionEventCb);
@@ -49,14 +67,14 @@ set(slider,'Value', i);
 uicontrol(fig ...
     ,'style'    ,'text' ...
     ,'units'    ,'normalized' ...
-    ,'position' ,[0.04 0.1 0.1 0.04] ...
+    ,'position' ,[0.30 0.12 0.05 0.04] ...
     ,'string'   ,'Frame ' ...
 );
 
 framenum = uicontrol(fig ...
     ,'style'    ,'edit' ...
     ,'units'    ,'normalized' ...
-    ,'position' ,[0.04 0.05 0.1 0.04] ...
+    ,'position' ,[0.30 0.10 0.05 0.04] ...
     ,'string'   ,1 ...
 );
 
@@ -91,7 +109,8 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 im(im<q(1))=q(1);
 %                 im = im - q(1);
                 im(im>q(2)) = q(2);
-                img = imshow(im,[]);
+                %img = imshow(im,[]);
+                img = imshow(im,[],'Parent',handles.(pntAxes));
             case 4
                 if s(3) == 3
                     img = imshow(squeeze(Is(:,:,:,i)),[]);

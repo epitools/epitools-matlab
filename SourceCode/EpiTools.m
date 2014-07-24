@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 17-Jul-2014 16:30:52
+% Last Modified by GUIDE v2.5 24-Jul-2014 12:43:48
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -84,7 +84,8 @@ function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% handles    structure with handles and user data (see GUIDATA
+
 diary off;
 % Get default command line output from handles structure
 varargout{1} = handles.output;
@@ -468,6 +469,10 @@ stgObj = getappdata(hMainGui,'settings_objectname');
 diary(strcat(stgObj.data_fullpath,'/out-',datestr(now,30),'.log'));
 diary on;
 
+% Parallel
+
+if(stgObj.platform_units ~= 1); matlabpool('local',stgObj.platform_units); end
+
 % Update handles structure
 handles_connection(hObject, handles)
 
@@ -495,6 +500,11 @@ if(strSettingFilePath ~= 0)
         'Operation succesfully completed','help');
     
 end
+
+% Parallel
+
+if(stgObj.platform_units ~= 1); matlabpool('local',stgObj.platform_units); end
+
 diary(strcat(stgObj.data_fullpath,'out-',datestr(now,30),'log'));
 diary on;
 handles_connection(hObject, handles)
@@ -571,6 +581,8 @@ function F_Exit_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 GBL_SaveAnalysis(hObject, handles);
+out = parcluster;
+if (out.NumWorkers > 1); matlabpool close; end
 close(handles.figure1);
 
 
@@ -707,3 +719,57 @@ else
     end
 end
 
+
+% --------------------------------------------------------------------
+function A_Polycrop_Callback(hObject, eventdata, handles)
+% hObject    handle to A_Polycrop (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+strRootPath = getappdata(hMainGui,'settings_rootpath');
+stgObj = getappdata(hMainGui,'settings_objectname');
+
+strModuleName = 'Polygon_Masking';
+
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        
+        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+            
+           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+
+            switch out
+                case 'Yes'
+                    GBL_SaveAnalysis(hObject, handles);
+    
+                case 'No'
+                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+                    return;
+            end 
+            
+        else
+            
+            stgObj.CreateModule(strModuleName);
+            setappdata(hMainGui, 'settings_objectname', stgObj);
+            
+        end
+    end
+    
+end
+
+tmpSegObj = load([stgObj.data_analysisdir,'/SegResults']);
+tmpRegObj = load([stgObj.data_analysisdir,'/RegIm']);
+
+[polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
+
+save([stgObj.data_analysisdir,'/PoligonalMask'],'polygonal_mask');
+save([stgObj.data_analysisdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
+
+stgObj.AddResult(strModuleName,'polygonal_mask_path',strcat(stgObj.data_analysisdir,'/PoligonalMask'));
+stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysisdir,'/CroppedCellLabels'));
+
+waitfor(polygonal_mask);
+
+handles_connection(hObject,handles)
