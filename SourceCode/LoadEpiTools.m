@@ -17,6 +17,8 @@ cd(file_path)
 %javaaddpath([fileparts(file_path),'/OME_LOCI_TOOLS/loci_tools.jar'])
 %addpath([fileparts(file_path),'/OME_LOCI_TOOLS'])
 
+
+
 addpath([file_path,'/src_analysis']);
 addpath([file_path,'/src_analysis/src_scripts']);
 addpath([file_path,'/src_gui']);
@@ -26,10 +28,15 @@ addpath([file_path,'/src_support/module_xml']);
 addpath([file_path,'/src_support/module_logs']);
 addpath([file_path,'/src_tools']);
 addpath([file_path,'/src_tools/ImageJ_interface']);
-%javaaddpath([file_path,'/src_tools/OME_LOCI_TOOLS/loci_tools.jar'])
-%javaaddpath([file_path,'/src_tools/OME_LOCI_TOOLS/bioformats_package.jar'])
 addpath([file_path,'/src_tools/OME_LOCI_TOOLS']);
+addpath([file_path,'/src_support/module_progressbars/']);
 
+system(['touch ', strcat(prefdir, '/javaclasspath.txt')]);
+system(['echo  "', [file_path,'/src_support/module_progressbars/'] ,'" > ', prefdir, '/javaclasspath.txt']);
+
+%javaaddpath([file_path,'/src_tools/OME_LOCI_TOOLS/loci_tools.jar'])
+%javaaddpath([file_path,'/src_support/module_progressbars/']);
+javaaddpath([file_path,'/src_tools/OME_LOCI_TOOLS/bioformats_package.jar']);
 
 
 out = sprintf('Successfully loaded EpiTool functions from: %s\n',fileparts(file_path));
