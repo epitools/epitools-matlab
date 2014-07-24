@@ -168,36 +168,58 @@ intIMGFileidx = find(~cellfun(@isempty,regexp(a(1,:),regexFIG)));
 %pbar = progressbar_parallel(length(intIMGFileidx));
 ppm = ParforProgressStarter2('Discovering image files...', length(intIMGFileidx), 0.1, 0, 0, 1);
 
-if stgObj.platform_units ~= 1 ; matlabpool('local',stgObj.platform_units); end
+%if stgObj.platform_units ~= 1 ; matlabpool('local',stgObj.platform_units); end
+
+% =========================================================================
+%
+% To the workers:   stgObj.data_imagepath  => image_path
+%                                   
+% =========================================================================
+
+image_path = stgObj.data_imagepath;
 
 % Loop over discovered files
 parfor i=1:length(intIMGFileidx)
     
-    temp = ReadOMEMetadata(strcat(stgObj.data_imagepath,'/',lstFiles(intIMGFileidx(i)).name));
-    tmpFileStruct(i,:).location   = stgObj.data_imagepath;
-    tmpFileStruct(i,:).name       = lstFiles(intIMGFileidx(i)).name;
-    tmpFileStruct(i,:).dim_x      = temp.NX;
-    tmpFileStruct(i,:).dim_y      = temp.NY;
-    tmpFileStruct(i,:).dim_z      = temp.NZ;
-    tmpFileStruct(i,:).num_channels   =   temp.NC;
-    tmpFileStruct(i,:).num_timepoints =   temp.NT;
-    tmpFileStruct(i,:).pixel_type     =   temp.PixelType;
-    tmpFileStruct(i,:).exec           = 1;
-    tmpFileStruct(i,:).exec_dim_z     = strcat('1-',num2str(temp.NZ));
-    tmpFileStruct(i,:).exec_channels  =  strcat('1-',num2str(temp.NC));
-    tmpFileStruct(i,:).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
+    temp = ReadOMEMetadata(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
+    tmpFileStruct(i).location   = image_path;
+    tmpFileStruct(i).name       = lstFiles(intIMGFileidx(i)).name;
+    tmpFileStruct(i).dim_x      = temp.NX;
+    tmpFileStruct(i).dim_y      = temp.NY;
+    tmpFileStruct(i).dim_z      = temp.NZ;
+    tmpFileStruct(i).num_channels   =   temp.NC;
+    tmpFileStruct(i).num_timepoints =   temp.NT;
+    tmpFileStruct(i).pixel_type     =   temp.PixelType;
+    tmpFileStruct(i).exec           = 1;
+    tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(temp.NZ));
+    tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(temp.NC));
+    tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
     
     % Computing worker progression
     %percent = pbar.progress;
     %progressbar(percent);
     ppm.increment(i)
+    
 end
 
 % Reassing splitted arrays from workers to the main structure
 
 for i=1:length(intIMGFileidx)
     %stcMetaData.main.files.(strcat('file',num2str(i))) = tmpFileStruct(:,i);
-    stcMetaData.main.files.(strcat('file',num2str(i))) = tmpFileStruct(:,i);
+    
+    stcMetaData.main.files.(strcat('file',num2str(i))).location       = tmpFileStruct(i).location;
+    stcMetaData.main.files.(strcat('file',num2str(i))).name           = tmpFileStruct(i).name;
+    stcMetaData.main.files.(strcat('file',num2str(i))).dim_x          = tmpFileStruct(i).dim_x;
+    stcMetaData.main.files.(strcat('file',num2str(i))).dim_y          = tmpFileStruct(i).dim_y;
+    stcMetaData.main.files.(strcat('file',num2str(i))).dim_z          = tmpFileStruct(i).dim_z;
+    stcMetaData.main.files.(strcat('file',num2str(i))).num_channels   = tmpFileStruct(i).num_channels;
+    stcMetaData.main.files.(strcat('file',num2str(i))).num_timepoints = tmpFileStruct(i).num_timepoints;
+    stcMetaData.main.files.(strcat('file',num2str(i))).pixel_type     = tmpFileStruct(i).pixel_type;
+    stcMetaData.main.files.(strcat('file',num2str(i))).exec           = tmpFileStruct(i).exec;
+    stcMetaData.main.files.(strcat('file',num2str(i))).exec_dim_z     = tmpFileStruct(i).exec_dim_z;
+    stcMetaData.main.files.(strcat('file',num2str(i))).exec_channels  = tmpFileStruct(i).exec_channels;
+    stcMetaData.main.files.(strcat('file',num2str(i))).exec_num_timepoints =   tmpFileStruct(i).exec_num_timepoints;
+    
 end
 
 % ---------------------------- SAVING XML FILE ----------------------------
