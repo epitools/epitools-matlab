@@ -33,10 +33,13 @@ else
     %save dummy tracking information
     FramesToRegrow = [];
     oktrajs = [];
+
     save([stgObj.data_analysisdir,'/TrackingStart'],'ILabels','FramesToRegrow','oktrajs')
     
     stgObj.AddResult('Segmentation','segmentation_path',strcat(stgObj.data_analysisdir,'/SegResults'));
     stgObj.AddResult('Segmentation','tracking_path',strcat(stgObj.data_analysisdir,'/TrackingStart'));
+    
+    StackView(ColIms,'hMainGui','figureA');
     
 end
 end

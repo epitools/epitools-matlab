@@ -20,7 +20,7 @@ end
 
 % inspect results
 if tmpStgObj.InspectResults
-    StackView(ProjIm,'hMainGui','figureA');
+    StackView(RegIm,'hMainGui','figureA');
 end
 
 
