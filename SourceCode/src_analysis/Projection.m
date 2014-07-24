@@ -9,7 +9,7 @@ function [varargout] = Projection(stgObj)
 %   ProjectionDepthThreshold - how much up/down to gather data from surface
 %
 % todo: need to convert to int8 in a rational way here!
-% can use 95 or 99% quantile of the data and then scale 
+% can use 95 or 99% quantile of the data and then scale
 
 
 %initialize progressbar
@@ -20,16 +20,16 @@ intProcessedFiles = 0;
 
 
 % it is more convenient to recall the setting file with as shorter variable
-% name: stgModule 
+% name: stgModule
 stgModule = stgObj.analysis_modules.Projection.settings;
 
 fprintf('Started projection at %s',datestr(now));
 
 
-if(stgObj.platform_units ~= 1)
-%pbar = ProgressBarParLoops(length(intIMGFileidx),'hFPGui','PBarLoadFiles');
-    matlabpool('local',stgObj.platform_units);
-end
+% if(stgObj.platform_units ~= 1)
+%     %pbar = ProgressBarParLoops(length(intIMGFileidx),'hFPGui','PBarLoadFiles');
+%     matlabpool('local',stgObj.platform_units);
+% end
 
 
 % For loop for all files in the folder (lst) and second parfor for all timepoints
@@ -43,20 +43,20 @@ for i=1:size(stgObj.analysis_modules.Main.data,1)
     
     % If the first file is being processed, then initialize variables
     % Surface, ProjIm
-    if(intProcessedFiles == 0) 
+    if(intProcessedFiles == 0)
         %Surfaces = zeros(Data.NY,Data.NX,Data.NT,'uint8');
         %ProjIm = zeros(Data.NY,Data.NX,Data.NT, Data.PixelType);
         
-    
+        
         Surfaces = zeros(cell2mat(stgObj.analysis_modules.Main.data(i,3)),...
-                         cell2mat(stgObj.analysis_modules.Main.data(i,2)),...
-                         cell2mat(stgObj.analysis_modules.Main.data(i,6)),...
-                         'uint8'); 
+            cell2mat(stgObj.analysis_modules.Main.data(i,2)),...
+            cell2mat(stgObj.analysis_modules.Main.data(i,6)),...
+            'uint8');
         ProjIm = zeros(cell2mat(stgObj.analysis_modules.Main.data(i,3)),...
-                       cell2mat(stgObj.analysis_modules.Main.data(i,2)),...
-                       cell2mat(stgObj.analysis_modules.Main.data(i,6)),...
-                       char(stgObj.analysis_modules.Main.data(i,7))); 
-
+            cell2mat(stgObj.analysis_modules.Main.data(i,2)),...
+            cell2mat(stgObj.analysis_modules.Main.data(i,6)),...
+            char(stgObj.analysis_modules.Main.data(i,7)));
+        
     end
     
     % Obtain image file full path
@@ -65,12 +65,12 @@ for i=1:size(stgObj.analysis_modules.Main.data,1)
     % Read image file data
     Series = 1;
     Data = ReadMicroscopyData(strFullPathFile, Series);
-    Data.images = squeeze(Data.images); % get rid of empty 
+    Data.images = squeeze(Data.images); % get rid of empty
     
     fprintf('Working on %s\n', char(stgObj.analysis_modules.Main.data(i,1)));
-   
+    
     %information seems to not be transmitted correctly 10 time points
-    %appear to be presente while there are only 3, CHECK [ ] 
+    %appear to be presente while there are only 3, CHECK [ ]
     
     idxTimePoints = [];
     % Prepare vector containing indexes of time points to consider:
@@ -88,9 +88,9 @@ for i=1:size(stgObj.analysis_modules.Main.data,1)
     ans2 = regexp(char(stgObj.analysis_modules.Main.data(i,11)), '([0-9]*)-([0-9]*)', 'split');
     
     for o=1:length(ans2)
-    
+        
         idxTimePoints = [idxTimePoints,str2double(strsplit(ans2{o},','))];
-    
+        
     end
     
     
@@ -98,7 +98,15 @@ for i=1:size(stgObj.analysis_modules.Main.data,1)
     idxTimePoints = sort(idxTimePoints);
     
     if(stgObj.platform_units ~= 1)
-       parfor local_time_index = 1:length(idxTimePoints)
+        
+        ppm = ParforProgressStarter2(['Parallel processing file'  char(stgObj.analysis_modules.Main.data(i,1))],...
+                                     length(idxTimePoints),...
+                                     0.1,...
+                                     0,...
+                                     0,...
+                                     1);
+        
+        parfor local_time_index = 1:length(idxTimePoints)
             
             
             ImStack = Data.images(:,:,:,idxTimePoints(local_time_index));
@@ -112,10 +120,10 @@ for i=1:size(stgObj.analysis_modules.Main.data,1)
             
             ProjIm(:,:,local_time_index+global_time_index) = im;
             Surfaces(:,:,local_time_index+global_time_index) = Surf;
-            
-            %progressbar(((local_time_index-1)*length(idxTimePoints)+idxTimePoints(local_time_index))/length(idxTimePoints)/length(idxTimePoints));
+            ppm.increment(local_time_index)
             
         end
+        delete(ppm)
     else % non parallel loop
         for local_time_index = 1:length(idxTimePoints)
             
@@ -151,13 +159,13 @@ progressbar(1);
 fprintf('Finished projection at %s\n',datestr(now));
 
 
-if(stgObj.platform_units ~= 1)
-%pbar = ProgressBarParLoops(length(intIMGFileidx),'hFPGui','PBarLoadFiles');
-    matlabpool close
-end
+% if(stgObj.platform_units ~= 1)
+%     %pbar = ProgressBarParLoops(length(intIMGFileidx),'hFPGui','PBarLoadFiles');
+%     matlabpool close
+% end
 
 if stgModule.InspectResults
-    StackView(ProjIm);
+    StackView(ProjIm,'hMainGui','figureA');
 end
 
 end

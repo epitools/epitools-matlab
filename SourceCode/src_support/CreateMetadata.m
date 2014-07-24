@@ -230,7 +230,7 @@ struct2xml(stcMetaData, strcat(stgObj.data_imagepath,'/','meta.xml'));
 %percent = pbar.stop;
 %progressbar(percent);
 delete(ppm)
-if stgObj.platform_units ~= 1 ; matlabpool close; end
+%if stgObj.platform_units ~= 1 ; matlabpool close; end
 
 % --------------------------- READING XML FILE ----------------------------
 
