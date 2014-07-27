@@ -470,8 +470,12 @@ diary(strcat(stgObj.data_fullpath,'/out-',datestr(now,30),'.log'));
 diary on;
 
 % Parallel
-
-if(stgObj.platform_units ~= 1); matlabpool('local',stgObj.platform_units); end
+installed_toolboxes=ver;
+if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
+    if(stgObj.platform_units ~= 1); 
+        matlabpool('local',stgObj.platform_units); 
+    end
+end
 
 % Update handles structure
 handles_connection(hObject, handles)
@@ -502,8 +506,12 @@ if(strSettingFilePath ~= 0)
 end
 
 % Parallel
-
-if(stgObj.platform_units ~= 1); matlabpool('local',stgObj.platform_units); end
+installed_toolboxes=ver;
+if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
+    if(stgObj.platform_units ~= 1);
+        matlabpool('local',stgObj.platform_units);
+    end
+end
 
 diary(strcat(stgObj.data_fullpath,'out-',datestr(now,30),'log'));
 diary on;
