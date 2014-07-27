@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 24-Jul-2014 12:43:48
+% Last Modified by GUIDE v2.5 26-Jul-2014 19:06:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -773,3 +773,10 @@ stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysis
 waitfor(polygonal_mask);
 
 handles_connection(hObject,handles)
+
+
+% --- Executes when uipanel5 is resized.
+function uipanel5_ResizeFcn(hObject, eventdata, handles)
+% hObject    handle to uipanel5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
