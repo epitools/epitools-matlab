@@ -22,7 +22,7 @@ function varargout = ProjectionGUI(varargin)
 
 % Edit the above text to modify the response to help ProjectionGUI
 
-% Last Modified by GUIDE v2.5 16-May-2014 15:32:25
+% Last Modified by GUIDE v2.5 28-Jul-2014 19:11:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -237,7 +237,8 @@ stgObj  = getappdata(hMainGui, 'settings_objectname');
 
 %params = gatherData(handles);
 %params.InspectResults = true;         % show fit or not
-stgObj.AddSetting('Projection','InspectResults',true);
+show_surfaces_fitting = get(handles.show_surface_checkbox,'value');
+stgObj.AddSetting('Projection','InspectResults',show_surfaces_fitting);
 %params.Parallel = true;               % Use parallelisation?
 stgObj.AddSetting('Projection','Parallel',true);
 
@@ -251,3 +252,11 @@ Projection(stgObj);
 hProjGui = getappdata(0,'hPrjGui');
 delete(hProjGui);
 
+
+% --- Executes on button press in show_surface_checkbox.
+function show_surface_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to show_surface_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of show_surface_checkbox

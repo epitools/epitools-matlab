@@ -164,9 +164,9 @@ fprintf('Finished projection at %s\n',datestr(now));
 %     matlabpool close
 % end
 
-if stgModule.InspectResults
-    StackView(ProjIm,'hMainGui','figureA');
-end
+
+StackView(ProjIm,'hMainGui','figureA');
+
 
 end
 
