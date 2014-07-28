@@ -246,3 +246,8 @@ updateAndGather(handles);
 %data_specifics = getappdata(hMainGui,'data_specifics');
 %Projection(data_specifics);
 Projection(stgObj);
+
+%close projection gui after execution
+hProjGui = getappdata(0,'hPrjGui');
+delete(hProjGui);
+

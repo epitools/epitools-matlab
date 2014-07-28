@@ -351,3 +351,7 @@ stgObj.AddSetting('Segmentation','SingleFrame',true);
 stgObj.AddSetting('Segmentation','debug',false);
 
 Segmentation(stgObj);
+
+%close segmentation gui after execution
+hSegGui = getappdata(0,'hSegGui');
+delete(hSegGui);

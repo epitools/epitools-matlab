@@ -155,6 +155,9 @@ stgObj  = getappdata(hICoGui, 'settings_objectname');
 
 ImproveContrast(stgObj);
 
+%close gui after execution
+delete(hICoGui);
+
 
 % --- Executes on slider movement.
 function enhancement_slider_Callback(hObject, eventdata, handles)

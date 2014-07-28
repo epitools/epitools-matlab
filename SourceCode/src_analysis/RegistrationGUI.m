@@ -98,19 +98,6 @@ function updateLegends(handles)
 hRehGui = getappdata(0  , 'hRegGui');
 stgObj  = getappdata(hRehGui, 'settings_objectname');
 module_name = getappdata(hRehGui, 'settings_modulename');
-
-
-%     caption = sprintf('Smoothing Radius = %.2f', stgObj.analysis_modules.(char(module_name)).settings.SmoothingRadius);
-%     set(handles.smoothing_label, 'String', caption);
-% 
-%     caption = sprintf('Surface Smoothness 1 = %.0f', stgObj.analysis_modules.(char(module_name)).settings.SurfSmoothness1);
-%     set(handles.surface1_label, 'String', caption);
-%     
-%     caption = sprintf('Surface Smoothness 2 = %.0f', stgObj.analysis_modules.(char(module_name)).settings.SurfSmoothness2);
-%     set(handles.surface2_label, 'String', caption);
-%     
-%     caption = sprintf('Projection Depth Threshold = %.2f', stgObj.analysis_modules.(char(module_name)).settings.ProjectionDepthThreshold);
-%     set(handles.depth_label, 'String', caption);
     
    
 % --- Outputs from this function are returned to the command line.
@@ -131,9 +118,9 @@ function start_registration_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 updateAndGather(handles);
 hMainGui = getappdata(0, 'hMainGui');
-hRehGui = getappdata(0  , 'hRegGui');
-stgObj  = getappdata(hRehGui, 'settings_objectname');
-module_name = getappdata(hRehGui, 'settings_modulename');
+hRegGui = getappdata(0  , 'hRegGui');
+stgObj  = getappdata(hRegGui, 'settings_objectname');
+module_name = getappdata(hRegGui, 'settings_modulename');
 
 %params = gatherData(handles);
 %params.InspectResults = true;         % show fit or not
@@ -145,6 +132,9 @@ stgObj.AddSetting(module_name,'SkipFirstRegStep',true);
 
 
 Registration(stgObj);
+
+%close projection gui after execution
+delete(hRegGui);
 
 
 % --- Executes on button press in useStackReg.
