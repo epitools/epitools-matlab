@@ -50,6 +50,13 @@ if params.Parallel           % parallelise if we can!
     % should change from s(3) to frs but the integers in frs might not be
     % consective so it fails. Perhaps check if splitting would be an option
     
+    ppm = ParforProgressStarter2('Segmentation running',...
+                                     NFrames,...
+                                     0.1,...
+                                     0,...
+                                     0,...
+                                     1);
+    
     parfor i = 1:NFrames
         fprintf('segmenting frame (P) %i\n', i);
         im = double(Stack(:,:,i));
@@ -62,7 +69,12 @@ if params.Parallel           % parallelise if we can!
         Ilabels(:,:,i) = Ilabel;
         Clabels(:,:,i) = Clabel;
         ColIms(:,:,:,i) = ColIm;
+        
+        ppm.increment(i)
+        
     end
+    
+    delete(ppm)
 else
     for t=1:length(frs)
         i = frs(t);
