@@ -43,5 +43,13 @@ end
 
 progressbar(1);
 
+hMainGui = getappdata(0  , 'hMainGui');
+if(ishandle(hMainGui))
+    uiresume(hMainGui);
 end
+
+end
+
+
+
 

@@ -427,8 +427,8 @@ if(isappdata(hMainGui,'settings_objectname'))
     end
     
 end
-out = SkeletonConversion(stgObj);
-uiwait(out);
+SkeletonConversion(stgObj);
+uiwait;
 handles_connection(hObject,handles)
 
 
