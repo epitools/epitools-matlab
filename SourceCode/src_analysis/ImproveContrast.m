@@ -50,7 +50,7 @@ end
 
 progressbar(1);
 
-StackView(RegIm_clahe);
+StackView(RegIm_clahe,'hMainGui','figureA');
 
 do_overwrite = questdlg('Please decide over the CLAHE image','Overrite decision',...
     'Overrite original','Keep Original','Keep Original');
