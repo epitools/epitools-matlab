@@ -113,10 +113,12 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 img = imshow(im,[],'Parent',handles.(pntAxes));
             case 4
                 if s(3) == 3
-                    img = imshow(squeeze(Is(:,:,:,i)),[]);
+                    %img = imshow(squeeze(Is(:,:,:,i)),[]);
+                    img = imshow(squeeze(Is(:,:,:,i)),[],'Parent',handles.(pntAxes));
                 end
                 if s(4) == 3
-                    img = imshow(squeeze(Is(:,:,i,:)));
+                    %img = imshow(squeeze(Is(:,:,i,:)));
+                    img = imshow(squeeze(Is(:,:,i,:)),[],'Parent',handles.(pntAxes));
                 end
                 %             if max(max(max(max(Is(:,:,:,i))))) == 0
         end
