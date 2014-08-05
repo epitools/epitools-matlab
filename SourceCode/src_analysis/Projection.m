@@ -31,75 +31,97 @@ fprintf('Started projection at %s',datestr(now));
 %     matlabpool('local',stgObj.platform_units);
 % end
 
+has_data_from_gui = stgObj.hasModule('Main');
+
 
 % For loop for all files in the folder (lst) and second parfor for all timepoints
+if(has_data_from_gui)
+    no_of_images = size(stgObj.analysis_modules.Main.data,1);
+else
+    %temporary fix for gui-less test_case
+    no_of_images = 1;
+end
 
-for i=1:size(stgObj.analysis_modules.Main.data,1)
+for i=1:no_of_images
     
-    % Discard files where exec property is 0
-    if(logical(cell2mat(stgObj.analysis_modules.Main.data(i,8))) == false)
-        continue;
+    if(has_data_from_gui)
+    
+        %% Table readout from MAIN module
+        % Discard files where exec property is 0
+        if(logical(cell2mat(stgObj.analysis_modules.Main.data(i,8))) == false)
+            continue;
+        end
+        
+        % If the first file is being processed, then initialize variables
+        % Surface, ProjIm
+        if(intProcessedFiles == 0)
+            Surfaces = zeros(cell2mat(stgObj.analysis_modules.Main.data(i,3)),...
+                cell2mat(stgObj.analysis_modules.Main.data(i,2)),...
+                cell2mat(stgObj.analysis_modules.Main.data(i,6)),...
+                'uint8');
+            ProjIm = zeros(cell2mat(stgObj.analysis_modules.Main.data(i,3)),...
+                cell2mat(stgObj.analysis_modules.Main.data(i,2)),...
+                cell2mat(stgObj.analysis_modules.Main.data(i,6)),...
+                char(stgObj.analysis_modules.Main.data(i,7)));
+        end
+        
+        idxTimePoints = [];
+        % Prepare vector containing indexes of time points to consider:
+        % all the ranges
+        ans1 = regexp(regexp(char(stgObj.analysis_modules.Main.data(i,11)), '([0-9]*)-([0-9]*)', 'match'),'-','split');
+        
+        for o=1:length((ans1))
+            
+            idxTimePoints = [idxTimePoints,str2double(ans1{o}{1}):str2double(ans1{o}{2})];
+            
+        end
+        
+        % all the singles *ATT: it can generate NAN values (getting rid of
+        % them with line>
+        ans2 = regexp(char(stgObj.analysis_modules.Main.data(i,11)), '([0-9]*)-([0-9]*)', 'split');
+        
+        for o=1:length(ans2)
+            
+            idxTimePoints = [idxTimePoints,str2double(strsplit(ans2{o},','))];
+            
+        end
+        
+        idxTimePoints = idxTimePoints(~isnan(idxTimePoints));
+        idxTimePoints = sort(idxTimePoints);
+        
+        current_file_name = char(stgObj.analysis_modules.Main.data(i,1));
+        % Obtain image file full path
+        strFullPathFile = [stgObj.data_imagepath,'/',current_file_name];
+        
+        % Read image file data
+        Series = 1;
+        Data = ReadMicroscopyData(strFullPathFile, Series);
+        Data.images = squeeze(Data.images); % get rid of empty
+
+    else
+        %consider test file to be a single file
+        strFullPathFile = stgObj.data_imagepath;
+        [~,name,ext] = fileparts(strFullPathFile);
+        current_file_name = [name,ext];
+        
+        % Read image file data
+        Series = 1;
+        Data = ReadMicroscopyData(strFullPathFile, Series);
+        Data.images = squeeze(Data.images); % get rid of empty
+        
+        % Custom preallocation
+        Surfaces = zeros(Data.NY,Data.NX,Data.NT,'uint8');
+        ProjIm = zeros(Data.NY,Data.NX,Data.NT, Data.PixelType);
+        idxTimePoints = 1:Data.NT;
     end
     
-    % If the first file is being processed, then initialize variables
-    % Surface, ProjIm
-    if(intProcessedFiles == 0)
-        %Surfaces = zeros(Data.NY,Data.NX,Data.NT,'uint8');
-        %ProjIm = zeros(Data.NY,Data.NX,Data.NT, Data.PixelType);
-        
-        
-        Surfaces = zeros(cell2mat(stgObj.analysis_modules.Main.data(i,3)),...
-            cell2mat(stgObj.analysis_modules.Main.data(i,2)),...
-            cell2mat(stgObj.analysis_modules.Main.data(i,6)),...
-            'uint8');
-        ProjIm = zeros(cell2mat(stgObj.analysis_modules.Main.data(i,3)),...
-            cell2mat(stgObj.analysis_modules.Main.data(i,2)),...
-            cell2mat(stgObj.analysis_modules.Main.data(i,6)),...
-            char(stgObj.analysis_modules.Main.data(i,7)));
-        
-    end
-    
-    % Obtain image file full path
-    strFullPathFile = [stgObj.data_imagepath,'/',char(stgObj.analysis_modules.Main.data(i,1))];
-    
-    % Read image file data
-    Series = 1;
-    Data = ReadMicroscopyData(strFullPathFile, Series);
-    Data.images = squeeze(Data.images); % get rid of empty
-    
-    fprintf('Working on %s\n', char(stgObj.analysis_modules.Main.data(i,1)));
-    
-    %information seems to not be transmitted correctly 10 time points
-    %appear to be presente while there are only 3, CHECK [ ]
-    
-    idxTimePoints = [];
-    % Prepare vector containing indexes of time points to consider:
-    % all the ranges
-    ans1 = regexp(regexp(char(stgObj.analysis_modules.Main.data(i,11)), '([0-9]*)-([0-9]*)', 'match'),'-','split');
-    
-    for o=1:length((ans1))
-        
-        idxTimePoints = [idxTimePoints,str2double(ans1{o}{1}):str2double(ans1{o}{2})];
-        
-    end
-    
-    % all the singles *ATT: it can generate NAN values (getting rid of
-    % them with line>
-    ans2 = regexp(char(stgObj.analysis_modules.Main.data(i,11)), '([0-9]*)-([0-9]*)', 'split');
-    
-    for o=1:length(ans2)
-        
-        idxTimePoints = [idxTimePoints,str2double(strsplit(ans2{o},','))];
-        
-    end
-    
-    
-    idxTimePoints = idxTimePoints(~isnan(idxTimePoints));
-    idxTimePoints = sort(idxTimePoints);
+    %% Project data
+
+    fprintf('Working on %s\n', current_file_name);
     
     if(stgObj.platform_units ~= 1)
         
-        ppm = ParforProgressStarter2(['Parallel processing file'  char(stgObj.analysis_modules.Main.data(i,1))],...
+        ppm = ParforProgressStarter2(['Parallel processing file',current_file_name],...
                                      length(idxTimePoints),...
                                      0.1,...
                                      0,...
@@ -164,9 +186,9 @@ fprintf('Finished projection at %s\n',datestr(now));
 %     matlabpool close
 % end
 
-
-StackView(ProjIm,'hMainGui','figureA');
-
-
+if(has_data_from_gui)
+    StackView(ProjIm,'hMainGui','figureA');
+else
+    StackView(ProjIm)
 end
 

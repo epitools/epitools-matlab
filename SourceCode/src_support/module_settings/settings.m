@@ -86,6 +86,12 @@ classdef settings < handle
         
         end
         
+        function boolean = hasModule(obj,mdname)
+            %hasModule outputs 1 if mdname module is present
+            boolean = (sum(strcmp(fields(obj.analysis_modules), mdname)) == 1);
+            
+        end
+        
         
         function CreateModule(obj,mdname)
         % Create a setting module to add to the configuration file

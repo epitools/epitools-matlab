@@ -38,9 +38,13 @@ else
     
     stgObj.AddResult('Segmentation','segmentation_path',strcat(stgObj.data_analysisdir,'/SegResults'));
     stgObj.AddResult('Segmentation','tracking_path',strcat(stgObj.data_analysisdir,'/TrackingStart'));
-    
-    StackView(ColIms,'hMainGui','figureA');
-    
+   
+    % inspect results
+    if stgObj.hasModule('Main')
+        StackView(ColIms,'hMainGui','figureA');
+    else
+        StackView(ColIms);
+    end
 end
 end
 
