@@ -493,8 +493,9 @@ hMainGui = getappdata(0, 'hMainGui');
 
 % If the user select a file to open
 if(strSettingFilePath ~= 0)
-
-    load([strSettingFilePath,strSettingFileName], '-mat');
+    
+    stgObj = xml_read([strSettingFilePath,strSettingFileName]);
+    %load([strSettingFilePath,strSettingFileName], '-mat');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
     h = msgbox(sprintf('Name: %s  \nVersion: %s \nAuthor: %s \n\ncompleted with success!',...
@@ -536,8 +537,9 @@ copyfile(fullfile(strRootPath,...
 
 % If the user select a file to open
 if(strSettingFilePath ~= 0)
-
-    tmp = load([strSettingFilePath,strSettingFileName], '-mat', 'stgObj');
+    
+    tmp = xml_read([strSettingFilePath,strSettingFileName]);
+    %tmp = load([strSettingFilePath,strSettingFileName], '-mat', 'stgObj');
     
     stgObj.analysis_modules = tmp.stgObj.analysis_modules;
     
@@ -706,8 +708,11 @@ end
 
 if (intForce == 1)
     
-    save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
-
+    
+    %save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
+    
+    struct2xml(struct(stgObj), strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
+    
 else
     
        
@@ -716,7 +721,9 @@ else
     switch out
         case 'Yes'
             
-            save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
+            %save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
+            struct2xml(struct(stgObj), strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
+            
             argout = 0;
         case 'No'
             
