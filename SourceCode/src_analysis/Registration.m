@@ -19,9 +19,10 @@ end
 
 
 % inspect results
-if tmpStgObj.InspectResults
+if stgObj.hasModule('Main')
     StackView(RegIm,'hMainGui','figureA');
-end
+else
+    StackView(RegIm);
 
 
 

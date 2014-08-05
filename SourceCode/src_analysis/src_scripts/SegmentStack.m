@@ -76,6 +76,7 @@ if params.Parallel           % parallelise if we can!
     
     delete(ppm)
 else
+    progressbar('Segmenting images... (please wait)');
     for t=1:length(frs)
         i = frs(t);
         fprintf('segmenting frame %i\n', i);
@@ -90,5 +91,7 @@ else
         Ilabels(:,:,i) = Ilabel;
         Clabels(:,:,i) = Clabel;
         ColIms(:,:,:,i) = ColIm;
+        progressbar(t/length(frs));
     end
+    progressbar(1);
 end
