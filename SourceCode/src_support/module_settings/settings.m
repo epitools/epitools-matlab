@@ -24,6 +24,35 @@ classdef settings < handle
         
         function obj = settings(analysis_name, analysis_version, data_fullpath)
             
+            % Who am I?
+            [ST,~] = dbstack();
+            
+            % Convert the object passed into a settings object
+            if (nargin == 1)
+                objName = analysis_name;
+                
+                if (isa(objName, 'struct'))
+
+                    field_object = fields(objName);
+                    
+                    for i=1:numel(field_object)
+                        idx = field_object(i);
+                        obj.(char(idx)) = objName.(char(idx));
+                        
+                    end
+
+                    
+                else
+                    
+                    warning([ST 'could not convert the object', objName,'into a settings object']);
+                    
+                end
+            
+            return
+            end
+            
+            
+            
             if (nargin == 3) 
                 
                   obj.analysis_name = analysis_name;

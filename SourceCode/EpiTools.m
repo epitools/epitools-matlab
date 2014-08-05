@@ -495,6 +495,7 @@ hMainGui = getappdata(0, 'hMainGui');
 if(strSettingFilePath ~= 0)
     
     stgObj = xml_read([strSettingFilePath,strSettingFileName]);
+    stgObj = settings(stgObj);
     %load([strSettingFilePath,strSettingFileName], '-mat');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
@@ -710,8 +711,10 @@ if (intForce == 1)
     
     
     %save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
+    tmp = struct();
+    tmp.main = struct(stgObj);
     
-    struct2xml(struct(stgObj), strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
+    struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
     
 else
     
@@ -721,8 +724,10 @@ else
     switch out
         case 'Yes'
             
+            tmp = struct();
+            tmp.main = struct(stgObj);
             %save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
-            struct2xml(struct(stgObj), strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
+            struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
             
             argout = 0;
         case 'No'
