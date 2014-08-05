@@ -37,20 +37,6 @@ function [ out_status ] = CreateMetadata( varargin )
 % =========================================================================
 % Disclaimer
 % =========================================================================
-% Copyright (C) 2014 - Lorenzo Gatti - All rights reserved
-%
-% This program contains code licensed under Creative Commons BY-NC-SA 3.0,
-% published in the following documents:
-%
-% - "Gatti L., Trotti A., Rosenblatt Perceptron Algorithm implementation and application in gene
-%                         function prediction in Saccharomyces cerevisiae,
-%                         May 2011, University of Milan (IT), All Rights Reserved".
-%
-% - "Del Bene L.,Gatti L.,Koletou M., Yudzin A.,  Epidemic models of Flu outbreaks - Bayesian Data Assimilation
-%                                                 and Uncertainty Quantification for a SIR-variant model,
-%                                                 July 2013, Eidgen?ssische Technische Hochschule Z?rich (CH),
-%                                                 All Rights Reserved".
-%
 % => Plese quote the author when used in a publication.
 %
 % This program is free software: you can redistribute it and/or modify

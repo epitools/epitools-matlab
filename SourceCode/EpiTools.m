@@ -211,7 +211,7 @@ if(isappdata(hMainGui,'settings_objectname'))
 
             switch out
                 case 'Yes'
-                    GBL_SaveAnalysis(hObject, handles);
+                    Global_SaveAnalysis(hObject, handles);
     
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
@@ -251,7 +251,7 @@ if(isappdata(hMainGui,'settings_objectname'))
 
             switch out
                 case 'Yes'
-                    GBL_SaveAnalysis(hObject, handles);
+                    Global_SaveAnalysis(hObject, handles);
     
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
@@ -291,7 +291,7 @@ if(isappdata(hMainGui,'settings_objectname'))
 
             switch out
                 case 'Yes'
-                    GBL_SaveAnalysis(hObject, handles);
+                    Global_SaveAnalysis(hObject, handles);
     
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
@@ -331,7 +331,7 @@ if(isappdata(hMainGui,'settings_objectname'))
 
             switch out
                 case 'Yes'
-                    GBL_SaveAnalysis(hObject, handles);
+                    Global_SaveAnalysis(hObject, handles);
     
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
@@ -371,7 +371,7 @@ if(isappdata(hMainGui,'settings_objectname'))
 
             switch out
                 case 'Yes'
-                    GBL_SaveAnalysis(hObject, handles);
+                    Global_SaveAnalysis(hObject, handles);
     
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
@@ -411,7 +411,7 @@ if(isappdata(hMainGui,'settings_objectname'))
 
             switch out
                 case 'Yes'
-                    GBL_SaveAnalysis(hObject, handles);
+                    Global_SaveAnalysis(hObject, handles);
     
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
@@ -429,7 +429,7 @@ if(isappdata(hMainGui,'settings_objectname'))
 end
 SkeletonConversion(stgObj);
 uiwait;
-handles_connection(hObject,handles)
+handles_connection(hObject,handles);
 
 
 % --------------------------------------------------------------------
@@ -444,7 +444,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         % Ask if you want to save it before generate a new one
-        interrupt = GBL_SaveAnalysis(hObject, handles);
+        interrupt = Global_SaveAnalysis(hObject, handles);
         
         if (interrupt == 1)
             return;
@@ -462,7 +462,7 @@ setappdata(hMainGui, 'settings_objectname', stgObj);
 out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
 uiwait(out);
 
-GBL_SaveAnalysis(hObject, handles, 1);
+Global_SaveAnalysis(hObject, handles, 1);
 stgObj = getappdata(hMainGui,'settings_objectname');
 
 % logging on external device
@@ -581,14 +581,14 @@ function F_Save_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-GBL_SaveAnalysis(hObject, handles);
+Global_SaveAnalysis(hObject, handles);
 
 % --------------------------------------------------------------------
 function F_Exit_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Exit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-GBL_SaveAnalysis(hObject, handles);
+Global_SaveAnalysis(hObject, handles);
 out = parcluster;
 if (out.NumWorkers > 1); matlabpool close; end
 close(handles.figure1);
@@ -692,7 +692,7 @@ end
 handles_connection(hObject, handles)
 
 
-function argout = GBL_SaveAnalysis(hObject, handles, intForce)
+function argout = Global_SaveAnalysis(hObject, handles, intForce)
 hMainGui = getappdata(0, 'hMainGui');
 strRootPath = getappdata(hMainGui,'settings_rootpath');
 stgObj = getappdata(hMainGui,'settings_objectname');
@@ -750,7 +750,7 @@ if(isappdata(hMainGui,'settings_objectname'))
 
             switch out
                 case 'Yes'
-                    GBL_SaveAnalysis(hObject, handles);
+                    Global_SaveAnalysis(hObject, handles);
     
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
