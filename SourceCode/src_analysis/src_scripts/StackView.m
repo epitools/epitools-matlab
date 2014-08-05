@@ -109,8 +109,12 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 im(im<q(1))=q(1);
 %                 im = im - q(1);
                 im(im>q(2)) = q(2);
-                %img = imshow(im,[]);
-                img = imshow(im,[],'Parent',handles.(pntAxes));
+                
+                if(~exists('pntAxes',1))  
+                    img = imshow(im,[]);
+                else
+                    img = imshow(im,[],'Parent',handles.(pntAxes));
+                end
             case 4
                 if s(3) == 3
                     %img = imshow(squeeze(Is(:,:,:,i)),[]);

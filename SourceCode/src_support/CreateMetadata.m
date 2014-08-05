@@ -82,7 +82,7 @@ end
 lstFiles = dir(stgObj.data_imagepath);
 
 % Supported metadata files
-regexXML = {'\w*(?=.xml)'};
+regexXML = {'\w*(?=epitool_metadata.xml)'};
 
 a = struct2cell(lstFiles);
 
@@ -210,7 +210,7 @@ end
 
 % ---------------------------- SAVING XML FILE ----------------------------
 argout = sprintf('Metadata file created correctly at %s', strcat(stgObj.data_imagepath,'/','meta.xml'));
-struct2xml(stcMetaData, strcat(stgObj.data_imagepath,'/','meta.xml'));
+struct2xml(stcMetaData, strcat(stgObj.data_imagepath,'/','epitool_metadata.xml'));
 
 
 %percent = pbar.stop;

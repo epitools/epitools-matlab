@@ -171,6 +171,8 @@ function [str,succes] = val2str(val)
         %do nothing
     elseif (isnumeric(val))
         val = num2str(val);
+    elseif (islogical(val))
+        val = int8(val);
     else
         succes = false;
     end

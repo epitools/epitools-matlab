@@ -27,11 +27,11 @@ function varargout = EpiTools(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @EpiTools_OpeningFcn, ...
-                   'gui_OutputFcn',  @EpiTools_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @EpiTools_OpeningFcn, ...
+    'gui_OutputFcn',  @EpiTools_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -80,7 +80,7 @@ setappdata(gcf, 'settings_rootpath', file_path);
 handles_connection(hObject,handles)
 
 % --- Outputs from this function are returned to the command line.
-function varargout = EpiTools_OutputFcn(hObject, eventdata, handles) 
+function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -106,9 +106,9 @@ log2dev( getappdata(hMainGui, 'status_application'), 'hMainGui', 'statusbar', 'F
 if(isappdata(hMainGui,'settings_objectname'))
     
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-    
+        
         stgObj = getappdata(hMainGui,'settings_objectname');
-
+        
         set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
         set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
         set(handles.figure1, 'Name', ['EpiTools | ', stgObj.analysis_code, ' - ' , stgObj.analysis_name])
@@ -119,7 +119,7 @@ if(isappdata(hMainGui,'settings_objectname'))
         log2dev(sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, stgObj.analysis_version,stgObj.data_extensionmask  ), 'hMainGui', 'statusbar', 'LD0001', 0 );
         % -------------------------------------------------------------------------
         
-    end 
+    end
 end
 
 % Update handles structure
@@ -152,7 +152,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
             icy_path = 'none';
         end
     end
-
+    
     %Check if icy functions are already loaded
     if(~icy_is_loaded)
         if(exist([icy_path,'/icy_init.m'],'file'))
@@ -170,7 +170,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     end
     
     %Check if icy is used
-    if(icy_is_used ~= 1) 
+    if(icy_is_used ~= 1)
         %do not check if icy_path was not set
         set(hObject,'Value',get(hObject,'Min'));
     end
@@ -207,16 +207,16 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
             
-           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-
+            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+            
             switch out
                 case 'Yes'
                     Global_SaveAnalysis(hObject, handles);
-    
+                    
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
                     return;
-            end 
+            end
             
         else
             
@@ -247,16 +247,16 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
             
-           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-
+            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+            
             switch out
                 case 'Yes'
                     Global_SaveAnalysis(hObject, handles);
-    
+                    
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
                     return;
-            end 
+            end
             
         else
             
@@ -287,16 +287,16 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
             
-           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-
+            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+            
             switch out
                 case 'Yes'
                     Global_SaveAnalysis(hObject, handles);
-    
+                    
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
                     return;
-            end 
+            end
             
         else
             
@@ -327,16 +327,16 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
             
-           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-
+            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+            
             switch out
                 case 'Yes'
                     Global_SaveAnalysis(hObject, handles);
-    
+                    
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
                     return;
-            end 
+            end
             
         else
             
@@ -367,16 +367,16 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
             
-           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-
+            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+            
             switch out
                 case 'Yes'
                     Global_SaveAnalysis(hObject, handles);
-    
+                    
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
                     return;
-            end 
+            end
             
         else
             
@@ -407,16 +407,16 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
             
-           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-
+            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+            
             switch out
                 case 'Yes'
                     Global_SaveAnalysis(hObject, handles);
-    
+                    
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
                     return;
-            end 
+            end
             
         else
             
@@ -472,8 +472,8 @@ diary on;
 % Parallel
 installed_toolboxes=ver;
 if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
-    if(stgObj.platform_units ~= 1); 
-        matlabpool('local',stgObj.platform_units); 
+    if(stgObj.platform_units ~= 1);
+        matlabpool('local',stgObj.platform_units);
     end
 end
 
@@ -496,13 +496,25 @@ if(strSettingFilePath ~= 0)
     
     stgObj = xml_read([strSettingFilePath,strSettingFileName]);
     stgObj = settings(stgObj);
+    
+    
+    arrayFiles = fields(stgObj.analysis_modules.Main.data);
+    tmpFileStruct = {};
+    for i=1:numel(arrayFiles)
+        idx = arrayFiles(i);
+        tmpFileStruct(i,:) = struct2cell(stgObj.analysis_modules.Main.data.(char(idx)))'; 
+    end
+    
+    
+    stgObj.analysis_modules.Main.data = tmpFileStruct;
+    
     %load([strSettingFilePath,strSettingFileName], '-mat');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
     h = msgbox(sprintf('Name: %s  \nVersion: %s \nAuthor: %s \n\ncompleted with success!',...
         stgObj.analysis_name,...
         stgObj.analysis_version,...
-        stgObj.user_name ),... 
+        stgObj.user_name ),...
         'Operation succesfully completed','help');
     
 end
@@ -530,8 +542,8 @@ strRootPath = getappdata(hMainGui,'settings_rootpath');
 stgObj = getappdata(hMainGui, 'settings_objectname');
 
 copyfile(fullfile(strRootPath,...
-         'images','emblem-notice.png'));
-[icoInformation] = imread('emblem-notice.png'); 
+    'images','emblem-notice.png'));
+[icoInformation] = imread('emblem-notice.png');
 
 
 [strSettingFileName,strSettingFilePath,~] = uigetfile('~/*.etl','Select an analysis file to copy the settings from');
@@ -547,10 +559,10 @@ if(strSettingFilePath ~= 0)
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
     h = msgbox([sprintf('For the current analysis file \n\n analysis>  %s  \n\n',...
-                strcat(stgObj.analysis_code,' | ',stgObj.analysis_name,' -  version> ',stgObj.analysis_version)),...
-                sprintf('you imported from the analysis file \n\n analysis>  %s \n\n',...
-                strcat(tmp.stgObj.analysis_code,' | ',tmp.stgObj.analysis_name,' -  version>',tmp.stgObj.analysis_version)),...
-                'all available modules. The operation concluded successfully!'],... 
+        strcat(stgObj.analysis_code,' | ',stgObj.analysis_name,' -  version> ',stgObj.analysis_version)),...
+        sprintf('you imported from the analysis file \n\n analysis>  %s \n\n',...
+        strcat(tmp.stgObj.analysis_code,' | ',tmp.stgObj.analysis_name,' -  version>',tmp.stgObj.analysis_version)),...
+        'all available modules. The operation concluded successfully!'],...
         'Importing operation succesfully completed','custom',icoInformation);
     
 end
@@ -684,11 +696,11 @@ function F_Properties_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 
 if(getappdata(hMainGui,'settings_objectname') ~= 0)
-
+    
     out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
     uiwait(out);
 else
-    msgbox('No analysis file loaded!'); 
+    msgbox('No analysis file loaded!');
 end
 
 % Update handles structure
@@ -701,9 +713,9 @@ strRootPath = getappdata(hMainGui,'settings_rootpath');
 stgObj = getappdata(hMainGui,'settings_objectname');
 
 if nargin < 3
-
+    
     intForce = 0;
-
+    
 end
 
 
@@ -714,11 +726,30 @@ if (intForce == 1)
     tmp = struct();
     tmp.main = struct(stgObj);
     
+    
+    intNumRows = size(stgObj.analysis_modules.Main.data,1);
+    fieldsFile = {'location';'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
+    tmpFileStruct = struct();
+    %arrayFiles = fields(stgObj.analysis_modules.Main.data);
+    for r=1:intNumRows
+        %idx = arrayFiles(i);
+
+       tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct([stgObj.data_imagepath,stgObj.analysis_modules.Main.data(r,:)]',fieldsFile);
+
+        
+        %obj.(char(idx)) = objName.(char(idx));
+        %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
+        
+        
+    end
+    
+    tmp.main.analysis_modules.Main.data = tmpFileStruct;
+    
     struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
     
 else
     
-       
+    
     out = questdlg('Would you like to save the current analysis?', 'Save analysis','Yes', 'No','Abort', 'Abort');
     
     switch out
@@ -726,8 +757,26 @@ else
             
             tmp = struct();
             tmp.main = struct(stgObj);
-            %save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
-            struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
+            
+    intNumRows = size(stgObj.analysis_modules.Main.data,1);
+    fieldsFile = {'location';'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
+    tmpFileStruct = struct();
+    %arrayFiles = fields(stgObj.analysis_modules.Main.data);
+    for r=1:intNumRows
+        %idx = arrayFiles(i);
+
+       tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct([stgObj.data_imagepath,stgObj.analysis_modules.Main.data(r,:)]',fieldsFile);
+
+        
+        %obj.(char(idx)) = objName.(char(idx));
+        %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
+        
+        
+    end
+    
+    tmp.main.analysis_modules.Main.data = tmpFileStruct;
+    
+    struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
             
             argout = 0;
         case 'No'
@@ -758,16 +807,16 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
             
-           out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-
+            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+            
             switch out
                 case 'Yes'
                     Global_SaveAnalysis(hObject, handles);
-    
+                    
                 case 'No'
                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
                     return;
-            end 
+            end
             
         else
             
