@@ -200,33 +200,36 @@ function A_Proj_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Projection';
 
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        
-        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
-            
-            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-            
-            switch out
-                case 'Yes'
-                    Global_SaveAnalysis(hObject, handles);
-                    
-                case 'No'
-                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
-                    return;
-            end
-            
-        else
-            
-            stgObj.CreateModule(strModuleName);
-            setappdata(hMainGui, 'settings_objectname', stgObj);
-            
-        end
-    end
-    
-end
+% if(isappdata(hMainGui,'settings_objectname'))
+%     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+%         
+%         stgObj = getappdata(hMainGui,'settings_objectname');
+%         
+%         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+%             
+%             out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+%             
+%             switch out
+%                 case 'Yes'
+%                     Global_SaveAnalysis(hObject, handles);
+%                     
+%                 case 'No'
+%                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+%                     return;
+%             end
+%             
+%         else
+%             
+%             stgObj.CreateModule(strModuleName);
+%             setappdata(hMainGui, 'settings_objectname', stgObj);
+%             
+%         end
+%     end
+%     
+% end
+
+intOut = Global_SaveModule(hObject, handles, strModuleName);
+
 out = ProjectionGUI(stgObj);
 uiwait(out);
 handles_connection(hObject,handles)
@@ -240,33 +243,36 @@ function A_StackReg_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Stack_Registration';
 
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        
-        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
-            
-            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-            
-            switch out
-                case 'Yes'
-                    Global_SaveAnalysis(hObject, handles);
-                    
-                case 'No'
-                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
-                    return;
-            end
-            
-        else
-            
-            stgObj.CreateModule(strModuleName);
-            setappdata(hMainGui, 'settings_objectname', stgObj);
-            
-        end
-    end
-    
-end
+% if(isappdata(hMainGui,'settings_objectname'))
+%     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+%         
+%         stgObj = getappdata(hMainGui,'settings_objectname');
+%         
+%         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+%             
+%             out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+%             
+%             switch out
+%                 case 'Yes'
+%                     Global_SaveAnalysis(hObject, handles);
+%                     
+%                 case 'No'
+%                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+%                     return;
+%             end
+%             
+%         else
+%             
+%             stgObj.CreateModule(strModuleName);
+%             setappdata(hMainGui, 'settings_objectname', stgObj);
+%             
+%         end
+%     end
+%     
+% end
+
+intOut = Global_SaveModule(hObject, handles, strModuleName);
+
 out = RegistrationGUI(stgObj);
 uiwait(out);
 handles_connection(hObject,handles)
@@ -280,33 +286,37 @@ function A_CLAHE_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Contrast_Enhancement';
 
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        
-        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
-            
-            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-            
-            switch out
-                case 'Yes'
-                    Global_SaveAnalysis(hObject, handles);
-                    
-                case 'No'
-                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
-                    return;
-            end
-            
-        else
-            
-            stgObj.CreateModule(strModuleName);
-            setappdata(hMainGui, 'settings_objectname', stgObj);
-            
-        end
-    end
-    
-end
+% if(isappdata(hMainGui,'settings_objectname'))
+%     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+%         
+%         stgObj = getappdata(hMainGui,'settings_objectname');
+%         
+%         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+%             
+%             out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+%             
+%             switch out
+%                 case 'Yes'
+%                     Global_SaveAnalysis(hObject, handles);
+%                     
+%                 case 'No'
+%                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+%                     return;
+%             end
+%             
+%         else
+%             
+%             stgObj.CreateModule(strModuleName);
+%             setappdata(hMainGui, 'settings_objectname', stgObj);
+%             
+%         end
+%     end
+%     
+% end
+
+intOut = Global_SaveModule(hObject, handles, strModuleName);
+
+
 out = ImproveContrastGUI(stgObj);
 uiwait(out);
 handles_connection(hObject,handles)
@@ -320,33 +330,36 @@ function A_Segmentation_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Segmentation';
 
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        
-        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
-            
-            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-            
-            switch out
-                case 'Yes'
-                    Global_SaveAnalysis(hObject, handles);
-                    
-                case 'No'
-                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
-                    return;
-            end
-            
-        else
-            
-            stgObj.CreateModule(strModuleName);
-            setappdata(hMainGui, 'settings_objectname', stgObj);
-            
-        end
-    end
-    
-end
+% if(isappdata(hMainGui,'settings_objectname'))
+%     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+%         
+%         stgObj = getappdata(hMainGui,'settings_objectname');
+%         
+%         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+%             
+%             out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+%             
+%             switch out
+%                 case 'Yes'
+%                     Global_SaveAnalysis(hObject, handles);
+%                     
+%                 case 'No'
+%                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+%                     return;
+%             end
+%             
+%         else
+%             
+%             stgObj.CreateModule(strModuleName);
+%             setappdata(hMainGui, 'settings_objectname', stgObj);
+%             
+%         end
+%     end
+%     
+% end
+
+intOut = Global_SaveModule(hObject, handles, strModuleName);
+
 out = SegmentationGUI(stgObj);
 uiwait(out);
 handles_connection(hObject,handles);
@@ -359,34 +372,37 @@ function A_Tracking_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Tracking';
+% 
+% if(isappdata(hMainGui,'settings_objectname'))
+%     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+%         
+%         stgObj = getappdata(hMainGui,'settings_objectname');
+%         
+%         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+%             
+%             out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+%             
+%             switch out
+%                 case 'Yes'
+%                     Global_SaveAnalysis(hObject, handles);
+%                     
+%                 case 'No'
+%                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+%                     return;
+%             end
+%             
+%         else
+%             
+%             stgObj.CreateModule(strModuleName);
+%             setappdata(hMainGui, 'settings_objectname', stgObj);
+%             
+%         end
+%     end
+%     
+% end
 
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        
-        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
-            
-            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-            
-            switch out
-                case 'Yes'
-                    Global_SaveAnalysis(hObject, handles);
-                    
-                case 'No'
-                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
-                    return;
-            end
-            
-        else
-            
-            stgObj.CreateModule(strModuleName);
-            setappdata(hMainGui, 'settings_objectname', stgObj);
-            
-        end
-    end
-    
-end
+intOut = Global_SaveModule(hObject, handles, strModuleName);
+
 out = TrackingIntroGUI(stgObj);
 uiwait(out);
 handles_connection(hObject,handles)
@@ -400,33 +416,36 @@ function A_Skeletons_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Skeletons';
 
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        
-        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
-            
-            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-            
-            switch out
-                case 'Yes'
-                    Global_SaveAnalysis(hObject, handles);
-                    
-                case 'No'
-                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
-                    return;
-            end
-            
-        else
-            
-            stgObj.CreateModule(strModuleName);
-            setappdata(hMainGui, 'settings_objectname', stgObj);
-            
-        end
-    end
-    
-end
+% if(isappdata(hMainGui,'settings_objectname'))
+%     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+%         
+%         stgObj = getappdata(hMainGui,'settings_objectname');
+%         
+%         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+%             
+%             out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+%             
+%             switch out
+%                 case 'Yes'
+%                     Global_SaveAnalysis(hObject, handles);
+%                     
+%                 case 'No'
+%                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+%                     return;
+%             end
+%             
+%         else
+%             
+%             stgObj.CreateModule(strModuleName);
+%             setappdata(hMainGui, 'settings_objectname', stgObj);
+%             
+%         end
+%     end
+%     
+% end
+
+intOut = Global_SaveModule(hObject, handles, strModuleName);
+
 SkeletonConversion(stgObj);
 uiwait;
 handles_connection(hObject,handles);
@@ -706,6 +725,111 @@ end
 % Update handles structure
 handles_connection(hObject, handles)
 
+% --------------------------------------------------------------------
+function A_Polycrop_Callback(hObject, eventdata, handles)
+% hObject    handle to A_Polycrop (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+stgObj = getappdata(hMainGui,'settings_objectname');
+
+strModuleName = 'Polygon_Masking';
+
+% if(isappdata(hMainGui,'settings_objectname'))
+%     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+%         
+%         stgObj = getappdata(hMainGui,'settings_objectname');
+%         
+%         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+%             
+%             out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+%             
+%             switch out
+%                 case 'Yes'
+%                     Global_SaveAnalysis(hObject, handles);
+%                     
+%                 case 'No'
+%                     helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+%                     return;
+%             end
+%             
+%         else
+%             
+%             stgObj.CreateModule(strModuleName);
+%             setappdata(hMainGui, 'settings_objectname', stgObj);
+%             
+%         end
+%     end
+%     
+% end
+ 
+intOut = Global_SaveModule(hObject, handles, strModuleName);
+
+tmpSegObj = load([stgObj.data_analysisdir,'/SegResults']);
+tmpRegObj = load([stgObj.data_analysisdir,'/RegIm']);
+
+[polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
+
+save([stgObj.data_analysisdir,'/PoligonalMask'],'polygonal_mask');
+save([stgObj.data_analysisdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
+
+stgObj.AddResult(strModuleName,'polygonal_mask_path',strcat(stgObj.data_analysisdir,'/PoligonalMask'));
+stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysisdir,'/CroppedCellLabels'));
+
+waitfor(polygonal_mask);
+
+handles_connection(hObject,handles)
+
+
+% --- Executes when uipanel5 is resized.
+function uipanel5_ResizeFcn(hObject, eventdata, handles)
+% hObject    handle to uipanel5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% Global Functions
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+function argout = Global_SaveModule(hObject, handles, strModuleName)
+% Global_SaveModule is intended to check for the presence of the module in
+% the setting file when a the user is about to run any analysis module
+% during the current session of the analysis. 
+
+hMainGui = getappdata(0, 'hMainGui');
+
+argout = 0;
+
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        
+        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+            
+            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
+            
+            switch out
+                case 'Yes'
+                    Global_SaveAnalysis(hObject, handles);
+                    
+                case 'No'
+                    %helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+                    return;
+            end
+            
+        else
+            
+            stgObj.CreateModule(strModuleName);
+            setappdata(hMainGui, 'settings_objectname', stgObj);
+            
+        end
+    end
+    
+end
+
 
 function argout = Global_SaveAnalysis(hObject, handles, intForce)
 hMainGui = getappdata(0, 'hMainGui');
@@ -788,64 +912,3 @@ else
     end
 end
 
-
-% --------------------------------------------------------------------
-function A_Polycrop_Callback(hObject, eventdata, handles)
-% hObject    handle to A_Polycrop (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-hMainGui = getappdata(0, 'hMainGui');
-strRootPath = getappdata(hMainGui,'settings_rootpath');
-stgObj = getappdata(hMainGui,'settings_objectname');
-
-strModuleName = 'Polygon_Masking';
-
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        
-        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
-            
-            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-            
-            switch out
-                case 'Yes'
-                    Global_SaveAnalysis(hObject, handles);
-                    
-                case 'No'
-                    helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
-                    return;
-            end
-            
-        else
-            
-            stgObj.CreateModule(strModuleName);
-            setappdata(hMainGui, 'settings_objectname', stgObj);
-            
-        end
-    end
-    
-end
-
-tmpSegObj = load([stgObj.data_analysisdir,'/SegResults']);
-tmpRegObj = load([stgObj.data_analysisdir,'/RegIm']);
-
-[polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
-
-save([stgObj.data_analysisdir,'/PoligonalMask'],'polygonal_mask');
-save([stgObj.data_analysisdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
-
-stgObj.AddResult(strModuleName,'polygonal_mask_path',strcat(stgObj.data_analysisdir,'/PoligonalMask'));
-stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysisdir,'/CroppedCellLabels'));
-
-waitfor(polygonal_mask);
-
-handles_connection(hObject,handles)
-
-
-% --- Executes when uipanel5 is resized.
-function uipanel5_ResizeFcn(hObject, eventdata, handles)
-% hObject    handle to uipanel5 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
