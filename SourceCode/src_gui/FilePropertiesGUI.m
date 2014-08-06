@@ -111,7 +111,7 @@ if (stgObj.data_imagepath)
     if (isfield(stgObj.analysis_modules.Main, 'data') == 1)
             
             
-        set(handles.uitable1, 'Data', stgObj.analysis_modules.Main.data(:,2:end));  
+        set(handles.uitable1, 'Data', stgObj.analysis_modules.Main.data);  
     
     elseif exist(strcat(stgObj.data_imagepath,'/','epitool_metadata.xml'), 'file') == 2
       
@@ -130,7 +130,7 @@ if (stgObj.data_imagepath)
             
             
         end
-        
+        %First time load, skip location path (1)
         set(handles.uitable1, 'Data', arrFiles(:,2:end));
 
 
