@@ -62,8 +62,7 @@ function [ out_status ] = CreateMetadata( varargin )
 % the output status.
 if nargin == 0
     
-    out_status = sprintf('No arguments passed to function @%s. Please give me something to do... ', ST.name);
-    return;
+    error('myApp:argChk', 'Wrong number of input arguments');
     
 end
 % if argument passed is not a setting object then report an error in
@@ -82,7 +81,7 @@ end
 lstFiles = dir(stgObj.data_imagepath);
 
 % Supported metadata files
-regexXML = {'\w*(?=epitool_metadata.xml)'};
+regexXML = {'\w*(epitool_metadata)'};
 
 a = struct2cell(lstFiles);
 
