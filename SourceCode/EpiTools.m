@@ -228,7 +228,7 @@ strModuleName = 'Projection';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 out = ProjectionGUI(stgObj);
 uiwait(out);
@@ -271,7 +271,7 @@ strModuleName = 'Stack_Registration';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 out = RegistrationGUI(stgObj);
 uiwait(out);
@@ -314,7 +314,7 @@ strModuleName = 'Contrast_Enhancement';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 
 out = ImproveContrastGUI(stgObj);
@@ -358,7 +358,7 @@ strModuleName = 'Segmentation';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 out = SegmentationGUI(stgObj);
 uiwait(out);
@@ -401,7 +401,7 @@ strModuleName = 'Tracking';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 out = TrackingIntroGUI(stgObj);
 uiwait(out);
@@ -444,7 +444,7 @@ strModuleName = 'Skeletons';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 SkeletonConversion(stgObj);
 uiwait;
@@ -793,7 +793,7 @@ function uipanel5_ResizeFcn(hObject, eventdata, handles)
 % Global Functions
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-function argout = Global_SaveModule(hObject, handles, strModuleName)
+function [argout,stgObj] = Global_SaveModule(hObject, handles, strModuleName)
 % Global_SaveModule is intended to check for the presence of the module in
 % the setting file when a the user is about to run any analysis module
 % during the current session of the analysis. 
