@@ -111,11 +111,11 @@ if (stgObj.data_imagepath)
     if (isfield(stgObj.analysis_modules.Main, 'data') == 1)
             
             
-        set(handles.uitable1, 'Data', stgObj.analysis_modules.Main.data);  
+        set(handles.uitable1, 'Data', stgObj.analysis_modules.Main.data(:,2:end));  
     
-    elseif exist(strcat(stgObj.data_imagepath,'/','meta.xml'), 'file') == 2
+    elseif exist(strcat(stgObj.data_imagepath,'/','epitool_metadata.xml'), 'file') == 2
       
-        MetadataFIGXML = xml_read(strcat(stgObj.data_imagepath,'/','meta.xml'));
+        MetadataFIGXML = xml_read(strcat(stgObj.data_imagepath,'/','epitool_metadata.xml'));
         vecFields = fields(MetadataFIGXML.files);
 
         for i=1:length(vecFields)
