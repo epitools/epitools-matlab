@@ -59,7 +59,7 @@ classdef settings < handle
                   obj.analysis_name = analysis_name;
                   obj.analysis_version = analysis_version;
                   obj.data_fullpath = data_fullpath;
-                
+
             end
 
             
@@ -73,6 +73,7 @@ classdef settings < handle
             % Valorize settings fields
             obj.analysis_code = strcat(num2str(floor(now())),'.',num2str(round(rand(1)*100)));   
             obj.platform_id = addr_allOneString;
+            obj.icy_is_used = 0;
             
         end      
         
