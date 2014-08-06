@@ -41,7 +41,11 @@ else
    
     % inspect results
     if stgObj.hasModule('Main')
-        StackView(ColIms,'hMainGui','figureA');
+        if(stgObj.icy_is_used)
+            icy_vid3show(ColIms,'Segmented Sequence');
+        else
+            StackView(ColIms,'hMainGui','figureA');
+        end
     else
         StackView(ColIms);
     end

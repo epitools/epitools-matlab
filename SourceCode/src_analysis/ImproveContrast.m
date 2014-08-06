@@ -50,7 +50,16 @@ end
 
 progressbar(1);
 
-StackView(RegIm_clahe,'hMainGui','figureA');
+% inspect results
+if stgObj.hasModule('Main')
+    if(stgObj.icy_is_used)
+        icy_vidshow(RegIm_clahe,'CLAHE Sequence');
+    else
+        StackView(RegIm_clahe,'hMainGui','figureA');
+    end
+else
+    StackView(RegIm_clahe);
+end
 
 do_overwrite = questdlg('Please decide over the CLAHE image','Overrite decision',...
     'Overrite original','Keep Original','Keep Original');

@@ -20,7 +20,11 @@ end
 
 % inspect results
 if stgObj.hasModule('Main')
-    StackView(RegIm,'hMainGui','figureA');
+    if(stgObj.icy_is_used)
+        icy_vidshow(RegIm,'Registered Sequence');
+    else
+        StackView(RegIm,'hMainGui','figureA');
+    end
 else
     StackView(RegIm);
 end

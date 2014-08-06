@@ -165,7 +165,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
             fprintf('ERROR, current icy path is not valid: %s\n',icy_path);
             icy_path = 'none';
         end
-    else
+    else      
         icy_is_used = 1;
     end
     
@@ -179,10 +179,19 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     setappdata(hMainGui,'icy_path',icy_path);
     setappdata(hMainGui,'icy_is_loaded',icy_is_loaded);
     setappdata(hMainGui,'icy_is_used',icy_is_used);
-    
+   
 else
     %checkbox is deselected
     setappdata(hMainGui,'icy_is_used',0);
+    
+end
+
+%set preference in settings object if one exists 
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
+    end
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -379,6 +388,9 @@ if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
     end
 end
 
+%Check if icy is in use
+stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
+
 % Update handles structure
 handles_connection(hObject, handles)
 
@@ -431,6 +443,9 @@ if(strSettingFilePath)
             matlabpool('local',stgObj.platform_units);
         end
     end
+    
+    %Check if icy is in use
+    stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
     
     diary(strcat(stgObj.data_fullpath,'out-',datestr(now,30),'log'));
     diary on;

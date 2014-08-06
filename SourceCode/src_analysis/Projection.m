@@ -187,7 +187,11 @@ fprintf('Finished projection at %s\n',datestr(now));
 % end
 
 if(has_data_from_gui)
-    StackView(ProjIm,'hMainGui','figureA');
+    if(stgObj.icy_is_used)
+        icy_vidshow(ProjIm,'Projected Sequence');
+    else
+        StackView(ProjIm,'hMainGui','figureA');
+    end
 else
     StackView(ProjIm)
 end

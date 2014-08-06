@@ -18,6 +18,7 @@ classdef settings < handle
         data_analysisdir = '';
         data_benchmarkdir = '';
         data_extensionmask = '.etl';
+        icy_is_used = 0;
     end
     
     methods
