@@ -111,12 +111,12 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
         set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
-        set(handles.figure1, 'Name', ['EpiTools | ', stgObj.analysis_code, ' - ' , stgObj.analysis_name])
+        set(handles.figure1, 'Name', ['EpiTools | ', num2str(stgObj.analysis_code), ' - ' , stgObj.analysis_name])
         LoadControls(hMainGui, stgObj);
         
         % -------------------------------------------------------------------------
         % Log status of previous operations on GUI
-        log2dev(sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, stgObj.analysis_version,stgObj.data_extensionmask  ), 'hMainGui', 'statusbar', 'LD0001', 0 );
+        log2dev(sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, num2str(stgObj.analysis_version),stgObj.data_extensionmask  ), 'hMainGui', 'statusbar', 'LD0001', 0 );
         % -------------------------------------------------------------------------
         
     end
@@ -511,19 +511,16 @@ hMainGui = getappdata(0, 'hMainGui');
 [strSettingFileName,strSettingFilePath,~] = uigetfile('~/*.xml','Select analysis file');
 
 % If the user select a file to open
-if(strSettingFilePath ~= 0)
+if(strSettingFilePath)
     
     stgObj = xml_read([strSettingFilePath,strSettingFileName]);
     stgObj = settings(stgObj);
-    
-    % Global integrity check 
-    Global_IntegrityCheck();
-    
+
     arrayFiles = fields(stgObj.analysis_modules.Main.data);
     tmpFileStruct = {};
     for i=1:numel(arrayFiles)
         idx = arrayFiles(i);
-        tmpFileStruct(i,:) = struct2cell(stgObj.analysis_modules.Main.data.(char(idx)))'; 
+        tmpFileStruct(i,:) = struct2cell(stgObj.analysis_modules.Main.data.(char(idx)))';
     end
     
     
@@ -532,25 +529,31 @@ if(strSettingFilePath ~= 0)
     %load([strSettingFilePath,strSettingFileName], '-mat');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
+    % Global integrity check
+    if(Global_IntegrityCheck())
+        stgObj = getappdata(hMainGui, 'settings_objectname');
+    end
+    
+    % Print a message in case of success
     h = msgbox(sprintf('Name: %s  \nVersion: %s \nAuthor: %s \n\ncompleted with success!',...
         stgObj.analysis_name,...
         stgObj.analysis_version,...
         stgObj.user_name ),...
         'Operation succesfully completed','help');
-    
-end
 
-% Parallel
-installed_toolboxes=ver;
-if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
-    if(stgObj.platform_units ~= 1);
-        matlabpool('local',stgObj.platform_units);
+    % Parallel
+    installed_toolboxes=ver;
+    if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
+        if(stgObj.platform_units ~= 1);
+            matlabpool('local',stgObj.platform_units);
+        end
     end
-end
+    
+    diary(strcat(stgObj.data_fullpath,'out-',datestr(now,30),'log'));
+    diary on;
 
-diary(strcat(stgObj.data_fullpath,'out-',datestr(now,30),'log'));
-diary on;
-handles_connection(hObject, handles)
+    handles_connection(hObject, handles)
+end
 
 
 % --------------------------------------------------------------------
@@ -926,7 +929,7 @@ function argout = Global_IntegrityCheck(hObject, handles)
 
 hMainGui = getappdata(0, 'hMainGui');
 
-argout = 0;
+argout = true;
 
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
@@ -950,7 +953,7 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         for i=1:numel(intDIRidx)
             
-            if(~empty(stgObj.(char(arrayFields(intDIRidx(i))))))
+            if(stgObj.(char(arrayFields(intDIRidx(i)))))
                 
                 switch exist(stgObj.(char(arrayFields(intDIRidx(i)))),'dir')
                     
@@ -985,12 +988,12 @@ if(isappdata(hMainGui,'settings_objectname'))
         if (strcmp(stgObj.platform_id, addr_allOneString))
             
             % Ask for user manual intervention in case directory integrity is lost
-            if (sum(lstDirExistance(:,3)) < size(lstDirExistance,1)) 
+            if (sum(cell2mat(lstDirExistance(:,3))) < size(lstDirExistance,1)) 
                 
                 
                 for i=1:size(lstDirExistance,1)
                     
-                    if (lstDirExistance(i,3) == 0)
+                    if (cell2mat(lstDirExistance(i,3)) == 0)
                     
                         diagIntegrityFileCheck(lstDirExistance(i,:));
 
