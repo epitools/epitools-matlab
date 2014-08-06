@@ -23,6 +23,7 @@ if stgObj.hasModule('Main')
     StackView(RegIm,'hMainGui','figureA');
 else
     StackView(RegIm);
+end
 
 
 

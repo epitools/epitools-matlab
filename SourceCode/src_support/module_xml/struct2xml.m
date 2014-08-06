@@ -172,7 +172,7 @@ function [str,succes] = val2str(val)
     elseif (isnumeric(val))
         val = num2str(val);
     elseif (islogical(val))
-        val = int8(val);
+        val = num2str(int8(val));
     else
         succes = false;
     end

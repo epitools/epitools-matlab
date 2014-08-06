@@ -228,7 +228,7 @@ strModuleName = 'Projection';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 out = ProjectionGUI(stgObj);
 uiwait(out);
@@ -271,7 +271,7 @@ strModuleName = 'Stack_Registration';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 out = RegistrationGUI(stgObj);
 uiwait(out);
@@ -314,7 +314,7 @@ strModuleName = 'Contrast_Enhancement';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 
 out = ImproveContrastGUI(stgObj);
@@ -358,7 +358,7 @@ strModuleName = 'Segmentation';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 out = SegmentationGUI(stgObj);
 uiwait(out);
@@ -401,7 +401,7 @@ strModuleName = 'Tracking';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 out = TrackingIntroGUI(stgObj);
 uiwait(out);
@@ -444,7 +444,7 @@ strModuleName = 'Skeletons';
 %     
 % end
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
 
 SkeletonConversion(stgObj);
 uiwait;
@@ -795,7 +795,7 @@ function uipanel5_ResizeFcn(hObject, eventdata, handles)
 % Global Functions
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-function argout = Global_SaveModule(hObject, handles, strModuleName)
+function [argout,stgObj] = Global_SaveModule(hObject, handles, strModuleName)
 % Global_SaveModule is intended to check for the presence of the module in
 % the setting file when a the user is about to run any analysis module
 % during the current session of the analysis. 
@@ -854,13 +854,13 @@ if (intForce == 1)
     
     
     intNumRows = size(stgObj.analysis_modules.Main.data,1);
-    fieldsFile = {'location';'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
+    fieldsFile = {'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
     tmpFileStruct = struct();
     %arrayFiles = fields(stgObj.analysis_modules.Main.data);
     for r=1:intNumRows
         %idx = arrayFiles(i);
 
-       tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct([stgObj.data_imagepath,stgObj.analysis_modules.Main.data(r,:)]',fieldsFile);
+       tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
 
         
         %obj.(char(idx)) = objName.(char(idx));
@@ -885,13 +885,13 @@ else
             tmp.main = struct(stgObj);
             
     intNumRows = size(stgObj.analysis_modules.Main.data,1);
-    fieldsFile = {'location';'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
+    fieldsFile = {'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
     tmpFileStruct = struct();
     %arrayFiles = fields(stgObj.analysis_modules.Main.data);
     for r=1:intNumRows
         %idx = arrayFiles(i);
 
-       tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct([stgObj.data_imagepath,stgObj.analysis_modules.Main.data(r,:)]',fieldsFile);
+       tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
 
         
         %obj.(char(idx)) = objName.(char(idx));
