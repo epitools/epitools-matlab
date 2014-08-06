@@ -164,26 +164,53 @@ ppm = ParforProgressStarter2('Discovering image files...', length(intIMGFileidx)
 image_path = stgObj.data_imagepath;
 
 % Loop over discovered files
-parfor i=1:length(intIMGFileidx)
+if(stgObj.platform_units ~= 1)
     
-    temp = ReadOMEMetadata(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
-    tmpFileStruct(i).location   = image_path;
-    tmpFileStruct(i).name       = lstFiles(intIMGFileidx(i)).name;
-    tmpFileStruct(i).dim_x      = temp.NX;
-    tmpFileStruct(i).dim_y      = temp.NY;
-    tmpFileStruct(i).dim_z      = temp.NZ;
-    tmpFileStruct(i).num_channels   =   temp.NC;
-    tmpFileStruct(i).num_timepoints =   temp.NT;
-    tmpFileStruct(i).pixel_type     =   temp.PixelType;
-    tmpFileStruct(i).exec           = 1;
-    tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(temp.NZ));
-    tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(temp.NC));
-    tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
+    parfor i=1:length(intIMGFileidx)
     
-    % Computing worker progression
-    %percent = pbar.progress;
-    %progressbar(percent);
-    ppm.increment(i)
+        temp = ReadOMEMetadata(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
+        tmpFileStruct(i).location   = image_path;
+        tmpFileStruct(i).name       = lstFiles(intIMGFileidx(i)).name;
+        tmpFileStruct(i).dim_x      = temp.NX;
+        tmpFileStruct(i).dim_y      = temp.NY;
+        tmpFileStruct(i).dim_z      = temp.NZ;
+        tmpFileStruct(i).num_channels   =   temp.NC;
+        tmpFileStruct(i).num_timepoints =   temp.NT;
+        tmpFileStruct(i).pixel_type     =   temp.PixelType;
+        tmpFileStruct(i).exec           = 1;
+        tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(temp.NZ));
+        tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(temp.NC));
+        tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
+
+        % Computing worker progression
+        %percent = pbar.progress;
+        %progressbar(percent);
+        ppm.increment(i)
+    end
+    
+else
+    
+    for i=1:length(intIMGFileidx)
+    
+        temp = ReadOMEMetadata(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
+        tmpFileStruct(i).location   = image_path;
+        tmpFileStruct(i).name       = lstFiles(intIMGFileidx(i)).name;
+        tmpFileStruct(i).dim_x      = temp.NX;
+        tmpFileStruct(i).dim_y      = temp.NY;
+        tmpFileStruct(i).dim_z      = temp.NZ;
+        tmpFileStruct(i).num_channels   =   temp.NC;
+        tmpFileStruct(i).num_timepoints =   temp.NT;
+        tmpFileStruct(i).pixel_type     =   temp.PixelType;
+        tmpFileStruct(i).exec           = 1;
+        tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(temp.NZ));
+        tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(temp.NC));
+        tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
+
+        % Computing worker progression
+        %percent = pbar.progress;
+        %progressbar(percent);
+        ppm.increment(i)
+    end
     
 end
 
