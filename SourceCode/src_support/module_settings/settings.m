@@ -8,7 +8,7 @@ classdef settings < handle
         user_name = getenv('USER');
         user_department = 'Not specified';
         platform_id = '';
-        platform_units = feature('numcores');
+        platform_units = 1;
         platform_desc = system_dependent('getos') ;
         analysis_version = 0;
         analysis_date = date();

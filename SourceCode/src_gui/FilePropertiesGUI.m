@@ -155,13 +155,15 @@ end
 
 set(handles.fp_platform_units,'String',strCString);
 
-if(max(intCPUs) < stgObj.platform_units)
-    
-    set(handles.fp_platform_units, 'Value', max(intCPUs));
-else
-    
-    set(handles.fp_platform_units, 'Value', stgObj.platform_units);  
-end
+%Not needed since default behavious is non-parallel 
+% (i.e. in settings.m platform_units = 1)
+% if(max(intCPUs) < stgObj.platform_units)
+%     
+%     set(handles.fp_platform_units, 'Value', min(intCPUs));
+% else
+%     
+%     set(handles.fp_platform_units, 'Value', stgObj.platform_units);  
+% end
 
 
 % Update handles structure
