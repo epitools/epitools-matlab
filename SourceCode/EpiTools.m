@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 26-Jul-2014 19:06:08
+% Last Modified by GUIDE v2.5 07-Aug-2014 17:00:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -785,7 +785,3 @@ else
             argout = 1;
     end
 end
-
-
-
-
