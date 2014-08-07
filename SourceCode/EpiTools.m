@@ -365,10 +365,28 @@ if(isappdata(hMainGui,'settings_objectname'))
     end
 end
 
-% Initialize a new setting file and call the form FilePropertiesGUI
-stgObj = settings();
-stgObj.CreateModule('Main');
-setappdata(hMainGui, 'settings_objectname', stgObj);
+% Ask to the user to specify the image directory and the fullpath where the
+% analysis file will be stored
+
+strPathAnalysisFile = uigetdir('~','Select the directory where your analysis file will be stored');
+
+if(strPathAnalysisFile)
+    % Initialize a new setting file and call the form FilePropertiesGUI
+    stgObj = settings();
+    stgObj.CreateModule('Main');
+    setappdata(hMainGui, 'settings_objectname', stgObj);
+    stgObj.data_fullpath = strPathAnalysisFile;
+
+else
+    return;
+end
+
+strPathImages       = uigetdir('~','Select the directory containing your images');
+
+if(strPathImages)
+    stgObj.data_imagepath = strPathImages;
+    stsFunOut = CreateMetadata(stgObj);
+end
 
 out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
 uiwait(out);
