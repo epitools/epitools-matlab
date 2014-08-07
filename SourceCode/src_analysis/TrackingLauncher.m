@@ -22,7 +22,7 @@ NT = size(tmpSegObj.RegIm,3);
 %Optional parameter for the TrackingGUI
 %tmpStgObj.TrackingRadius = tracking_radius;
 
-output = ['ILabelsCorrected_',datestr(now,30)];
+output = [stgObj.data_analysisdir,'/','ILabelsCorrected_',datestr(now,30)];
 
 progressbar(1);
 
