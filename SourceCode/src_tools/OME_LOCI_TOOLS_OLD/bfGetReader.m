@@ -20,7 +20,7 @@ function r = bfGetReader(varargin)
 
 % OME Bio-Formats package for reading and converting biological file formats.
 %
-% Copyright (C) 2012 - 2013 Open Microscopy Environment:
+% Copyright (C) 2012 - 2014 Open Microscopy Environment:
 %   - Board of Regents of the University of Wisconsin-Madison
 %   - Glencoe Software, Inc.
 %   - University of Dundee
@@ -46,9 +46,12 @@ ip.addOptional('stitchFiles', false, @isscalar);
 ip.parse(varargin{:});
 id = ip.Results.id;
 
+% verify that enough memory is allocated
+bfCheckJavaMemory();
+
 % load the Bio-Formats library into the MATLAB environment
 status = bfCheckJavaPath();
-assert(status, ['Missing Bio-Formats library. Either add loci_tools.jar '...
+assert(status, ['Missing Bio-Formats library. Either add bioformats_package.jar '...
     'to the static Java path or add it to the Matlab path.']);
 
 % Prompt for a file if not input
@@ -58,7 +61,7 @@ if nargin == 0 || (~isFile && ~isFake)
     [file, path] = uigetfile(bfGetFileExtensions, 'Choose a file to open');
     id = [path file];
     if isequal(path, 0) || isequal(file, 0), return; end
-elseif isFile
+elseif isFile && ~verLessThan('matlab', '7.9')
     [~, f] = fileattrib(id);
     id = f.Name;
 end
@@ -76,5 +79,6 @@ if ip.Results.stitchFiles
     r = loci.formats.FileStitcher(r);
 end
 
-r.setMetadataStore(loci.formats.MetadataTools.createOMEXMLMetadata());
+OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
+r.setMetadataStore(OMEXMLService.createOMEXMLMetadata());
 r.setId(id);

@@ -151,7 +151,7 @@ intIMGFileidx = find(~cellfun(@isempty,regexp(a(1,:),regexFIG)));
 % In case this process is run in parallel mode, then this computes the real
 % progression of each single worker.
 %pbar = progressbar_parallel(length(intIMGFileidx));
-ppm = ParforProgressStarter2('Discovering image files...', length(intIMGFileidx), 0.1, 0, 0, 1);
+ppm = ParforProgressStarter2('Discovering image files...', length(intIMGFileidx), 0.1, 0, 1, 1);
 
 %if stgObj.platform_units ~= 1 ; matlabpool('local',stgObj.platform_units); end
 
@@ -167,20 +167,34 @@ image_path = stgObj.data_imagepath;
 if(stgObj.platform_units ~= 1)
     
     parfor i=1:length(intIMGFileidx)
-    
-        temp = ReadOMEMetadata(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
+        
+        reader = bfGetReader(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
+        omeMeta = reader.getMetadataStore();
+        
+
+        %temp = ReadOMEMetadata(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
         tmpFileStruct(i).location   = image_path;
         tmpFileStruct(i).name       = lstFiles(intIMGFileidx(i)).name;
-        tmpFileStruct(i).dim_x      = temp.NX;
-        tmpFileStruct(i).dim_y      = temp.NY;
-        tmpFileStruct(i).dim_z      = temp.NZ;
-        tmpFileStruct(i).num_channels   =   temp.NC;
-        tmpFileStruct(i).num_timepoints =   temp.NT;
-        tmpFileStruct(i).pixel_type     =   temp.PixelType;
+        %tmpFileStruct(i).dim_x      = temp.NX;
+        %tmpFileStruct(i).dim_y      = temp.NY;
+        %tmpFileStruct(i).dim_z      = temp.NZ;
+        %tmpFileStruct(i).num_channels   =   temp.NC;
+        %tmpFileStruct(i).num_timepoints =   temp.NT;
+        %tmpFileStruct(i).pixel_type     =   temp.PixelType;
+%        tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(temp.NZ));
+%        tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(temp.NC));
+%        tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
+
+        tmpFileStruct(i).dim_x      = omeMeta.getPixelsSizeX(0).getValue();
+        tmpFileStruct(i).dim_y      = omeMeta.getPixelsSizeY(0).getValue();
+        tmpFileStruct(i).dim_z      = omeMeta.getPixelsSizeZ(0).getValue();
+        tmpFileStruct(i).num_channels   =   omeMeta.getPixelsSizeC(0).getValue();
+        tmpFileStruct(i).num_timepoints =   omeMeta.getPixelsSizeT(0).getValue();
+        tmpFileStruct(i).pixel_type     =   char(omeMeta.getPixelsType(0).getValue());
         tmpFileStruct(i).exec           = 1;
-        tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(temp.NZ));
-        tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(temp.NC));
-        tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
+        tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(omeMeta.getPixelsSizeZ(0).getValue()));
+        tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(omeMeta.getPixelsSizeC(0).getValue()));
+        tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(omeMeta.getPixelsSizeT(0).getValue()));
 
         % Computing worker progression
         %percent = pbar.progress;
@@ -192,19 +206,33 @@ else
     
     for i=1:length(intIMGFileidx)
     
-        temp = ReadOMEMetadata(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
+        reader = bfGetReader(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
+        omeMeta = reader.getMetadataStore();
+        
+
+        %temp = ReadOMEMetadata(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
         tmpFileStruct(i).location   = image_path;
         tmpFileStruct(i).name       = lstFiles(intIMGFileidx(i)).name;
-        tmpFileStruct(i).dim_x      = temp.NX;
-        tmpFileStruct(i).dim_y      = temp.NY;
-        tmpFileStruct(i).dim_z      = temp.NZ;
-        tmpFileStruct(i).num_channels   =   temp.NC;
-        tmpFileStruct(i).num_timepoints =   temp.NT;
-        tmpFileStruct(i).pixel_type     =   temp.PixelType;
+        %tmpFileStruct(i).dim_x      = temp.NX;
+        %tmpFileStruct(i).dim_y      = temp.NY;
+        %tmpFileStruct(i).dim_z      = temp.NZ;
+        %tmpFileStruct(i).num_channels   =   temp.NC;
+        %tmpFileStruct(i).num_timepoints =   temp.NT;
+        %tmpFileStruct(i).pixel_type     =   temp.PixelType;
+%        tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(temp.NZ));
+%        tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(temp.NC));
+%        tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
+
+        tmpFileStruct(i).dim_x      = omeMeta.getPixelsSizeX(0).getValue();
+        tmpFileStruct(i).dim_y      = omeMeta.getPixelsSizeY(0).getValue();
+        tmpFileStruct(i).dim_z      = omeMeta.getPixelsSizeZ(0).getValue();
+        tmpFileStruct(i).num_channels   =   omeMeta.getPixelsSizeC(0).getValue();
+        tmpFileStruct(i).num_timepoints =   omeMeta.getPixelsSizeT(0).getValue();
+        tmpFileStruct(i).pixel_type     =   char(omeMeta.getPixelsType(0).getValue());
         tmpFileStruct(i).exec           = 1;
-        tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(temp.NZ));
-        tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(temp.NC));
-        tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
+        tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(omeMeta.getPixelsSizeZ(0).getValue()));
+        tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(omeMeta.getPixelsSizeC(0).getValue()));
+        tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(omeMeta.getPixelsSizeT(0).getValue()));
 
         % Computing worker progression
         %percent = pbar.progress;

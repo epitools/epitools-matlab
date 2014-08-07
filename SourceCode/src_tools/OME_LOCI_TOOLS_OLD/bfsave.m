@@ -1,24 +1,31 @@
 function bfsave(I, outputPath, varargin)
-% Save a 5D matrix into an OME-TIFF using Bio-Formats library
+% BFSAVE Save a 5D matrix into an OME-TIFF using Bio-Formats library
 %
-% SYNOPSIS bfsave(I, outputPath)
-%          bfsave(I, outputPath, dimensionsOrder)
+%    bfsave(I, outputPath) writes the input 5D matrix into a new file
+%    specified by outputPath.
 %
-% INPUT:
-%       I - a 5D matrix containing the pixels data
+%    bfsave(I, outputPath, dimensionOrder) specifies the dimension order of
+%    the input matrix. Default valuse is XYZCT.
 %
-%       outputPath - a string containing the location of the path where to
-%       save the resulting OME-TIFF
+%    bfsave(I, outputPath, 'Compression', compression) specifies the
+%    compression to use when writing the OME-TIFF file.
 %
-%       dimensionOrder - optional. A string representing the dimension
-%       order, Default: XYZCT.
+%    bfsave(I, outputPath, 'BigTiff', true) allows to save the file using
+%    64-bit offsets
 %
-% OUTPUT
+%    Examples:
 %
+%        bfsave(zeros(100, 100), outputPath)
+%        bfsave(zeros(100, 100, 2, 3, 4), outputPath)
+%        bfsave(zeros(100, 100, 20), outputPath, 'dimensionOrder', 'XYTZC')
+%        bfsave(zeros(100, 100), outputPath, 'Compression', 'LZW')
+%        bfsave(zeros(100, 100), outputPath, 'BigTiff', true)
+%
+% See also: BFGETREADER
 
 % OME Bio-Formats package for reading and converting biological file formats.
 %
-% Copyright (C) 2012 - 2013 Open Microscopy Environment:
+% Copyright (C) 2012 - 2014 Open Microscopy Environment:
 %   - Board of Regents of the University of Wisconsin-Madison
 %   - Glencoe Software, Inc.
 %   - University of Dundee
@@ -37,28 +44,27 @@ function bfsave(I, outputPath, varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-% Check loci-tools jar is in the Java path
+% verify that enough memory is allocated
+bfCheckJavaMemory();
+
+% Check for required jars in the Java path
 bfCheckJavaPath();
 
 % Not using the inputParser for first argument as it copies data
 assert(isnumeric(I), 'First argument must be numeric');
 
-% List all values of DimensionOrder
-dimensionOrderValues = ome.xml.model.enums.DimensionOrder.values();
-dimensionsOrders = cell(numel(dimensionOrderValues), 1);
-for i = 1 :numel(dimensionOrderValues),
-    dimensionsOrders{i} = char(dimensionOrderValues(i).toString());
-end
-
 % Input check
 ip = inputParser;
 ip.addRequired('outputPath', @ischar);
-ip.addOptional('dimensionOrder', 'XYZCT', @(x) ismember(x, dimensionsOrders));
+ip.addOptional('dimensionOrder', 'XYZCT', @(x) ismember(x, getDimensionOrders()));
+ip.addParamValue('Compression', '',  @(x) ismember(x, getCompressionTypes()));
+ip.addParamValue('BigTiff', false , @islogical);
 ip.parse(outputPath, varargin{:});
 
 % Create metadata
 toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
-metadata = loci.formats.MetadataTools.createOMEXMLMetadata();
+OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
+metadata = OMEXMLService.createOMEXMLMetadata();
 metadata.createRoot();
 metadata.setImageID('Image:0', 0);
 metadata.setPixelsID('Pixels:0', 0);
@@ -108,6 +114,12 @@ end
 writer = loci.formats.ImageWriter();
 writer.setWriteSequentially(true);
 writer.setMetadataRetrieve(metadata);
+if ~isempty(ip.Results.Compression)
+    writer.setCompression(ip.Results.Compression)
+end
+if ip.Results.BigTiff
+    writer.getWriter(outputPath).setBigTiff(ip.Results.BigTiff)
+end
 writer.setId(outputPath);
 
 % Load conversion tools for saving planes
@@ -133,4 +145,22 @@ for index = 1 : nPlanes
 end
 writer.close();
 
+end
+
+function dimensionOrders = getDimensionOrders()
+
+% List all values of DimensionOrder
+dimensionOrderValues = ome.xml.model.enums.DimensionOrder.values();
+dimensionOrders = cell(numel(dimensionOrderValues), 1);
+for i = 1 :numel(dimensionOrderValues),
+    dimensionOrders{i} = char(dimensionOrderValues(i).toString());
+end
+end
+
+function compressionTypes = getCompressionTypes()
+
+% List all values of Compression
+writer = loci.formats.ImageWriter();
+compressionTypes = arrayfun(@char, writer.getCompressionTypes(),...
+    'UniformOutput', false);
 end
