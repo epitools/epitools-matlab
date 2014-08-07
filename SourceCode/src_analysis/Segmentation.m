@@ -21,6 +21,14 @@ if tmpStgObj.SingleFrame
     
 else
     
+    %Check current parallel options 
+    if(stgObj.platform_units ~= 1)
+        tmpStgObj.Parallel = true;
+    else
+        tmpStgObj.Parallel = false;
+    end
+    
+    
     [ILabels ,CLabels,ColIms] = SegmentStack(tmpRegObj.RegIm,tmpStgObj);
     
     NX = size(tmpRegObj.RegIm,1);
