@@ -82,7 +82,9 @@ for i=1:no_of_images
         
         for o=1:length(ans2)
             
-            idxTimePoints = [idxTimePoints,str2double(strsplit(ans2{o},','))];
+            comma_separated_values = regexp (ans2{o}, '_', 'split');
+            
+            idxTimePoints = [idxTimePoints,str2double(comma_separated_values)];
             
         end
         
