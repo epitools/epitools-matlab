@@ -420,6 +420,20 @@ function F_Open_Callback(hObject, eventdata, handles)
 
 hMainGui = getappdata(0, 'hMainGui');
 
+% Check if there is setting file loaded in the application
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        % Ask if you want to save it before generate a new one
+        interrupt = Global_SaveAnalysis(hObject, handles);
+        
+        if (interrupt == 1)
+            return;
+        end
+        
+        
+    end
+end
 
 [strSettingFileName,strSettingFilePath,~] = uigetfile('~/*.xml','Select analysis file');
 
@@ -544,9 +558,23 @@ function F_Exit_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Exit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-Global_SaveAnalysis(hObject, handles);
-out = parcluster;
-if (out.NumWorkers > 1); matlabpool close; end
+hMainGui = getappdata(0, 'hMainGui');
+% Check if there is setting file loaded in the application
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        % Ask if you want to save it before closing the application
+        interrupt = Global_SaveAnalysis(hObject, handles);
+        
+        if (interrupt == 1)
+            return
+        end
+        
+        
+    end
+end
+
+if (matlabpool('size') > 0); matlabpool close; end
 close(handles.figure1);
 
 
