@@ -425,7 +425,7 @@ if(strSettingFilePath)
     setappdata(hMainGui, 'settings_objectname', stgObj);
     
     % Global integrity check
-    if(Global_IntegrityCheck())
+    if(DataIntegrityCheck(hObject, handles, strSettingFilePath))
         stgObj = getappdata(hMainGui, 'settings_objectname');
     end
     
@@ -617,7 +617,6 @@ function uipanel5_ResizeFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Global Functions
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -742,106 +741,5 @@ else
 end
 
 
-function argout = Global_IntegrityCheck(hObject, handles)
-% Global_IntegrityCheck is intended to check for the integrity of all the
-% directory specified in the analysis file. This operation is required when
-% the user is sharing files between different machines.
-%
-% Check if the Machine MAC ID saved in the file is identic to the current
-% machine MAC ID * if not, thrown an exception and run a discovery in the
-% current folder where the analysis file has been loaded.
-
-hMainGui = getappdata(0, 'hMainGui');
-
-argout = true;
-
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        
-        
-        % The analysis file has been generated on the same machine
-        % where it is has been loaded
-        
-        % Check for integrity of those folders specified in the setting
-        % object
-        
-        % Supported directory variables
-        regexDIR = {'(path|dir)'};
-        arrayFields = fields(stgObj);
-        intDIRidx = find(~cellfun(@isempty,regexp(arrayFields,regexDIR)));
-        
-        % Initialising integrity check list
-        lstDirExistance = {};
-        
-        for i=1:numel(intDIRidx)
-            
-            if(stgObj.(char(arrayFields(intDIRidx(i)))))
-                
-                switch exist(stgObj.(char(arrayFields(intDIRidx(i)))),'dir')
-                    
-                    case 0 % it does not exist
-                        
-                        % Filling the list
-                        lstDirExistance(i,:) = {char(arrayFields(intDIRidx(i))),stgObj.(char(arrayFields(intDIRidx(i)))),0};
-                        
-                    case 7 % it exists and it is a folder
-                        
-                        % Filling the list
-                        lstDirExistance(i,:) = {char(arrayFields(intDIRidx(i))),stgObj.(char(arrayFields(intDIRidx(i)))),1};
-                        
-                    otherwise
-                        
-                        warning('MATLAB:ambiguousSyntax','Something went wrong here. I could not determine the existance of the following path: %s', stgObj.(char(arrayFields(intDIRidx(i)))) )
-                end
-                
-            end
-            
-            
-        end
-        
-        
-        % Get the mac address of the machine running the analysis and
-        % format it in the right way [00:00:00:00:00:00]
-        ni = java.net.NetworkInterface.getNetworkInterfaces;
-        addr = abs(ni.nextElement.getHardwareAddress);
-        addr_allOneString = sprintf('%.0f:' , addr);
-        addr_allOneString = addr_allOneString(1:end-1);% strip final comma
-        
-        if (strcmp(stgObj.platform_id, addr_allOneString))
-            
-            % Ask for user manual intervention in case directory integrity is lost
-            if (sum(cell2mat(lstDirExistance(:,3))) < size(lstDirExistance,1)) 
-                
-                
-                for i=1:size(lstDirExistance,1)
-                    
-                    if (cell2mat(lstDirExistance(i,3)) == 0)
-                    
-                        diagIntegrityFileCheck(lstDirExistance(i,:));
-
-                    end
-                    
-                    
-                end
-                
-                
-            end
-            
-            
-            
-        else % when the analysis file was generated on a different machine (sharing files between users/computers)
-            
-            % Ask for user manual intervention in case directory integrity is lost
-            
-            
-            %if(
-            
-            
-            
-        end
-    end
-end
 
 

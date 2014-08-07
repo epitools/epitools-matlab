@@ -1,4 +1,4 @@
-function varargout = diagIntegrityFileCheck(varargin)
+function varargout = IntegrityPathRequestGUI(varargin)
 
 if(size(varargin) > 0)
     lstDirectory2Check = varargin{1};
@@ -23,7 +23,7 @@ defaultBackground = get(0,'defaultUicontrolBackgroundColor');
 set(fig,'Color',defaultBackground)
 
 %set up app-data
-setappdata(fig, 'directorypath', 'none');
+setappdata(fig, 'directorypath', cell2mat(lstDirectory2Check(1,2)));
 
 
 ctrlConfirm  = uicontrol('Parent', fig,'Style','pushbutton',...
