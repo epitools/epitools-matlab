@@ -12,13 +12,13 @@ tmpRegObj = load([stgObj.data_analysisdir,'/RegIm']);
 
 progressbar('Enhancing contrast...');
 
-%pre-allocate output
-RegIm_clahe = zeros(size(tmpRegObj.RegIm,1), size(tmpRegObj.RegIm,2), size(tmpRegObj.RegIm,3), 'double');
-
 %assuming that images are either 8 or 16bit in input
 tmpProObj = load([stgObj.data_analysisdir,'/ProjIm']);
 %load([AnaDirec,'/ProjIm']);
 uint_type = class(tmpProObj.ProjIm);
+
+%pre-allocate output
+RegIm_clahe = zeros(size(tmpRegObj.RegIm,1), size(tmpRegObj.RegIm,2), size(tmpRegObj.RegIm,3), uint_type);
 
 for i=1:size(tmpRegObj.RegIm,3)
     %parameter needs to be adapted for specific image input:
@@ -57,19 +57,23 @@ if stgObj.hasModule('Main')
     else
         StackView(RegIm_clahe,'hMainGui','figureA');
     end
+    
+    do_overwrite = questdlg('Please decide over the CLAHE image','Overrite decision',...
+    'Overrite original','Keep Original','Keep Original');
+    
+    overrite_original = strcmp(do_overwrite,'Overrite original');
+
 else
     StackView(RegIm_clahe);
+    overrite_original = 1;
 end
 
-do_overwrite = questdlg('Please decide over the CLAHE image','Overrite decision',...
-    'Overrite original','Keep Original','Keep Original');
-
-if(strcmp(do_overwrite,'Overrite original'))
+if(overrite_original)
 
     %backup previous result
     stgObj.AddResult('Contrast_Enhancement','clahe_backup_path',strcat(stgObj.data_analysisdir,'/RegIm_woCLAHE'));
-    RegImgOld = tmpRegObj.RegIm;
-    save([stgObj.data_analysisdir,'/RegIm_woCLAHE'],'RegImgOld');
+    RegIm_woCLAHE = tmpRegObj.RegIm;
+    save([stgObj.data_analysisdir,'/RegIm_woCLAHE'],'RegIm_woCLAHE');
 
     %save new version with contrast enhancement
     RegIm = RegIm_clahe;
