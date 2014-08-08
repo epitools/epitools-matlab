@@ -29,6 +29,13 @@ fprintf('Started projection at %s',datestr(now));
 
 stgObj.analysis_modules.Main.indices = PreparingData2Load(stgObj);
 
+% Activate Matlabpools for parallel execution if set in stgObj
+if(stgObj.platform_units ~= 1)
+    ppm = ParforProgressStarter2('Projecting images...', ...
+            length(stgObj.analysis_modules.Main.indices), 0.1, 0, 1, 1);
+    %pbar = ProgressBarParLoops(length(intIMGFileidx),'hFPGui','PBarLoadFiles');
+    matlabpool('local',stgObj.platform_units);
+end
 
 % Per each IMG ID in the IMG ID list generated with PreparingData2Load (where the 
 % exec toggle property was set to true)
@@ -91,7 +98,7 @@ for i=1:numel(stgObj.analysis_modules.Main.indices.I)
 
     global_time_index=global_time_index+length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:));
     intProcessedFiles = intProcessedFiles+1;
-    
+    ppm.increment(intProcessedFiles);
 end
 
 %% Saving results
@@ -101,6 +108,7 @@ stgObj.AddResult('Projection','surface_path',strcat(stgObj.data_analysisdir,'/Pr
 save([stgObj.data_analysisdir,'/ProjIm'],'ProjIm')
 save([stgObj.data_analysisdir,'/Surfaces'],'Surfaces')
 
+delete(ppm);
 progressbar(1);
 fprintf('Finished projection at %s\n',datestr(now));
 
