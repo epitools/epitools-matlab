@@ -19,6 +19,7 @@ classdef settings < handle
         data_benchmarkdir = '';
         data_extensionmask = '.etl';
         icy_is_used = 0;
+        exec_commandline = false;
     end
     
     methods
@@ -74,6 +75,7 @@ classdef settings < handle
             obj.analysis_code = strcat(num2str(floor(now())),'.',num2str(round(rand(1)*100)));   
             obj.platform_id = addr_allOneString;
             obj.icy_is_used = 0;
+            obj.exec_commandline = false;
             
         end      
         
