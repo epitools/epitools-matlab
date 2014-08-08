@@ -195,6 +195,6 @@ if(has_data_from_gui)
         StackView(ProjIm,'hMainGui','figureA');
     end
 else
-    StackView(ProjIm)
+    StackView(ProjIm);
 end
 

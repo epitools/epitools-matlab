@@ -36,6 +36,8 @@ ds.AddSetting(mdname, 'InspectResults', false);
 
 Projection(ds);
 
+CheckInputType(ds, 'ProjIm');
+
 %% now test that files generated are the same
 CompareFiles('Data/Analysis/ProjIm' , 'Data/Benchmark/ProjIm');
 CompareFiles('Data/Analysis/Surfaces' , 'Data/Benchmark/Surfaces');
@@ -48,6 +50,8 @@ ds.AddSetting(mdname, 'SkipFirstRegStep', true);
 ds.AddSetting(mdname, 'useStackReg', false); 
 
 Registration(ds); 
+
+CheckInputType(ds, 'RegIm');
 
 %% now test that files generated are the same
 CompareFiles('Data/Analysis/RegIm' , 'Data/Benchmark/RegIm');
@@ -79,6 +83,8 @@ ds.AddSetting(mdname, 'SingleFrame', false);
 
 
 Segmentation(ds);
+
+CheckInputType(ds, 'SegResults');
 
 %% now test that files generated are the same
 CompareFiles('Data/Analysis/SegResults', 'Data/Benchmark/SegResults');
