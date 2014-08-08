@@ -91,7 +91,7 @@ end
 
 %% new projIm
 fprintf('Saving registered images ...\n');
-RegIm = zeros(size(ImSeries));
+RegIm = zeros(size(ImSeries), 'like', ImSeries);
 RegIm(:,:,1) = ImSeries(:,:,1);
 
 for i = 2:NImages                 % todo: parfor
