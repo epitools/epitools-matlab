@@ -71,6 +71,7 @@ setappdata(gcf, 'icy_is_loaded', 0);
 setappdata(gcf, 'icy_path', 'none');
 setappdata(gcf, 'settings_objectname', '');
 setappdata(gcf, 'status_application',stsFunOut);
+setappdata(hMainGui, 'exec_sandbox', false);
 
 %obtain absolute location on system
 current_script_path = mfilename('fullpath');
@@ -671,10 +672,9 @@ function [argout,stgObj] = Global_SaveModule(hObject, handles, strModuleName)
 % Global_SaveModule is intended to check for the presence of the module in
 % the setting file when a the user is about to run any analysis module
 % during the current session of the analysis. 
-
 hMainGui = getappdata(0, 'hMainGui');
 
-argout = 0;
+argout = true;
 
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
@@ -683,14 +683,69 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
             
-            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-            
+            % When the module has been already executed during the course of the
+            % current analysis, the program will ask to the user if he wants to 
+            % run a comparative analysis. If yes, then run everything in a 
+            % sandbox where the previous modules are stored until the user 
+            % decides if he wants to keep them.
+
+            out = questdlg(sprintf('The analysis module [%s] you are attempting to execute is already present in your analysis.\n\n How do you want to proceed?', strModuleName),...
+              'Control workflow of analysis modules',...
+              'Overrite module',...
+              'Comparare executions',...
+              'Abort operations',...
+              'Ovverite module');
+           
             switch out
-                case 'Yes'
+                case 'Overrite module'
                     Global_SaveAnalysis(hObject, handles);
                     
-                case 'No'
-                    %helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
+                case 'Comparare executions'
+                    % Open a sandbox
+                    setappdata(hMainGui, 'exec_sandbox', true);
+                    
+                    % Initilization sandbox for the current module
+                    sdb = sandbox();
+                    
+                    % Create the variables for the current module
+                    sdb.CreateSandbox(strModuleName,stgObj.analysis_modules.(strModuleName));
+                    
+                    % Re-run the module in a sandbox environment 
+                    [sdbExecStatus,tmpStgObj] = sdb.Run();
+                    
+                    waitfor(sdbExecStatus)
+                    
+                    if (sdbExecStatus)
+                        % Ask what to do with the results
+                        out = questdlg(sprintf('The analysis has been completed.\n\nWhat do you want to do with the results?'),...
+                            'Control workflow of analysis modules',...
+                            'Discard new results',...
+                            'Accept new results',...
+                            'Accept new results');
+                        switch 
+                            case 'Discard new results'
+                                
+                                sdb.results_validity = false;
+                                sdb.results_override = false;
+
+
+                            case 'Accept new results'                                
+                                sdb.results_validity = true;
+                                sdb.results_override = true;
+                                sdb.results_backup = true;
+
+                            otherwise
+                                sdb.results_validity = true;
+                                sdb.results_override = false;
+                                sdb.results_backup = false;
+                        end
+
+                        sdb.DestroySandbox(stgObj);
+                    end                            
+
+
+                case 'Abort operations'
+                    argout = false;
                     return;
             end
             
@@ -779,7 +834,7 @@ else
             argout = 0;
         case 'No'
             
-            msgbox('Changes have been discarded');
+            %msgbox('Changes have been discarded');
             argout = 0;
         case 'Abort'
             argout = 1;
