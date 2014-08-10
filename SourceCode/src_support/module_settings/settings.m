@@ -1,6 +1,8 @@
 classdef settings < handle
-    %TEST Summary of this class goes here
-    %   Detailed explanation goes here
+    %SETTINGS Settings class defines the properties for a new object of class
+    % settings. This object contains the specifics for running an analysis on 
+    % EPITOOLS (both gui and no-gui version). This class allows for multiple 
+    % object initialisations. 
     
     properties
         analysis_code = '';
@@ -25,18 +27,26 @@ classdef settings < handle
     methods
         
         function obj = settings(analysis_name, analysis_version, data_fullpath)
+        % SETTINGS Setting function initialise the setting object. User should % call the function defining the following variables:
+        % string analysis_name  = this variable contains a string with the %                         analysis name
+        % int analysis_version  = a progressive number definining the analysis %                         version
+        % string data_fullpath  = string containing the full path where the %                         analysis file will be stored
             
             % Who am I?
             [ST,~] = dbstack();
             
             % Convert the object passed into a settings object
             if (nargin == 1)
+
                 objName = analysis_name;
                 
                 if (isa(objName, 'struct'))
 
+                    % Parsing all the struct fields
                     field_object = fields(objName);
                     
+                    % Set the values of the setting object fields with the 
+                    % values/ref of the non-setting object.
                     for i=1:numel(field_object)
                         idx = field_object(i);
                         obj.(char(idx)) = objName.(char(idx));
@@ -45,7 +55,7 @@ classdef settings < handle
 
                     
                 else
-                    
+                    % if the object parsed cannot be read and converted
                     warning([ST 'could not convert the object', objName,'into a settings object']);
                     
                 end
@@ -54,7 +64,7 @@ classdef settings < handle
             end
             
             
-            
+            % In case this function has been called with all the parameters 
             if (nargin == 3) 
                 
                   obj.analysis_name = analysis_name;
@@ -81,7 +91,7 @@ classdef settings < handle
         
         
         function LoadModule(obj,mdname, sourceobj)
-        % Load setting module parsing a configuration file
+        % LOADMODULE LoadModule tranfers setting/metadata/results fields from % a module to another module.
             
             % TODO: warnings for data overwriting
             obj.analysis_modules.(mdname).settings  = sourceobj.analysis_modules.(mdname).settings;
@@ -91,8 +101,8 @@ classdef settings < handle
         end
         
         function boolean = hasModule(obj,mdname)
-            %hasModule outputs 1 if mdname module is present
-            boolean = (sum(strcmp(fields(obj.analysis_modules), mdname)) == 1);
+        % HASMODULE hasModule outputs true if mdname module is present
+            boolean = logical(sum(strcmp(fields(obj.analysis_modules), mdname)) == 1);
             
         end
         
