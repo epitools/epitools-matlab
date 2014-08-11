@@ -9,7 +9,7 @@ progressbar('Loading SegResults...(might take some minutes)')
 % name: stgModule 
 tmpStgObj = stgObj.analysis_modules.Tracking.settings;
 
-tmpSegObj = load([stgObj.data_analysisdir,'/SegResults']);
+tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
 
 
 %load([AnaDirec,'/SegResults']);
@@ -22,12 +22,12 @@ NT = size(tmpSegObj.RegIm,3);
 %Optional parameter for the TrackingGUI
 %tmpStgObj.TrackingRadius = tracking_radius;
 
-output = [stgObj.data_analysisdir,'/','ILabelsCorrected_',datestr(now,30)];
+output = [stgObj.data_analysisoutdir,'/','ILabelsCorrected_',datestr(now,30)];
 
 progressbar(1);
 
 %retrieve previous tracking file
-[filename, pathname] = uigetfile(strcat(stgObj.data_analysisdir,'/','*.mat'),'Select last tracking file');
+[filename, pathname] = uigetfile(strcat(stgObj.data_analysisindir,'/','*.mat'),'Select last tracking file');
 
 if((isempty(filename) || isempty(pathname) ) == 0)
     IL = load([pathname,filename]);

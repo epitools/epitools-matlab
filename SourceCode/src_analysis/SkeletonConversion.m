@@ -4,7 +4,7 @@ function SkeletonConversion(stgObj)
 
 %load(DataSpecificsPath);
 tmpStgObj = stgObj.analysis_modules.Skeletons.settings;
-tmpSegObj = load([stgObj.data_analysisdir,'/SegResults']);
+tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
 
 progressbar('Loading Segmentation results...');
 
@@ -16,7 +16,7 @@ progressbar(1);
 progressbar('Creating skeletons...');
 
 %SkelDirec = [AnaDirec,'/skeletons'];
-mkdir([stgObj.data_analysisdir,'/skeletons']);
+mkdir([stgObj.data_analysisoutdir,'/skeletons']);
 
 frame_no = size(tmpSegObj.CLabels,3);
 
@@ -36,7 +36,7 @@ for i = 1:frame_no
     
     %output skeleton as png image
     output_file_name = strcat('/','frame_',time_point_str,'.png');
-    imwrite(lblImg,[stgObj.data_analysisdir,'/skeletons',output_file_name]);
+    imwrite(lblImg,[stgObj.data_analysisoutdir,'/skeletons',output_file_name]);
     
     progressbar(i/frame_no);
 end

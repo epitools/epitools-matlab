@@ -3,7 +3,7 @@ function Registration(stgObj)
 %   DataSpecificsPath - Path Data to analyze (See InspectData function)
 %load(DataSpecificsPath);
 
-tmpObj = load([stgObj.data_analysisdir,'/ProjIm']);
+tmpObj = load([stgObj.data_analysisindir,'/ProjIm']);
 tmpStgObj = stgObj.analysis_modules.Stack_Registration.settings;
 % if(~isfield(stgObj.,'useStackReg'))
 %     stgObj.useStackReg = false;
@@ -32,8 +32,8 @@ end
 
 
 %saving results
-stgObj.AddResult('Stack_Registration','registration_path',strcat(stgObj.data_analysisdir,'/RegIm'));
-save([stgObj.data_analysisdir,'/RegIm'],'RegIm');
+stgObj.AddResult('Stack_Registration','registration_path',strcat(stgObj.data_analysisoutdir,'/RegIm'));
+save([stgObj.data_analysisoutdir,'/RegIm'],'RegIm');
 
 end
 

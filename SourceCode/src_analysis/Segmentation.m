@@ -8,7 +8,7 @@ function Segmentation(stgObj)
 % name: stgModule 
 tmpStgObj = stgObj.analysis_modules.Segmentation.settings;
 
-tmpRegObj = load([stgObj.data_analysisdir,'/RegIm']);
+tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
 %load([AnaDirec,'/RegIm']);
 
 if tmpStgObj.SingleFrame
@@ -36,16 +36,16 @@ else
     NT = size(tmpRegObj.RegIm,3);
     
     RegIm = tmpRegObj.RegIm;
-    save([stgObj.data_analysisdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','tmpStgObj','NX','NY','NT','-v7.3')
+    save([stgObj.data_analysisoutdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','tmpStgObj','NX','NY','NT','-v7.3')
     
     %save dummy tracking information
     FramesToRegrow = [];
     oktrajs = [];
 
-    save([stgObj.data_analysisdir,'/TrackingStart'],'ILabels','FramesToRegrow','oktrajs')
+    save([stgObj.data_analysisoutdir,'/TrackingStart'],'ILabels','FramesToRegrow','oktrajs')
     
-    stgObj.AddResult('Segmentation','segmentation_path',strcat(stgObj.data_analysisdir,'/SegResults'));
-    stgObj.AddResult('Segmentation','tracking_path',strcat(stgObj.data_analysisdir,'/TrackingStart'));
+    stgObj.AddResult('Segmentation','segmentation_path',strcat(stgObj.data_analysisoutdir,'/SegResults'));
+    stgObj.AddResult('Segmentation','tracking_path',strcat(stgObj.data_analysisoutdir,'/TrackingStart'));
    
     % inspect results
     if stgObj.hasModule('Main')
