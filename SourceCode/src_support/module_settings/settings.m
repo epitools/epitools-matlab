@@ -17,7 +17,8 @@ classdef settings < handle
         analysis_modules = struct();
         data_fullpath = '~';
         data_imagepath = '~';
-        data_analysisdir = '';
+        data_analysisindir = '';
+        data_analysisoutdir = '';
         data_benchmarkdir = '';
         data_extensionmask = '.etl';
         icy_is_used = 0;
