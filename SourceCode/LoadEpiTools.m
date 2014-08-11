@@ -27,10 +27,14 @@ addpath([file_path,'/src_support/module_settings']);
 addpath([file_path,'/src_support/module_xml']);
 addpath([file_path,'/src_support/module_logs']);
 addpath([file_path,'/src_support/module_integrity']);
+addpath([file_path,'/src_support/module_loader']);
+addpath([file_path,'/src_support/module_sandbox']);
+addpath([file_path,'/src_support/module_dataprocessing']);
 addpath([file_path,'/src_tools']);
 addpath([file_path,'/src_tools/ImageJ_interface']);
 addpath([file_path,'/src_tools/OME_LOCI_TOOLS']);
 addpath([file_path,'/src_support/module_progressbars/']);
+
 
 system(['touch ', strcat(prefdir, '/javaclasspath.txt')]);
 system(['echo  "', [file_path,'/src_support/module_progressbars/'] ,'" > ', prefdir, '/javaclasspath.txt']);

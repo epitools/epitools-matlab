@@ -71,7 +71,6 @@ setappdata(gcf, 'icy_is_loaded', 0);
 setappdata(gcf, 'icy_path', 'none');
 setappdata(gcf, 'settings_objectname', '');
 setappdata(gcf, 'status_application',stsFunOut);
-setappdata(hMainGui, 'exec_sandbox', false);
 
 %obtain absolute location on system
 current_script_path = mfilename('fullpath');
@@ -305,16 +304,16 @@ strModuleName = 'Polygon_Masking';
 
 intOut = Global_SaveModule(hObject, handles, strModuleName);
 
-tmpSegObj = load([stgObj.data_analysisdir,'/SegResults']);
-tmpRegObj = load([stgObj.data_analysisdir,'/RegIm']);
+tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
+tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
 
 [polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
 
-save([stgObj.data_analysisdir,'/PoligonalMask'],'polygonal_mask');
-save([stgObj.data_analysisdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
+save([stgObj.data_analysisoutdir,'/PoligonalMask'],'polygonal_mask');
+save([stgObj.data_analysisoutdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
 
-stgObj.AddResult(strModuleName,'polygonal_mask_path',strcat(stgObj.data_analysisdir,'/PoligonalMask'));
-stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysisdir,'/CroppedCellLabels'));
+stgObj.AddResult(strModuleName,'polygonal_mask_path',strcat(stgObj.data_analysisoutdir,'/PoligonalMask'));
+stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysisoutdir,'/CroppedCellLabels'));
 
 waitfor(polygonal_mask);
 
@@ -685,33 +684,31 @@ if(isappdata(hMainGui,'settings_objectname'))
             
             % When the module has been already executed during the course of the
             % current analysis, the program will ask to the user if he wants to 
-            % run a comparative analysis. If yes, then run everything in a 
+            % run a comparative analysis. If yes, then it runs everything in a 
             % sandbox where the previous modules are stored until the user 
-            % decides if he wants to keep them.
+            % decides if he wants to keep or discard them.
 
             out = questdlg(sprintf('The analysis module [%s] you are attempting to execute is already present in your analysis.\n\n How do you want to proceed?', strModuleName),...
               'Control workflow of analysis modules',...
               'Overrite module',...
               'Comparare executions',...
               'Abort operations',...
-              'Ovverite module');
+              'Abort operations');
            
             switch out
                 case 'Overrite module'
                     Global_SaveAnalysis(hObject, handles);
                     
                 case 'Comparare executions'
-                    % Open a sandbox
-                    setappdata(hMainGui, 'exec_sandbox', true);
                     
                     % Initilization sandbox for the current module
                     sdb = sandbox();
                     
                     % Create the variables for the current module
-                    sdb.CreateSandbox(strModuleName,stgObj.analysis_modules.(strModuleName));
+                    sdb.CreateSandbox(strModuleName,stgObj);
                     
                     % Re-run the module in a sandbox environment 
-                    [sdbExecStatus,tmpStgObj] = sdb.Run();
+                    sdbExecStatus = sdb.Run();
                     
                     waitfor(sdbExecStatus)
                     
@@ -722,27 +719,49 @@ if(isappdata(hMainGui,'settings_objectname'))
                             'Discard new results',...
                             'Accept new results',...
                             'Accept new results');
-                        switch 
+                        switch out
                             case 'Discard new results'
+                            % Discard new results implies: 
+                            %   [1] Destroy the temporary directory where the 
+                            %       results have been stored
                                 
                                 sdb.results_validity = false;
                                 sdb.results_override = false;
 
 
-                            case 'Accept new results'                                
+                            case 'Accept new results'
+                            % Accept new results implies: 
+                            %   [1] Backup previous results in a new folder
+                            %   [2] Remove all files contained in the analysis 
+                            %       folder 
+                            %   [3] Move all the result files from the temp dir 
+                            %       to analysis folder
+                            %   [4] Destroy temporary results folder
+
                                 sdb.results_validity = true;
-                                sdb.results_override = true;
+                                sdb.results_overrite = true;
                                 sdb.results_backup = true;
 
                             otherwise
+                            % Restore the previous situation considering saving
+                            % all the new results obtained * this might happen if 
+                            % the user accidentally ask for an illegittimate 
+                            % operation.
+                            %   [1] Backup previous results in a new folder
+                            %   [2] Remove all files contained in the analysis 
+                            %       folder 
+                            %   [3] Move all the result files from the temp dir 
+                            %       to analysis folder
+                            %   [4] Destroy temporary results folder
+
                                 sdb.results_validity = true;
                                 sdb.results_override = false;
                                 sdb.results_backup = false;
                         end
 
-                        sdb.DestroySandbox(stgObj);
+                        sdbExecStatus = sdb.DestroySandbox();
+                   
                     end                            
-
 
                 case 'Abort operations'
                     argout = false;
