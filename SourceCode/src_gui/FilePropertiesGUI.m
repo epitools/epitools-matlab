@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 23-Jul-2014 09:12:25
+% Last Modified by GUIDE v2.5 11-Aug-2014 12:12:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -99,9 +99,7 @@ set(handles.fp_data_benchmarkdir, 'String', stgObj.data_benchmarkdir);
 set(handles.fp_data_extensionmask, 'String', stgObj.data_extensionmask);
 set(handles.fp_data_fullpath, 'String', stgObj.data_fullpath);
 set(handles.fp_data_imagepath, 'String', stgObj.data_imagepath);
-
-
-set(handles.fp_data_analysisdir, 'String', stgObj.data_analysisdir);
+set(handles.fp_data_analysisindir, 'String', stgObj.data_analysisindir);
 
 
 % Valorise file table
@@ -334,18 +332,18 @@ end
 
 
 
-function fp_data_analysisdir_Callback(hObject, eventdata, handles)
-% hObject    handle to fp_data_analysisdir (see GCBO)
+function fp_data_analysisindir_Callback(hObject, eventdata, handles)
+% hObject    handle to fp_data_analysisindir (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of fp_data_analysisdir as text
-%        str2double(get(hObject,'String')) returns contents of fp_data_analysisdir as a double
+% Hints: get(hObject,'String') returns contents of fp_data_analysisindir as text
+%        str2double(get(hObject,'String')) returns contents of fp_data_analysisindir as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function fp_data_analysisdir_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fp_data_analysisdir (see GCBO)
+function fp_data_analysisindir_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fp_data_analysisindir (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -495,18 +493,19 @@ end
 stgObj.AddSetting('Main','data',get(handles.uitable1,'Data'));
 
 
-if(isempty(stgObj.data_analysisdir) == 1 && isempty(stgObj.data_fullpath) == 0)
+if(isempty(stgObj.data_analysisindir) == 1 && isempty(stgObj.data_fullpath) == 0)
     
-    stgObj.data_analysisdir = strcat(stgObj.data_fullpath,'/Analysis');
+    stgObj.data_analysisindir = strcat(stgObj.data_fullpath,'/Analysis');
+    stgObj.data_analysisoutdir = stgObj.data_analysisindir;
     setappdata(hMainGui, 'settings_objectname', stgObj);
 end
 
 
 % If analysis folder does not exist even if it was set by the user
-if (isempty(stgObj.data_analysisdir) == 0)
-    if(exist(stgObj.data_analysisdir, 'dir') ~= 7)
+if (isempty(stgObj.data_analysisindir) == 0)
+    if(exist(stgObj.data_analysisindir, 'dir') ~= 7)
     
-        mkdir(stgObj.data_analysisdir);
+        mkdir(stgObj.data_analysisindir);
     
     end
 end
@@ -616,7 +615,7 @@ stgObj = getappdata(hFPGui,'settings_objectname');
 data_folder = uigetdir('~/','Select the directory where you want to store all the results from the current analysis');
 
 if (data_folder)
-    stgObj.data_analysisdir = data_folder;
+    stgObj.data_analysisindir = data_folder;
 
     
 end 
@@ -643,3 +642,6 @@ end
     
 setappdata(hMainGui, 'settings_objectname', stgObj);
 initialize_gui(hObject,handles)
+
+
+
