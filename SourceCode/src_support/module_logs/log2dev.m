@@ -9,7 +9,7 @@ function log2dev( strLogContent, pntDevice, pntHandle, intLogCode, intOutputDev 
 
 switch intOutputDev
     
-    %% Log to GUI device
+    %% Log to GUI device (progress bar)
     case 0
         tmpDeviceContenitor = getappdata(0,pntDevice);
         tmpHandleContenitor = guidata(tmpDeviceContenitor);
@@ -23,7 +23,7 @@ switch intOutputDev
         
         
 
-    %% Log to ProgressBar
+    %% Log to generic GUI device
     case 2 
        
         tmpDeviceContenitor = getappdata(0,pntDevice);
