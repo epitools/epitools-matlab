@@ -48,11 +48,37 @@ else
     stgObj.AddResult('Segmentation','tracking_path',strcat(stgObj.data_analysisoutdir,'/TrackingStart'));
    
     % inspect results
-    if stgObj.hasModule('Main')
+    if(~stgObj.exec_commandline)
         if(stgObj.icy_is_used)
             icy_vid3show(ColIms,'Segmented Sequence');
         else
-            StackView(ColIms,'hMainGui','figureA');
+            if(strcmp(stgObj.data_analysisindir,stgObj.data_analysisoutdir))
+            
+                fig = getappdata(0  , 'hMainGui');
+                handles = guidata(fig);
+            
+                set(handles.('uiBannerDescription'), 'Visible', 'on');
+                set(handles.('uiBannerContenitor'), 'Visible', 'on');
+
+                % Change banner description
+                log2dev('Currently executing the [Segmentation] module',...
+                'hMainGui',...
+                'uiBannerDescription',...
+                [],...
+                2 );
+
+                StackView(ColIms,'hMainGui','figureA');
+                SandboxGUIRedesign(0);
+
+            else
+                
+                firstrun = load([stgObj.data_analysisindir,'/ColIms']);
+                % The program is being executed in comparative mode
+                StackView(firstrun.ColIms,'hMainGui','figureC1');
+                StackView(ColIms,'hMainGui','figureC2');
+
+            end
+            
         end
     else
         StackView(ColIms);

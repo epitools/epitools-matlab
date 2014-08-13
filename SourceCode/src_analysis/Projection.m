@@ -104,7 +104,7 @@ end
 
 %% Saving results
 stgObj.AddResult('Projection','projection_path',strcat(stgObj.data_analysisoutdir,'/ProjIm'));
-stgObj.AddResult('Projection','surface_path',strcat(stgObj.data_analysisoutdir,'/ProjIm'));
+stgObj.AddResult('Projection','surface_path',strcat(stgObj.data_analysisoutdir,'/Surfaces'));
 
 save([stgObj.data_analysisoutdir,'/ProjIm'],'ProjIm')
 save([stgObj.data_analysisoutdir,'/Surfaces'],'Surfaces')
@@ -119,7 +119,31 @@ if(~stgObj.exec_commandline)
     if(stgObj.icy_is_used)
         icy_vidshow(ProjIm,'Projected Sequence');
     else
-        StackView(ProjIm,'hMainGui','figureA');
+        if(strcmp(stgObj.data_analysisindir,stgObj.data_analysisoutdir))
+            
+            fig = getappdata(0  , 'hMainGui');
+            handles = guidata(fig);
+            
+            set(handles.('uiBannerDescription'), 'Visible', 'on');
+            set(handles.('uiBannerContenitor'), 'Visible', 'on');
+            
+            % Change banner description
+            log2dev('Currently executing the [Projection] module',...
+            'hMainGui',...
+            'uiBannerDescription',...
+            [],...
+            2 );
+            
+            StackView(ProjIm,'hMainGui','figureA');
+            SandboxGUIRedesign(0);
+        
+        else
+            firstrun = load([stgObj.data_analysisindir,'/ProjIm']);
+            % The program is being executed in comparative mode
+            StackView(firstrun.ProjIm,'hMainGui','figureC1');
+            StackView(ProjIm,'hMainGui','figureC2');
+            
+        end
     end
 else
     StackView(ProjIm)

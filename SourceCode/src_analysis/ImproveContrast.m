@@ -51,32 +51,63 @@ end
 progressbar(1);
 
 % inspect results
-if stgObj.hasModule('Main')
+if(~stgObj.exec_commandline)
     if(stgObj.icy_is_used)
+        
         icy_vidshow(RegIm_clahe,'CLAHE Sequence');
+    
     else
-        StackView(RegIm_clahe,'hMainGui','figureA');
+
+        %StackView(RegIm_clahe,'hMainGui','figureA');
+    
+        if(strcmp(stgObj.data_analysisindir,stgObj.data_analysisoutdir))
+            
+            fig = getappdata(0  , 'hMainGui');
+            handles = guidata(fig);
+            
+            set(handles.('uiBannerDescription'), 'Visible', 'on');
+            set(handles.('uiBannerContenitor'), 'Visible', 'on');
+            
+            % Change banner description
+            log2dev('Currently executing the [CLAHE] module',...
+            'hMainGui',...
+            'uiBannerDescription',...
+            [],...
+            2 );
+            
+            StackView(RegIm_clahe,'hMainGui','figureA');
+            SandboxGUIRedesign(0);
+        
+        else
+            firstrun = load([stgObj.data_analysisindir,'/RegIm_clahe']);
+            % The program is being executed in comparative mode
+            StackView(firstrun.RegIm_clahe,'hMainGui','figureC1');
+            StackView(RegIm_clahe,'hMainGui','figureC2');
+            
+        end
+        
+        
     end
 else
     StackView(RegIm_clahe);
 end
 
-do_overwrite = questdlg('Please decide over the CLAHE image','Overrite decision',...
-    'Overrite original','Keep Original','Keep Original');
-
-if(strcmp(do_overwrite,'Overrite original'))
-
-    %backup previous result
-    stgObj.AddResult('Contrast_Enhancement','clahe_backup_path',strcat(stgObj.data_analysisoutdir,'/RegIm_woCLAHE'));
-    RegImgOld = tmpRegObj.RegIm;
-    save([stgObj.data_analysisoutdir,'/RegIm_woCLAHE'],'RegImgOld');
-
-    %save new version with contrast enhancement
-    RegIm = RegIm_clahe;
-    stgObj.AddResult('Contrast_Enhancement','clahe_path',strcat(stgObj.data_analysisoutdir,'/RegIm'));
-    save([stgObj.data_analysisoutdir,'/RegIm'],'RegIm');
-    
-end
+% do_overwrite = questdlg('Please decide over the CLAHE image','Overrite decision',...
+%     'Overrite original','Keep Original','Keep Original');
+% 
+% if(strcmp(do_overwrite,'Overrite original'))
+% 
+%     %backup previous result
+%     stgObj.AddResult('Contrast_Enhancement','clahe_backup_path',strcat(stgObj.data_analysisoutdir,'/RegIm_woCLAHE'));
+%     RegImgOld = tmpRegObj.RegIm;
+%     save([stgObj.data_analysisoutdir,'/RegIm_woCLAHE'],'RegImgOld');
+% 
+%     %save new version with contrast enhancement
+%     RegIm = RegIm_clahe;
+%     stgObj.AddResult('Contrast_Enhancement','clahe_path',strcat(stgObj.data_analysisoutdir,'/RegIm'));
+%     save([stgObj.data_analysisoutdir,'/RegIm'],'RegIm');
+%     
+% end
 
 end
 

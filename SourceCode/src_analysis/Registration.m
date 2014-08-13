@@ -23,8 +23,34 @@ if stgObj.hasModule('Main')
     if(stgObj.icy_is_used)
         icy_vidshow(RegIm,'Registered Sequence');
     else
-        StackView(RegIm,'hMainGui','figureA');
-    end
+        
+        if(strcmp(stgObj.data_analysisindir,stgObj.data_analysisoutdir))
+            
+            fig = getappdata(0  , 'hMainGui');
+            handles = guidata(fig);
+            
+            set(handles.('uiBannerDescription'), 'Visible', 'on');
+            set(handles.('uiBannerContenitor'), 'Visible', 'on');
+            
+            % Change banner description
+            log2dev('Currently executing the [Registration] module',...
+            'hMainGui',...
+            'uiBannerDescription',...
+            [],...
+            2 );
+            
+            StackView(RegIm,'hMainGui','figureA');
+            SandboxGUIRedesign(0);
+        
+        else
+            firstrun = load([stgObj.data_analysisindir,'/RegIm']);
+            % The program is being executed in comparative mode
+            StackView(firstrun.RegIm,'hMainGui','figureC1');
+            StackView(RegIm,'hMainGui','figureC2');
+            
+        end
+
+   end
 else
     StackView(RegIm);
 end
