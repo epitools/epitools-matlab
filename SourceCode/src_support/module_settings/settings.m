@@ -20,7 +20,7 @@ classdef settings < handle
         data_analysisindir = '';
         data_analysisoutdir = '';
         data_benchmarkdir = '';
-        data_extensionmask = '.etl';
+        data_extensionmask = '.xml';
         icy_is_used = 0;
         exec_commandline = false;
     end
