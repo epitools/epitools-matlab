@@ -101,14 +101,19 @@ classdef sandbox < handle
                     switch sdb.module_name
                         case 'Projection'
                             out = ProjectionGUI(sdb.analysis_settings);
+                            waitfor(out);
                         case 'Stack_Registration'
                             out = RegistrationGUI(sdb.analysis_settings);
+                            waitfor(out);
                         case 'Contrast_Enhancement'
                             out = ImproveContrastGUI(sdb.analysis_settings);
+                            waitfor(out);
                         case 'Segmentation'
                             out = SegmentationGUI(sdb.analysis_settings);
+                            waitfor(out);
                         case 'Tracking'
                             out = TrackingIntroGUI(sdb.analysis_settings);
+                            waitfor(out);
                         otherwise
                             return;
                     end
@@ -148,7 +153,21 @@ classdef sandbox < handle
 	       			 sdb.analysis_settings.data_analysisindir);
 
 	       			% Remove temporary directory
-	       			rmdir([sdb.analysis_settings.data_fullpath,'/', sdb.analysis_tmpdirpath]);
+	       			rmdir([sdb.analysis_settings.data_fullpath,'/', sdb.analysis_tmpdirpath], 's');
+                    
+                    % Reassign correct location to results saved during the
+                    % module execution
+                    
+                    arrayResults = fields(sdb.analysis_settings.analysis_modules.(char(sdb.module_name)).results);
+                    
+                    for i=1:numel(arrayResults)
+                    
+                        arrayPathSegments = strsplit(sdb.analysis_settings.analysis_modules.(char(sdb.module_name)).results.(char(arrayResults(i))),'/');
+                        originalPathSegment = strsplit(sdb.analysis_settings.data_analysisindir,'/');
+                        sdb.analysis_settings.analysis_modules.(char(sdb.module_name)).results.(char(arrayResults(i))) = strjoin([arrayPathSegments(1:end-2),originalPathSegment(end),arrayPathSegments(end)],'/');
+                    
+                    end
+                    
 
         		% In case the new results are not going to ovverite the previous results
         		else
@@ -159,7 +178,7 @@ classdef sandbox < handle
         	% I discard the second-run-generated results
         	else
         		% Remove temporary directory
-	       		rmdir([sdb.analysis_settings.data_fullpath,'/', sdb.analysis_tmpdirpath]);
+	       		rmdir([sdb.analysis_settings.data_fullpath,'/', sdb.analysis_tmpdirpath],'s');
 
         	end
     	
