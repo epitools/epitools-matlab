@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 11-Aug-2014 12:12:06
+% Last Modified by GUIDE v2.5 13-Aug-2014 16:58:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -124,13 +124,11 @@ if (stgObj.data_imagepath)
             MetadataFIGXML.files.(char(vecFields(i))).exec_num_timepoints = num2str(MetadataFIGXML.files.(char(vecFields(i))).exec_num_timepoints);
             
             arrFiles(i,:) = struct2cell(MetadataFIGXML.files.(char(vecFields(i))));
-
-            
+  
             
         end
         %First time load, skip location path (1)
         set(handles.uitable1, 'Data', arrFiles(:,2:end));
-
 
             
     end
@@ -642,6 +640,3 @@ end
     
 setappdata(hMainGui, 'settings_objectname', stgObj);
 initialize_gui(hObject,handles)
-
-
-
