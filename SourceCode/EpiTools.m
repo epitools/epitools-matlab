@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 07-Aug-2014 17:00:26
+% Last Modified by GUIDE v2.5 13-Aug-2014 11:28:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -165,7 +165,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
             fprintf('ERROR, current icy path is not valid: %s\n',icy_path);
             icy_path = 'none';
         end
-    else      
+    else
         icy_is_used = 1;
     end
     
@@ -179,14 +179,14 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     setappdata(hMainGui,'icy_path',icy_path);
     setappdata(hMainGui,'icy_is_loaded',icy_is_loaded);
     setappdata(hMainGui,'icy_is_used',icy_is_used);
-   
+    
 else
     %checkbox is deselected
     setappdata(hMainGui,'icy_is_used',0);
     
 end
 
-%set preference in settings object if one exists 
+%set preference in settings object if one exists
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         stgObj = getappdata(hMainGui,'settings_objectname');
@@ -210,9 +210,10 @@ hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Projection';
 
 [intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
-
-out = ProjectionGUI(stgObj);
-uiwait(out);
+if(intOut)
+    out = ProjectionGUI(stgObj);
+    uiwait(out);
+end
 handles_connection(hObject,handles)
 
 
@@ -321,7 +322,6 @@ handles_connection(hObject,handles)
 
 
 
-
 % --------------------------------------------------------------------
 function E_Undo_Callback(hObject, eventdata, handles)
 % hObject    handle to E_Undo (see GCBO)
@@ -376,7 +376,7 @@ if(strPathAnalysisFile)
     stgObj.CreateModule('Main');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     stgObj.data_fullpath = strPathAnalysisFile;
-
+    
 else
     return;
 end
@@ -395,7 +395,7 @@ Global_SaveAnalysis(hObject, handles, 1);
 stgObj = getappdata(hMainGui,'settings_objectname');
 
 % logging on external device
-diary(strcat(stgObj.data_fullpath,'/out-',datestr(now,30),'.log'));
+diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
 diary on;
 
 % Parallel
@@ -442,7 +442,7 @@ if(strSettingFilePath)
     
     stgObj = xml_read([strSettingFilePath,strSettingFileName]);
     stgObj = settings(stgObj);
-
+    
     arrayFiles = fields(stgObj.analysis_modules.Main.data);
     tmpFileStruct = {};
     for i=1:numel(arrayFiles)
@@ -467,7 +467,7 @@ if(strSettingFilePath)
         stgObj.analysis_version,...
         stgObj.user_name ),...
         'Operation succesfully completed','help');
-
+    
     % Parallel
     installed_toolboxes=ver;
     if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
@@ -479,9 +479,9 @@ if(strSettingFilePath)
     %Check if icy is in use
     stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
     
-    diary(strcat(stgObj.data_fullpath,'out-',datestr(now,30),'log'));
+    diary([stgObj.data_fullpath,'out-',datestr(now,30),'log']);
     diary on;
-
+    
     handles_connection(hObject, handles)
 end
 
@@ -544,7 +544,7 @@ hMainGui = getappdata(0, 'hMainGui');
 if(getappdata(hMainGui,'settings_objectname') ~= 0)
     
     out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
-    uiwait(out);
+    %uiwait(out);
 else
     msgbox('No analysis file loaded!');
 end
@@ -662,6 +662,20 @@ function uipanel5_ResizeFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% --- Executes on button press in uiBannerDialog02.
+function uiBannerDialog02_Callback(hObject, eventdata, handles)
+% hObject    handle to uiBannerDialog02 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in uiBannerDialog01.
+function uiBannerDialog01_Callback(hObject, eventdata, handles)
+% hObject    handle to uiBannerDialog01 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
 
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Global Functions
@@ -670,7 +684,7 @@ function uipanel5_ResizeFcn(hObject, eventdata, handles)
 function [argout,stgObj] = Global_SaveModule(hObject, handles, strModuleName)
 % Global_SaveModule is intended to check for the presence of the module in
 % the setting file when a the user is about to run any analysis module
-% during the current session of the analysis. 
+% during the current session of the analysis.
 hMainGui = getappdata(0, 'hMainGui');
 
 argout = true;
@@ -683,18 +697,18 @@ if(isappdata(hMainGui,'settings_objectname'))
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
             
             % When the module has been already executed during the course of the
-            % current analysis, the program will ask to the user if he wants to 
-            % run a comparative analysis. If yes, then it runs everything in a 
-            % sandbox where the previous modules are stored until the user 
+            % current analysis, the program will ask to the user if he wants to
+            % run a comparative analysis. If yes, then it runs everything in a
+            % sandbox where the previous modules are stored until the user
             % decides if he wants to keep or discard them.
-
+            
             out = questdlg(sprintf('The analysis module [%s] you are attempting to execute is already present in your analysis.\n\n How do you want to proceed?', strModuleName),...
-              'Control workflow of analysis modules',...
-              'Overrite module',...
-              'Comparare executions',...
-              'Abort operations',...
-              'Abort operations');
-           
+                'Control workflow of analysis modules',...
+                'Overrite module',...
+                'Comparare executions',...
+                'Abort operations',...
+                'Abort operations');
+            
             switch out
                 case 'Overrite module'
                     Global_SaveAnalysis(hObject, handles);
@@ -707,62 +721,74 @@ if(isappdata(hMainGui,'settings_objectname'))
                     % Create the variables for the current module
                     sdb.CreateSandbox(strModuleName,stgObj);
                     
-                    % Re-run the module in a sandbox environment 
+                    % Re-run the module in a sandbox environment
                     sdbExecStatus = sdb.Run();
                     
                     waitfor(sdbExecStatus)
                     
+                    SandboxGUIRedesign(1);
+                    
+                    
                     if (sdbExecStatus)
                         % Ask what to do with the results
-                        out = questdlg(sprintf('The analysis has been completed.\n\nWhat do you want to do with the results?'),...
-                            'Control workflow of analysis modules',...
-                            'Discard new results',...
-                            'Accept new results',...
-                            'Accept new results');
-                        switch out
-                            case 'Discard new results'
-                            % Discard new results implies: 
-                            %   [1] Destroy the temporary directory where the 
-                            %       results have been stored
-                                
-                                sdb.results_validity = false;
-                                sdb.results_override = false;
-
-
-                            case 'Accept new results'
-                            % Accept new results implies: 
-                            %   [1] Backup previous results in a new folder
-                            %   [2] Remove all files contained in the analysis 
-                            %       folder 
-                            %   [3] Move all the result files from the temp dir 
-                            %       to analysis folder
-                            %   [4] Destroy temporary results folder
-
-                                sdb.results_validity = true;
-                                sdb.results_overrite = true;
-                                sdb.results_backup = true;
-
-                            otherwise
-                            % Restore the previous situation considering saving
-                            % all the new results obtained * this might happen if 
-                            % the user accidentally ask for an illegittimate 
-                            % operation.
-                            %   [1] Backup previous results in a new folder
-                            %   [2] Remove all files contained in the analysis 
-                            %       folder 
-                            %   [3] Move all the result files from the temp dir 
-                            %       to analysis folder
-                            %   [4] Destroy temporary results folder
-
-                                sdb.results_validity = true;
-                                sdb.results_override = false;
-                                sdb.results_backup = false;
+                        
+                        
+                        %out = questdlg(sprintf('The analysis has been completed.\n\nWhat do you want to do with the results?'),...
+                        %    'Control workflow of analysis modules',...
+                        %    'Discard new results',...
+                        %    'Accept new results',...
+                        %    'Accept new results');
+                        
+                        if(~isempty(getappdata(hMainGui, 'uidiag_userchoice')))
+                            
+                            switch getappdata(hMainGui, 'uidiag_userchoice')
+                                case 'Discard result'
+                                    % Discard new results implies:
+                                    %   [1] Destroy the temporary directory where the
+                                    %       results have been stored
+                                    
+                                    sdb.results_validity = false;
+                                    sdb.results_overrite = false;
+                                    
+                                    
+                                case 'Accept result'
+                                    % Accept new results implies:
+                                    %   [1] Backup previous results in a new folder
+                                    %   [2] Remove all files contained in the analysis
+                                    %       folder
+                                    %   [3] Move all the result files from the temp dir
+                                    %       to analysis folder
+                                    %   [4] Destroy temporary results folder
+                                    
+                                    sdb.results_validity = true;
+                                    sdb.results_overrite = true;
+                                    sdb.results_backup = true;
+                                    
+                                otherwise
+                                    % Restore the previous situation considering saving
+                                    % all the new results obtained * this might happen if
+                                    % the user accidentally ask for an illegittimate
+                                    % operation.
+                                    %   [1] Backup previous results in a new folder
+                                    %   [2] Remove all files contained in the analysis
+                                    %       folder
+                                    %   [3] Move all the result files from the temp dir
+                                    %       to analysis folder
+                                    %   [4] Destroy temporary results folder
+                                    
+                                    sdb.results_validity = true;
+                                    sdb.results_overrite = false;
+                                    sdb.results_backup = false;
+                            end
+                            
+                            sdbExecStatus = sdb.DestroySandbox();
+                            waitfor(sdbExecStatus);
+                            SandboxGUIRedesign(0);
+                            
+                            argout = false;
+                            
                         end
-
-                        sdbExecStatus = sdb.DestroySandbox();
-                   
-                    end                            
-
+                    end
                 case 'Abort operations'
                     argout = false;
                     return;
@@ -805,9 +831,9 @@ if (intForce == 1)
     %arrayFiles = fields(stgObj.analysis_modules.Main.data);
     for r=1:intNumRows
         %idx = arrayFiles(i);
-
-       tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
-
+        
+        tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
+        
         
         %obj.(char(idx)) = objName.(char(idx));
         %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
@@ -830,25 +856,25 @@ else
             tmp = struct();
             tmp.main = struct(stgObj);
             
-    intNumRows = size(stgObj.analysis_modules.Main.data,1);
-    fieldsFile = {'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
-    tmpFileStruct = struct();
-    %arrayFiles = fields(stgObj.analysis_modules.Main.data);
-    for r=1:intNumRows
-        %idx = arrayFiles(i);
-
-       tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
-
-        
-        %obj.(char(idx)) = objName.(char(idx));
-        %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
-        
-        
-    end
-    
-    tmp.main.analysis_modules.Main.data = tmpFileStruct;
-    
-    struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
+            intNumRows = size(stgObj.analysis_modules.Main.data,1);
+            fieldsFile = {'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
+            tmpFileStruct = struct();
+            %arrayFiles = fields(stgObj.analysis_modules.Main.data);
+            for r=1:intNumRows
+                %idx = arrayFiles(i);
+                
+                tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
+                
+                
+                %obj.(char(idx)) = objName.(char(idx));
+                %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
+                
+                
+            end
+            
+            tmp.main.analysis_modules.Main.data = tmpFileStruct;
+            
+            struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
             
             argout = 0;
         case 'No'
