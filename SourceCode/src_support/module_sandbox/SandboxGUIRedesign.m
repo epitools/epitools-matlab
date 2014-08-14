@@ -1,8 +1,12 @@
-function SandboxGUIRedesign( intStatus )
+function SandboxGUIRedesign( intStatus, colBackground )
 %SANDOBOXGUIREDESIGN Summary of this function goes here
 %   Detailed explanation goes here
 fig = getappdata(0  , 'hMainGui');
 handles = guidata(fig);
+
+if nargin < 2
+    colBackground = [1.0000    0.7569    0.7569];
+end
 
 setappdata(fig,'uidiag_userchoice', '');
 
@@ -31,11 +35,10 @@ switch intStatus
         %a3 = get(handles.('figureA'), 'Children');
         
         %set(a3,'Visible', 'on');
-  
+        
     case 1
         
-        
-        set(fig, 'Color', [1 0 0]);
+        set(fig, 'Color', colBackground);
         
         % Deactivate single frame window configuration
         
@@ -93,6 +96,8 @@ switch intStatus
         set(handles.('uiBannerDialog02'), 'Callback',{@ctrlDiscardResult_callback});
         
         uiwait(fig);
+        
+   
         
 end
 
