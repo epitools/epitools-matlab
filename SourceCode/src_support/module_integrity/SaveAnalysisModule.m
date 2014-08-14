@@ -1,4 +1,3 @@
-
 function [argout,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName)
 % Global_SaveModule is intended to check for the presence of the module in
 % the setting file when a the user is about to run any analysis module
@@ -85,7 +84,7 @@ if(isappdata(hMainGui,'settings_objectname'))
                                     % Restore the previous situation considering saving
                                     % all the new results obtained * this might happen if
                                     % the user accidentally ask for an illegittimate
-                                    % operation.
+                                    % operation (needed for compiling standalone apps)
                                     %   [1] Backup previous results in a new folder
                                     %   [2] Remove all files contained in the analysis
                                     %       folder
