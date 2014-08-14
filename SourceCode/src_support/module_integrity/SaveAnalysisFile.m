@@ -37,7 +37,7 @@ if (intForce == 1)
     tmp.main.analysis_modules.Main.data = tmpFileStruct;
     
     struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
-    
+    argout = 1;
 else
     
     

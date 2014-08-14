@@ -135,7 +135,7 @@ if(~stgObj.exec_commandline)
             2 );
             
             StackView(ProjIm,'hMainGui','figureA');
-            SandboxGUIRedesign(0);
+            %SandboxGUIRedesign(0);
         
         else
             firstrun = load([stgObj.data_analysisindir,'/ProjIm']);

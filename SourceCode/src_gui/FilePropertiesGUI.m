@@ -494,10 +494,12 @@ stgObj.AddSetting('Main','data',get(handles.uitable1,'Data'));
 if(isempty(stgObj.data_analysisindir) == 1 && isempty(stgObj.data_fullpath) == 0)
     
     stgObj.data_analysisindir = strcat(stgObj.data_fullpath,'/Analysis');
-    stgObj.data_analysisoutdir = stgObj.data_analysisindir;
+    
     setappdata(hMainGui, 'settings_objectname', stgObj);
 end
 
+% Copy the analysisoutdir from analysisindir
+stgObj.data_analysisoutdir = stgObj.data_analysisindir;
 
 % If analysis folder does not exist even if it was set by the user
 if (isempty(stgObj.data_analysisindir) == 0)

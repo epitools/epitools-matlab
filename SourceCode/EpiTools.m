@@ -214,6 +214,9 @@ if(intOut)
     out = ProjectionGUI(stgObj);
     uiwait(out);
 end
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
 handles_connection(hObject,handles)
 
 
@@ -234,6 +237,8 @@ if(intOut)
     uiwait(out);
 end
 
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
 handles_connection(hObject,handles)
 
 
@@ -253,6 +258,8 @@ if(intOut)
     uiwait(out);
 end
 
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
 handles_connection(hObject,handles)
 
 
@@ -270,6 +277,8 @@ if(intOut)
     out = SegmentationGUI(stgObj);
     uiwait(out);
 end
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles);
 
@@ -290,6 +299,7 @@ if(intOut)
     uiwait(out);
 end
 
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
 
@@ -309,6 +319,8 @@ if(intOut)
     out = SkeletonConversion(stgObj);
     uiwait(out);
 end
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles);
 
@@ -337,6 +349,8 @@ stgObj.AddResult(strModuleName,'polygonal_mask_path',strcat(stgObj.data_analysis
 stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysisoutdir,'/CroppedCellLabels'));
 
 waitfor(polygonal_mask);
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
 

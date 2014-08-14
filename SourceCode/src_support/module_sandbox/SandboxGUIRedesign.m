@@ -5,7 +5,7 @@ fig = getappdata(0  , 'hMainGui');
 handles = guidata(fig);
 
 if nargin < 2
-    colBackground = [1.0000    0.7569    0.7569];
+    colBackground = [0.7882    0.2784    0.2784];
 end
 
 setappdata(fig,'uidiag_userchoice', '');
