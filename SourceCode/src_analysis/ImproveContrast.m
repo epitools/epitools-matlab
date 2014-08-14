@@ -1,4 +1,4 @@
-function ImproveContrast(stgObj)
+function [varargout] = ImproveContrast(stgObj)
 %ImproveContrast Improve image contrast by applying CLAHE
 %   CLAHE - Contrast-Limited Adaptive Histogram Equalization
 %   DataSpecificsPath - Path Data to analyze (See InspectData function)

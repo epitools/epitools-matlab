@@ -29,7 +29,7 @@ if(isappdata(hMainGui,'settings_objectname'))
             
             switch out
                 case 'Overrite module'
-                    Global_SaveAnalysis(hObject, handles);
+                    SaveAnalysisFile(hObject, handles);
                     
                 case 'Comparare executions'
                     
@@ -45,8 +45,7 @@ if(isappdata(hMainGui,'settings_objectname'))
                     waitfor(sdbExecStatus)
                     
                     SandboxGUIRedesign(1);
-                    
-                    
+                     
                     if (sdbExecStatus)
                         % Ask what to do with the results
                         

@@ -228,8 +228,12 @@ strModuleName = 'Stack_Registration';
 
 [intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
-out = RegistrationGUI(stgObj);
-uiwait(out);
+
+if(intOut)
+    out = RegistrationGUI(stgObj);
+    uiwait(out);
+end
+
 handles_connection(hObject,handles)
 
 
@@ -243,8 +247,12 @@ strModuleName = 'Contrast_Enhancement';
 
 [intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
-out = ImproveContrastGUI(stgObj);
-uiwait(out);
+
+if(intOut)
+    out = ImproveContrastGUI(stgObj);
+    uiwait(out);
+end
+
 handles_connection(hObject,handles)
 
 
@@ -258,8 +266,11 @@ strModuleName = 'Segmentation';
 
 [intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
-out = SegmentationGUI(stgObj);
-uiwait(out);
+if(intOut)
+    out = SegmentationGUI(stgObj);
+    uiwait(out);
+end
+
 handles_connection(hObject,handles);
 
 
@@ -273,8 +284,13 @@ strModuleName = 'Tracking';
 
 [intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
-out = TrackingIntroGUI(stgObj);
-uiwait(out);
+
+if(intOut)
+    out = TrackingIntroGUI(stgObj);
+    uiwait(out);
+end
+
+
 handles_connection(hObject,handles)
 
 
@@ -288,8 +304,12 @@ strModuleName = 'Skeletons';
 
 [intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
-SkeletonConversion(stgObj);
-uiwait;
+
+if(intOut)
+    out = SkeletonConversion(stgObj);
+    uiwait(out);
+end
+
 handles_connection(hObject,handles);
 
 

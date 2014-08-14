@@ -1,4 +1,4 @@
-function Segmentation(stgObj)
+function [varargout] =  Segmentation(stgObj)
 %Segmentation Segmenents the Projected Images
 %   DataSpecificsPath - Path Data to analyze (See InspectData function)
 %   params - parameter structure for the segmentation algorithm

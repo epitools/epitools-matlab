@@ -1,4 +1,4 @@
-function CropSegmentation( DataSpecificsPath )
+function [varargout] = CropSegmentation( DataSpecificsPath )
 %CropSegmentation Improve image contrast by applying CLAHE
 %   CLAHE - Contrast-Limited Adaptive Histogram Equalization
 %   DataSpecificsPath - Path Data to analyze (See InspectData function)

@@ -1,4 +1,4 @@
-function TrackingLauncher(stgObj)
+function [varargout] =  TrackingLauncher(stgObj)
 %TrackingGUILauncher launches the interface that allows the user to correct
 %the segmentation results of the Epitools segmnetation. Find more
 %explanation in TrackingGUIwOldOK.m 
