@@ -209,7 +209,7 @@ function A_Proj_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Projection';
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 if(intOut)
     out = ProjectionGUI(stgObj);
     uiwait(out);
@@ -226,7 +226,7 @@ hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Stack_Registration';
 
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
 out = RegistrationGUI(stgObj);
 uiwait(out);
@@ -241,7 +241,7 @@ function A_CLAHE_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Contrast_Enhancement';
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
 out = ImproveContrastGUI(stgObj);
 uiwait(out);
@@ -256,7 +256,7 @@ function A_Segmentation_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Segmentation';
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
 out = SegmentationGUI(stgObj);
 uiwait(out);
@@ -271,7 +271,7 @@ function A_Tracking_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Tracking';
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
 out = TrackingIntroGUI(stgObj);
 uiwait(out);
@@ -286,7 +286,7 @@ function A_Skeletons_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Skeletons';
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
 SkeletonConversion(stgObj);
 uiwait;
@@ -303,7 +303,7 @@ stgObj = getappdata(hMainGui,'settings_objectname');
 
 strModuleName = 'Polygon_Masking';
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+intOut = SaveAnalysisModule(hObject, handles, strModuleName);
 
 tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
 tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
@@ -355,7 +355,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         % Ask if you want to save it before generate a new one
-        interrupt = Global_SaveAnalysis(hObject, handles);
+        interrupt = SaveAnalysisFile(hObject, handles);
         
         if (interrupt == 1)
             return;
@@ -391,7 +391,7 @@ end
 out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
 uiwait(out);
 
-Global_SaveAnalysis(hObject, handles, 1);
+SaveAnalysisFile(hObject, handles, 1);
 stgObj = getappdata(hMainGui,'settings_objectname');
 
 % logging on external device
@@ -425,7 +425,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         % Ask if you want to save it before generate a new one
-        interrupt = Global_SaveAnalysis(hObject, handles);
+        interrupt = SaveAnalysisFile(hObject, handles);
         
         if (interrupt == 1)
             return;
@@ -530,7 +530,7 @@ function F_Save_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-Global_SaveAnalysis(hObject, handles);
+SaveAnalysisFile(hObject, handles);
 
 
 % --------------------------------------------------------------------
@@ -564,7 +564,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         % Ask if you want to save it before closing the application
-        interrupt = Global_SaveAnalysis(hObject, handles);
+        interrupt = SaveAnalysisFile(hObject, handles);
         
         if (interrupt == 1)
             return
@@ -674,214 +674,3 @@ function uiBannerDialog01_Callback(hObject, eventdata, handles)
 % hObject    handle to uiBannerDialog01 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-
-
-% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-% Global Functions
-% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-function [argout,stgObj] = Global_SaveModule(hObject, handles, strModuleName)
-% Global_SaveModule is intended to check for the presence of the module in
-% the setting file when a the user is about to run any analysis module
-% during the current session of the analysis.
-hMainGui = getappdata(0, 'hMainGui');
-
-argout = true;
-
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        
-        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
-            
-            % When the module has been already executed during the course of the
-            % current analysis, the program will ask to the user if he wants to
-            % run a comparative analysis. If yes, then it runs everything in a
-            % sandbox where the previous modules are stored until the user
-            % decides if he wants to keep or discard them.
-            
-            out = questdlg(sprintf('The analysis module [%s] you are attempting to execute is already present in your analysis.\n\n How do you want to proceed?', strModuleName),...
-                'Control workflow of analysis modules',...
-                'Overrite module',...
-                'Comparare executions',...
-                'Abort operations',...
-                'Abort operations');
-            
-            switch out
-                case 'Overrite module'
-                    Global_SaveAnalysis(hObject, handles);
-                    
-                case 'Comparare executions'
-                    
-                    % Initilization sandbox for the current module
-                    sdb = sandbox();
-                    
-                    % Create the variables for the current module
-                    sdb.CreateSandbox(strModuleName,stgObj);
-                    
-                    % Re-run the module in a sandbox environment
-                    sdbExecStatus = sdb.Run();
-                    
-                    waitfor(sdbExecStatus)
-                    
-                    SandboxGUIRedesign(1);
-                    
-                    
-                    if (sdbExecStatus)
-                        % Ask what to do with the results
-                        
-                        
-                        %out = questdlg(sprintf('The analysis has been completed.\n\nWhat do you want to do with the results?'),...
-                        %    'Control workflow of analysis modules',...
-                        %    'Discard new results',...
-                        %    'Accept new results',...
-                        %    'Accept new results');
-                        
-                        if(~isempty(getappdata(hMainGui, 'uidiag_userchoice')))
-                            
-                            switch getappdata(hMainGui, 'uidiag_userchoice')
-                                case 'Discard result'
-                                    % Discard new results implies:
-                                    %   [1] Destroy the temporary directory where the
-                                    %       results have been stored
-                                    
-                                    sdb.results_validity = false;
-                                    sdb.results_overrite = false;
-                                    
-                                    
-                                case 'Accept result'
-                                    % Accept new results implies:
-                                    %   [1] Backup previous results in a new folder
-                                    %   [2] Remove all files contained in the analysis
-                                    %       folder
-                                    %   [3] Move all the result files from the temp dir
-                                    %       to analysis folder
-                                    %   [4] Destroy temporary results folder
-                                    
-                                    sdb.results_validity = true;
-                                    sdb.results_overrite = true;
-                                    sdb.results_backup = true;
-                                    
-                                otherwise
-                                    % Restore the previous situation considering saving
-                                    % all the new results obtained * this might happen if
-                                    % the user accidentally ask for an illegittimate
-                                    % operation.
-                                    %   [1] Backup previous results in a new folder
-                                    %   [2] Remove all files contained in the analysis
-                                    %       folder
-                                    %   [3] Move all the result files from the temp dir
-                                    %       to analysis folder
-                                    %   [4] Destroy temporary results folder
-                                    
-                                    sdb.results_validity = true;
-                                    sdb.results_overrite = false;
-                                    sdb.results_backup = false;
-                            end
-                            
-                            sdbExecStatus = sdb.DestroySandbox();
-                            waitfor(sdbExecStatus);
-                            SandboxGUIRedesign(0);
-                            
-                            argout = false;
-                            
-                        end
-                    end
-                case 'Abort operations'
-                    argout = false;
-                    return;
-            end
-            
-        else
-            
-            stgObj.CreateModule(strModuleName);
-            setappdata(hMainGui, 'settings_objectname', stgObj);
-            
-        end
-    end
-    
-end
-
-
-function argout = Global_SaveAnalysis(hObject, handles, intForce)
-hMainGui = getappdata(0, 'hMainGui');
-strRootPath = getappdata(hMainGui,'settings_rootpath');
-stgObj = getappdata(hMainGui,'settings_objectname');
-
-if nargin < 3
-    
-    intForce = 0;
-    
-end
-
-
-if (intForce == 1)
-    
-    
-    %save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
-    tmp = struct();
-    tmp.main = struct(stgObj);
-    
-    
-    intNumRows = size(stgObj.analysis_modules.Main.data,1);
-    fieldsFile = {'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
-    tmpFileStruct = struct();
-    %arrayFiles = fields(stgObj.analysis_modules.Main.data);
-    for r=1:intNumRows
-        %idx = arrayFiles(i);
-        
-        tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
-        
-        
-        %obj.(char(idx)) = objName.(char(idx));
-        %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
-        
-        
-    end
-    
-    tmp.main.analysis_modules.Main.data = tmpFileStruct;
-    
-    struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
-    
-else
-    
-    
-    out = questdlg('Would you like to save the current analysis?', 'Save analysis','Yes', 'No','Abort', 'Abort');
-    
-    switch out
-        case 'Yes'
-            
-            tmp = struct();
-            tmp.main = struct(stgObj);
-            
-            intNumRows = size(stgObj.analysis_modules.Main.data,1);
-            fieldsFile = {'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
-            tmpFileStruct = struct();
-            %arrayFiles = fields(stgObj.analysis_modules.Main.data);
-            for r=1:intNumRows
-                %idx = arrayFiles(i);
-                
-                tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
-                
-                
-                %obj.(char(idx)) = objName.(char(idx));
-                %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
-                
-                
-            end
-            
-            tmp.main.analysis_modules.Main.data = tmpFileStruct;
-            
-            struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
-            
-            argout = 0;
-        case 'No'
-            
-            %msgbox('Changes have been discarded');
-            argout = 0;
-        case 'Abort'
-            argout = 1;
-    end
-end
