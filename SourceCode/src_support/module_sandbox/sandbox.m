@@ -30,12 +30,12 @@ classdef sandbox < handle
             
             sdb.sandbox_status = 1;
             sdb.module_name = '';
-            sdb.analysis_tmpdirpath = randChar(5,1, char(['a':'z' '0':'9']));
+            sdb.analysis_tmpdirpath = randChar(10,1, char(['a':'z' '0':'9']));
             sdb.analysis_settings = struct();
             sdb.results_validity = true;
             sdb.results_overrite = false;
             sdb.results_backup = false;
-            sdb.backup_directory = strcat('backup_',randChar(5,1, char(['a':'z' '0':'9'])));
+            sdb.backup_directory = strcat('backup_',randChar(10,1, char(['a':'z' '0':'9'])));
             sdb.backup_validity = false;
             
         end
