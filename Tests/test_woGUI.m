@@ -14,7 +14,7 @@ BenchmarkDirec = 'Benchmark';
 
 ds = settings();
 
-ds.data_analysisdir = [TestData,'Analysis'];
+ds.data_analysisindir = [TestData,'Analysis'];
 ds.data_imagepath = [TestData,'test_set16bit.tif'];
 ds.platform_units = 1;
  

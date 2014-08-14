@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 07-Aug-2014 17:00:26
+% Last Modified by GUIDE v2.5 13-Aug-2014 11:28:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -165,7 +165,7 @@ if (get(hObject,'Value') == get(hObject,'Max'))
             fprintf('ERROR, current icy path is not valid: %s\n',icy_path);
             icy_path = 'none';
         end
-    else      
+    else
         icy_is_used = 1;
     end
     
@@ -179,14 +179,14 @@ if (get(hObject,'Value') == get(hObject,'Max'))
     setappdata(hMainGui,'icy_path',icy_path);
     setappdata(hMainGui,'icy_is_loaded',icy_is_loaded);
     setappdata(hMainGui,'icy_is_used',icy_is_used);
-   
+    
 else
     %checkbox is deselected
     setappdata(hMainGui,'icy_is_used',0);
     
 end
 
-%set preference in settings object if one exists 
+%set preference in settings object if one exists
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         stgObj = getappdata(hMainGui,'settings_objectname');
@@ -209,10 +209,11 @@ function A_Proj_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Projection';
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
-
-out = ProjectionGUI(stgObj);
-uiwait(out);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
+if(intOut)
+    out = ProjectionGUI(stgObj);
+    uiwait(out);
+end
 handles_connection(hObject,handles)
 
 
@@ -225,10 +226,14 @@ hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Stack_Registration';
 
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
-out = RegistrationGUI(stgObj);
-uiwait(out);
+
+if(intOut)
+    out = RegistrationGUI(stgObj);
+    uiwait(out);
+end
+
 handles_connection(hObject,handles)
 
 
@@ -240,10 +245,14 @@ function A_CLAHE_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Contrast_Enhancement';
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
-out = ImproveContrastGUI(stgObj);
-uiwait(out);
+
+if(intOut)
+    out = ImproveContrastGUI(stgObj);
+    uiwait(out);
+end
+
 handles_connection(hObject,handles)
 
 
@@ -255,10 +264,13 @@ function A_Segmentation_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Segmentation';
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
-out = SegmentationGUI(stgObj);
-uiwait(out);
+if(intOut)
+    out = SegmentationGUI(stgObj);
+    uiwait(out);
+end
+
 handles_connection(hObject,handles);
 
 
@@ -270,10 +282,15 @@ function A_Tracking_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Tracking';
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
-out = TrackingIntroGUI(stgObj);
-uiwait(out);
+
+if(intOut)
+    out = TrackingIntroGUI(stgObj);
+    uiwait(out);
+end
+
+
 handles_connection(hObject,handles)
 
 
@@ -285,10 +302,14 @@ function A_Skeletons_Callback(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Skeletons';
 
-[intOut,stgObj] = Global_SaveModule(hObject, handles, strModuleName);
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
 
-SkeletonConversion(stgObj);
-uiwait;
+
+if(intOut)
+    out = SkeletonConversion(stgObj);
+    uiwait(out);
+end
+
 handles_connection(hObject,handles);
 
 
@@ -302,23 +323,22 @@ stgObj = getappdata(hMainGui,'settings_objectname');
 
 strModuleName = 'Polygon_Masking';
 
-intOut = Global_SaveModule(hObject, handles, strModuleName);
+intOut = SaveAnalysisModule(hObject, handles, strModuleName);
 
-tmpSegObj = load([stgObj.data_analysisdir,'/SegResults']);
-tmpRegObj = load([stgObj.data_analysisdir,'/RegIm']);
+tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
+tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
 
 [polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
 
-save([stgObj.data_analysisdir,'/PoligonalMask'],'polygonal_mask');
-save([stgObj.data_analysisdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
+save([stgObj.data_analysisoutdir,'/PoligonalMask'],'polygonal_mask');
+save([stgObj.data_analysisoutdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
 
-stgObj.AddResult(strModuleName,'polygonal_mask_path',strcat(stgObj.data_analysisdir,'/PoligonalMask'));
-stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysisdir,'/CroppedCellLabels'));
+stgObj.AddResult(strModuleName,'polygonal_mask_path',strcat(stgObj.data_analysisoutdir,'/PoligonalMask'));
+stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysisoutdir,'/CroppedCellLabels'));
 
 waitfor(polygonal_mask);
 
 handles_connection(hObject,handles)
-
 
 
 
@@ -355,7 +375,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         % Ask if you want to save it before generate a new one
-        interrupt = Global_SaveAnalysis(hObject, handles);
+        interrupt = SaveAnalysisFile(hObject, handles);
         
         if (interrupt == 1)
             return;
@@ -376,7 +396,7 @@ if(strPathAnalysisFile)
     stgObj.CreateModule('Main');
     setappdata(hMainGui, 'settings_objectname', stgObj);
     stgObj.data_fullpath = strPathAnalysisFile;
-
+    
 else
     return;
 end
@@ -391,11 +411,11 @@ end
 out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
 uiwait(out);
 
-Global_SaveAnalysis(hObject, handles, 1);
+SaveAnalysisFile(hObject, handles, 1);
 stgObj = getappdata(hMainGui,'settings_objectname');
 
 % logging on external device
-diary(strcat(stgObj.data_fullpath,'/out-',datestr(now,30),'.log'));
+diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
 diary on;
 
 % Parallel
@@ -425,7 +445,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         % Ask if you want to save it before generate a new one
-        interrupt = Global_SaveAnalysis(hObject, handles);
+        interrupt = SaveAnalysisFile(hObject, handles);
         
         if (interrupt == 1)
             return;
@@ -442,7 +462,7 @@ if(strSettingFilePath)
     
     stgObj = xml_read([strSettingFilePath,strSettingFileName]);
     stgObj = settings(stgObj);
-
+    
     arrayFiles = fields(stgObj.analysis_modules.Main.data);
     tmpFileStruct = {};
     for i=1:numel(arrayFiles)
@@ -467,7 +487,7 @@ if(strSettingFilePath)
         stgObj.analysis_version,...
         stgObj.user_name ),...
         'Operation succesfully completed','help');
-
+    
     % Parallel
     installed_toolboxes=ver;
     if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
@@ -479,9 +499,9 @@ if(strSettingFilePath)
     %Check if icy is in use
     stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
     
-    diary(strcat(stgObj.data_fullpath,'out-',datestr(now,30),'log'));
+    diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
     diary on;
-
+    
     handles_connection(hObject, handles)
 end
 
@@ -530,7 +550,7 @@ function F_Save_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-Global_SaveAnalysis(hObject, handles);
+SaveAnalysisFile(hObject, handles);
 
 
 % --------------------------------------------------------------------
@@ -544,7 +564,7 @@ hMainGui = getappdata(0, 'hMainGui');
 if(getappdata(hMainGui,'settings_objectname') ~= 0)
     
     out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
-    uiwait(out);
+    %uiwait(out);
 else
     msgbox('No analysis file loaded!');
 end
@@ -564,7 +584,7 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         % Ask if you want to save it before closing the application
-        interrupt = Global_SaveAnalysis(hObject, handles);
+        interrupt = SaveAnalysisFile(hObject, handles);
         
         if (interrupt == 1)
             return
@@ -662,126 +682,15 @@ function uipanel5_ResizeFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-% Global Functions
-% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-function [argout,stgObj] = Global_SaveModule(hObject, handles, strModuleName)
-% Global_SaveModule is intended to check for the presence of the module in
-% the setting file when a the user is about to run any analysis module
-% during the current session of the analysis. 
-
-hMainGui = getappdata(0, 'hMainGui');
-
-argout = 0;
-
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        
-        if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
-            
-            out = questdlg(sprintf('If you proceed with this action, I will delete some previously generated results...\n\n Would you like to override %s results?', strModuleName), 'Override analysis module','Yes', 'No','No');
-            
-            switch out
-                case 'Yes'
-                    Global_SaveAnalysis(hObject, handles);
-                    
-                case 'No'
-                    %helpdlg(sprintf('Allright, everything is perfectly fine... \n I used my magic powers and all your results are safe and sound!'), 'Analysis restoring...');
-                    return;
-            end
-            
-        else
-            
-            stgObj.CreateModule(strModuleName);
-            setappdata(hMainGui, 'settings_objectname', stgObj);
-            
-        end
-    end
-    
-end
+% --- Executes on button press in uiBannerDialog02.
+function uiBannerDialog02_Callback(hObject, eventdata, handles)
+% hObject    handle to uiBannerDialog02 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
 
-function argout = Global_SaveAnalysis(hObject, handles, intForce)
-hMainGui = getappdata(0, 'hMainGui');
-strRootPath = getappdata(hMainGui,'settings_rootpath');
-stgObj = getappdata(hMainGui,'settings_objectname');
-
-if nargin < 3
-    
-    intForce = 0;
-    
-end
-
-
-if (intForce == 1)
-    
-    
-    %save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
-    tmp = struct();
-    tmp.main = struct(stgObj);
-    
-    
-    intNumRows = size(stgObj.analysis_modules.Main.data,1);
-    fieldsFile = {'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
-    tmpFileStruct = struct();
-    %arrayFiles = fields(stgObj.analysis_modules.Main.data);
-    for r=1:intNumRows
-        %idx = arrayFiles(i);
-
-       tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
-
-        
-        %obj.(char(idx)) = objName.(char(idx));
-        %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
-        
-        
-    end
-    
-    tmp.main.analysis_modules.Main.data = tmpFileStruct;
-    
-    struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
-    
-else
-    
-    
-    out = questdlg('Would you like to save the current analysis?', 'Save analysis','Yes', 'No','Abort', 'Abort');
-    
-    switch out
-        case 'Yes'
-            
-            tmp = struct();
-            tmp.main = struct(stgObj);
-            
-    intNumRows = size(stgObj.analysis_modules.Main.data,1);
-    fieldsFile = {'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
-    tmpFileStruct = struct();
-    %arrayFiles = fields(stgObj.analysis_modules.Main.data);
-    for r=1:intNumRows
-        %idx = arrayFiles(i);
-
-       tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
-
-        
-        %obj.(char(idx)) = objName.(char(idx));
-        %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
-        
-        
-    end
-    
-    tmp.main.analysis_modules.Main.data = tmpFileStruct;
-    
-    struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
-            
-            argout = 0;
-        case 'No'
-            
-            msgbox('Changes have been discarded');
-            argout = 0;
-        case 'Abort'
-            argout = 1;
-    end
-end
+% --- Executes on button press in uiBannerDialog01.
+function uiBannerDialog01_Callback(hObject, eventdata, handles)
+% hObject    handle to uiBannerDialog01 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
