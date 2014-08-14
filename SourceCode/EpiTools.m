@@ -499,7 +499,7 @@ if(strSettingFilePath)
     %Check if icy is in use
     stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
     
-    diary([stgObj.data_fullpath,'out-',datestr(now,30),'log']);
+    diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
     diary on;
     
     handles_connection(hObject, handles)
