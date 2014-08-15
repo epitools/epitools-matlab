@@ -100,7 +100,7 @@ if show  figure; imshow(ColIm,[]);  end
         ColIm(:,:,1) = .7*double(cellBoundaries(:,:)) + ColIm(:,:,1).*(1-double(cellBoundaries(:,:)));
         ColIm(:,:,2) = .2*double(cellBoundaries(:,:)) + ColIm(:,:,2).*(1-double(cellBoundaries(:,:)));
         ColIm(:,:,3) = .2*double(cellBoundaries(:,:)) + ColIm(:,:,3).*(1-double(cellBoundaries(:,:)));
-%         ColIm = cast(ColIm*255, 'uint8');                 %todo: typecasting
+        %ColIm = cast(ColIm*255, 'uint8');                 %todo: typecasting
     end
 
     function DoInitialSeeding()
