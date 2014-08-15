@@ -1,7 +1,7 @@
 function [] = CheckInputType(ds, input_string)
 %CHECKINPUTTYPE checks the type of the input object
 
-    loaded_image = load([ds.data_analysisdir,'/',input_string]);
+    loaded_image = load([ds.data_analysisindir,'/',input_string]);
     
     if isa(loaded_image,'struct')
         fields = fieldnames(loaded_image);

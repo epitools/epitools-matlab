@@ -19,7 +19,7 @@ end
 
 
 % inspect results
-if stgObj.hasModule('Main')
+if ~stgObj.exec_commandline
     if(stgObj.icy_is_used)
         icy_vidshow(RegIm,'Registered Sequence');
     else

@@ -12,11 +12,21 @@ TestData = [pwd,'/8bitDataSet/'];
 
 ds = settings();
 
-ds.data_analysisdir = [TestData,'Analysis'];
-ds.data_imagepath = [TestData,'test_set.tif'];
+ds.data_analysisindir = [TestData,'Analysis'];
+ds.data_analysisoutdir = [TestData,'Analysis'];
+ds.data_imagepath = TestData;
 ds.data_benchmarkdir = [TestData,'Benchmark'];
+ds.exec_commandline = true;
 ds.platform_units = 1;
  
+%% Fix to make data read possible (needs gui created metafiles!)
+
+strModuleName = 'Main';
+ds.CreateModule(strModuleName);
+
+LoadEtMetaData(ds);
+%now ds.analysis_modules.Main.data(:,:) contains all the image data
+
 %% Surface Projection
 
 strModuleName = 'Projection';
@@ -39,8 +49,8 @@ CheckInputType(ds, 'ProjIm');
 CheckInputType(ds, 'Surfaces');
 
 %% now test that files generated are the same
-CompareFiles([ds.data_analysisdir,'/ProjIm'] , [ds.data_benchmarkdir,'/ProjIm']);
-CompareFiles([ds.data_analysisdir,'/Surfaces'] , [ds.data_benchmarkdir,'/Surfaces']);
+CompareFiles([ds.data_analysisindir,'/ProjIm'] , [ds.data_benchmarkdir,'/ProjIm']);
+CompareFiles([ds.data_analysisindir,'/Surfaces'] , [ds.data_benchmarkdir,'/Surfaces']);
 
 %% Time Series Registration
 strModuleName = 'Stack_Registration';
@@ -54,7 +64,7 @@ Registration(ds);
 CheckInputType(ds, 'RegIm');
 
 %% now test that files generated are the same
-CompareFiles([ds.data_analysisdir,'/RegIm'] , [ds.data_benchmarkdir,'/RegIm_woClahe']);
+CompareFiles([ds.data_analysisindir,'/RegIm'] , [ds.data_benchmarkdir,'/RegIm_woClahe']);
 
 %% Apply CLAHE
 strModuleName = 'Contrast_Enhancement';
@@ -67,7 +77,7 @@ ImproveContrast(ds);
 CheckInputType(ds, 'RegIm');
 
 %% now test that files generated are the same
-CompareFiles([ds.data_analysisdir,'/RegIm'] , [ds.data_benchmarkdir,'/RegIm_wClahe']);
+CompareFiles([ds.data_analysisindir,'/RegIm'] , [ds.data_benchmarkdir,'/RegIm_wClahe']);
 
 %% Segmentation parameters:
 strModuleName = 'Segmentation';
@@ -100,8 +110,8 @@ CheckInputType(ds, 'SegResults');
 
 %% now test that files generated are the same
 
-CompareFiles([ds.data_analysisdir,'/SegResults'], [ds.data_benchmarkdir,'/SegResults']);
-CompareFiles([ds.data_analysisdir,'/TrackingStart'], [ds.data_benchmarkdir,'/TrackingStart']);
+CompareFiles([ds.data_analysisindir,'/SegResults'], [ds.data_benchmarkdir,'/SegResults']);
+CompareFiles([ds.data_analysisindir,'/TrackingStart'], [ds.data_benchmarkdir,'/TrackingStart']);
 
 %% Clean up
 
