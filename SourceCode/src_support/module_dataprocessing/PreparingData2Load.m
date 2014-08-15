@@ -47,7 +47,12 @@ idxPoints.T = convertInput2Mat(11);
                     end
                 
                 otherwise
-
+                                    
+                    % Discard files where exec property is 0
+                    if(logical(cell2mat(stgObj.analysis_modules.Main.data(i,8))) == false)
+                        continue;
+                    end
+                    
                     % all the ranges
                     ans1 = regexp(regexp(char(stgObj.analysis_modules.Main.data(i,intItem2Extract)), '([0-9]*)-([0-9]*)', 'match'),'-','split');
                     
