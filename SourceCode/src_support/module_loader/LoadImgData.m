@@ -1,5 +1,7 @@
   function [ImgStack] = LoadImgData(strFullPathFile, imgIDX, arrayIndices)
     
+% initialize logging
+loci.common.DebugTools.enableLogging('INFO');
     
     Z = arrayIndices.Z(imgIDX,:) - 1 ;
     C = arrayIndices.C(imgIDX,:) - 1 ;
