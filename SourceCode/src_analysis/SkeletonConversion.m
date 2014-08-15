@@ -41,12 +41,18 @@ for i = 1:frame_no
     progressbar(i/frame_no);
 end
 
+%% Saving results
+stgObj.AddResult('Skeletons','skeletons_path',strcat(stgObj.data_analysisoutdir,'/skeletons'));
+
 progressbar(1);
 
-hMainGui = getappdata(0  , 'hMainGui');
-if(ishandle(hMainGui))
-    uiresume(hMainGui);
-end
+varargout{1} = 1;
+% 
+% hMainGui = getappdata(0  , 'hMainGui');
+% if(ishandle(hMainGui))
+%     uiresume(hMainGui);
+% end
+
 
 end
 

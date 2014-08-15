@@ -317,7 +317,7 @@ strModuleName = 'Skeletons';
 
 if(intOut)
     out = SkeletonConversion(stgObj);
-    uiwait(out);
+    waitfor(out);
 end
 
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
