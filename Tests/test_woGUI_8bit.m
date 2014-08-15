@@ -10,12 +10,11 @@ cd(file_path);
 
 TestData = [pwd,'/8bitDataSet/'];
 
-BenchmarkDirec = 'Benchmark';
-
 ds = settings();
 
 ds.data_analysisdir = [TestData,'Analysis'];
 ds.data_imagepath = [TestData,'test_set.tif'];
+ds.data_benchmarkdir = [TestData,'Benchmark'];
 ds.platform_units = 1;
  
 %% Surface Projection
@@ -26,9 +25,9 @@ ds.CreateModule(strModuleName);
 % how much smoothing to apply to original data - default 1 [1-5]
 ds.AddSetting(strModuleName, 'SmoothingRadius', 1.0); 
 % 1st surface fitting, surface stiffness - default 100 [50 - 200]
-ds.AddSetting(strModuleName, 'SurfSmoothness1', 100);        
+ds.AddSetting(strModuleName, 'SurfSmoothness1', 30);        
 % 2nd surface fitting, stiffness          - default 30 [10 - 50]
-ds.AddSetting(strModuleName, 'SurfSmoothness2', 35);
+ds.AddSetting(strModuleName, 'SurfSmoothness2', 20);
 % how much up/down to gather data from surface - default 1.2 [1 - 3]
 ds.AddSetting(strModuleName, 'ProjectionDepthThreshold', 1.2);
 % show fit or not
@@ -37,10 +36,11 @@ ds.AddSetting(strModuleName, 'InspectResults', false);
 Projection(ds);
 
 CheckInputType(ds, 'ProjIm');
+CheckInputType(ds, 'Surfaces');
 
 %% now test that files generated are the same
-CompareFiles('Data/Analysis/ProjIm' , 'Data/Benchmark/ProjIm');
-CompareFiles('Data/Analysis/Surfaces' , 'Data/Benchmark/Surfaces');
+CompareFiles([ds.data_analysisdir,'/ProjIm'] , [ds.data_benchmarkdir,'/ProjIm']);
+CompareFiles([ds.data_analysisdir,'/Surfaces'] , [ds.data_benchmarkdir,'/Surfaces']);
 
 %% Time Series Registration
 strModuleName = 'Stack_Registration';
@@ -54,7 +54,7 @@ Registration(ds);
 CheckInputType(ds, 'RegIm');
 
 %% now test that files generated are the same
-CompareFiles('Data/Analysis/RegIm' , 'Data/Benchmark/RegIm');
+CompareFiles([ds.data_analysisdir,'/RegIm'] , [ds.data_benchmarkdir,'/RegIm_woClahe']);
 
 %% Apply CLAHE
 strModuleName = 'Contrast_Enhancement';
@@ -65,6 +65,9 @@ ds.AddSetting(strModuleName, 'enhancement_limit', 0.02);
 ImproveContrast(ds);
 
 CheckInputType(ds, 'RegIm');
+
+%% now test that files generated are the same
+CompareFiles([ds.data_analysisdir,'/RegIm'] , [ds.data_benchmarkdir,'/RegIm_wClahe']);
 
 %% Segmentation parameters:
 strModuleName = 'Segmentation';
@@ -91,14 +94,15 @@ ds.AddSetting(strModuleName, 'debug', false);
 ds.AddSetting(strModuleName, 'Parallel', false);
 ds.AddSetting(strModuleName, 'SingleFrame', false);
 
-
 Segmentation(ds);
 
 CheckInputType(ds, 'SegResults');
 
 %% now test that files generated are the same
-CompareFiles('Data/Analysis/SegResults', 'Data/Benchmark/SegResults');
-CompareFiles('Data/Analysis/TrackingStart', 'Data/Benchmark/TrackingStart');
 
-% load('/Users/alexandertournier/Documents/CRUK-UCL/Yanlan/epitools/Tests/Data/Analysis/SegResults.mat');
-% StackView(ColIms);
+CompareFiles([ds.data_analysisdir,'/SegResults'], [ds.data_benchmarkdir,'/SegResults']);
+CompareFiles([ds.data_analysisdir,'/TrackingStart'], [ds.data_benchmarkdir,'/TrackingStart']);
+
+%% Clean up
+
+close all

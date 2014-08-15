@@ -10,12 +10,11 @@ cd(file_path);
 
 TestData = [pwd,'/Data/'];
 
-BenchmarkDirec = 'Benchmark';
-
 ds = settings();
 
 ds.data_analysisdir = [TestData,'Analysis'];
 ds.data_imagepath = [TestData,'test_set16bit.tif'];
+ds.data_benchmarkdir = [TestData,'Benchmark'];
 ds.platform_units = 1;
  
 %% Surface Projection
@@ -39,8 +38,8 @@ Projection(ds);
 CheckInputType(ds, 'ProjIm');
 
 %% now test that files generated are the same
-CompareFiles('Data/Analysis/ProjIm' , 'Data/Benchmark/ProjIm');
-CompareFiles('Data/Analysis/Surfaces' , 'Data/Benchmark/Surfaces');
+CompareFiles([ds.data_analysisdir,'/ProjIm'] , [ds.data_benchmarkdir,'/ProjIm']);
+CompareFiles([ds.data_analysisdir,'/Surfaces'] , [ds.data_benchmarkdir,'/Surfaces']);
 
 %% Time Series Registration
 strModuleName = 'Stack_Registration';
@@ -53,18 +52,8 @@ Registration(ds);
 
 CheckInputType(ds, 'RegIm');
 
-%% Apply CLAHE
-strModuleName = 'Contrast_Enhancement';
-ds.CreateModule(strModuleName);
-
-ds.AddSetting(strModuleName, 'enhancement_limit', 0.02);
-
-ImproveContrast(ds);
-
-CheckInputType(ds, 'RegIm');
-
 %% now test that files generated are the same
-CompareFiles('Data/Analysis/RegIm' , 'Data/Benchmark/RegIm');
+CompareFiles([ds.data_analysisdir,'/RegIm'] , [ds.data_benchmarkdir,'/RegIm']);
 
 %% Segmentation parameters:
 strModuleName = 'Segmentation';
@@ -91,14 +80,18 @@ ds.AddSetting(strModuleName, 'debug', false);
 ds.AddSetting(strModuleName, 'Parallel', false);
 ds.AddSetting(strModuleName, 'SingleFrame', false);
 
-
 Segmentation(ds);
 
 CheckInputType(ds, 'SegResults');
 
 %% now test that files generated are the same
-CompareFiles('Data/Analysis/SegResults', 'Data/Benchmark/SegResults');
-CompareFiles('Data/Analysis/TrackingStart', 'Data/Benchmark/TrackingStart');
+
+CompareFiles([ds.data_analysisdir,'/SegResults'], [ds.data_benchmarkdir,'/SegResults']);
+CompareFiles([ds.data_analysisdir,'/TrackingStart'], [ds.data_benchmarkdir,'/TrackingStart']);
 
 % load('/Users/alexandertournier/Documents/CRUK-UCL/Yanlan/epitools/Tests/Data/Analysis/SegResults.mat');
 % StackView(ColIms);
+
+%% clean up
+
+close all
