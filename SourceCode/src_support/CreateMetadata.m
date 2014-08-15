@@ -200,6 +200,8 @@ if(stgObj.platform_units ~= 1)
         %percent = pbar.progress;
         %progressbar(percent);
         ppm.increment(i)
+        
+        reader.close();
     end
     
 else
@@ -238,6 +240,7 @@ else
         %percent = pbar.progress;
         %progressbar(percent);
         ppm.increment(i)
+        reader.close();
     end
     
 end
