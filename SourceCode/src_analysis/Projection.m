@@ -146,7 +146,7 @@ if(~stgObj.exec_commandline)
         end
     end
 else
-    StackView(ProjIm)
+    StackView(ProjIm);
 end
 end
 

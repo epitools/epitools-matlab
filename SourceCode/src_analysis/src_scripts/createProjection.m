@@ -101,23 +101,27 @@ if ShowProcess
     title 'Tiled gridfit'
 end
 
-% ----- creating surface map from interpolated surface estimation ------
+% ----- creating projected image from interpolated surface estimation ------
 
-surface2=zeros(s(1),s(2),'uint16');                                         % uint8 or uint 16 ?
+projected_image=zeros(s(1),s(2),'like',ImStack);
+z_origin_map = zeros(s(1),s(2),'uint8'); % supports up to 256 planes
+
 
 for y=1:s(1),
     for x=1:s(2),
-           if (zg2(y,x) > 0)
-             surface2(y,x)=ImStack(y,x,round(zg2(y,x)));
-            end
+        if (zg2(y,x) > 0)
+            z_coordinate = round(zg2(y,x));
+            z_origin_map(y,x) = z_coordinate;
+            projected_image(y,x)=ImStack(y,x,z_coordinate);
+        end
     end
 end
 
 fprintf('Finished. ')
 toc
 
-ProjIm = surface2;
-DepthMap = zg2;
+ProjIm = projected_image;
+DepthMap = z_origin_map;
 
 
 

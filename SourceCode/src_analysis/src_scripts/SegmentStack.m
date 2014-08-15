@@ -33,14 +33,14 @@ end
 
 if nargin < 4           % growing from previous labels
     frs = 1:NFrames;
-    Clabels = zeros(ImSize);
+    Clabels = zeros(ImSize, 'uint16');
     ColIms = zeros([ImSize(1),ImSize(2),3,NFrames]);
 else
     fprintf('regrowing frames:');
 end
 
 if nargin < 3        % not using previous labels
-    Ilabels = zeros(ImSize);
+    Ilabels = zeros(ImSize,'uint8');
     NoPreviousLabels = true;
 else
     NoPreviousLabels = false;
