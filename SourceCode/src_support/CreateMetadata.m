@@ -126,10 +126,6 @@ function argout = CreateMetadataFile(stgObj)
 % Listing files in directory
 lstFiles = dir(stgObj.data_imagepath);
 
-% Progress output
-%progressbar('Discovering image files...');
-
-
 % Initialization metadata struct variable: metadata main file
 stcMetaData = struct();
 stcMetaData.main = struct();
@@ -150,7 +146,6 @@ intIMGFileidx = find(~cellfun(@isempty,regexp(a(1,:),regexFIG)));
 
 % In case this process is run in parallel mode, then this computes the real
 % progression of each single worker.
-%pbar = progressbar_parallel(length(intIMGFileidx));
 ppm = ParforProgressStarter2('Discovering image files...', length(intIMGFileidx), 0.1, 0, 1, 1);
 
 %if stgObj.platform_units ~= 1 ; matlabpool('local',stgObj.platform_units); end
@@ -163,6 +158,10 @@ ppm = ParforProgressStarter2('Discovering image files...', length(intIMGFileidx)
 
 image_path = stgObj.data_imagepath;
 
+% initialize logging
+loci.common.DebugTools.enableLogging('INFO');
+
+
 % Loop over discovered files
 if(stgObj.platform_units ~= 1)
     
@@ -171,20 +170,8 @@ if(stgObj.platform_units ~= 1)
         reader = bfGetReader(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
         omeMeta = reader.getMetadataStore();
         
-
-        %temp = ReadOMEMetadata(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
         tmpFileStruct(i).location   = image_path;
         tmpFileStruct(i).name       = lstFiles(intIMGFileidx(i)).name;
-        %tmpFileStruct(i).dim_x      = temp.NX;
-        %tmpFileStruct(i).dim_y      = temp.NY;
-        %tmpFileStruct(i).dim_z      = temp.NZ;
-        %tmpFileStruct(i).num_channels   =   temp.NC;
-        %tmpFileStruct(i).num_timepoints =   temp.NT;
-        %tmpFileStruct(i).pixel_type     =   temp.PixelType;
-%        tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(temp.NZ));
-%        tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(temp.NC));
-%        tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
-
         tmpFileStruct(i).dim_x      = omeMeta.getPixelsSizeX(0).getValue();
         tmpFileStruct(i).dim_y      = omeMeta.getPixelsSizeY(0).getValue();
         tmpFileStruct(i).dim_z      = omeMeta.getPixelsSizeZ(0).getValue();
@@ -196,9 +183,7 @@ if(stgObj.platform_units ~= 1)
         tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(omeMeta.getPixelsSizeC(0).getValue()));
         tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(omeMeta.getPixelsSizeT(0).getValue()));
 
-        % Computing worker progression
-        %percent = pbar.progress;
-        %progressbar(percent);
+        reader.close();
         ppm.increment(i)
     end
     
@@ -208,21 +193,9 @@ else
     
         reader = bfGetReader(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
         omeMeta = reader.getMetadataStore();
-        
 
-        %temp = ReadOMEMetadata(strcat(image_path,'/',lstFiles(intIMGFileidx(i)).name));
         tmpFileStruct(i).location   = image_path;
         tmpFileStruct(i).name       = lstFiles(intIMGFileidx(i)).name;
-        %tmpFileStruct(i).dim_x      = temp.NX;
-        %tmpFileStruct(i).dim_y      = temp.NY;
-        %tmpFileStruct(i).dim_z      = temp.NZ;
-        %tmpFileStruct(i).num_channels   =   temp.NC;
-        %tmpFileStruct(i).num_timepoints =   temp.NT;
-        %tmpFileStruct(i).pixel_type     =   temp.PixelType;
-%        tmpFileStruct(i).exec_dim_z     = strcat('1-',num2str(temp.NZ));
-%        tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(temp.NC));
-%        tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(temp.NT));
-
         tmpFileStruct(i).dim_x      = omeMeta.getPixelsSizeX(0).getValue();
         tmpFileStruct(i).dim_y      = omeMeta.getPixelsSizeY(0).getValue();
         tmpFileStruct(i).dim_z      = omeMeta.getPixelsSizeZ(0).getValue();
@@ -234,19 +207,15 @@ else
         tmpFileStruct(i).exec_channels  =  strcat('1-',num2str(omeMeta.getPixelsSizeC(0).getValue()));
         tmpFileStruct(i).exec_num_timepoints =   strcat('1-',num2str(omeMeta.getPixelsSizeT(0).getValue()));
 
-        % Computing worker progression
-        %percent = pbar.progress;
-        %progressbar(percent);
+        reader.close();
         ppm.increment(i)
     end
     
 end
 
 % Reassing splitted arrays from workers to the main structure
-
 for i=1:length(intIMGFileidx)
-    %stcMetaData.main.files.(strcat('file',num2str(i))) = tmpFileStruct(:,i);
-    
+   
     stcMetaData.main.files.(strcat('file',num2str(i))).location       = tmpFileStruct(i).location;
     stcMetaData.main.files.(strcat('file',num2str(i))).name           = tmpFileStruct(i).name;
     stcMetaData.main.files.(strcat('file',num2str(i))).dim_x          = tmpFileStruct(i).dim_x;
@@ -266,15 +235,7 @@ end
 argout = sprintf('Metadata file created correctly at %s', strcat(stgObj.data_imagepath,'/','meta.xml'));
 struct2xml(stcMetaData, strcat(stgObj.data_imagepath,'/','epitool_metadata.xml'));
 
-
-%percent = pbar.stop;
-%progressbar(percent);
 delete(ppm)
-%if stgObj.platform_units ~= 1 ; matlabpool close; end
-
-% --------------------------- READING XML FILE ----------------------------
-
-%struct.data = xml_read(strcat(stgObj.data_imagepath,'/','meta.xml'));
 
 end
 
