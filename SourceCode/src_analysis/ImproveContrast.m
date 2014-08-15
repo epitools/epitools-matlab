@@ -6,8 +6,13 @@ function ImproveContrast(stgObj)
 tmpStgObj = stgObj.analysis_modules.Contrast_Enhancement.settings;
 %load(DataSpecificsPath);
 
-tmpRegObj = load([stgObj.data_analysisdir,'/RegIm']);
-%load([AnaDirec,'/RegIm']);
+backup_file_name = [stgObj.data_analysisdir,'/RegIm_woCLAHE'];
+
+if exist(backup_file_name, 'file')
+    tmpRegObj = load(backup_file_name);
+else
+    tmpRegObj = load([stgObj.data_analysisdir,'/RegIm']);
+end
 
 progressbar('Enhancing contrast...(please wait)');
 
@@ -60,11 +65,13 @@ end
 %% Overrite original and save original result as backup (with time stamp to avoid any loss)
 if(overrite_original)
 
-    %backup previous result
-    stgObj.AddResult('Contrast_Enhancement','clahe_backup_path',strcat(stgObj.data_analysisdir,'/RegIm_woCLAHE'));
-    RegIm_woCLAHE = tmpRegObj.RegIm;
-    save([stgObj.data_analysisdir,'/RegIm_woCLAHE_',datestr(now,30)],'RegIm_woCLAHE');
-
+    %backup original if not existant result
+    if ~exist(backup_file_name, 'file')
+        stgObj.AddResult('Contrast_Enhancement','clahe_backup_path',strcat(stgObj.data_analysisdir,'/RegIm_woCLAHE'));
+        RegIm_woCLAHE = tmpRegObj.RegIm;
+        save([stgObj.data_analysisdir,'/RegIm_woCLAHE'],'RegIm_woCLAHE');
+    end
+    
     %save new version with contrast enhancement
     RegIm = RegIm_clahe;
     stgObj.AddResult('Contrast_Enhancement','clahe_path',strcat(stgObj.data_analysisdir,'/RegIm'));
