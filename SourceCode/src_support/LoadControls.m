@@ -62,7 +62,20 @@ for i=1:length(vec1)
                                     
                             end
                             
-                            SubModule_Node.add(javax.swing.tree.DefaultMutableTreeNode(sprintf('%s = %s',vec3{u}, val)));
+                            
+                            if(isa(val, 'cell'))
+                                strVal = '';
+                                for intElement=1:numel(val)
+                                
+                                    strVal = [strVal,sprintf('[%s] %s ;',num2str(intElement), num2str(val{intElement}))];
+                                    
+                                end
+                                
+                                SubModule_Node.add(javax.swing.tree.DefaultMutableTreeNode(sprintf('%s = %s',vec3{u}, strVal)));
+
+                            else
+                                SubModule_Node.add(javax.swing.tree.DefaultMutableTreeNode(sprintf('%s = %s',vec3{u}, val)));
+                            end
                             
                         end
                         %end    
