@@ -3,9 +3,9 @@ function [ImgStack] = LoadImgData(strFullPathFile, imgIDX, arrayIndices)
 % initialize logging
 loci.common.DebugTools.enableLogging('INFO');
 
-Z = arrayIndices.Z(imgIDX,:) - 1 ;
-C = arrayIndices.C(imgIDX,:) - 1 ;
-T = arrayIndices.T(imgIDX,:) - 1 ;
+Z = cell2mat(arrayIndices.Z(imgIDX)) - 1 ;
+C = cell2mat(arrayIndices.C(imgIDX)) - 1 ;
+T = cell2mat(arrayIndices.T(imgIDX)) - 1 ;
 
 if(size(C)>1)
     C = 0;
