@@ -32,8 +32,6 @@ stgObj.analysis_modules.Main.indices = PreparingData2Load(stgObj);
 % Activate Matlabpools for parallel execution if set in stgObj
 if(stgObj.platform_units ~= 1)
     matlabpool('local',stgObj.platform_units);
-    ppm = ParforProgressStarter2('Projecting images...', ...
-    length(stgObj.analysis_modules.Main.indices), 0.1, 0, 1, 1);
 end
 
 
@@ -70,15 +68,18 @@ for i=1:numel(stgObj.analysis_modules.Main.indices.I)
     % Warning: the dimensions of ImagesPreStack are given by the number
     % of planes in output from LoadImgData. If channels num is 1, then
     % dim = 4
+    
     ImagesPreStack = LoadImgData(strFullPathFile,intCurImgIdx,stgObj.analysis_modules.Main.indices);
     
     %% Project data
     
     fprintf('Working on %s\n', strCurFileName);
     
-    for local_time_index = 1:length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:))
+    totalTimeSteps = sum(cellfun(@length,stgObj.analysis_modules.Main.indices.T));
+    
+    for local_time_index = 1:length(stgObj.analysis_modules.Main.indices.T{intCurImgIdx})
         
-        ImStack = ImagesPreStack(:,:,:,stgObj.analysis_modules.Main.indices.T(intCurImgIdx,local_time_index));
+        ImStack = ImagesPreStack(:,:,:,stgObj.analysis_modules.Main.indices.T{intCurImgIdx}(local_time_index));
         
         [im,Surf] = createProjection(ImStack,...
             stgModule.SmoothingRadius,...
@@ -90,16 +91,20 @@ for i=1:numel(stgObj.analysis_modules.Main.indices.I)
         ProjIm(:,:,local_time_index+global_time_index) = im;
         Surfaces(:,:,local_time_index+global_time_index) = Surf;
         
-        progressbar(((local_time_index-1)*length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:))+...
-            stgObj.analysis_modules.Main.indices.T(intCurImgIdx,local_time_index))/...
-            length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:))/...
-            length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:)));
+        currTimeStep = global_time_index + local_time_index;
+        
+        progressbar(currTimeStep/totalTimeSteps);
+        
+        %progressbar(((local_time_index-1)*length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:))+...
+        %    stgObj.analysis_modules.Main.indices.T(intCurImgIdx,local_time_index))/...
+        %    length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:))/...
+        %    length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:)));
         
     end
     
-    global_time_index=global_time_index+length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:));
+    global_time_index=global_time_index+length(stgObj.analysis_modules.Main.indices.T{intCurImgIdx});
     intProcessedFiles = intProcessedFiles+1;
-    %ppm.increment(intProcessedFiles);
+
 end
 
 %% Saving results
@@ -109,8 +114,8 @@ stgObj.AddResult('Projection','surface_path',strcat(stgObj.data_analysisoutdir,'
 save([stgObj.data_analysisoutdir,'/ProjIm'],'ProjIm')
 save([stgObj.data_analysisoutdir,'/Surfaces'],'Surfaces')
 
-%delete(ppm);
 progressbar(1);
+
 fprintf('Finished projection at %s\n',datestr(now));
 
 %% Results visualisation according to the method of execution

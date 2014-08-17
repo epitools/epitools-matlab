@@ -40,13 +40,13 @@ if ~stgObj.exec_commandline
             2 );
             
             StackView(RegIm,'hMainGui','figureA');
-            SandboxGUIRedesign(0);
         
         else
             firstrun = load([stgObj.data_analysisindir,'/RegIm']);
             % The program is being executed in comparative mode
             StackView(firstrun.RegIm,'hMainGui','figureC1');
             StackView(RegIm,'hMainGui','figureC2');
+            SandboxGUIRedesign(1);
             
         end
 
