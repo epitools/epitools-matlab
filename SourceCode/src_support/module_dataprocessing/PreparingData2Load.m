@@ -65,12 +65,12 @@ idxPoints.T = convertInput2Mat(11);
                     
                     
                     % all the singles *ATT: it can generate NAN values (getting rid of
-                    % them with line > 51
+                    % them with line -> 79
                     ans2 = regexp(char(stgObj.analysis_modules.Main.data(i,intItem2Extract)), '([0-9]*)-([0-9]*)', 'split');
                     
                     for o=1:length(ans2)
                         
-                        comma_separated_values = regexp (ans2{o}, '_', 'split');
+                        comma_separated_values = regexp (ans2{o}, ',', 'split');
                         
                         tmpidxPoints = [tmpidxPoints,str2double(comma_separated_values)];
                         
@@ -79,7 +79,7 @@ idxPoints.T = convertInput2Mat(11);
                     tmpidxPoints = tmpidxPoints(~isnan(tmpidxPoints));
                     tmpidxPoints = sort(tmpidxPoints);
                     
-                    idxPoints(i,:) = tmpidxPoints;
+                    idxPoints{i} = tmpidxPoints;
                     
             end
         end
