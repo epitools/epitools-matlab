@@ -27,7 +27,7 @@ idxPoints.T = convertInput2Mat(11);
     % Function to convert user char inputs into single points to pass to
     % further analysis steps.
 
-        % Prepare vector containing indexes of time points to consider:
+        % Prepare struct containing indexes of time points to consider:
         idxPoints = [];
         
         % Table readout from MAIN module
@@ -78,7 +78,7 @@ idxPoints.T = convertInput2Mat(11);
                     
                     tmpidxPoints = tmpidxPoints(~isnan(tmpidxPoints));
                     tmpidxPoints = sort(tmpidxPoints);
-                    
+
                     idxPoints{i} = tmpidxPoints;
                     
             end

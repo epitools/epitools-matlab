@@ -28,10 +28,14 @@ classdef settings < handle
     methods
         
         function obj = settings(analysis_name, analysis_version, data_fullpath)
-        % SETTINGS Setting function initialise the setting object. User should % call the function defining the following variables:
-        % string analysis_name  = this variable contains a string with the %                         analysis name
-        % int analysis_version  = a progressive number definining the analysis %                         version
-        % string data_fullpath  = string containing the full path where the %                         analysis file will be stored
+        % SETTINGS Setting function initialise the setting object. User should 
+        % call the function defining the following variables:
+        % string analysis_name  = this variable contains a string with the 
+        %                         analysis name
+        % int analysis_version  = a progressive number definining the analysis 
+        %                         version
+        % string data_fullpath  = string containing the full path where the 
+        %                         analysis file will be stored
             
             % Who am I?
             [ST,~] = dbstack();

@@ -90,28 +90,7 @@ for i=1:length(vec1)
     %Module_Node.add(SubModule_Node); 
     root.add(Module_Node)
 end
-% A_Node = javax.swing.tree.DefaultMutableTreeNode('Registration');
-% B_Node = javax.swing.tree.DefaultMutableTreeNode('Projection');
-% C_Node = javax.swing.tree.DefaultMutableTreeNode('Segmentation');
-%javax.swing.tree.setIcon(leafIcon2)
-% root.add(A_Node)
-% root.add(B_Node)
-% root.add(C_Node)
 
-% treeView = javax.swing.JScrollPane(tree);
-% % Create the HTML viewing pane.
-% htmlPane =  javax.swing.JEditorPane();
-% htmlPane.setEditable(false);
-% %initHelp();
-% htmlView = javax.swing.JScrollPane(htmlPane);
-% splitPane = javax.swing.JSplitPane(javax.swing.JSplitPane.VERTICAL_SPLIT);
-%
-% splitPane.setTopComponent(treeView);
-% splitPane.setBottomComponent(htmlView);
-
-% for k=1:20
-%     root.insert(javax.swing.tree.DefaultMutableTreeNode(sprintf('Item %d',k)), k-1);
-% end
 
 scrollpane=javax.swing.JScrollPane();
 scrollpane.setViewportView(tree);
