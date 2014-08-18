@@ -19,7 +19,7 @@ typedef struct
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-    
+    //plhs => left hand side/output; prhs => right hand side/ input
     matx *A, *B;
     matx *pixel_list;
     int mrows, ncols;
@@ -98,6 +98,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         
         //2 pixel lists
         //alternative storing to avoid indefinitive growth
+        //i.e. the label matrix is updated only at the end to not influence the current run
         
         //if (no_pixels1<mrows*ncols)
         {

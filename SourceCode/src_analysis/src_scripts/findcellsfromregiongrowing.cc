@@ -22,7 +22,7 @@ typedef struct
 }pix;
 
 
-// growing all existing cells
+// growing all existing cells (or rather, assigning newly available pixels to present regions)
 void growingCells(matx* A, matx* B, int* cellsizes) //imageMatrix A, label B, cellsizes = how many pixels per cell
 {
     int mrows=B->rows;
@@ -37,8 +37,11 @@ void growingCells(matx* A, matx* B, int* cellsizes) //imageMatrix A, label B, ce
     {
         for (x=0; x < A->cols; x++)
         {
-            if (B->rptr[x][y] == 1.0)  // find an unallocated pixel and try to assign it to a cell region
+            if (B->rptr[x][y] == 1.0)
             {
+                //Found an available (<level) but unallocated pixel
+                //=> try to assign it to a cell region
+                
                 //check neighborhood for possible assingnment
                 if(x < ncols-1 && B->rptr[x+1][y] > 1)
                 {
@@ -59,7 +62,7 @@ void growingCells(matx* A, matx* B, int* cellsizes) //imageMatrix A, label B, ce
     }
     
     
-    //Prevent cell from growing indefinitely
+    //Post Update of Label Matrix B (i.e. Prevent cell from growing indefinitely)
     for (n=0; n < no_pixels; n++)
     {
         B->rptr[pixlist[n].x][pixlist[n].y]=pixlist[n].l;
@@ -71,7 +74,7 @@ void growingCells(matx* A, matx* B, int* cellsizes) //imageMatrix A, label B, ce
 
 
 
-// search for cluster of unallocated pixels
+// search for cluster of unallocated but AVAILABLE pixels
 int findingNewCells(matx* A, matx* B, int no_cells)
 {
     
@@ -88,7 +91,7 @@ int findingNewCells(matx* A, matx* B, int no_cells)
             for (y=-2; y <= 2; y++)
                 for (x=-2; x <= 2; x++)
                 {
-                    if (B->rptr[x2+x][y2+y] == 1.0)
+                    if (B->rptr[x2+x][y2+y] == 1.0) //i.e. only AVAILABLE pixels count!
                         no_pixels++;
                     
                 }
@@ -98,7 +101,7 @@ int findingNewCells(matx* A, matx* B, int no_cells)
             // found a new cell when the area consists of more than 10 pixels
             if (no_pixels > min_cluster_size)
             {
-                no_cells++; //and cell label
+                no_cells++; // cell label == cell number
                 for (y=-2; y <= 2; y++)
                     for (x=-2; x <= 2; x++)
                     {
@@ -225,7 +228,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     for (y=0; y < A->rows; y++)
         for (x=0; x < A->cols; x++)
         {
-            B->rptr[x][y]=0.0;
+            B->rptr[x][y]=0.0; // I.e. the pixel is UNAVAILABLE
             
         }
     
@@ -239,19 +242,23 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             for (x=0; x < A->cols; x++)
             {
                 // identify unallocated pixels at this level which have not been assigned to a cell region
+                // i.e. only certain pixels can be 'used' at every round (=> beneath current _level_)
                 if (A->rptr[x][y] <= level &&  A->rptr[x][y] > 0 && B->rptr[x][y] < 2)
-                    B->rptr[x][y]=1.0;
+                    B->rptr[x][y]=1.0; // i.e. pixel is now AVAILABLE for assignment!
                 
             }
         
-        // growing loop for ten iterations
+        // growing loop for ten iterations (i.e. the AVAILABLE pixel can be assigned to confining regions)
         int region_growing_limit = 10;
         for (i=0; i < region_growing_limit; i++)
             growingCells(A,B, cellsizes);
         
-        // finding regions
+        // finding regions (AVAILABLE pixel could cluster without ever touching => lookout for new regions)
+        // => This function creates the first seeding.
         no_cells=findingNewCells(A, B, no_cells);
         
+        //merge regions that touch that are below minimal cell size or if the intenisity threshold
+        //for small cells hasn't yet been reached.
         mergeCells(B, cellsizes, mincellsize, (threshold > level));
         
     }

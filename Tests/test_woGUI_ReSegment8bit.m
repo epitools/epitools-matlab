@@ -100,7 +100,7 @@ ds.AddSetting(strModuleName, 'MergeCriteria', 0.35);
 ds.AddSetting(strModuleName, 'IBoundMax', 30); 
 
 % Performance Options (show=show_steps)
-ds.AddSetting(strModuleName, 'debug', true);
+ds.AddSetting(strModuleName, 'debug', false);
 ds.AddSetting(strModuleName, 'Parallel', false);
 ds.AddSetting(strModuleName, 'SingleFrame', false);
 
@@ -113,6 +113,21 @@ CheckInputType(ds, 'SegResults');
 CompareFiles([ds.data_analysisindir,'/SegResults'], [ds.data_benchmarkdir,'/SegResults']);
 CompareFiles([ds.data_analysisindir,'/TrackingStart'], [ds.data_benchmarkdir,'/TrackingStart']);
 
-%% Clean up
 
+%% Execute rapid tracking correction
+
+strModuleName = 'Tracking';
+ds.CreateModule(strModuleName);
+ds.AddSetting(strModuleName, 'TrackingRadius', 15);
+
+TrackingLauncher(ds);
+
+%% ReSegment with applied changes
+
+strModuleName = 'ReSegmentation';
+ds.CreateModule(strModuleName);
+
+ReSegmentation(ds);
+
+%% Clean up
 close all
