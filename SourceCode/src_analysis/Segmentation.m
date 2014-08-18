@@ -8,7 +8,11 @@ function [varargout] =  Segmentation(stgObj)
 % name: stgModule 
 tmpStgObj = stgObj.analysis_modules.Segmentation.settings;
 
-tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
+if(stgObj.hasModule('Contrast_Enhancement'))
+    tmpRegObj = load([stgObj.data_analysisindir,'/RegIm_wClahe']);
+else
+    tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
+end
 %load([AnaDirec,'/RegIm']);
 
 if tmpStgObj.SingleFrame

@@ -64,7 +64,7 @@ Registration(ds);
 CheckInputType(ds, 'RegIm');
 
 %% now test that files generated are the same
-CompareFiles([ds.data_analysisindir,'/RegIm'] , [ds.data_benchmarkdir,'/RegIm_woClahe']);
+CompareFiles([ds.data_analysisindir,'/RegIm'] , [ds.data_benchmarkdir,'/RegIm']);
 
 %% Apply CLAHE
 strModuleName = 'Contrast_Enhancement';
@@ -77,7 +77,7 @@ ImproveContrast(ds);
 CheckInputType(ds, 'RegIm');
 
 %% now test that files generated are the same
-CompareFiles([ds.data_analysisindir,'/RegIm'] , [ds.data_benchmarkdir,'/RegIm_wClahe']);
+CompareFiles([ds.data_analysisindir,'/RegIm_wClahe'] , [ds.data_benchmarkdir,'/RegIm_wClahe']);
 
 %% Segmentation parameters:
 strModuleName = 'Segmentation';
