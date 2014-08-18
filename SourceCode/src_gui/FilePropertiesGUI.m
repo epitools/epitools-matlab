@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 13-Aug-2014 16:58:32
+% Last Modified by GUIDE v2.5 18-Aug-2014 16:51:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -339,3 +339,19 @@ end
     
 setappdata(hMainGui, 'settings_objectname', stgObj);
 initialize_gui(hObject,handles)
+
+
+% --- Executes on button press in pushbutton9.
+function pushbutton9_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+stgObj = getappdata(hMainGui,'settings_objectname');
+
+delete(stgObj);
+setappdata(hMainGui, 'settings_objectname', '');
+
+close(handles.figure1);
+
+
