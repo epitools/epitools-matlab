@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 13-Aug-2014 11:28:16
+% Last Modified by GUIDE v2.5 18-Aug-2014 18:38:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -349,6 +349,25 @@ stgObj.AddResult(strModuleName,'polygonal_mask_path',strcat(stgObj.data_analysis
 stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysisoutdir,'/CroppedCellLabels'));
 
 waitfor(polygonal_mask);
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
+handles_connection(hObject,handles)
+
+% --------------------------------------------------------------------
+function A_ReSegmentation_Callback(hObject, eventdata, handles)
+% hObject    handle to A_ReSegmentation (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+hMainGui = getappdata(0, 'hMainGui');
+stgObj = getappdata(hMainGui,'settings_objectname');
+
+strModuleName = 'ReSegmentation';
+
+intOut = SaveAnalysisModule(hObject, handles, strModuleName);
+
+ReSegmentation(stgObj);
 
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 

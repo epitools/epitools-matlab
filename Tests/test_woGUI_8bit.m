@@ -100,7 +100,7 @@ ds.AddSetting(strModuleName, 'MergeCriteria', 0.35);
 ds.AddSetting(strModuleName, 'IBoundMax', 30); 
 
 % Performance Options (show=show_steps)
-ds.AddSetting(strModuleName, 'debug', false);
+ds.AddSetting(strModuleName, 'debug', true);
 ds.AddSetting(strModuleName, 'Parallel', false);
 ds.AddSetting(strModuleName, 'SingleFrame', false);
 
