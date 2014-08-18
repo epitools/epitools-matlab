@@ -29,6 +29,8 @@ if(isappdata(hMainGui,'settings_objectname'))
             switch out
                 case 'Overrite module'
                     SaveAnalysisFile(hObject, handles);
+                    msgbox('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module ')
+                    DiscardAnalysisModules(strModuleName, stgObj);
                     
                 case 'Comparare executions'
                     
@@ -99,6 +101,13 @@ if(isappdata(hMainGui,'settings_objectname'))
                             
                             sdbExecStatus = sdb.DestroySandbox();
                             waitfor(sdbExecStatus);
+                            % Destroy modules downstream the current module
+                            if(sdb.results_validity)
+                                msgbox('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module ');
+                                 sdbExecStatus2 = DiscardAnalysisModules( strModuleName, stgObj );
+                            end
+                            
+                            waitfor(sdbExecStatus2);
                             SandboxGUIRedesign(0);
                             
                             argout = false;
