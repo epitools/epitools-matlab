@@ -19,6 +19,8 @@ else
     NFrames = ImSize(3);
 end
 
+%reconvert?
+ImageSeries = double(ImageSeries);
 ImageSeries = uint8(ImageSeries/max(ImageSeries(:))*255);  %todo : check casting!
 
 fs=fspecial('laplacian',0.9);
