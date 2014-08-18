@@ -37,12 +37,11 @@ for i = 1:frame_no
     %output skeleton as png image
     output_file_name = strcat('/','frame_',time_point_str,'.png');
     imwrite(lblImg,[stgObj.data_analysisoutdir,'/skeletons',output_file_name]);
+    %% Saving results
+    stgObj.AddResult('Skeletons',strcat('skeletons_path_',i),output_file_name);
     
     progressbar(i/frame_no);
 end
-
-%% Saving results
-stgObj.AddResult('Skeletons','skeletons_path',strcat(stgObj.data_analysisoutdir,'/skeletons'));
 
 progressbar(1);
 

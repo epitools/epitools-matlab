@@ -108,8 +108,8 @@ for i=1:numel(stgObj.analysis_modules.Main.indices.I)
 end
 
 %% Saving results
-stgObj.AddResult('Projection','projection_path',strcat(stgObj.data_analysisoutdir,'/ProjIm'));
-stgObj.AddResult('Projection','surface_path',strcat(stgObj.data_analysisoutdir,'/Surfaces'));
+stgObj.AddResult('Projection','projection_path','ProjIm.mat');
+stgObj.AddResult('Projection','surface_path','Surfaces.mat');
 
 save([stgObj.data_analysisoutdir,'/ProjIm'],'ProjIm')
 save([stgObj.data_analysisoutdir,'/Surfaces'],'Surfaces')

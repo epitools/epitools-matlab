@@ -120,6 +120,9 @@ if(isappdata(hMainGui,'settings_objectname'))
         % -------------------------------------------------------------------------
         
     end
+    
+    
+    
 end
 
 % Update handles structure
@@ -345,8 +348,8 @@ tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
 save([stgObj.data_analysisoutdir,'/PoligonalMask'],'polygonal_mask');
 save([stgObj.data_analysisoutdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
 
-stgObj.AddResult(strModuleName,'polygonal_mask_path',strcat(stgObj.data_analysisoutdir,'/PoligonalMask'));
-stgObj.AddResult(strModuleName,'cropped_cell_labels',strcat(stgObj.data_analysisoutdir,'/CroppedCellLabels'));
+stgObj.AddResult(strModuleName,'polygonal_mask_path','PoligonalMask.mat');
+stgObj.AddResult(strModuleName,'cropped_cell_labels','CroppedCellLabels.mat');
 
 waitfor(polygonal_mask);
 

@@ -48,8 +48,8 @@ else
 
     save([stgObj.data_analysisoutdir,'/TrackingStart'],'ILabels','FramesToRegrow','oktrajs')
     
-    stgObj.AddResult('Segmentation','segmentation_path',strcat(stgObj.data_analysisoutdir,'/SegResults'));
-    stgObj.AddResult('Segmentation','tracking_path',strcat(stgObj.data_analysisoutdir,'/TrackingStart'));
+    stgObj.AddResult('Segmentation','segmentation_path','/SegResults.mat');
+    stgObj.AddResult('Segmentation','tracking_path','TrackingStart.mat');
    
     % inspect results
     if(~stgObj.exec_commandline)

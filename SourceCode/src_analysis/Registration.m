@@ -58,7 +58,7 @@ end
 
 
 %saving results
-stgObj.AddResult('Stack_Registration','registration_path',strcat(stgObj.data_analysisoutdir,'/RegIm'));
+stgObj.AddResult('Stack_Registration','registration_path','RegIm.mat');
 save([stgObj.data_analysisoutdir,'/RegIm'],'RegIm');
 
 end

@@ -162,7 +162,7 @@ end
 	
 		%save new version with contrast enhancement
 		RegIm = RegIm_clahe;
-		stgObj.AddResult('Contrast_Enhancement','clahe_path',strcat(stgObj.data_analysisoutdir,'/RegIm_wClahe'));
+		stgObj.AddResult('Contrast_Enhancement','clahe_path','RegIm_wClahe.mat');
 		save([stgObj.data_analysisoutdir,'/RegIm_wClahe'],'RegIm');
 	
 	end
