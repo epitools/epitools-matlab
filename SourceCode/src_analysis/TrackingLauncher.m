@@ -22,12 +22,33 @@ NT = size(tmpSegObj.RegIm,3);
 %Optional parameter for the TrackingGUI
 %tmpStgObj.TrackingRadius = tracking_radius;
 
-output = [stgObj.data_analysisoutdir,'/','ILabelsCorrected_',datestr(now,30)];
+strFilename = strcat('ILabelsCorrected_',datestr(now,30));
+output = [stgObj.data_analysisoutdir,'/',strFilename];
 
 progressbar(1);
 
-%retrieve previous tracking file
-[filename, pathname] = uigetfile(strcat(stgObj.data_analysisindir,'/','*.mat'),'Select last tracking file');
+%retrieve tracking file
+
+listFilesInput = dir(stgObj.data_analysisindir);
+ArrayFileNames = extractfield(listFilesInput, 'name');
+
+% If tracking module has been executed already in the past
+if (~isempty(strfind(ArrayFileNames,'ILabelsCorrected')))
+
+    [filename, pathname] = uigetfile(strcat(stgObj.data_analysisindir,'/','*.mat'),'Select last tracking file');
+    
+% If tracking module has not been executed aready... then in the folder you
+% might find TrackingStart.mat
+elseif (~isempty(strfind(ArrayFileNames,'TrackingStart')))
+    
+       filename =  '/TrackingStart.mat'
+       pathname =  stgObj.data_analysisindir;
+
+% If segmentation module has not been executed
+else
+    return;
+    
+end
 
 if((isempty(filename) || isempty(pathname) ) == 0)
     IL = load([pathname,filename]);
@@ -50,6 +71,9 @@ if((isempty(filename) || isempty(pathname) ) == 0)
     uiwait(fig);
     
 end
+
+%% Saving results
+stgObj.AddResult('Tracking','tracking_file',strFilename);
 
 end
 
