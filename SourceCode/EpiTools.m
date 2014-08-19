@@ -58,6 +58,9 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
+% Disable warnings for structOnObject (occours when struct is saved in xml)
+warning off MATLAB:structOnObject
+
 stsFunOut = LoadEpiTools();
 
 % UIWAIT makes EpiTools wait for user response (see UIRESUME)
