@@ -46,7 +46,6 @@ if ~stgObj.exec_commandline
             % The program is being executed in comparative mode
             StackView(firstrun.RegIm,'hMainGui','figureC1');
             StackView(RegIm,'hMainGui','figureC2');
-            SandboxGUIRedesign(1);
             
         end
 

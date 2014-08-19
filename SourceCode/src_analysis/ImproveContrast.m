@@ -129,6 +129,8 @@ if(~stgObj.exec_commandline)
             % The program is being executed in comparative mode
             StackView(firstrun.RegIm,'hMainGui','figureC1');
             StackView(RegIm_clahe,'hMainGui','figureC2');
+
+          
             
         end
         

@@ -72,15 +72,14 @@ else
                 2 );
 
                 StackView(ColIms,'hMainGui','figureA');
-                SandboxGUIRedesign(0);
 
             else
                 
                 firstrun = load([stgObj.data_analysisindir,'/ColIms']);
                 % The program is being executed in comparative mode
                 StackView(firstrun.ColIms,'hMainGui','figureC1');
-                StackView(ColIms,'hMainGui','figureC2');
-
+                StackView(ColIms,'hMainGui','figureC2');              
+                
             end
             
         end
