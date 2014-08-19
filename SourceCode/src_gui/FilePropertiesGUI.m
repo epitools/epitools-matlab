@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 18-Aug-2014 16:51:27
+% Last Modified by GUIDE v2.5 19-Aug-2014 11:23:59
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -353,5 +353,3 @@ delete(stgObj);
 setappdata(hMainGui, 'settings_objectname', '');
 
 close(handles.figure1);
-
-
