@@ -10,8 +10,11 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         stgObj = getappdata(hMainGui,'settings_objectname');
-        
+         
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
+            
+            % Workround for multiple executions of tracking module
+            if(strcmp(strModuleName,'Tracking'));return;end
             
             % When the module has been already executed during the course of the
             % current analysis, the program will ask to the user if he wants to
