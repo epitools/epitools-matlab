@@ -244,7 +244,7 @@ stgObj = getappdata(hFPGui,'settings_objectname');
 
 data_folder = uigetdir('~/','Select the directory to save the analysis file');
 
-if (data_folder)
+if (~isempty(data_folder))
     stgObj.data_fullpath = data_folder;
 end 
     
@@ -284,7 +284,7 @@ stgObj = getappdata(hFPGui,'settings_objectname');
 
 data_folder = uigetdir('~/','Select the directory where you stored your image files');
 
-if (data_folder)
+if (~isempty(data_folder))
     stgObj.data_imagepath = data_folder;
     
     % Reset data table loaded 
@@ -311,7 +311,7 @@ hFPGui = getappdata(0, 'hFPGui');
 stgObj = getappdata(hFPGui,'settings_objectname');
 data_folder = uigetdir('~/','Select the directory where you want to store all the results from the current analysis');
 
-if (data_folder)
+if (~isempty(data_folder))
     stgObj.data_analysisindir = data_folder;
 
     
@@ -332,7 +332,7 @@ hFPGui = getappdata(0, 'hFPGui');
 stgObj = getappdata(hFPGui,'settings_objectname');
 data_folder = uigetdir('~/','Select the directory where you stored benchmark files for the current analysis');
 
-if (data_folder)
+if (~isempty(data_folder))
     stgObj.data_benchmarkdir = data_folder;
 
 end 
