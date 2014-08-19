@@ -33,21 +33,26 @@ listFilesInput = dir(stgObj.data_analysisindir);
 ArrayFileNames = extractfield(listFilesInput, 'name');
 
 % If tracking module has been executed already in the past
-if (~isempty(strfind(ArrayFileNames,'ILabelsCorrected')))
+if (sum(cellfun(@isempty,strfind(ArrayFileNames,'ILabelsCorrected'))) ~= length(ArrayFileNames))
 
     [filename, pathname] = uigetfile(strcat(stgObj.data_analysisindir,'/','*.mat'),'Select last tracking file');
+    
+    
+    if (~isa(filename, 'char') && (filename == 0 || pathname == 0))
+        filename = '';
+        pathname = '';
+    end
     
 % If tracking module has not been executed aready... then in the folder you
 % might find TrackingStart.mat
 elseif (~isempty(strfind(ArrayFileNames,'TrackingStart')))
     
-       filename =  '/TrackingStart.mat'
+       filename =  '/TrackingStart.mat';
        pathname =  stgObj.data_analysisindir;
 
 % If segmentation module has not been executed
 else
     return;
-    
 end
 
 if((isempty(filename) || isempty(pathname) ) == 0)
@@ -69,11 +74,12 @@ if((isempty(filename) || isempty(pathname) ) == 0)
 
     % wait for corrections to finish (ie after saving using 's')
     uiwait(fig);
-    
-end
-
+  
 %% Saving results
 stgObj.AddResult('Tracking','tracking_file',strFilename);
+
+
+end
 
 end
 
