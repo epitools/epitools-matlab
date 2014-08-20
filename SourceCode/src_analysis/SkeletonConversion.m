@@ -22,11 +22,15 @@ frame_no = size(tmpSegObj.CLabels,3);
 
 for i = 1:frame_no
     
-    lblImg = tmpSegObj.CLabels(:,:,i);
+    %to make apply the transformation we need double
+    cell_lables = double(tmpSegObj.CLabels(:,:,i));
     
-    [gx,gy] = gradient(lblImg);
+    %given that every cell has a different label
+    %we can compute the boundaries by computing 
+    %where the gradient changes
+    [gx,gy] = gradient(cell_lables);
 
-    lblImg = (lblImg > 0) & ((gx.^2+gy.^2)>0);
+    cell_outlines = (cell_lables > 0) & ((gx.^2+gy.^2)>0);
     
     %to see intermediate results uncomment
     %imshow(label2rgb(lblImg))
@@ -35,10 +39,10 @@ for i = 1:frame_no
     time_point_str = num2str(i,'%03.f');
     
     %output skeleton as png image
-    output_file_name = strcat('/','frame_',time_point_str,'.png');
-    imwrite(lblImg,[stgObj.data_analysisoutdir,'/skeletons',output_file_name]);
+    output_file_name = strcat('/skeletons/frame_',time_point_str,'.png');
+    imwrite(cell_outlines,[stgObj.data_analysisoutdir,output_file_name]);
     %% Saving results
-    stgObj.AddResult('Skeletons',strcat('skeletons_path_',i),output_file_name);
+    stgObj.AddResult('Skeletons',strcat('skeletons_path_',num2str(i)),output_file_name);
     
     progressbar(i/frame_no);
 end
