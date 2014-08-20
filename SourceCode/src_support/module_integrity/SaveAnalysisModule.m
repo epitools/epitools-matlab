@@ -31,7 +31,7 @@ if(isappdata(hMainGui,'settings_objectname'))
             
             switch out
                 case 'Overrite module'
-                    SaveAnalysisFile(hObject, handles);
+                    %SaveAnalysisFile(hObject, handles);
                     msgbox('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module ')
                     DiscardAnalysisModules(strModuleName, stgObj);
                     
