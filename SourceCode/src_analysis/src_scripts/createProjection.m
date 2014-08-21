@@ -103,7 +103,7 @@ end
 
 % ----- creating projected image from interpolated surface estimation ------
 
-projected_image=zeros(s(1),s(2),'like',ImStack);
+projected_image=zeros(s(1),s(2),class(ImStack));
 z_origin_map = zeros(s(1),s(2),'uint8'); % supports up to 256 planes
 
 

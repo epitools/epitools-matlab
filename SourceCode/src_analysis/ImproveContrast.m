@@ -17,7 +17,7 @@ if ~isa(tmpRegObj.RegIm, 'uint16') && ~isa(tmpRegObj.RegIm, 'uint8')
 end
 
 %pre-allocate output
-RegIm_clahe = zeros(size(tmpRegObj.RegIm), 'like', tmpRegObj.RegIm);
+RegIm_clahe = zeros(size(tmpRegObj.RegIm), class(tmpRegObj.RegIm));
 
 
 %% Apply CLAHE
@@ -122,8 +122,6 @@ if(~stgObj.exec_commandline)
             set(a1,'Visible', 'off');
             set(a2,'Visible', 'off');
             
-            
-            
         else
             firstrun = load([stgObj.data_analysisindir,'/RegIm']);
             % The program is being executed in comparative mode
@@ -150,6 +148,8 @@ end
         saveClahe();
         uiresume(fig);
         
+        StackView(RegIm_clahe,'hMainGui','figureA');
+        
     end
 
     function out = ctrlDiscardResult_callback(hObject,eventdata,handles)
@@ -157,6 +157,8 @@ end
         out = 'Discard result';
         setappdata(fig,'uidiag_userchoice', out);
         uiresume(fig);
+        
+        StackView(tmpRegObj.RegIm,'hMainGui','figureA');
         
     end
 
