@@ -146,11 +146,11 @@ classdef sandbox < handle
         			end
         			
         			% Delete all the files contained in the old analysis directory
-	       			delete(strcat(sdb.analysis_settings.data_analysisindir,'/*'));
+	       			%delete(strcat(sdb.analysis_settings.data_analysisindir,'/*'));
 
 	       			% Copy the newly-generated result files into the analysis folder
 	       			copyfile([sdb.analysis_settings.data_fullpath,'/', sdb.analysis_tmpdirpath],...
-	       			 sdb.analysis_settings.data_analysisindir);
+	       			 sdb.analysis_settings.data_analysisindir, 'f');
 
 	       			% Remove temporary directory
 	       			rmdir([sdb.analysis_settings.data_fullpath,'/', sdb.analysis_tmpdirpath], 's');

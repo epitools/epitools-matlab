@@ -18,7 +18,9 @@ for i=(intIDX+1):length(arrayStgFields)
     arrayResults = fields(stgObj.analysis_modules.(char(arrayStgFields(i))).results);
     
     for o=1:numel(arrayResults) 
-       
+        
+        if(strcmp(arrayResults,'tracking_file_path'));continue;end
+        
         % File name
         strSourceFileName = stgObj.analysis_modules.(char(arrayStgFields(i))).results.(char(arrayResults(o)));
         
@@ -38,6 +40,7 @@ for i=(intIDX+1):length(arrayStgFields)
         end
         
         end
+        
         
         
         % Copy file

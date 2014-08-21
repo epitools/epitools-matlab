@@ -15,6 +15,7 @@ if(isappdata(hMainGui,'settings_objectname'))
             
             % Workround for multiple executions of tracking module
             if(strcmp(strModuleName,'Tracking'));return;end
+            if(strcmp(strModuleName,'Contrast_Enhancement')); DiscardAnalysisModules(strModuleName, stgObj);return;end
             
             % When the module has been already executed during the course of the
             % current analysis, the program will ask to the user if he wants to
@@ -106,12 +107,16 @@ if(isappdata(hMainGui,'settings_objectname'))
                             waitfor(sdbExecStatus);
                             % Destroy modules downstream the current module
                             if(sdb.results_validity)
-                                msgbox('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module ');
+                                %msgbox('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module ');
                                  sdbExecStatus2 = DiscardAnalysisModules( strModuleName, stgObj );
                             end
                             
                             waitfor(sdbExecStatus2);
                             SandboxGUIRedesign(0);
+                            
+                            % Workaround to be patched asap!
+                            stgObj.data_analysisoutdir = stgObj.data_analysisindir;
+                            setappdata(hMainGui, 'settings_objectname', stgObj);
                             
                             argout = false;
                             

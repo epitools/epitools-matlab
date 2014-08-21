@@ -75,7 +75,7 @@ else
 
             else
                 
-                firstrun = load([stgObj.data_analysisindir,'/ColIms']);
+                firstrun = load([stgObj.data_analysisindir,'/SegResults']);
                 % The program is being executed in comparative mode
                 StackView(firstrun.ColIms,'hMainGui','figureC1');
                 StackView(ColIms,'hMainGui','figureC2');              
