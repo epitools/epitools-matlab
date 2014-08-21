@@ -16,6 +16,6 @@
 
 ### Who do I talk to? ###
 
-* In case of bugs feel or improvement suggents free to:
+* In case of bugs or improvement suggestions feel free to:
     * File an issue in this repository using the bitbucket interface
     * Write to davide.heller@imls.uzh.ch or lorenzo.gatti@uzh.ch
