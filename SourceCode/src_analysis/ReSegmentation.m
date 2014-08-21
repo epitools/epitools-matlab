@@ -37,7 +37,7 @@ load([stgObj.data_analysisindir,'/SegResults']);
 [filename, pathname] = uigetfile(strcat(stgObj.data_analysisindir,'/','*.mat'),'Select last tracking file');
 tracking_file = [pathname, filename];
 
-stgObj.AddResult('ReSegmentation','tracking_file_path',tracking_file);
+stgObj.AddResult('ReSegmentation','tracking_file_path',filename);
 
 %% now resegmenting the frames which need it!
 
