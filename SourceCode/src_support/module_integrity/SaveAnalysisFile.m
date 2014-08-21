@@ -38,7 +38,7 @@ if (intForce == 1)
     if(sum(strcmp(fields(stgObj.analysis_modules.Main), 'indices')) == 1)
         tmp.main.analysis_modules.Main = rmfield(tmp.main.analysis_modules.Main,'indices');
     end
-    struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
+    struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',num2str(stgObj.analysis_version),'.xml'));
     argout = 1;
 else
     
@@ -71,7 +71,7 @@ else
             if(sum(strcmp(fields(stgObj.analysis_modules.Main), 'indices')) == 1)
                 tmp.main.analysis_modules.Main = rmfield(tmp.main.analysis_modules.Main,'indices');
             end
-            struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.xml'));
+            struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',num2str(stgObj.analysis_version),'.xml'));
             
             argout = 0;
         case 'No'

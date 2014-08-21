@@ -21,7 +21,10 @@ switch input
         if (isfield(hUIControls, input))
             
             delete(hUIControls.(char(input)));
+            hUIControls = rmfield(hUIControls,char(input));
+            
         end
+        
         
 end
         

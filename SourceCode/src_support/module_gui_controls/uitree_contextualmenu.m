@@ -100,6 +100,7 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         
          switch mdName        
             case 'Projection'
+                SandboxGUIRedesign(0);
                 data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.projection_path]);
                 
                 if(stgObj.icy_is_used)
@@ -109,6 +110,7 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
                 end
                 
             case 'Stack_Registration'
+                SandboxGUIRedesign(0);
                 data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.registration_path]);
                 
                 if(stgObj.icy_is_used)
@@ -118,6 +120,7 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
                 end
                 
             case 'Contrast_Enhancement'
+                SandboxGUIRedesign(0);
                 data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.clahe_path]);
 
                 if(stgObj.icy_is_used)
@@ -127,6 +130,7 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
                 end
 
             case 'Segmentation'
+                SandboxGUIRedesign(0);
                 data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.segmentation_path]);
                 
                 if(stgObj.icy_is_used)
@@ -228,6 +232,7 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         hMainGui = getappdata(0, 'hMainGui');
         mdName = getappdata(hMainGui,'module_name');
         stgObj = getappdata(hMainGui,'settings_objectname');
+        hMainGui_handles = guidata(hMainGui);
         
         strUserSel = questdlg(sprintf('You are about to delete this module from your analysis.\n\n Do you really want to continue?'),'Delete analysis module - User confirm','Yes','No','No'); 
         
@@ -235,7 +240,9 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
             case 'Yes'
                 stgObj.DestroyModule(mdName);
                 setappdata(hMainGui,'settings_objectname',stgObj);
-                SaveAnalysisFile(hObject, handles, 1);
+                SaveAnalysisFile(hMainGui, hMainGui_handles, 1);
+                LoadControls(hMainGui,stgObj);
+                
         end    
      end
 end

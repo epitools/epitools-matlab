@@ -119,7 +119,7 @@ if(isappdata(hMainGui,'settings_objectname'))
         set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
         set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
         set(handles.figure1, 'Name', ['EpiTools | ', num2str(stgObj.analysis_code), ' - ' , stgObj.analysis_name])
-        uihandles_deletecontrols('uitree');
+        
         LoadControls(hMainGui, stgObj);
         
         % -------------------------------------------------------------------------
@@ -413,6 +413,11 @@ function F_New_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
+uihandles_deletecontrols('all');
+SandboxGUIRedesign(0);
+set(handles.('figureA'), 'Visible', 'off')
+a3 = get(handles.('figureA'), 'Children');
+set(a3,'Visible', 'off');
 
 % Check if there is setting file loaded in the application
 if(isappdata(hMainGui,'settings_objectname'))
@@ -481,8 +486,12 @@ function F_Open_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Open (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 hMainGui = getappdata(0, 'hMainGui');
+uihandles_deletecontrols('all');
+SandboxGUIRedesign(0);
+set(handles.('figureA'), 'Visible', 'off')
+a3 = get(handles.('figureA'), 'Children');
+set(a3,'Visible', 'off');
 
 % Check if there is setting file loaded in the application
 if(isappdata(hMainGui,'settings_objectname'))
