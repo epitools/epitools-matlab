@@ -30,8 +30,16 @@ for i=(intIDX+1):length(arrayStgFields)
         if(~exist([strSourceFilePath,'/Backups'],'dir'))
             mkdir([strSourceFilePath,'/Backups']);
         end
-            
-
+        
+        if(strcmp(char(arrayStgFields(i)), 'Skeletons'))
+        
+        if(~exist([strSourceFilePath,'/Backups/skeletons'],'dir'))
+            mkdir([strSourceFilePath,'/Backups/skeletons']);
+        end
+        
+        end
+        
+        
         % Copy file
         copyfile([strSourceFilePath,'/',strSourceFileName], [strSourceFilePath,'/Backups/',strSourceFileName]);
         

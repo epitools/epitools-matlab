@@ -76,7 +76,7 @@ if((isempty(filename) || isempty(pathname) ) == 0)
     uiwait(fig);
   
 %% Saving results
-stgObj.AddResult('Tracking','tracking_file',strFilename);
+stgObj.AddResult('Tracking','tracking_file',strcat(strFilename,'.mat'));
 
 
 end

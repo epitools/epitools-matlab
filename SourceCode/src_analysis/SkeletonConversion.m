@@ -46,8 +46,10 @@ for i = 1:frame_no
     time_point_str = num2str(i,'%03.f');
     
     %output skeleton as png image
-    output_file_name = strcat('/skeletons/frame_',time_point_str,'.png');
-    imwrite(cell_outlines,[stgObj.data_analysisoutdir,output_file_name]);
+    output_path = '/skeletons/';
+    output_file_name = strcat('frame_',time_point_str,'.png');
+    output_fullpath = strcat(output_path,output_file_name);
+    imwrite(cell_outlines,[stgObj.data_analysisoutdir,output_fullpath]);
     %% Saving results
     stgObj.AddResult('Skeletons',strcat('skeletons_path_',num2str(i)),output_file_name);
     
