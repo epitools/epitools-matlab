@@ -1,7 +1,7 @@
 .DS_Store
 *.m~
 Tests/Data/Analysis/*
-Tests/8bitDataset/*
+Tests/8bitDataset/Analysis/*
 SourceCode/findjobj/findjobj.m
 SourceCode/findjobj/license.txt
 SourceCode/findjobj/uiinspect.26.m
