@@ -11,8 +11,8 @@
 * Open Matlab (best 2014a, but former version should also work)
 * Go to the directory where you cloned EpiTools
 * Launch the EpiTool GUI by running ./SourceCode/EpiTools.m
-* See how to perform a first analysis with these tutorial videos:
-    * [address]
+* You can find some video tutorials of how to use EpiTools on our dropbox account. The link is below:
+    * [EpiTools 0.1b Video Tutorials](https://www.dropbox.com/sh/wpezw6t7lma5d4f/AAD4QKHwtk61sgE2gxMLp0Vva)
 
 ### Who do I talk to? ###
 
