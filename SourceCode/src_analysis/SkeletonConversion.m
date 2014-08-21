@@ -51,7 +51,7 @@ for i = 1:frame_no
     output_fullpath = strcat(output_path,output_file_name);
     imwrite(cell_outlines,[stgObj.data_analysisoutdir,output_fullpath]);
     %% Saving results
-    stgObj.AddResult('Skeletons',strcat('skeletons_path_',num2str(i)),output_file_name);
+    stgObj.AddResult('Skeletons',strcat('skeletons_path_',num2str(i)),strcat('skeletons/',output_file_name));
     
     progressbar(i/frame_no);
 end
