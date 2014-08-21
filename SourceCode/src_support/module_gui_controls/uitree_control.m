@@ -113,8 +113,11 @@ set(tree, 'Units', 'normalized', 'position', [0.0 0.023 0.25 0.915]);
 tree.setSelectedNode( rootNode );
 
 % some layout
-
 drawnow;
+
+% savehandle
+uihandles_savecontrols( 'uitree', tree );
+
 
 end
 

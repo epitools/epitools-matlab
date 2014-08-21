@@ -8,7 +8,7 @@ menuItem2 = javax.swing.JMenuItem('<html> Open results in finder </html>', javax
 menuItem3 = javax.swing.JMenuItem('<html> Export module as .xml file </html>',javax.swing.ImageIcon('./images/icons/page_code.png'));
 menuItem4 = javax.swing.JMenuItem('<html> Export results as .zip file </html>',javax.swing.ImageIcon('./images/icons/compress.png'));
 menuItem5 = javax.swing.JMenuItem('<html> Delete module </html>',javax.swing.ImageIcon('./images/icons/bin_closed.png'));
-
+menuItem6 = javax.swing.JMenuItem('<html> Visualize results </html>', javax.swing.ImageIcon('./images/icons/slides_stack.png'));
 
 
 hmenuItem1 = handle(menuItem1, 'CallbackProperties');
@@ -16,6 +16,7 @@ hmenuItem2 = handle(menuItem2, 'CallbackProperties');
 hmenuItem3 = handle(menuItem3, 'CallbackProperties');
 hmenuItem4 = handle(menuItem4, 'CallbackProperties');
 hmenuItem5 = handle(menuItem5, 'CallbackProperties');
+hmenuItem6 = handle(menuItem6, 'CallbackProperties');
 
 
 % Set the menu items' callbacks
@@ -24,9 +25,11 @@ set(menuItem2,'ActionPerformedCallback',@openModuleinFinder);
 set(menuItem3,'ActionPerformedCallback',@exportModuleasXML);
 set(menuItem4,'ActionPerformedCallback',@exportResultsasZIP);
 set(menuItem5,'ActionPerformedCallback',@deleteModuleSettings);
+set(menuItem6,'ActionPerformedCallback',@openModuleResultsinMainView);
 
 % Add all menu items to the context menu (with internal separator)
 jmenu = javax.swing.JPopupMenu;
+jmenu.add(menuItem6);
 jmenu.add(menuItem1);
 jmenu.add(menuItem2);
 jmenu.addSeparator;
@@ -88,7 +91,62 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         jmenu.remove(item);
     end
 
+
 % callback functions
+    function openModuleResultsinMainView(hObject, eventData)
+        hMainGui = getappdata(0, 'hMainGui');
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        mdName = getappdata(hMainGui,'module_name');
+        
+         switch mdName        
+            case 'Projection'
+                data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.projection_path]);
+                
+                if(stgObj.icy_is_used)
+                    icy_vidshow(data.ProjIm,'Projected Sequence');
+                else
+                    StackView(data.ProjIm,'hMainGui','figureA');
+                end
+                
+            case 'Stack_Registration'
+                data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.registration_path]);
+                
+                if(stgObj.icy_is_used)
+                    icy_vidshow(data.RegIm,'Registered Sequence');
+                else
+                    StackView(data.RegIm,'hMainGui','figureA');
+                end
+                
+            case 'Contrast_Enhancement'
+                data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.clahe_path]);
+
+                if(stgObj.icy_is_used)
+                    icy_vidshow(data.RegIm,'CLAHE Sequence');
+                else
+                    StackView(data.RegIm,'hMainGui','figureA');
+                end
+
+            case 'Segmentation'
+                data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.segmentation_path]);
+                
+                if(stgObj.icy_is_used)
+                    icy_vid3show(data.ColIms,'Segmented Sequence');
+                else
+                    StackView(data.ColIms,'hMainGui','figureA');
+                end
+
+
+             otherwise
+                h = msgbox('The function has not been implemented for the current module. ', 'Exception handler - DEV');
+
+         end
+        
+         
+        
+        
+    end
+
+
 
     function openModuleSettings(hObject, eventData)
         hMainGui = getappdata(0, 'hMainGui');
@@ -119,13 +177,17 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         
     end
 
+
+
+
     function openModuleinFinder(hObject, eventData)
         hMainGui = getappdata(0, 'hMainGui');
         stgObj = getappdata(hMainGui,'settings_objectname');
         command = ['open ',stgObj.data_analysisindir];
+        if(ispc);command = ['explorer ',stgObj.data_analysisindir];end
+        if(isunix);command = ['open ',stgObj.data_analysisindir];end
         status = system(command);
-        
-        
+
     end
 
     function exportModuleasXML(hObject, eventData)

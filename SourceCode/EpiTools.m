@@ -75,6 +75,10 @@ setappdata(gcf, 'icy_path', 'none');
 setappdata(gcf, 'settings_objectname', '');
 setappdata(gcf, 'status_application',stsFunOut);
 
+% Prepare struct containing handles for UI
+hUIControls = struct();
+setappdata(gcf, 'hUIControls', hUIControls);
+
 %obtain absolute location on system
 current_script_path = mfilename('fullpath');
 [file_path,~,~] = fileparts(current_script_path);
@@ -115,6 +119,7 @@ if(isappdata(hMainGui,'settings_objectname'))
         set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
         set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
         set(handles.figure1, 'Name', ['EpiTools | ', num2str(stgObj.analysis_code), ' - ' , stgObj.analysis_name])
+        uihandles_deletecontrols('uitree');
         LoadControls(hMainGui, stgObj);
         
         % -------------------------------------------------------------------------
