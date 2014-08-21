@@ -30,10 +30,10 @@ progressbar(1);
 %retrieve tracking file
 
 listFilesInput = dir(stgObj.data_analysisindir);
-ArrayFileNames = extractfield(listFilesInput, 'name');
+ArrayFileNames = [listFilesInput.name];
 
 % If tracking module has been executed already in the past
-if (sum(cellfun(@isempty,strfind(ArrayFileNames,'ILabelsCorrected'))) ~= length(ArrayFileNames))
+if (~isempty(strfind(ArrayFileNames,'ILabelsCorrected')))
 
     [filename, pathname] = uigetfile(strcat(stgObj.data_analysisindir,'/','*.mat'),'Select last tracking file');
     
