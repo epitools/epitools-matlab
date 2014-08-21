@@ -13,6 +13,7 @@
 * Launch the EpiTool GUI by running ./SourceCode/EpiTools.m
 * You can find some video tutorials of how to use EpiTools on our dropbox account. The link is below:
     * [EpiTools 0.1b Video Tutorials](https://www.dropbox.com/sh/wpezw6t7lma5d4f/AAD4QKHwtk61sgE2gxMLp0Vva)
+    * Make sure to download them to enjoy the HD quality (click on the dots in the lower right corner and click download).  
 
 ### Who do I talk to? ###
 
