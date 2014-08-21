@@ -4,7 +4,14 @@ function [varargout] = SkeletonConversion(stgObj)
 
 %load(DataSpecificsPath);
 tmpStgObj = stgObj.analysis_modules.Skeletons.settings;
-tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
+
+corrected_segmentation = [stgObj.data_analysisindir,'/SegResultsCorrected'];
+%possibly substitute with hasModule ecc..
+if(exist([corrected_segmentation,'.mat'],'file'))
+    tmpSegObj = load(corrected_segmentation);
+else
+    tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
+end
 
 progressbar('Loading Segmentation results...');
 
