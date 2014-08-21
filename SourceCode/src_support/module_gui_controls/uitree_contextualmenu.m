@@ -9,6 +9,15 @@ menuItem3 = javax.swing.JMenuItem('<html> Export module as .xml file </html>',ja
 menuItem4 = javax.swing.JMenuItem('<html> Export results as .zip file </html>',javax.swing.ImageIcon('./images/icons/compress.png'));
 menuItem5 = javax.swing.JMenuItem('<html> Delete module </html>',javax.swing.ImageIcon('./images/icons/bin_closed.png'));
 
+
+
+hmenuItem1 = handle(menuItem1, 'CallbackProperties');
+hmenuItem2 = handle(menuItem2, 'CallbackProperties');
+hmenuItem3 = handle(menuItem3, 'CallbackProperties');
+hmenuItem4 = handle(menuItem4, 'CallbackProperties');
+hmenuItem5 = handle(menuItem5, 'CallbackProperties');
+
+
 % Set the menu items' callbacks
 set(menuItem1,'ActionPerformedCallback',@openModuleSettings);
 set(menuItem2,'ActionPerformedCallback',@openModuleinFinder);
