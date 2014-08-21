@@ -37,7 +37,7 @@ load([stgObj.data_analysisindir,'/SegResults']);
 [filename, pathname] = uigetfile(strcat(stgObj.data_analysisindir,'/','*.mat'),'Select last tracking file');
 tracking_file = [pathname, filename];
 
-stgObj.AddResult('ReSegmentation','tracking_file_path',tracking_file);
+stgObj.AddResult('ReSegmentation','tracking_file_path',filename);
 
 %% now resegmenting the frames which need it!
 
@@ -63,7 +63,7 @@ NT = size(RegIm,3);
 
 save([stgObj.data_analysisoutdir,'/SegResultsCorrected'], 'RegIm','ILabels', 'CLabels' ,'ColIms','tmpStgObj','NX','NY','NT','IL','-v7.3' );
 
-stgObj.AddResult('ReSegmentation','ReSegmentation_path','/SegResultsCorrected');
+stgObj.AddResult('ReSegmentation','ReSegmentation_path','SegResultsCorrected.mat');
 
 %% inspect results
 if(~stgObj.exec_commandline)
