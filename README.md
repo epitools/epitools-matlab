@@ -2,7 +2,7 @@
 
 ### What is this software for? ###
 
-* This software allows to extract the membrane signal from 3D time lapse microscopy data
+* This software allows to extract the membrane signal from 3D time lapses of developing epithelia
 * version 0.1 beta
 
 ### How do I get set up? ###
