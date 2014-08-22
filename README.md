@@ -15,6 +15,10 @@
     * [EpiTools 0.1b Video Tutorials](https://www.dropbox.com/sh/wpezw6t7lma5d4f/AAD4QKHwtk61sgE2gxMLp0Vva)
     * Make sure to download them to enjoy the HD quality (click on the dots in the lower right corner and click download).  
 
+### Do you have a wiki page? ###
+Yes, we do! Follow this [link](https://bitbucket.org/davideheller/epitools/wiki) to explore our wiki. 
+
+
 ### Who do I talk to? ###
 
 * In case of bugs or improvement suggestions feel free to:
