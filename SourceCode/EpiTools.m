@@ -25,6 +25,15 @@ function varargout = EpiTools(varargin)
 % Last Modified by GUIDE v2.5 18-Aug-2014 18:38:43
 
 % Begin initialization code - DO NOT EDIT
+%
+
+
+% Add a splash screen before EpiTools loading
+if ~nargin
+SplashScreen;
+end
+
+
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
     'gui_Singleton',  gui_Singleton, ...
@@ -32,6 +41,7 @@ gui_State = struct('gui_Name',       mfilename, ...
     'gui_OutputFcn',  @EpiTools_OutputFcn, ...
     'gui_LayoutFcn',  [] , ...
     'gui_Callback',   []);
+
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -84,6 +94,10 @@ current_script_path = mfilename('fullpath');
 [file_path,~,~] = fileparts(current_script_path);
 setappdata(gcf, 'settings_rootpath', file_path);
 
+SplashHandle = findobj('tag','SplashScreenTag');
+if ishandle(SplashHandle)
+   close(SplashHandle);
+end
 handles_connection(hObject,handles)
 
 % --- Outputs from this function are returned to the command line.
@@ -750,3 +764,20 @@ function uiBannerDialog01_Callback(hObject, eventdata, handles)
 % hObject    handle to uiBannerDialog01 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+function SplashScreenHandle = SplashScreen
+% Splash screen before EpiTools loading
+
+logo = imread('ETsplash.jpg','jpg');
+SplashScreenHandle = figure('MenuBar','None','NumberTitle','off','color',[1 1 1],'tag','SplashScreenTag','name','EpiTools is loading...','color',[0.7,0.7,0.9],'Visible', 'off');
+iptsetpref('ImshowBorder','tight');
+imshow(logo);
+set(0,'Units','pixels');
+scnsize = (get(0,'ScreenSize')/2);
+outerpos = get(SplashScreenHandle,'OuterPosition');
+set(SplashScreenHandle,'OuterPosition',[scnsize(3:4),outerpos(3:4)]) 
+set(SplashScreenHandle, 'Visible', 'on');
+drawnow;
+
+
