@@ -61,6 +61,13 @@ if((isempty(filename) || isempty(pathname) ) == 0)
 
     %patch to avoid the increase in x,y dimensions
     IL.ILabels = IL.ILabels(1:NX,1:NY,:);
+    
+    %Did the user apply a polygon crop? If yes use the cropped CLabels
+    cropped_cell_labels_file = [stgObj.data_analysisindir,'/CroppedCellLabels.mat'];
+    if exist(cropped_cell_labels_file,'file')
+        cropped_data = load(cropped_cell_labels_file);
+        tmpSegObj.CLabels = cropped_data.cropped_CellLabelIm;
+    end
 
     %open the tracking gui
     fig = TrackingGUIwOldOK(tmpSegObj.RegIm,...
