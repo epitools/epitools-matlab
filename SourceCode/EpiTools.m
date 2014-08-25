@@ -520,7 +520,10 @@ if(strSettingFilePath)
     tmpFileStruct = {};
     for i=1:numel(arrayFiles)
         idx = arrayFiles(i);
+        
+        stgObj.analysis_modules.Main.data.(char(idx)).exec = logical(stgObj.analysis_modules.Main.data.(char(idx)).exec);
         tmpFileStruct(i,:) = struct2cell(stgObj.analysis_modules.Main.data.(char(idx)))';
+        
     end
     
     
