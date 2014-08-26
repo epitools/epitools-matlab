@@ -1,5 +1,5 @@
 # Welcome to EpiTools #
-
+---------------------------------------
 ### What is this software for? ###
 
 * This software allows to extract the membrane signal from 3D time lapses of developing epithelia
