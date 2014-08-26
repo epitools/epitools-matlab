@@ -13,7 +13,6 @@ end
 if (intForce == 1)
     
     
-    %save(strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',stgObj.analysis_version,'.etl'), 'stgObj');
     tmp = struct();
     tmp.main = struct(stgObj);
     
@@ -21,16 +20,10 @@ if (intForce == 1)
     intNumRows = size(stgObj.analysis_modules.Main.data,1);
     fieldsFile = {'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
     tmpFileStruct = struct();
-    %arrayFiles = fields(stgObj.analysis_modules.Main.data);
+
     for r=1:intNumRows
-        %idx = arrayFiles(i);
         
         tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
-        
-        
-        %obj.(char(idx)) = objName.(char(idx));
-        %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
-        
         
     end
     
@@ -54,17 +47,13 @@ else
             intNumRows = size(stgObj.analysis_modules.Main.data,1);
             fieldsFile = {'name';'dim_x';'dim_y';'dim_z';'num_channels';'num_timepoints';'pixel_type';'exec';'exec_dim_z';'exec_channels';'exec_num_timepoints';};
             tmpFileStruct = struct();
-            %arrayFiles = fields(stgObj.analysis_modules.Main.data);
+
             for r=1:intNumRows
-                %idx = arrayFiles(i);
+
                 
                 tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(stgObj.analysis_modules.Main.data(r,:)',fieldsFile);
                 
-                
-                %obj.(char(idx)) = objName.(char(idx));
-                %tmp.main.analysis_modules_Main.data.(strcat('file',num2str(r))) = '';
-                
-                
+
             end
             
             tmp.main.analysis_modules.Main.data = tmpFileStruct;

@@ -109,9 +109,10 @@ if(isappdata(hMainGui,'settings_objectname'))
                             if(sdb.results_validity)
                                 %msgbox('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module ');
                                  sdbExecStatus2 = DiscardAnalysisModules( strModuleName, stgObj );
+                                 waitfor(sdbExecStatus2);
                             end
                             
-                            waitfor(sdbExecStatus2);
+                            
                             SandboxGUIRedesign(0);
                             
                             % Workaround to be patched asap!
