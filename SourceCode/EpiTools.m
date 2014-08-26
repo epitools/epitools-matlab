@@ -53,7 +53,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before EpiTools is made visible.
 function EpiTools_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -149,7 +148,6 @@ end
 
 % Update handles structure
 guidata(hObject, handles);
-
 
 % --- Executes on button press in use_icy_checkbox.
 function use_icy_checkbox_Callback(hObject, eventdata, handles)
@@ -770,7 +768,11 @@ function SplashScreenHandle = SplashScreen
 % Splash screen before EpiTools loading
 
 logo = imread('ETsplash.jpg','jpg');
-SplashScreenHandle = figure('MenuBar','None','NumberTitle','off','color',[1 1 1],'tag','SplashScreenTag','name','EpiTools is loading...','color',[0.7,0.7,0.9],'Visible', 'off');
+SplashScreenHandle = figure('MenuBar','None','NumberTitle','off','color',...
+                            [1 1 1],'tag','SplashScreenTag','name',...
+                            'EpiTools is loading...','color',[0.7,0.7,0.9],...
+                            'Visible', 'off');
+                        
 iptsetpref('ImshowBorder','tight');
 imshow(logo);
 set(0,'Units','pixels');
@@ -778,6 +780,7 @@ scnsize = (get(0,'ScreenSize')/2);
 outerpos = get(SplashScreenHandle,'OuterPosition');
 set(SplashScreenHandle,'OuterPosition',[scnsize(3:4),outerpos(3:4)]) 
 set(SplashScreenHandle, 'Visible', 'on');
+
 drawnow;
 
 

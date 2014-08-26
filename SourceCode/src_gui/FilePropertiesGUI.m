@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 19-Aug-2014 11:23:59
+% Last Modified by GUIDE v2.5 26-Aug-2014 15:22:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -167,7 +167,6 @@ set(handles.fp_platform_units,'String',strCString);
 guidata(handles.figure1, handles);
 
 
-
 % --- Executes on button press in pushbutton10.
 function pushbutton10_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton10 (see GCBO)
@@ -272,7 +271,6 @@ waitfor(stsFunOut);
 initialize_gui(hObject,handles)
 
 
-
 % --- Executes on button press in B_SelectIMGDirectory.
 function B_SelectIMGDirectory_Callback(hObject, eventdata, handles)
 % hObject    handle to B_SelectIMGDirectory (see GCBO)
@@ -354,3 +352,43 @@ delete(stgObj);
 setappdata(hMainGui, 'settings_objectname', '');
 
 close(handles.figure1);
+
+
+% ------------------------------------------------------------------------
+% UITable controls and callbacks
+% ------------------------------------------------------------------------
+
+
+% --- Executes when entered data in editable cell(s) in uitable1.
+function uitable1_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to uitable1 (see GCBO)
+% eventdata  structure with the following fields (see UITABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
+hFPGui = getappdata(0  , 'hFPGui');
+
+indices = getappdata(hFPGui, 'table_indices');
+data = get(hObject,'Data');
+
+ for i=1:size(indices,1)
+     
+     
+     data{indices(i,1),indices(i,2)} = eventdata.NewData;
+ 
+ end
+ 
+ set(hObject,'Data',data);
+ 
+ 
+% --- Executes when selected cell(s) is changed in uitable1.
+function uitable1_CellSelectionCallback(hObject, eventdata, handles)
+% hObject    handle to uitable1 (see GCBO)
+% eventdata  structure with the following fields (see UITABLE)
+%	Indices: row and column indices of the cell(s) currently selecteds
+% handles    structure with handles and user data (see GUIDATA)
+hFPGui = getappdata(0  , 'hFPGui');
+setappdata(hFPGui, 'table_indices', eventdata.Indices);
