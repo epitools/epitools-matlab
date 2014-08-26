@@ -11,7 +11,7 @@
 
 ### How do I get some more informations? ###
 
-We have a wiki page here. [Wiki Pages](https://bitbucket.org/davideheller/epitools/wiki) to explore our wiki. 
+We have a wiki page here. Follow this [link](https://bitbucket.org/davideheller/epitools/wiki) to explore our wiki pages. 
 
 
 ### Who do I talk to? ###
