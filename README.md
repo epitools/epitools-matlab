@@ -23,7 +23,4 @@ We have a wiki page here. Follow this [link](https://bitbucket.org/davideheller/
 
 
 ---------------------------------------
-
-######  Do you think these informations are not enough to help you? Drop a line to the author and he will extend this tutorial asap!
-
 ###### This page was written by [Lorenzo Gatti](mailto:lorenzo.gatti.89@gmail.com) and [Davide Heller](mailto:davide.heller@imls.uzh.ch) on 26.08.14@16:57
