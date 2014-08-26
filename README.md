@@ -15,4 +15,7 @@ Yes, we do! Follow this [link](https://bitbucket.org/davideheller/epitools/wiki)
 
 * In case of bugs or improvement suggestions feel free to:
     * File an issue in this repository using the bitbucket interface
-    * Write to davide.heller@imls.uzh.ch or lorenzo.gatti@uzh.ch
+    * Write to 
+
+[Davide Heller](mailto:davide.heller@imls.uzh.ch?Subject="EpiTools 0.1 beta closed")
+[Lorenzo Gatti](mailto:lorenzo.gatti@uzh.ch?Subject="EpiTools 0.1 beta closed")
