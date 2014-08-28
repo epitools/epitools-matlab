@@ -208,6 +208,31 @@ classdef settings < handle
                 obj.analysis_modules.(mdname).results.(arg) = value; 
 
         end
+        
+        function AddMetadata(obj,mdname, arg, value)
+        % Add setting parameter to a certain module * the module has to be
+        % already initialized.
+
+                
+                obj.analysis_modules.(mdname).metadata.(arg) = value; 
+
+        end
+        
+        function RemoveMetadata(obj,mdname, arg)
+        % Remove setting parameter to a certain module * the module has to be
+        % already initialized.
+
+                obj.analysis_modules.(mdname).metadata = rmfield(obj.analysis_modules.(mdname).metadata,arg);
+        
+        end
+        
+        function ModifyMetadata(obj,mdname, arg,value)
+        % Modify setting parameter value in a certain module * the module has to be
+        % already initialized.
+                
+                obj.analysis_modules.(mdname).metadata.(arg) = value; 
+
+        end
 
     end
     

@@ -515,6 +515,14 @@ img = Update();
                 FramesToRegrow = union(FramesToRegrow,FramesToRegrow_old);
                 save(Ilabelsout,'ILabels','FramesToRegrow','oktrajs');
                 fprintf('done\n');
+                hMainGui = getappdata(0, 'hMainGui');
+                stgObj = getappdata(hMainGui, 'settings_objectname');
+                
+                if isfield(stgObj.analysis_modules.Tracking.metadata, 'click_counts')
+                    stgObj.ModifyMetadata('Tracking','click_counts', stgObj.analysis_modules.Tracking.metadata.click_counts + NClicks);
+                else
+                   stgObj.AddMetadata('Tracking','click_counts', NClicks); 
+                end
                 close(gcf);
             case {'o'}
                 okeydown = true;
