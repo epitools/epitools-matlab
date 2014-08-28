@@ -1,27 +1,30 @@
 function fig = TrackingGUI(ImageSeries,Ilabel,Clabel,ColLabels,Ilabelsout,params, oldOKs, FramesToRegrow_old)
 
-print_GUI_explanation();
+%print_GUI_explanation();
 
-%Parameters
+%% Reconversion input parameters
 
 Ilabel = uint8(Ilabel);
 Clabel = uint16(Clabel);                                                   %unit16 because more than 256 labels possible!
 
 
+%% Check on image dimensions
 ImSize = size(ImageSeries);
-
+% ImSize = [x, y, t];
 % check for single frame
 if numel(ImSize) == 2 % of got a single frame here
     SingleFrame = true;
     NFrames = 1;
-else 
+else
     SingleFrame = false;
     NFrames = ImSize(3);
 end
 
-%reconvert?
+% this typecasting is still necessary?
 ImageSeries = double(ImageSeries);
-ImageSeries = uint8(ImageSeries/max(ImageSeries(:))*255);  %todo : check casting!
+ImageSeries = uint8(ImageSeries/max(ImageSeries(:))*255);                  %todo : check casting!
+
+%% Initialization of the variables
 
 fs=fspecial('laplacian',0.9);
 
@@ -33,16 +36,26 @@ trackstartX = [];
 trackstartY = [];
 oktrajs = oldOKs;
 
+% Seed maker is white
 SeedMarker = 255;
-
+% Count user clicks
 NClicks = 0;
-
+% Start from the first frame
 CurrentFrame = 1;
-fig = figure;
+
+% Zoom in the area of the seed
 zoommode = false;
+
+% Unknown parameter
 WindowSize = 100;
+
+% Check final tracking
+Ch1On = false;
+
 Cpt = [0 0];
 CCellNum = 0;
+
+% Application status
 okeydown = false;
 deleteMode = false;
 delabelMode = false;
@@ -52,57 +65,59 @@ AddDummyPt = false;
 InspectPt = false;
 NeedToRetrack = false;
 FramesToRegrow = [];
+
 cellBoundaries = zeros(ImSize,'int8');
 
+%% Gui Preparation 
+
+    % Create a new figure
+    fig = figure;
+    set(fig,'WindowButtonDownFcn',@wbmFcn)
+    set(fig,'KeyPressFcn',@keyPrsFcn)
+    if ~SingleFrame
+        slider = uicontrol( fig ...
+            ,'style'    ,'slider'   ...
+            ,'units'    ,'normalized' ...
+            ,'position' ,[0.17 0.05 0.80 0.04] ...
+            );
+
+        % sliderListener = addlistener(slider,'ContinuousValueChange',@sliderActionEventCb);
+        set(slider,'Callback',@sliderActionEventCb);
+
+        set(fig,'WindowScrollWheelFcn',@figScroll);
+
+        set(slider,'max', NFrames);
+        set(slider,'min', 1);
+        set(slider,'Value', 1);
+    end
+
+    cbh1 = uicontrol(fig,'Style','checkbox',...
+        'String','Final check',...
+        'Value',0, ...
+        'units'    ,'normalized', ...
+        'Position',[0.04 0.1 0.1 0.04],...
+        'Callback',@cb1Callback);
+
+    framenum = uicontrol(fig ...
+        ,'style'    ,'edit' ...
+        ,'units'    ,'normalized' ...
+        ,'position' ,[0.04 0.05 0.1 0.04] ...
+        ,'string'   ,1 ...
+        );
+
+    
+%% First run executions
 Retrack();
 RecalculateCellBoundaries();
-
-
-if ~SingleFrame
-    slider = uicontrol( fig ...
-        ,'style'    ,'slider'   ...
-        ,'units'    ,'normalized' ...
-        ,'position' ,[0.17 0.05 0.80 0.04] ...
-        );
-    
-    % sliderListener = addlistener(slider,'ContinuousValueChange',@sliderActionEventCb);
-    set(slider,'Callback',@sliderActionEventCb);
-    
-    set(fig,'WindowScrollWheelFcn',@figScroll);
-    
-    set(slider,'max', NFrames);
-    set(slider,'min', 1);
-    set(slider,'Value', 1);
-end
-
-Ch1On = false;
-
-
-cbh1 = uicontrol(fig,'Style','checkbox',...
-                'String','Final check',...
-                'Value',0, ...
-                'units'    ,'normalized', ...
-                'Position',[0.04 0.1 0.1 0.04],...
-                'Callback',@cb1Callback);
-            
-framenum = uicontrol(fig ...
-    ,'style'    ,'edit' ...
-    ,'units'    ,'normalized' ...
-    ,'position' ,[0.04 0.05 0.1 0.04] ...
-    ,'string'   ,1 ...
-);
-
-Retrack();
+%Retrack();
 img = Update();
 
-set(fig,'WindowButtonDownFcn',@wbmFcn)
 
-set(fig,'KeyPressFcn',@keyPrsFcn)
-
-
+%% Support functions
+% Evaluate the final check
     function cb1Callback(src,evt)
         Ch1On = get(cbh1,'Value');
-        Update();
+        img = Update();
     end
 
     function figScroll(src,evt)
@@ -111,29 +126,30 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         CurrentFrame = max(1,CurrentFrame);
         CurrentFrame = min(NFrames,CurrentFrame);
         set(slider,'Value', CurrentFrame);
-        Update();
+        img = Update();
     end
 
     function sliderActionEventCb(src,evt)
         newi = round(get(src,'Value'));
-        if newi == CurrentFrame 
+        if newi == CurrentFrame
             return
         end
         CurrentFrame = newi;
         set(src,'Value',CurrentFrame);
-        Update();
+        img = Update();
     end
 
     function img = Update()
         
-        figure(fig);
+        % implicit pass of fig obj
+        %figure(fig);
         
         if zoommode
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
             PaddedIm = zeros(ImSize(1)+200,ImSize(2)+200,3);
             PaddedIm(100:99+ImSize(1), 100:99+ImSize(2),:) = squeeze(Irgb(:, :,:));
             
-            % 251 marks the threshold for a seed pixel! 
+            % 251 marks the threshold for a seed pixel!
             [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
             for n =1:length(cpy)
                 y = cpy(n); x = cpx(n);
@@ -154,8 +170,8 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                         PaddedIm(y-2+100:y+2+100,x-2+100:x+2+100,2) = col(2);
                         PaddedIm(y-2+100:y+2+100,x-2+100:x+2+100,3) = col(3);
                         
-               
-                    %and incomplete tracking here    
+                        
+                        %and incomplete tracking here
                     else
                         %base is a 1px smaller cube
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,1) = col(1);
@@ -184,10 +200,10 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                                 PaddedIm(y+100,x+100:x+2+100,3) = col(3);
                             end
                             
-                            %if trajectory key is found in oktrajs, 
+                            %if trajectory key is found in oktrajs,
                             %a vertical band is added
                             trajectory_key = TrajKey(...
-                                trackstartX(CelN), trackstartY(CelN) ,trackstarts(CelN)); 
+                                trackstartX(CelN), trackstartY(CelN) ,trackstarts(CelN));
                             if ~isempty(find(oktrajs == trajectory_key, 1))
                                 PaddedIm(y-2+100:y+2+100,x+100,1) = col(1);
                                 PaddedIm(y-2+100:y+2+100,x+100,2) = col(2);
@@ -202,7 +218,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 PaddedIm(100:end-101,100:end-101,2) = .2*double(cellBoundaries(:,:,CurrentFrame)) + PaddedIm(100:end-101,100:end-101,2).*(1-double(cellBoundaries(:,:,CurrentFrame)));
                 PaddedIm(100:end-101,100:end-101,3) = .2*double(cellBoundaries(:,:,CurrentFrame)) + PaddedIm(100:end-101,100:end-101,3).*(1-double(cellBoundaries(:,:,CurrentFrame)));
             end
-
+            
             img = imshow(PaddedIm(Cpt(1)-WindowSize+100:Cpt(1)+WindowSize+100,Cpt(2)-WindowSize+100:Cpt(2)+WindowSize+100,:));
             
         else
@@ -220,7 +236,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                     col = col*.8;
                     TrackL = tracklength(CelN);
                 end
-
+                
                 ymin = max(y-2,1); ymax = min(y+2,ImSize(1));
                 xmin = max(x-2,1); xmax = min(x+2,ImSize(2));
                 if ~SingleFrame &&  CelN ~=0 && tracklength(CelN) ~= NFrames-1 && isempty(find(oktrajs == TrajKey(trackstartX(CelN), trackstartY(CelN) ,trackstarts(CelN))))
@@ -237,21 +253,23 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                     Irgb(ymin+1:ymax-1,xmin+1:xmax-1,3) = col(3);
                 end
             end
-
+            
             if showCells
                 Irgb(:,:,1) = .5*double(cellBoundaries(:,:,CurrentFrame)) + Irgb(:,:,1).*(1-double(cellBoundaries(:,:,CurrentFrame)));
             end
-
+            
             img = imshow(Irgb);
+            
         end
         
         
         set(img,'ButtonDownFcn',@wbmFcn)
+        
         set(framenum,'String',CurrentFrame);
-        drawnow 
+        drawnow
     end
-    
-    %deletion of a point, intensity 25 is assigned
+
+%deletion of a point, intensity 25 is assigned
     function deletePt(x,y,Frame)
         Ilabel(y, x,Frame) = 25;
         Itracks(y,x,Frame) = 0;
@@ -277,11 +295,21 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         k = 1000000*strt + 1000*cpx + cpy;
     end
 
-    % WBMFCN or WindowButtonMotionFunCtioN
-    % i.e. what happens for MOUSE events
+% WBMFCN or WindowButtonMotionFunCtioN
+% i.e. what happens for MOUSE events
     function wbmFcn(src,evt)
         pt = get(gca,'Currentpoint');
         pt = round([pt(1,1), pt(1,2)]);
+        
+        % -----------------------------------------------------------------
+        % in order to get rid of the click outside the image frame
+        xlim = get(img,'XData');
+        ylim = get(img,'YData');
+             
+        if(isempty(find([xlim(1):xlim(2)] == pt(1),1))); return;end
+        if(isempty(find([ylim(1):ylim(2)] == pt(2),1))); return;end
+        % -----------------------------------------------------------------
+        
         mouseuse  = get(gcf,'SelectionType');
         %PropsOfCell(pt)
         
@@ -299,7 +327,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                     
                     if InspectPt && NeedToRetrack
                         Retrack();
-                        NeedToRetrack = true;                        
+                        NeedToRetrack = true;
                     end
                     
                     % find all known seeds
@@ -331,10 +359,10 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                             end
                             
                             % REMOVE
-                            if ~RemoveTrack 
+                            if ~RemoveTrack
                                 if ~InspectPt && ~okeydown deletePt(x,y,CurrentFrame); end
-                            
-                            % ADD-PARTICLE
+                                
+                                % ADD-PARTICLE
                             else
                                 N = Itracks(y,x,CurrentFrame);
                                 Ilabel(Itracks==N) = 253;
@@ -362,7 +390,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 else
                     % delete Label here!
                     lbl = Clabel(pt(2) + Cpt(1)-WindowSize,pt(1) + Cpt(2)-WindowSize,CurrentFrame);
-                    if lbl ~=0                   
+                    if lbl ~=0
                         F = Ilabel(:,:,CurrentFrame);
                         C = Clabel(:,:,CurrentFrame);
                         Cnum = C(Cpt(1)-WindowSize+pt(2)-1,Cpt(2)-WindowSize+pt(1)-1)
@@ -418,11 +446,11 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                     F = F.*int16(C~=Cnum);
                     [cpy cpx]=find(F > 252)
                     deletePt(cpy,cpx,CurrentFrame);
-                end                
+                end
             end
         end
         
-        Update();
+        img = Update();
         
         % CallBack funtions for NORMAL mode
         function wbmcb(src,evnt)
@@ -431,7 +459,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
             ydat = [yinit,cp(1,2)];
             Cpt(1) = round(Cptinit(1)-cp(1,2)+yinit);
             Cpt(2) = round(Cptinit(2)-cp(1,1)+xinit);
-            Update();
+            img = Update();
         end
         
         function wbucb(src,evnt)
@@ -445,7 +473,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
             cp = get(gca,'CurrentPoint');
             cp = round([cp(1,1), cp(1,2)]);
             deletePtsAround(cp)
-            Update();
+            img = Update();
         end
         
         function wbucbDel(src,evnt)
@@ -454,8 +482,8 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         end
         
     end
-    
-    % KEY PRESS FUNCTION
+
+% KEY PRESS FUNCTION
     function keyPrsFcn(src,evt)
         ch = get(gcf,'CurrentCharacter');
         switch ch
@@ -464,28 +492,28 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                     CurrentFrame = CurrentFrame+1;
                 end
                 set(slider,'Value', CurrentFrame);
-                Update();
+                img = Update();
             case {28} %LEFT ARROW
                 if CurrentFrame > 1
                     CurrentFrame = CurrentFrame-1;
                 end
                 set(slider,'Value', CurrentFrame);
-                Update();
+                img = Update();
             case {'n'}
                 GotoNextProbPt();
-                Update();
+                img = Update();
             case {' '} %SPACE BAR
                 zoommode = false;
                 Retrack();
-                Update();
-            case {'r'} 
+                img = Update();
+            case {'r'}
                 Retrack();
-                Update();
+                img = Update();
             case {'s'}
                 fprintf('Saving ... ');
                 ILabels = Ilabel;
                 FramesToRegrow = union(FramesToRegrow,FramesToRegrow_old);
-                save(Ilabelsout,'ILabels','FramesToRegrow','oktrajs');               
+                save(Ilabelsout,'ILabels','FramesToRegrow','oktrajs');
                 fprintf('done\n');
                 close(gcf);
             case {'o'}
@@ -517,9 +545,9 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
     function Retrack()
         fprintf('Retracking!')
         tic
-        %output vectors 
+        %output vectors
         % Itracks       - 3D information with seed information (255)
-        % pTracks       - position of the track (max 100K) for each time point 
+        % pTracks       - position of the track (max 100K) for each time point
         %                 (track_id, frame_no, (x,y))
         % trackstarts   - frame no where the track starts
         % trackstartX   - initial position X
@@ -542,100 +570,100 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         
         fprintf('Done! %i Clicks', NClicks)
         toc
-
+        
     end
- 
+
     function RecalculateCellBoundaries()
         for ff = 1:NFrames
             cellBoundaries(:,:,ff) = filter2(fs,Clabel(:,:,ff)) >.5;
         end
     end
 
-    function print_GUI_explanation()
-        
-        disp('This GUI allows the user to see the tracks automatically build by');
-        disp(' celltracking4.cc');
-        disp(' celltracking4 is C code which needs to be compiled for matlab:');
-        
-        fprintf('\n');
-        
-        disp(' >>mex celltracking4.cc');
-        
-        fprintf('\n');
-        
-        disp(' The GUI show the seeds as given by ILabels');
-        disp('              the boundaries as given by ColLabels');
-        disp('              the registered images RegIm as background image');
-        
-        fprintf('\n');
-        
-        disp(' You can scroll through the time-trajectory using the scroll on the mouse');
-        disp(' or the slider or the left/rigth arrows');
-        
-        fprintf('\n');
-        
-        disp(' You can zoom into the picure by right-clicking into it, you get out of');
-        disp(' zoom-mode by pressing the <space> bar');
-        
-        fprintf('\n');
-        
-        disp(' In zomm-mode the trajectories which go all the was through the stack are');
-        disp(' larger, the other are potential problems');
-        
-        fprintf('\n');
-        
-        disp(' You can delete a seed by clicking on it and place another one by clicking');
-        disp(' in a free space. The algo will automatically recalculate the');
-        disp(' trajectories.');
-        
-        fprintf('\n');
-        
-        disp(' by pressing ''i'' (for ''inspect'') before clicking on such a potential problem seed, the');
-        disp(' software will take you to the timeframe where it thinks the problem is');
-        disp(' (might be just after / before!)');
-        
-        fprintf('\n');
-        
-        disp(' by pressing ''o'' (for ''ok'') before clicking on such a potential problem seed you');
-        disp(' indicate that you have checked this trajectory and altough it does not go');
-        disp(' through the whole stack, it will not be flagged as a problem anymore');
-        disp(' (could be due to a delamination or a cell division event)');
-        
-        fprintf('\n');
-        
-        disp(' You can toggle showing the segmentation on/off using ''h'' (for ''hide'')');
-        
-        fprintf('\n');
-        
-        disp(' if you click the ''final check'' button, you will only be shown the');
-        disp(' remaining problem areas');
-        
-        fprintf('\n');
-        
-        disp(' pressing ''s'' (for ''save'') saves your new seeding into the file specified in ''output''');
-        
-        fprintf('\n');
-        fprintf('\n');
-       
-        disp(' parameters');
-        
-        disp(' TrackingRadius: the algo performs a search of the seeds in the next');
-        disp(' frame, assigning those that are closest to their former position first');
-        disp(' and progressively searching further up to the distance specified in TrackingRadius');
-       
-        fprintf('\n');
-        
-        disp(' ''t'' to delete an entire track');
-        
-        fprintf('\n');
-       
-        disp(' ''d'' to ''wipe'' out whole areas of seed, when you want to get rid of lots');
-        disp(' of seeds');
-        
-        fprintf('\n');
-       
-        disp(' You can pan the view using the right mouse button');
-    
-    end
+%     function print_GUI_explanation()
+%
+%         disp('This GUI allows the user to see the tracks automatically build by');
+%         disp(' celltracking4.cc');
+%         disp(' celltracking4 is C code which needs to be compiled for matlab:');
+%
+%         fprintf('\n');
+%
+%         disp(' >>mex celltracking4.cc');
+%
+%         fprintf('\n');
+%
+%         disp(' The GUI show the seeds as given by ILabels');
+%         disp('              the boundaries as given by ColLabels');
+%         disp('              the registered images RegIm as background image');
+%
+%         fprintf('\n');
+%
+%         disp(' You can scroll through the time-trajectory using the scroll on the mouse');
+%         disp(' or the slider or the left/rigth arrows');
+%
+%         fprintf('\n');
+%
+%         disp(' You can zoom into the picure by right-clicking into it, you get out of');
+%         disp(' zoom-mode by pressing the <space> bar');
+%
+%         fprintf('\n');
+%
+%         disp(' In zomm-mode the trajectories which go all the was through the stack are');
+%         disp(' larger, the other are potential problems');
+%
+%         fprintf('\n');
+%
+%         disp(' You can delete a seed by clicking on it and place another one by clicking');
+%         disp(' in a free space. The algo will automatically recalculate the');
+%         disp(' trajectories.');
+%
+%         fprintf('\n');
+%
+%         disp(' by pressing ''i'' (for ''inspect'') before clicking on such a potential problem seed, the');
+%         disp(' software will take you to the timeframe where it thinks the problem is');
+%         disp(' (might be just after / before!)');
+%
+%         fprintf('\n');
+%
+%         disp(' by pressing ''o'' (for ''ok'') before clicking on such a potential problem seed you');
+%         disp(' indicate that you have checked this trajectory and altough it does not go');
+%         disp(' through the whole stack, it will not be flagged as a problem anymore');
+%         disp(' (could be due to a delamination or a cell division event)');
+%
+%         fprintf('\n');
+%
+%         disp(' You can toggle showing the segmentation on/off using ''h'' (for ''hide'')');
+%
+%         fprintf('\n');
+%
+%         disp(' if you click the ''final check'' button, you will only be shown the');
+%         disp(' remaining problem areas');
+%
+%         fprintf('\n');
+%
+%         disp(' pressing ''s'' (for ''save'') saves your new seeding into the file specified in ''output''');
+%
+%         fprintf('\n');
+%         fprintf('\n');
+%
+%         disp(' parameters');
+%
+%         disp(' TrackingRadius: the algo performs a search of the seeds in the next');
+%         disp(' frame, assigning those that are closest to their former position first');
+%         disp(' and progressively searching further up to the distance specified in TrackingRadius');
+%
+%         fprintf('\n');
+%
+%         disp(' ''t'' to delete an entire track');
+%
+%         fprintf('\n');
+%
+%         disp(' ''d'' to ''wipe'' out whole areas of seed, when you want to get rid of lots');
+%         disp(' of seeds');
+%
+%         fprintf('\n');
+%
+%         disp(' You can pan the view using the right mouse button');
+%
+%     end
 
 end
