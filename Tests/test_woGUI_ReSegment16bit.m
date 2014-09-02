@@ -10,6 +10,10 @@ cd(file_path);
 
 TestData = [pwd,'/Data/'];
 
+log_settings.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR'};
+log_settings.log_device = 3;
+assignin('base', 'log_settings', log_settings);
+
 ds = settings();
 
 ds.data_analysisindir = [TestData,'Analysis'];

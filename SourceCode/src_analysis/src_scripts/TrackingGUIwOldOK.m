@@ -339,7 +339,8 @@ img = Update();
                         y = cpy(n); x = cpx(n);
                         
                         %check whether the user hit the seed square
-                        if (y > pt(2)-3 + Cpt(1)-WindowSize && y < pt(2)+1 + Cpt(1)-WindowSize && x > pt(1)-3 + Cpt(2)-WindowSize && x < pt(1)+1 + Cpt(2)-WindowSize)
+                        if (checkSeedMatch(x,y,pt))
+                            
                             n = Itracks(y,x,CurrentFrame);
                             
                             % INSPECT
@@ -424,8 +425,12 @@ img = Update();
             if zoommode
                 [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
                 for n =1:length(cpy)
+                    
+                    %seed coordinates
                     y = cpy(n); x = cpx(n);
-                    if (y > pt(2)-3 + Cpt(1)-WindowSize && y < pt(2)+1 + Cpt(1)-WindowSize && x > pt(1)-3 + Cpt(2)-WindowSize && x < pt(1)+1 + Cpt(2)-WindowSize)
+                    
+                    if checkSeedMatch(x,y,pt)
+
                         cnum = Itracks(y,x,CurrentFrame);
                         if cnum ~= 0
                             fprintf('label=%i x=%i y=%i cellnum=%i tracklen=%i trackStart=%i\n' ,Ilabel(y, x,CurrentFrame),x,y,cnum,tracklength(cnum),trackstarts(cnum))
@@ -433,6 +438,7 @@ img = Update();
                             fprintf('label=%i x=%i y=%i \n' ,Ilabel(y, x,CurrentFrame),x,y);
                         end
                         break
+                        
                     end
                 end
                 xinit = pt(1); yinit = pt(2);
@@ -600,6 +606,21 @@ img = Update();
         for ff = 1:NFrames
             cellBoundaries(:,:,ff) = filter2(fs,Clabel(:,:,ff)) >.5;
         end
+    end
+
+    function does_seed_match_point = checkSeedMatch(x,y,pt)
+    %This function checks whether the seed has been selected
+    %by the user. Pt is the mouse location clicked by the user.
+    
+        buffer_down = 3;
+        buffer_up = 1;
+        
+        does_seed_match_point = ...
+            y > pt(2) - buffer_down   + Cpt(1)-WindowSize &&...
+            y < pt(2) + buffer_up     + Cpt(1)-WindowSize &&...
+            x > pt(1) - buffer_down   + Cpt(2)-WindowSize &&...
+            x < pt(1) + buffer_up     + Cpt(2)-WindowSize;
+        
     end
 
 %     function print_GUI_explanation()
