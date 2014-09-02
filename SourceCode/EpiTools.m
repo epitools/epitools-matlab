@@ -96,16 +96,26 @@ setappdata(gcf, 'settings_rootpath', file_path);
 
 % Set log settings *device and level*
 SetExec = struct();
-SetExec.log_device = 3;
-SetExec.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR'};
+SetExec.log_device = 4;
+SetExec.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
 
 setappdata(gcf, 'settings_execution', SetExec);
 
+% Open log window
+% -------------------------------------------------------------------------
+% Log status of previous operations on GUI
+log2dev('***********************************************************','INFO');
+log2dev('*      EPITOOLS - IMAGE PROCESSING TOOL FOR EPITHELIA     * ','INFO');
+log2dev('*    Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti    * ','INFO');
+log2dev('*    Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00    *','INFO');
+log2dev('***********************************************************','INFO');
+% -------------------------------------------------------------------------
 
 SplashHandle = findobj('tag','SplashScreenTag');
 if ishandle(SplashHandle)
    close(SplashHandle);
 end
+
 handles_connection(hObject,handles)
 
 % --- Outputs from this function are returned to the command line.
@@ -155,6 +165,8 @@ if(isappdata(hMainGui,'settings_objectname'))
     
     
 end
+
+movegui(hObject,'center');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -785,10 +797,13 @@ SplashScreenHandle = figure('MenuBar','None','NumberTitle','off','color',...
                         
 iptsetpref('ImshowBorder','tight');
 imshow(logo);
-set(0,'Units','pixels');
-scnsize = (get(0,'ScreenSize')/2);
-outerpos = get(SplashScreenHandle,'OuterPosition');
-set(SplashScreenHandle,'OuterPosition',[scnsize(3:4),outerpos(3:4)]) 
+
+movegui(SplashScreenHandle,'center');
+
+%set(0,'Units','pixels');
+%scnsize = (get(0,'ScreenSize')/2);
+%outerpos = get(SplashScreenHandle,'OuterPosition');
+%set(SplashScreenHandle,'OuterPosition',[scnsize(3:4),outerpos(3:4)]) 
 set(SplashScreenHandle, 'Visible', 'on');
 
 drawnow;
