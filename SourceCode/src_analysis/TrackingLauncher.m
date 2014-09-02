@@ -5,6 +5,15 @@ function [varargout] =  TrackingLauncher(stgObj)
 
 progressbar('Loading SegResults...(might take some minutes)')
 
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev('********************* TRACKING MODULE *********************','INFO');
+log2dev('* Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti       * ','INFO');
+log2dev('* Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00       *','INFO');
+log2dev('***********************************************************','INFO');
+log2dev('Started tracking analysis module', 'INFO');
+% -------------------------------------------------------------------------   
+
 % it is more convenient to recall the setting file with as shorter variable
 % name: stgModule 
 tmpStgObj = stgObj.analysis_modules.Tracking.settings;

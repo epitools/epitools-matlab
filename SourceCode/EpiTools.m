@@ -350,7 +350,7 @@ strModuleName = 'Skeletons';
 
 if(intOut)
     out = SkeletonConversion(stgObj);
-    waitfor(out);
+    %waitfor(out);
 end
 
 statusExecution = SaveAnalysisFile(hObject, handles, 1);

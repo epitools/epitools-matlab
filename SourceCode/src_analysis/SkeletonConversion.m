@@ -4,8 +4,17 @@ function [varargout] = SkeletonConversion(stgObj)
 
 %load(DataSpecificsPath);
 tmpStgObj = stgObj.analysis_modules.Skeletons.settings;
-
 corrected_segmentation = [stgObj.data_analysisindir,'/SegResultsCorrected'];
+
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev('******************* SKELETON GENERATION *******************','INFO');
+log2dev('* Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti       * ','INFO');
+log2dev('* Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00       *','INFO');
+log2dev('***********************************************************','INFO');
+log2dev('Started skeleton analysis module', 'INFO');
+% -------------------------------------------------------------------------      
+
 %possibly substitute with hasModule ecc..
 if(exist([corrected_segmentation,'.mat'],'file'))
     tmpSegObj = load(corrected_segmentation);

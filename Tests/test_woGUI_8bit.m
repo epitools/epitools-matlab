@@ -10,8 +10,14 @@ cd(file_path);
 
 TestData = [pwd,'/8bitDataSet/'];
 
-ds = settings();
+%% Logging setup [ this section is mandatory, w/o it the programm will crash ]
 
+log_settings.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR'};
+log_settings.log_device = 3;
+assignin('base', 'log_settings', log_settings);
+
+%% Settings setup
+ds = settings();
 ds.data_analysisindir = [TestData,'Analysis'];
 ds.data_analysisoutdir = [TestData,'Analysis'];
 ds.data_imagepath = TestData;

@@ -12,6 +12,10 @@ tmpStgObj = stgObj.analysis_modules.Stack_Registration.settings;
 
 % -------------------------------------------------------------------------
 % Log current application status
+log2dev('******************* REGISTRATION MODULE *******************','INFO');
+log2dev('* Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti       * ','INFO');
+log2dev('* Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00       *','INFO');
+log2dev('***********************************************************','INFO');
 log2dev('Started projection analysis module ', 'INFO');
 % -------------------------------------------------------------------------
 

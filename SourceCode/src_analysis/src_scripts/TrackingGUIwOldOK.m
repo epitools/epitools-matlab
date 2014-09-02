@@ -344,7 +344,10 @@ img = Update();
                             
                             % INSPECT
                             if InspectPt && n ~=0
-                                fprintf('Track starts at %i and finishes at %i \n',trackstarts(n),trackstarts(n)+tracklength(n));
+                                % -------------------------------------------------------------------------
+                                % Log status of current application status
+                                log2dev(sprintf('Track starts at %i and finishes at %i \n',trackstarts(n),trackstarts(n)+tracklength(n)), 'DEBUG');
+                                % -------------------------------------------------------------------------
                                 if trackstarts(n) ~= 1
                                     CurrentFrame = trackstarts(n)-1;
                                 end
@@ -510,11 +513,15 @@ img = Update();
                 Retrack();
                 img = Update();
             case {'s'}
-                fprintf('Saving ... ');
+                %fprintf('Saving ... ');
                 ILabels = Ilabel;
                 FramesToRegrow = union(FramesToRegrow,FramesToRegrow_old);
                 save(Ilabelsout,'ILabels','FramesToRegrow','oktrajs');
-                fprintf('done\n');
+                % -------------------------------------------------------------------------
+                log2dev(sprintf('Saving trackign file as %s', Ilabelsout), 'INFO');
+                log2dev('Tracking module is over!', 'INFO');
+                % ------------------------------------------------------------------------- 
+                %fprintf('done\n');
                 hMainGui = getappdata(0, 'hMainGui');
                 stgObj = getappdata(hMainGui, 'settings_objectname');
                 
@@ -528,10 +535,12 @@ img = Update();
                 okeydown = true;
             case {'d'}
                 if ~deleteMode
-                    disp('delete mode!')
+                    log2dev('Tracking module is in mode: DELETE ON', 'INFO');
+                    %disp('delete mode!')
                     deleteMode = true;
                 else
-                    disp('delete mode OFF!')
+                    log2dev('Tracking module is in mode: DELETE OFF', 'INFO');
+                    %disp('delete mode OFF!')
                     deleteMode = false;
                 end
             case {'h'}
@@ -551,7 +560,10 @@ img = Update();
     end
 
     function Retrack()
-        fprintf('Retracking!')
+        % -------------------------------------------------------------------------
+        log2dev('Start retracking', 'DEBUG');
+        % -------------------------------------------------------------------------   
+        %fprintf('Retracking!')
         tic
         %output vectors
         % Itracks       - 3D information with seed information (255)
@@ -575,9 +587,12 @@ img = Update();
             
         end
         
-        
-        fprintf('Done! %i Clicks', NClicks)
-        toc
+        elapsedtime = toc();
+        % -------------------------------------------------------------------------
+        log2dev(sprintf('Finished retracking in %0.2f seconds and with %i clicks',elapsedtime ,NClicks), 'DEBUG');
+        % -------------------------------------------------------------------------
+        %fprintf('Done! %i Clicks', NClicks)
+        %toc
         
     end
 

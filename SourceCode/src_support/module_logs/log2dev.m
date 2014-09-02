@@ -16,37 +16,55 @@ if nargin < 3
              
 end
 
-% Disable logging if run in commandline mode. 
-globalSettings = whos('global');
-if(~isempty(globalSettings))
-
-    return;
-
-end
-
-%% Check where the user has selected to store the log statements
-% Recall setting object
-hMainGui = getappdata(0, 'hMainGui');
-
-if(isappdata(hMainGui,'settings_execution'))
-    SettingsExecution = getappdata(hMainGui,'settings_execution');
-    stgObj = getappdata(hMainGui,'settings_objectname');
+% In case of no-gui execution
+if(isempty(whos('global')))
+    
+    %% Check where the user has selected to store the log statements
+    % Recall setting object
+    hMainGui = getappdata(0, 'hMainGui');
+    
+    if(isappdata(hMainGui,'settings_execution'))
+        SettingsExecution = getappdata(hMainGui,'settings_execution');
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        
+        % Log devices
+        if (isfield(SettingsExecution, 'log_device'))
+            
+            if isempty(intOutputDev)
+                intOutputDev = SettingsExecution.log_device;
+            end
+        end
+        
+        % Log levels to print
+        if (isfield(SettingsExecution, 'log_level'))
+            listLevels = SettingsExecution.log_level;
+        end
+        
+    end
+    
+else
+    
+    
+    local_var = evalin('base', 'log_settings');
     
     % Log devices
-    if (isfield(SettingsExecution, 'log_device'))
-        
-        if isempty(intOutputDev)
-            intOutputDev = SettingsExecution.log_device;
-        end
-    end
-        
-    % Log levels to print
-    if (isfield(SettingsExecution, 'log_level'))
-        listLevels = SettingsExecution.log_level;
-    end
-        
-end
+    if (isfield(local_var, 'log_device'))
 
+        if isempty(intOutputDev)
+            intOutputDev = local_var.log_device;
+        end
+    else
+        return;
+    end
+
+    % Log levels to print
+    if (isfield(local_var, 'log_level'))
+        listLevels = local_var.log_level;
+    else
+        return;
+    end
+    
+end
 % If the log level is not specified in the current execution settings, then
 % suppress it from printing. 
 
