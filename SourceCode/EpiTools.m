@@ -375,6 +375,8 @@ tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
 
 [polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
 
+StackView(cropped_CellLabelIm,'hMainGui','figureA');
+
 save([stgObj.data_analysisoutdir,'/PoligonalMask'],'polygonal_mask');
 save([stgObj.data_analysisoutdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
 

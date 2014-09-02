@@ -151,8 +151,14 @@ img = Update();
             
             % 251 marks the threshold for a seed pixel!
             [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
+            
             for n =1:length(cpy)
                 y = cpy(n); x = cpx(n);
+                
+                if ~checkLabelValidity(x,y)
+                    continue
+                end
+                
                 if (y > Cpt(1)-WindowSize && y < Cpt(1)+WindowSize && x > Cpt(2)-WindowSize && x < Cpt(2)+WindowSize )
                     CelN = Itracks(y,x,CurrentFrame);
                     if CelN ==0
@@ -228,6 +234,11 @@ img = Update();
             [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 253);
             for n =1:length(cpy)
                 y = cpy(n); x = cpx(n);
+                
+                if ~checkLabelValidity(x,y)
+                    continue
+                end
+                
                 CelN = Itracks(y,x,CurrentFrame);
                 if CelN ==0
                     col = [1 1 1];
@@ -632,7 +643,25 @@ img = Update();
 %                 y,abs_pt_y - buffer_down,abs_pt_y,abs_pt_y + buffer_up,...
 %                 Cpt(1),Cpt(2),WindowSize);
 %         end
-                
+    end
+
+    function has_seed_valid_label = checkLabelValidity(x,y)
+        %Function to check whether a seed has a valid label
+        %this might be not the case when a polygonal crop has been applied
+        
+        
+        %check input validity
+        if x > ImSize(1) || y > ImSize(2)
+            has_seed_valid_label = 0;
+            return;
+        end
+        
+        
+        if(Clabel(x,y,CurrentFrame) > 1)
+            has_seed_valid_label = 1;
+        else
+            has_seed_valid_label = 0;
+        end
         
     end
 

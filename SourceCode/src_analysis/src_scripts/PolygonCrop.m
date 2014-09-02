@@ -57,9 +57,6 @@ function [polygonal_mask, cropped_CellLabelIm] = PolygonCrop( imStack, CellLabel
         %insert the cropped frame in the final stack
         cropped_CellLabelIm(:,:,f) = cropped_frame;
     end
-    
-    StackView(cropped_CellLabelIm,'hMainGui','figureA');
-
 
 end
 
