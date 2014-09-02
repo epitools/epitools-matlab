@@ -33,11 +33,21 @@ end
 if tmpStgObj.SingleFrame
     %todo: SegmentStack should be able to handle single frames
     im = tmpRegObj.RegIm(:,:,1);
-    [Ilabel,Clabel,ColIm] = SegmentIm(im,tmpStgObj);
+    [ILabels,CLabels,ColIms] = SegmentIm(im,tmpStgObj);
     
     figure;
-    imshow(ColIm,[]);
+    imshow(ColIms,[]);
+    RegIm = im;
+    save([stgObj.data_analysisoutdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','tmpStgObj','-v7.3')
+    stgObj.AddResult('Segmentation','segmentation_path','SegResults.mat');
+
     
+    % -------------------------------------------------------------------------
+    % Log status of current application status
+    log2dev(sprintf('Saving segmentation results as %s | %s',[stgObj.data_analysisoutdir,'/SegResults'],[stgObj.data_analysisoutdir,'/TrackingStart']), 'DEBUG');
+    % -------------------------------------------------------------------------   
+
+
 else
     
     %Check current parallel options 
@@ -85,10 +95,10 @@ else
 
                 % Change banner description
                 log2dev('Currently executing the [Segmentation] module',...
-                'hMainGui',...
-                'uiBannerDescription',...
-                [],...
-                2 );
+                    [],...
+                    2,...
+                    'hMainGui',...
+                    'uiBannerDescription');
 
                 StackView(ColIms,'hMainGui','figureA');
 
