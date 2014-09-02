@@ -3,6 +3,21 @@ function [varargout] =  Segmentation(stgObj)
 %   DataSpecificsPath - Path Data to analyze (See InspectData function)
 %   params - parameter structure for the segmentation algorithm
 
+tic
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev('*************** SEGMENTATION MODULE ***************','INFO');
+log2dev('* Authors: Alexandre Tournier, Andreas Hoppe','INFO');
+log2dev('* $Revision: 0.1 beta $  $Date: 2014/09/02 11:37:00 $ *','INFO');
+log2dev('*************** SEGMENTATION MODULE ***************','INFO');
+log2dev('Started segmentation analysis module', 'INFO');
+% -------------------------------------------------------------------------        
+
+
+% 
+% $Revision: 5.27.4.8 $  $Date: 2011/06/15 08:03:38 $ 
+% Built-in function. 
+
 
 % it is more convenient to recall the setting file with as shorter variable
 % name: stgModule 
@@ -32,25 +47,29 @@ else
         tmpStgObj.Parallel = false;
     end
     
+    % Calling segmentation function with parameters set previously
+    [ILabels,CLabels,ColIms] = SegmentStack(tmpRegObj.RegIm,tmpStgObj);
     
-    [ILabels ,CLabels,ColIms] = SegmentStack(tmpRegObj.RegIm,tmpStgObj);
     
-    NX = size(tmpRegObj.RegIm,1);
-    NY = size(tmpRegObj.RegIm,2);
-    NT = size(tmpRegObj.RegIm,3);
-    
-    RegIm = tmpRegObj.RegIm;
-    save([stgObj.data_analysisoutdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','tmpStgObj','NX','NY','NT','-v7.3')
+    NX      = size(tmpRegObj.RegIm,1);
+    NY      = size(tmpRegObj.RegIm,2);
+    NT      = size(tmpRegObj.RegIm,3);
+    RegIm   = tmpRegObj.RegIm;
     
     %save dummy tracking information
     FramesToRegrow = [];
     oktrajs = [];
-
-    save([stgObj.data_analysisoutdir,'/TrackingStart'],'ILabels','FramesToRegrow','oktrajs')
     
+    save([stgObj.data_analysisoutdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','tmpStgObj','NX','NY','NT','-v7.3')
+    save([stgObj.data_analysisoutdir,'/TrackingStart'],'ILabels','FramesToRegrow','oktrajs')
     stgObj.AddResult('Segmentation','segmentation_path','SegResults.mat');
     stgObj.AddResult('Segmentation','tracking_path','TrackingStart.mat');
-   
+ 
+    % -------------------------------------------------------------------------
+    % Log status of current application status
+    log2dev(sprintf('Saving segmentation results as %s | %s',[stgObj.data_analysisoutdir,'/SegResults'],[stgObj.data_analysisoutdir,'/TrackingStart']), 'DEBUG');
+    % -------------------------------------------------------------------------   
+
     % inspect results
     if(~stgObj.exec_commandline)
         if(stgObj.icy_is_used)
@@ -87,5 +106,13 @@ else
         StackView(ColIms);
     end
 end
+
+elapsedTime = toc;
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev(sprintf('Finished after %.2f', elapsedTime), 'DEBUG');
+% -------------------------------------------------------------------------   
+
+
 end
 

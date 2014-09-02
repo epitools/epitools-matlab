@@ -8,11 +8,7 @@ progressbar('Loading SegResults...(might take some minutes)')
 % it is more convenient to recall the setting file with as shorter variable
 % name: stgModule 
 tmpStgObj = stgObj.analysis_modules.Tracking.settings;
-
 tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
-
-
-%load([AnaDirec,'/SegResults']);
 
 %Save original sequence dimensions
 NX = size(tmpSegObj.RegIm,1);
@@ -32,12 +28,11 @@ progressbar(1);
 listFilesInput = dir(stgObj.data_analysisindir);
 ArrayFileNames = [listFilesInput.name];
 
-% If tracking module has been executed already in the past
+% If tracking module has been executed already, ask which tracking file to start with
 if (~isempty(strfind(ArrayFileNames,'ILabelsCorrected')))
 
     [filename, pathname] = uigetfile(strcat(stgObj.data_analysisindir,'/','*.mat'),'Select last tracking file');
-    
-    
+     
     if (~isa(filename, 'char') && (filename == 0 || pathname == 0))
         filename = '';
         pathname = '';
@@ -50,14 +45,18 @@ elseif (~isempty(strfind(ArrayFileNames,'TrackingStart')))
        filename =  '/TrackingStart.mat';
        pathname =  stgObj.data_analysisindir;
 
-% If segmentation module has not been executed
+% If segmentation module has not been executed 
+% In future, throw an error due to dependences not satisfied
 else
     return;
 end
 
 if((isempty(filename) || isempty(pathname) ) == 0)
     IL = load([pathname,filename]);
-    disp(['Current tracking file: ',filename]);
+    
+    %disp(['Current tracking file: ',filename]);
+
+    log2dev(['Current tracking file: ',filename],'INFO');
 
     %patch to avoid the increase in x,y dimensions
     IL.ILabels = IL.ILabels(1:NX,1:NY,:);
@@ -84,7 +83,6 @@ if((isempty(filename) || isempty(pathname) ) == 0)
   
 %% Saving results
 stgObj.AddResult('Tracking','tracking_file',strcat(strFilename,'.mat'));
-
 
 end
 

@@ -34,7 +34,10 @@ ImSize = s(1:2);
 f1=fspecial( 'gaussian', ImSize, .1);
 se = strel('disk',10);
 
-fprintf('Building coarse view of stack ...')
+% ---------------------------------------------------------------------
+% Log current application status
+log2dev('Building coarse view of stack ... ', 'INFO');
+% ---------------------------------------------------------------------
 
 % building a coarse view of the stack
 % todo: coarse and fine views are very ... crap .. need updating!
@@ -59,17 +62,25 @@ for i = 1:NImages                   % todo: parfor
     Coarse2(:,:,i ) = Im2;
     Coarse2(:,:,i ) = closeBW;          % try this AT
 end
-fprintf('done\n');
+% ---------------------------------------------------------------------
+% Log current application status
+log2dev('Done ... ', 'INFO');
+% ---------------------------------------------------------------------
 
-%%
-
-fprintf('Registering projected images ...\n');
+% ---------------------------------------------------------------------
+% Log current application status
+log2dev('Registering projected images ... ', 'INFO');
+% ---------------------------------------------------------------------
 
 RegRes = {};
 RegRes2 = {};
 
-for i = 2:NImages                   % todo: parfor
-    fprintf('%i/%i\n', i,NImages);
+for i = 2:NImages                                                           % todo: parfor
+
+    % ---------------------------------------------------------------------
+    % Log current application status
+    log2dev(sprintf('Processing: %i/%i', i,NImages), 'DEBUG');
+    % ---------------------------------------------------------------------
     RegRes = Register(Coarse(:,:,i),Coarse(:,:,i-1),Ang,X,Y,'opt');
     %finer, 2nd go!
     RegRes2{i} = Register(Coarse2(:,:,i),Coarse2(:,:,i-1),FAng + RegRes.Ang ,FX +RegRes.x ,FY + RegRes.y ,'opt');
@@ -90,7 +101,11 @@ end
 
 
 %% new projIm
-fprintf('Saving registered images ...\n');
+% ---------------------------------------------------------------------
+% Log current application status
+log2dev('Saving registered images ... ', 'INFO');
+% ---------------------------------------------------------------------
+
 RegIm = zeros(size(ImSeries), class(ImSeries));
 RegIm(:,:,1) = ImSeries(:,:,1);
 
@@ -99,6 +114,5 @@ for i = 2:NImages                 % todo: parfor
     RegIm(:,:,i) = im;
 end
 
-%%
 end
 

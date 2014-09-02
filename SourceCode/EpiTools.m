@@ -82,6 +82,7 @@ setappdata(gcf, 'icy_is_used', 0);
 setappdata(gcf, 'icy_is_loaded', 0);
 setappdata(gcf, 'icy_path', 'none');
 setappdata(gcf, 'settings_objectname', '');
+setappdata(gcf, 'settings_execution', '');
 setappdata(gcf, 'status_application',stsFunOut);
 
 % Prepare struct containing handles for UI
@@ -92,6 +93,14 @@ setappdata(gcf, 'hUIControls', hUIControls);
 current_script_path = mfilename('fullpath');
 [file_path,~,~] = fileparts(current_script_path);
 setappdata(gcf, 'settings_rootpath', file_path);
+
+% Set log settings *device and level*
+SetExec = struct();
+SetExec.log_device = 3;
+SetExec.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR'};
+
+setappdata(gcf, 'settings_execution', SetExec);
+
 
 SplashHandle = findobj('tag','SplashScreenTag');
 if ishandle(SplashHandle)
@@ -120,7 +129,7 @@ hMainGui = getappdata(0, 'hMainGui');
 % -------------------------------------------------------------------------
 % Log status of previous operations on GUI
 % set(handles.statusbar, 'String',getappdata(hMainGui, 'status_application') );
-log2dev( getappdata(hMainGui, 'status_application'), 'hMainGui', 'statusbar', 'FR0001' , 0 );
+log2dev( getappdata(hMainGui, 'status_application'), 'INFO', 0, 'hMainGui', 'statusbar' );
 % -------------------------------------------------------------------------
 
 if(isappdata(hMainGui,'settings_objectname'))
@@ -137,7 +146,8 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         % -------------------------------------------------------------------------
         % Log status of previous operations on GUI
-        log2dev(sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, num2str(stgObj.analysis_version),stgObj.data_extensionmask  ), 'hMainGui', 'statusbar', 'LD0001', 0 );
+        log2dev( sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, num2str(stgObj.analysis_version),stgObj.data_extensionmask),...
+                'INFO', 0, 'hMainGui', 'statusbar' );
         % -------------------------------------------------------------------------
         
     end
@@ -483,7 +493,7 @@ diary on;
 installed_toolboxes=ver;
 if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
     if(stgObj.platform_units ~= 1);
-        matlabpool('local',stgObj.platform_units);
+        parpool('local',stgObj.platform_units);
     end
 end
 

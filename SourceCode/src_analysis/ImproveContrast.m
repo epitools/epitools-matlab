@@ -3,12 +3,18 @@ function ImproveContrast(stgObj)
 %   CLAHE - Contrast-Limited Adaptive Histogram Equalization
 %   DataSpecificsPath - Path Data to analyze (See InspectData function)
 
+tic
 
 tmpStgObj = stgObj.analysis_modules.Contrast_Enhancement.settings;
 %load(DataSpecificsPath);
 
 tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
-
+        
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev('Started clahe analysis module', 'INFO');
+% -------------------------------------------------------------------------        
+        
 progressbar('Enhancing contrast...(please wait)');
 
 %% assuming that images are either 8 or 16bit in input
@@ -33,8 +39,19 @@ for i=1:size(tmpRegObj.RegIm,3)
    
     RegIm_clahe(:,:,i) = RegIm_clahe_uint; 
 
+    % -------------------------------------------------------------------------
+    % Log status of current application status
+    log2dev(sprintf('Local time point: %u | Progression: %0.2f',i,(i/size(tmpRegObj.RegIm,3))), 'DEBUG');
+    % -------------------------------------------------------------------------
+
     progressbar(i/size(tmpRegObj.RegIm,3));
 end
+
+elapsedTime = toc;
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev(sprintf('Finished after %.2f', elapsedTime), 'DEBUG');
+% -------------------------------------------------------------------------
 
 progressbar(1);
 
@@ -42,6 +59,13 @@ progressbar(1);
 if(~stgObj.exec_commandline)
     if(stgObj.icy_is_used)
         icy_vidshow(RegIm_clahe,'CLAHE Sequence');
+        
+        % -------------------------------------------------------------------------
+        % Log current application status
+        log2dev('Display results of improve contrast module via IcyConnection ', 'DEBUG');
+        % -------------------------------------------------------------------------
+
+        
     else
         if(strcmp(stgObj.data_analysisindir,stgObj.data_analysisoutdir))
             
@@ -74,30 +98,31 @@ if(~stgObj.exec_commandline)
             StackView(tmpRegObj.RegIm,'hMainGui','figureC1');
             StackView(RegIm_clahe,'hMainGui','figureC2');
             
-            % Change banner description
+
+           % Change banner description
             log2dev('Current analysis hold on module [CLAHE]',...
+                'GUI',...
+                2,...
                 'hMainGui',...
-                'uiBannerDescription',...
-                [],...
-                2 );
+                'uiBannerDescription');
             
             log2dev('Would you like to save the results obtained from running this analysis module?',...
+                'GUI',...
+                2,...
                 'hMainGui',...
-                'uiTextDialogBanner',...
-                [],...
-                2);
+                'uiTextDialogBanner');
             
             log2dev('Accept result',...
+                'GUI',...
+                2,...
                 'hMainGui',...
-                'uiBannerDialog01',...
-                [],...
-                2 );
+                'uiBannerDialog01');
             
             log2dev('Discard result',...
+                'GUI',...
+                2,...
                 'hMainGui',...
-                'uiBannerDialog02',...
-                [],...
-                2 );
+                'uiBannerDialog02');
            
             
             % Set controls callbacks
@@ -122,6 +147,8 @@ if(~stgObj.exec_commandline)
             set(a1,'Visible', 'off');
             set(a2,'Visible', 'off');
             
+            
+            
         else
             firstrun = load([stgObj.data_analysisindir,'/RegIm']);
             % The program is being executed in comparative mode
@@ -132,7 +159,10 @@ if(~stgObj.exec_commandline)
             
         end
         
-        
+        % -------------------------------------------------------------------------
+        % Log status of current application status
+        log2dev('Display results of clahe module via @StackView ', 'DEBUG');
+        % -------------------------------------------------------------------------
     end
 else
     StackView(RegIm_clahe);

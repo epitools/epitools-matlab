@@ -9,10 +9,29 @@ tmpStgObj = stgObj.analysis_modules.Stack_Registration.settings;
 %     stgObj.useStackReg = false;
 % end
 
+
+% -------------------------------------------------------------------------
+% Log current application status
+log2dev('Started projection analysis module ', 'INFO');
+% -------------------------------------------------------------------------
+
 if(tmpStgObj.useStackReg)
     RegIm = stackRegWrapper(tmpObj.ProjIm);
+    
+    % ---------------------------------------------------------------------
+    % Log current application status
+    log2dev('Projection redirected to stackRegWrapper ', 'DEBUG');
+    % ---------------------------------------------------------------------
+    
+    
 else
     progressbar('Registering images... (please wait)');
+    
+    % ---------------------------------------------------------------------
+    % Log current application status
+    log2dev('Projection redirected to @RegisterStack ', 'DEBUG');
+    % ---------------------------------------------------------------------
+    
     RegIm = RegisterStack(tmpObj.ProjIm,tmpStgObj);
     progressbar(1);
 end
@@ -34,10 +53,10 @@ if ~stgObj.exec_commandline
             
             % Change banner description
             log2dev('Currently executing the [Registration] module',...
+            'GUI',...
+             2,...
             'hMainGui',...
-            'uiBannerDescription',...
-            [],...
-            2 );
+            'uiBannerDescription');
             
             StackView(RegIm,'hMainGui','figureA');
         

@@ -23,18 +23,22 @@ intProcessedFiles = 0;
 % name: stgModule
 stgModule = stgObj.analysis_modules.Projection.settings;
 
-fprintf('Started projection at %s',datestr(now));
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev('Started projection analysis module', 'INFO');
+% -------------------------------------------------------------------------
 
 % Preparing specifics for all the images in the analysis
-
 stgObj.analysis_modules.Main.indices = PreparingData2Load(stgObj);
 
 % Activate Matlabpools for parallel execution if set in stgObj
 if(stgObj.platform_units ~= 1)
-    matlabpool('local',stgObj.platform_units);
+    parpoolobj = parpool('local',stgObj.platform_units);
+    % -------------------------------------------------------------------------
+    % Log status of current application status
+    log2dev( sprintf('Opening %u pools on currently default cluster',parpoolobj.NumWorkers), 'DEBUG');
+    % -------------------------------------------------------------------------
 end
-
-
 
 % Per each IMG ID in the IMG ID list generated with PreparingData2Load (where the
 % exec toggle property was set to true)
@@ -47,6 +51,13 @@ for i=1:numel(stgObj.analysis_modules.Main.indices.I)
     strCurFileName = char(stgObj.analysis_modules.Main.data(intCurImgIdx,1));
     strFullPathFile = [stgObj.data_imagepath,'/',strCurFileName];
     
+
+    % -------------------------------------------------------------------------
+    % Log status of current application status
+    log2dev(sprintf('Currently processing %s',strCurFileName), 'INFO');
+    % -------------------------------------------------------------------------
+
+
     % If the first file is being processed, then initialize variables
     % Surface, ProjIm
     if(intProcessedFiles == 0)
@@ -72,13 +83,11 @@ for i=1:numel(stgObj.analysis_modules.Main.indices.I)
     ImagesPreStack = LoadImgData(strFullPathFile,intCurImgIdx,stgObj.analysis_modules.Main.indices);
     
     %% Project data
-    
-    fprintf('Working on %s\n', strCurFileName);
-    
     totalTimeSteps = sum(cellfun(@length,stgObj.analysis_modules.Main.indices.T));
     
     for local_time_index = 1:length(stgObj.analysis_modules.Main.indices.T{intCurImgIdx})
-        
+    
+
         ImStack = ImagesPreStack(:,:,:,stgObj.analysis_modules.Main.indices.T{intCurImgIdx}(local_time_index));
         
         [im,Surf] = createProjection(ImStack,...
@@ -92,13 +101,13 @@ for i=1:numel(stgObj.analysis_modules.Main.indices.I)
         Surfaces(:,:,local_time_index+global_time_index) = Surf;
         
         currTimeStep = global_time_index + local_time_index;
-        
+
+        % -------------------------------------------------------------------------
+        % Log status of current application status
+        log2dev(sprintf('Local time point: %u | Global time point: %u | Progression: %0.2f',local_time_index,currTimeStep,(currTimeStep/totalTimeSteps)), 'DEBUG');
+        % -------------------------------------------------------------------------
+
         progressbar(currTimeStep/totalTimeSteps);
-        
-        %progressbar(((local_time_index-1)*length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:))+...
-        %    stgObj.analysis_modules.Main.indices.T(intCurImgIdx,local_time_index))/...
-        %    length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:))/...
-        %    length(stgObj.analysis_modules.Main.indices.T(intCurImgIdx,:)));
         
     end
     
@@ -114,15 +123,28 @@ stgObj.AddResult('Projection','surface_path','Surfaces.mat');
 save([stgObj.data_analysisoutdir,'/ProjIm'],'ProjIm')
 save([stgObj.data_analysisoutdir,'/Surfaces'],'Surfaces')
 
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev(sprintf('Saving results as %s | %s',([stgObj.data_analysisoutdir,'/ProjIm']),([stgObj.data_analysisoutdir,'/Surfaces'])), 'INFO');
+% -------------------------------------------------------------------------
+
 progressbar(1);
 
-fprintf('Finished projection at %s\n',datestr(now));
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev('Finished projection module ', 'INFO');
+% -------------------------------------------------------------------------
 
 %% Results visualisation according to the method of execution
-
 if(~stgObj.exec_commandline)
     if(stgObj.icy_is_used)
         icy_vidshow(ProjIm,'Projected Sequence');
+
+        % -------------------------------------------------------------------------
+        % Log current application status
+        log2dev('Display results of projection module via IcyConnection ', 'DEBUG');
+        % -------------------------------------------------------------------------
+
     else
         if(strcmp(stgObj.data_analysisindir,stgObj.data_analysisoutdir))
             
@@ -134,14 +156,14 @@ if(~stgObj.exec_commandline)
             
             % Change banner description
             log2dev('Currently executing the [Projection] module',...
+            'GUI',...
+            2,...
             'hMainGui',...
-            'uiBannerDescription',...
-            [],...
-            2 );
+            'uiBannerDescription');
             
             StackView(ProjIm,'hMainGui','figureA');
 
-        
+
         else
             firstrun = load([stgObj.data_analysisindir,'/ProjIm']);
             % The program is being executed in comparative mode
@@ -149,6 +171,12 @@ if(~stgObj.exec_commandline)
             StackView(ProjIm,'hMainGui','figureC2');
             
         end
+
+        % -------------------------------------------------------------------------
+        % Log status of current application status
+        log2dev('Display results of projection module via @StackView ', 'DEBUG');
+        % -------------------------------------------------------------------------
+
     end
 else
     StackView(ProjIm);

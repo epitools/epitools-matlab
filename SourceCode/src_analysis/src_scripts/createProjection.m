@@ -16,7 +16,12 @@ function [ProjIm,DepthMap] = createProjection(ImStack, SmoothingRadius, depthThr
 % Author:
 % Copyright:
 
-fprintf('Creating smart projection ... ')
+
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev('Creating smart projection', 'DEBUG');
+% -------------------------------------------------------------------------
+
 tic
 
 s=size(ImStack); 
@@ -117,8 +122,12 @@ for y=1:s(1),
     end
 end
 
-fprintf('Finished. ')
-toc
+elapsedTime = toc;
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev(sprintf('Finished after %.2f', elapsedTime), 'DEBUG');
+% -------------------------------------------------------------------------
+
 
 ProjIm = projected_image;
 DepthMap = z_origin_map;

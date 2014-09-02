@@ -31,7 +31,7 @@ else
     NFrames = ImSize(3);
 end
 
-if nargin < 4           % growing from previous labels
+if nargin < 4                                                              % growing from previous labels
     frs = 1:NFrames;
     Clabels = zeros(ImSize, 'uint16');
     ColIms = zeros([ImSize(1),ImSize(2),3,NFrames]);
@@ -39,7 +39,7 @@ else
     fprintf('regrowing frames:');
 end
 
-if nargin < 3        % not using previous labels
+if nargin < 3                                                              % not using previous labels
     Ilabels = zeros(ImSize,'uint8');
     NoPreviousLabels = true;
 else
@@ -58,9 +58,11 @@ if params.Parallel           % parallelise if we can!
                                      1);
     
     parfor i = 1:NFrames
-        fprintf('segmenting frame (P) %i\n', i);
+        % -------------------------------------------------------------------------
+        % Log current application status
+        log2dev(sprintf('Processing frame (P) %i',i), 'DEBUG');
+        % -------------------------------------------------------------------------
         im = double(Stack(:,:,i));
-%         im = im/max(im(:))*255;
         if NoPreviousLabels
             [Ilabel ,Clabel,ColIm] = SegmentIm(im,params);
         else
@@ -78,11 +80,16 @@ if params.Parallel           % parallelise if we can!
 else
     progressbar('Segmenting images... (please wait)');
     for t=1:length(frs)
+        
         i = frs(t);
-        fprintf('segmenting frame %i\n', i);
+        
+        % -------------------------------------------------------------------------
+        % Log current application status
+        log2dev(sprintf('Processing frame (P) %i',i), 'DEBUG');
+        % -------------------------------------------------------------------------
+        
         im = double(Stack(:,:,i));
-        %commented as also in parallel version
-        %im = im/max(im(:))*255;
+
         if NoPreviousLabels
             [Ilabel ,Clabel,ColIm] = SegmentIm(im,params);
         else
