@@ -23,6 +23,7 @@ classdef settings < handle
         data_extensionmask = '.xml';
         icy_is_used = 0;
         exec_commandline = false;
+        exec_sandboxinuse = false;
     end
     
     methods
@@ -91,6 +92,7 @@ classdef settings < handle
             obj.platform_id = addr_allOneString;
             obj.icy_is_used = 0;
             obj.exec_commandline = false;
+            obj.exec_sandboxinuse = false;
             
         end      
         
