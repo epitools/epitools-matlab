@@ -40,7 +40,9 @@ else
 end
 
 % savehandle
-uihandles_savecontrols( 'uiSWslider', slider );
+if(~strcmp(pntDevice,'new'))
+    uihandles_savecontrols( 'uiSWslider', slider );
+end
 
 % if version == '7.9.0.529 (R2009b)'
     %sliderListener = addlistener(slider,'Action',@sliderActionEventCb);
@@ -106,9 +108,10 @@ else
 end
 
 % savehandle
+if(~strcmp(pntDevice,'new'))
 uihandles_savecontrols( 'uiSWFrameNumLabel', uiSWFrameNumLabel );
 uihandles_savecontrols( 'uiSWFrameNumEdit', framenum );
-
+end
 Update();
 
 set(img,'ButtonDownFcn',@wbmFcn)
