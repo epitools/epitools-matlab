@@ -17,7 +17,7 @@ if nargin < 3
 end
 
 W = evalin('base','whos'); %or 'base'
-doesAexist = ismember('log_settings',[W(:).name]);
+doesAexist = sum(ismember('log_settings',[W(:).name]));
 
 % In case of no-gui execution
 if(~doesAexist)
