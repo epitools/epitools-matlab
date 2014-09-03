@@ -13,13 +13,7 @@ log2dev('***********************************************************','INFO');
 log2dev('Started segmentation analysis module', 'INFO');
 % -------------------------------------------------------------------------        
 
-
-% 
-% $Revision: 5.27.4.8 $  $Date: 2011/06/15 08:03:38 $ 
-% Built-in function. 
-
-
-% it is more convenient to recall the setting file with as shorter variable
+% it is more convenient to recall the setting file with a shorter variable
 % name: stgModule 
 tmpStgObj = stgObj.analysis_modules.Segmentation.settings;
 
@@ -95,7 +89,7 @@ else
 
                 % Change banner description
                 log2dev('Currently executing the [Segmentation] module',...
-                    [],...
+                    'GUI',...
                     2,...
                     'hMainGui',...
                     'uiBannerDescription');
