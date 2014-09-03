@@ -6,14 +6,16 @@ LoadEpiTools();
 
 cd(file_path);
 
-%% Data setup (ds = Data Settings object)
+%% Activate logging
 
 TestData = [pwd,'/Data/'];
 
 log_settings.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR'};
 log_settings.log_device = 3;
 assignin('base', 'log_settings', log_settings);
+log2dev('Logging is now active','INFO');
 
+%% Data setup (ds = Data Settings object)
 ds = settings();
 
 ds.data_analysisindir = [TestData,'Analysis'];
@@ -106,6 +108,17 @@ CompareFiles([ds.data_analysisindir,'/TrackingStart'], [ds.data_benchmarkdir,'/T
 
 % load('/Users/alexandertournier/Documents/CRUK-UCL/Yanlan/epitools/Tests/Data/Analysis/SegResults.mat');
 % StackView(ColIms);
+
+%% PolygonCrop
+
+tmpSegObj = load([ds.data_analysisindir,'/SegResults']);
+tmpRegObj = load([ds.data_analysisindir,'/RegIm']);
+
+[polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
+StackView(cropped_CellLabelIm);
+
+save([ds.data_analysisoutdir,'/PoligonalMask'],'polygonal_mask');
+save([ds.data_analysisoutdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
 
 %% Execute rapid tracking correction
 

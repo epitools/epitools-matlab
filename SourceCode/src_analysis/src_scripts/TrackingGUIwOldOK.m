@@ -328,6 +328,10 @@ img = Update();
         if strcmp(mouseuse ,'normal')
             NClicks = NClicks + 1;
             if zoommode
+                
+                %Check first if the location of the click is valid
+                if ~checkPointValidity(pt(1),pt(2));return;end
+                
                 % Any modification requires the frame to be resegmented
                 if isempty(find(FramesToRegrow==CurrentFrame) )
                     FramesToRegrow(length(FramesToRegrow)+1) = CurrentFrame;
@@ -340,11 +344,11 @@ img = Update();
                         Retrack();
                         NeedToRetrack = true;
                     end
-                    
+
                     % find all known seeds
                     [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
                     OnASeed = false;
-                    
+        
                     % loop through all seeds
                     for n =1:length(cpy)
                         y = cpy(n); x = cpx(n);
@@ -420,6 +424,7 @@ img = Update();
                 end
             else
                 if deleteMode
+                    
                     deletePtsAround(pt)
                     set(src,'WindowButtonMotionFcn',@wbmcbDel);
                     set(src,'WindowButtonUpFcn',@wbucbDel);
@@ -434,6 +439,10 @@ img = Update();
         %RIGHT MOUSE BUTTON
         if strcmp(mouseuse ,'alt')
             if zoommode
+                
+                %Check first if the location of the click is valid
+                if ~checkPointValidity(pt(1),pt(2));return;end
+                
                 [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
                 for n =1:length(cpy)
                     
@@ -444,14 +453,20 @@ img = Update();
 
                         cnum = Itracks(y,x,CurrentFrame);
                         if cnum ~= 0
-                            fprintf('label=%i x=%i y=%i cellnum=%i tracklen=%i trackStart=%i\n' ,Ilabel(y, x,CurrentFrame),x,y,cnum,tracklength(cnum),trackstarts(cnum))
+                            log2dev(sprintf('label=%i x=%i y=%i cellnum=%i tracklen=%i trackStart=%i',...
+                                Ilabel(y, x,CurrentFrame),x,y,cnum,tracklength(cnum),trackstarts(cnum)),...
+                                'INFO');
                         else
-                            fprintf('label=%i x=%i y=%i \n' ,Ilabel(y, x,CurrentFrame),x,y);
+                            log2dev(sprintf('label=%i x=%i y=%i' ,...
+                                Ilabel(y, x,CurrentFrame),x,y),...
+                                'INFO');
                         end
                         break
                         
                     end
                 end
+                
+                %potential bug here that sends img error
                 xinit = pt(1); yinit = pt(2);
                 Cptinit = Cpt;
                 set(src,'WindowButtonMotionFcn',@wbmcb);
@@ -651,19 +666,59 @@ img = Update();
         
         
         %check input validity
-        if x > ImSize(1) || y > ImSize(2)
+        if x > ImSize(2) || y > ImSize(1)
             has_seed_valid_label = 0;
             return;
         end
         
-        
-        if(Clabel(x,y,CurrentFrame) > 1)
+        %for most likely displaying reasons x,y are swapped
+        if(Clabel(y,x,CurrentFrame) > 1)
             has_seed_valid_label = 1;
         else
             has_seed_valid_label = 0;
         end
         
     end
+
+    function is_seed_outside_image = checkPointValidity(x,y)
+        %Checks whether the point is within an image 
+        %and whether there is labelled area below.
+        
+        % Keep in mind indeces are inversed
+        abs_pt_x = x + Cpt(2) - WindowSize;
+        abs_pt_y = y + Cpt(1) - WindowSize;
+        
+        is_seed_outside_image = 0;
+        
+        sprintf('Clicked Point [%d,%d] \n',abs_pt_x,abs_pt_y);
+        
+        %Check if clicked location is within image boundaries
+        %find is used instead of boolean for faster lookup
+        if(isempty(find([1:ImSize(2)] == abs_pt_x,1)));
+            log2dev(sprintf('Click [%d,%d] is outside the image 1!',...
+                abs_pt_x,abs_pt_y),'DEBUG');
+            %fprintf('x=%d outside imagereturn\n',abs_pt_x);
+            return;
+        end
+        
+        if(isempty(find([1:ImSize(1)] == abs_pt_y,1)));
+            log2dev(sprintf('Click [%d,%d] is outside the image 2!',...
+                abs_pt_x,abs_pt_y),'DEBUG');
+            %fprintf('y=%d outside imagereturn\n',abs_pt_y);
+            return;
+        end
+        
+        %Checks if point has labelled background
+        if ~checkLabelValidity(abs_pt_x,abs_pt_y)
+            log2dev(sprintf('Click [%d,%d] is outside the poloygon crop!',...
+                abs_pt_x,abs_pt_y),'INFO');
+            return;
+        end;
+        
+        is_seed_outside_image = 1;
+        
+    end
+        
 
 %     function print_GUI_explanation()
 %
