@@ -13,13 +13,7 @@ log2dev('***********************************************************','INFO');
 log2dev('Started segmentation analysis module', 'INFO');
 % -------------------------------------------------------------------------        
 
-
-% 
-% $Revision: 5.27.4.8 $  $Date: 2011/06/15 08:03:38 $ 
-% Built-in function. 
-
-
-% it is more convenient to recall the setting file with as shorter variable
+% it is more convenient to recall the setting file with a shorter variable
 % name: stgModule 
 tmpStgObj = stgObj.analysis_modules.Segmentation.settings;
 
@@ -33,11 +27,59 @@ end
 if tmpStgObj.SingleFrame
     %todo: SegmentStack should be able to handle single frames
     im = tmpRegObj.RegIm(:,:,1);
-    [Ilabel,Clabel,ColIm] = SegmentIm(im,tmpStgObj);
+    [ILabels,CLabels,ColIms] = SegmentIm(im,tmpStgObj);
     
-    figure;
-    imshow(ColIm,[]);
+    %figure;
+    %imshow(ColIms,[]);
+    RegIm = im;
+    save([stgObj.data_analysisoutdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','tmpStgObj','-v7.3')
+    stgObj.AddResult('Segmentation','segmentation_path','SegResults.mat');
+
     
+    % -------------------------------------------------------------------------
+    % Log status of current application status
+    log2dev(sprintf('Saving segmentation results as %s | %s',[stgObj.data_analysisoutdir,'/SegResults']), 'DEBUG');
+    % -------------------------------------------------------------------------   
+    
+    
+    % inspect results
+    if(~stgObj.exec_commandline)
+        if(stgObj.icy_is_used)
+            icy_vid3show(ColIms,'Segmented Sequence');
+        else
+            if(strcmp(stgObj.data_analysisindir,stgObj.data_analysisoutdir))
+            
+                fig = getappdata(0  , 'hMainGui');
+                handles = guidata(fig);
+            
+                set(handles.('uiBannerDescription'), 'Visible', 'on');
+                set(handles.('uiBannerContenitor'), 'Visible', 'on');
+
+                % Change banner description
+                log2dev('Currently executing the [Segmentation] module  on first frame',...
+                    'GUI',...
+                    2,...
+                    'hMainGui',...
+                    'uiBannerDescription');
+
+                StackView(ColIms,'hMainGui','figureA');
+
+            else
+                
+                firstrun = load([stgObj.data_analysisindir,'/SegResults']);
+                % The program is being executed in comparative mode
+                StackView(firstrun.ColIms,'hMainGui','figureC1');
+                StackView(ColIms,'hMainGui','figureC2');              
+                
+            end
+            
+        end
+    else
+        StackView(ColIms);
+    end
+
+    
+
 else
     
     %Check current parallel options 
@@ -85,10 +127,10 @@ else
 
                 % Change banner description
                 log2dev('Currently executing the [Segmentation] module',...
-                'hMainGui',...
-                'uiBannerDescription',...
-                [],...
-                2 );
+                        'GUI',...
+                        2,...
+                        'hMainGui',...
+                        'uiBannerDescription');
 
                 StackView(ColIms,'hMainGui','figureA');
 

@@ -372,6 +372,15 @@ function uitable1_CellEditCallback(hObject, eventdata, handles)
 hFPGui = getappdata(0  , 'hFPGui');
 
 indices = getappdata(hFPGui, 'table_indices');
+
+% Avoiding horizontal propagation of values in the table
+if (size(indices, 1)>1)
+    if (range(indices(:,2))>0)
+        return;
+    end
+end
+
+
 data = get(hObject,'Data');
 
  for i=1:size(indices,1)

@@ -3,21 +3,24 @@ function log2dev(strLogContent, intLogCode, intOutputDev, pntDevice, pntHandle)
 %   The advantage of using this function instead of @disp or @cprintf is given by
 %   its obiquitous outputs and automatic redirection.
 %   Example
-%        
+%
 %   log2dev( getappdata(hMainGui, 'status_application'), 'hMainGui', 'statusbar', 0 );
 %
 %
 
 if nargin < 3
-
-    intOutputDev = 3;
+    
+    intOutputDev = [];
     pntDevice = [];
     pntHandle = [];
-             
+    
 end
 
+W = evalin('base','whos'); %or 'base'
+doesAexist = sum(ismember('log_settings',[W(:).name]));
+
 % In case of no-gui execution
-if(isempty(whos('global')))
+if(~doesAexist)
     
     %% Check where the user has selected to store the log statements
     % Recall setting object
@@ -49,14 +52,14 @@ else
     
     % Log devices
     if (isfield(local_var, 'log_device'))
-
+        
         if isempty(intOutputDev)
             intOutputDev = local_var.log_device;
         end
     else
         return;
     end
-
+    
     % Log levels to print
     if (isfield(local_var, 'log_level'))
         listLevels = local_var.log_level;
@@ -66,7 +69,7 @@ else
     
 end
 % If the log level is not specified in the current execution settings, then
-% suppress it from printing. 
+% suppress it from printing.
 
 if (~strcmp(intLogCode, listLevels))
     return;
@@ -77,45 +80,50 @@ end
 for i=1:numel(intOutputDev)
     
     output_device = intOutputDev(i);
-
-
+    
+    
     switch output_device
-
-    % Log to GUI device (status bar)
-    case 0
-        tmpDeviceContenitor = getappdata(0,pntDevice);
-        tmpHandleContenitor = guidata(tmpDeviceContenitor);
-
         
-        set(tmpHandleContenitor.(pntHandle), 'String', strcat(datestr(now,0),' | [',intLogCode,'] | ',strLogContent));
-        
-        
-    % Log to FILE device
-    case 1
-        
-        
-
-    % Log to generic GUI device
-    case 2 
-       
-        tmpDeviceContenitor = getappdata(0,pntDevice);
-        tmpHandleContenitor = guidata(tmpDeviceContenitor);
-        
-        set(tmpHandleContenitor.(pntHandle), 'String', strLogContent);
-
-
-    % Log to CONSOLE device
-    case 3
-
-        disp([datestr(now,0),sprintf(' : %s\t:  %s ',intLogCode,strLogContent)]);
-
-
-    otherwise
-
-
-
+        % Log to GUI device (status bar)
+        case 0
+            tmpDeviceContenitor = getappdata(0,pntDevice);
+            tmpHandleContenitor = guidata(tmpDeviceContenitor);
+            
+            
+            set(tmpHandleContenitor.(pntHandle), 'String', strcat(datestr(now,0),' | [',intLogCode,'] | ',strLogContent));
+            
+            
+            % Log to FILE device
+        case 1
+            
+            
+            
+            % Log to generic GUI device
+        case 2
+            
+            tmpDeviceContenitor = getappdata(0,pntDevice);
+            tmpHandleContenitor = guidata(tmpDeviceContenitor);
+            
+            set(tmpHandleContenitor.(pntHandle), 'String', strLogContent);
+            
+            
+            % Log to CONSOLE device
+        case 3
+            
+            disp([datestr(now,0),sprintf(' : %s\t:  %s ',intLogCode,strLogContent)]);
+            
+            
+            % Log to LOG GUI DEVICE device
+        case 4
+            
+            log_guidevice([datestr(now,0),sprintf(' : %s\t:  %s ',intLogCode,strLogContent)])
+            
+        otherwise
+            
+            return;
+            
     end
-
+    
 end
 
 end
