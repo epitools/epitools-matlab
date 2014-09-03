@@ -29,8 +29,8 @@ if tmpStgObj.SingleFrame
     im = tmpRegObj.RegIm(:,:,1);
     [ILabels,CLabels,ColIms] = SegmentIm(im,tmpStgObj);
     
-    figure;
-    imshow(ColIms,[]);
+    %figure;
+    %imshow(ColIms,[]);
     RegIm = im;
     save([stgObj.data_analysisoutdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','tmpStgObj','-v7.3')
     stgObj.AddResult('Segmentation','segmentation_path','SegResults.mat');
@@ -38,9 +38,47 @@ if tmpStgObj.SingleFrame
     
     % -------------------------------------------------------------------------
     % Log status of current application status
-    log2dev(sprintf('Saving segmentation results as %s | %s',[stgObj.data_analysisoutdir,'/SegResults'],[stgObj.data_analysisoutdir,'/TrackingStart']), 'DEBUG');
+    log2dev(sprintf('Saving segmentation results as %s | %s',[stgObj.data_analysisoutdir,'/SegResults']), 'DEBUG');
     % -------------------------------------------------------------------------   
+    
+    
+    % inspect results
+    if(~stgObj.exec_commandline)
+        if(stgObj.icy_is_used)
+            icy_vid3show(ColIms,'Segmented Sequence');
+        else
+            if(strcmp(stgObj.data_analysisindir,stgObj.data_analysisoutdir))
+            
+                fig = getappdata(0  , 'hMainGui');
+                handles = guidata(fig);
+            
+                set(handles.('uiBannerDescription'), 'Visible', 'on');
+                set(handles.('uiBannerContenitor'), 'Visible', 'on');
 
+                % Change banner description
+                log2dev('Currently executing the [Segmentation] module  on first frame',...
+                    'GUI',...
+                    2,...
+                    'hMainGui',...
+                    'uiBannerDescription');
+
+                StackView(ColIms,'hMainGui','figureA');
+
+            else
+                
+                firstrun = load([stgObj.data_analysisindir,'/SegResults']);
+                % The program is being executed in comparative mode
+                StackView(firstrun.ColIms,'hMainGui','figureC1');
+                StackView(ColIms,'hMainGui','figureC2');              
+                
+            end
+            
+        end
+    else
+        StackView(ColIms);
+    end
+
+    
 
 else
     
@@ -89,10 +127,10 @@ else
 
                 % Change banner description
                 log2dev('Currently executing the [Segmentation] module',...
-                    'GUI',...
-                    2,...
-                    'hMainGui',...
-                    'uiBannerDescription');
+                        'GUI',...
+                        2,...
+                        'hMainGui',...
+                        'uiBannerDescription');
 
                 StackView(ColIms,'hMainGui','figureA');
 

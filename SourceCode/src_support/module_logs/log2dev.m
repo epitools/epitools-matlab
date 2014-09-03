@@ -16,8 +16,11 @@ if nargin < 3
     
 end
 
+W = evalin('base','whos'); %or 'base'
+doesAexist = ismember('log_settings',[W(:).name]);
+
 % In case of no-gui execution
-if(isempty(whos('global')))
+if(~doesAexist)
     
     %% Check where the user has selected to store the log statements
     % Recall setting object

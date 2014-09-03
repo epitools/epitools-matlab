@@ -66,6 +66,7 @@ if(isappdata(hMainGui,'settings_objectname'))
                     % Set the status of sandboxing (TODO: better patch)
                     stgObj.exec_sandboxinuse = true;
                     setappdata(hMainGui, 'settings_objectname', stgObj);
+                    SaveAnalysisFile(hObject,handles,1);
                     
                     
                     % Create the variables for the current module
@@ -129,13 +130,17 @@ if(isappdata(hMainGui,'settings_objectname'))
                             % Set the status of sandboxing (TODO: better patch)
                             stgObj.exec_sandboxinuse = false;
                             setappdata(hMainGui, 'settings_objectname', stgObj);
+                            SaveAnalysisFile(hObject,handles,1);
                             
                             waitfor(sdbExecStatus);
                             % Destroy modules downstream the current module
                             if(sdb.results_validity)
-                                %msgbox('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module ');
-                                 sdbExecStatus2 = DiscardAnalysisModules( strModuleName, stgObj );
-                                 waitfor(sdbExecStatus2);
+                                % -------------------------------------------------------------------------
+                                % Log status of previous operations
+                                log2dev('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module', 'WARN');
+                                % ------------------------------------------------------------------------- 
+                                sdbExecStatus2 = DiscardAnalysisModules( strModuleName, stgObj );
+                                waitfor(sdbExecStatus2);
                             end
                             
                             
