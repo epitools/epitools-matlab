@@ -735,11 +735,16 @@ if(isappdata(hMainGui,'settings_objectname'))
             return
         end
         
+        stgObj = getappdata(hMainGui, 'settings_objectname');
+        
+        %matlabpool is unrecognized on platforms without the Paralell Computing toolbox
+        if(stgObj.stgObj.platform_units ~= 1)
+            if (matlabpool('size') > 0); matlabpool close; end
+        end
         
     end
 end
 
-if (matlabpool('size') > 0); matlabpool close; end
 
 delete(hLogGui);
 delete(hMainGui);
