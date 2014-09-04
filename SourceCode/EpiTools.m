@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 03-Sep-2014 09:38:08
+% Last Modified by GUIDE v2.5 04-Sep-2014 12:15:56
 
 % Begin initialization code - DO NOT EDIT
 %
@@ -94,6 +94,14 @@ setappdata(gcf, 'icy_path', 'none');
 setappdata(gcf, 'settings_objectname', '');
 setappdata(gcf, 'settings_execution', '');
 setappdata(gcf, 'status_application',stsFunOut);
+setappdata(gcf, 'settings_executionuid',...
+                ['epitools-',...
+                getenv('USER'),...
+                '@',...
+                char(getHostName(java.net.InetAddress.getLocalHost)),...
+                '-',...
+                datestr(now,29),...
+                '.log']);
 
 % -------------------------------------------------------------------------
 % Prepare struct containing handles for UI
@@ -109,7 +117,7 @@ setappdata(gcf, 'settings_rootpath', file_path);
 % -------------------------------------------------------------------------
 % Set log settings *device and level*
 SetExec = struct();
-SetExec.log_device = 4;
+SetExec.log_device = [1,4]; % FILE and GUI DEVICE
 SetExec.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
 
 setappdata(gcf, 'settings_execution', SetExec);
@@ -599,8 +607,8 @@ if(strSettingFilePath)
     
     %Check if icy is in use
     stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
-    
-    diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
+    settings_executionuid = getappdata(hMainGui,'settings_executionuid');
+    diary([stgObj.data_fullpath,'/',settings_executionuid]);
     diary on;
     
     handles_connection(hObject, handles)
@@ -741,6 +749,13 @@ end
 
 if (matlabpool('size') > 0); matlabpool close; end
 
+settings_executionuid = getappdata(hMainGui, 'settings_executionuid');
+
+log2dev('***********************************************************','INFO');
+log2dev(sprintf('* End session %s * ',settings_executionuid),'INFO');
+log2dev('***********************************************************','INFO');
+
 delete(hLogGui);
 delete(hMainGui);
+
 
