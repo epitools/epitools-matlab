@@ -738,8 +738,9 @@ function onMainWindowClose(hObject, eventdata, handles)
 hMainGui = getappdata(0, 'hMainGui');
 hLogGui = getappdata(0, 'hLogGui');
 
+delete(hLogGui);
 F_Exit_Callback(hObject, eventdata, handles);
 
 
-delete(hLogGui);
+
     
