@@ -679,24 +679,7 @@ function F_Exit_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Exit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-hMainGui = getappdata(0, 'hMainGui');
-% Check if there is setting file loaded in the application
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        % Ask if you want to save it before closing the application
-        interrupt = SaveAnalysisFile(hObject, handles);
-        
-        if (interrupt == 1)
-            return
-        end
-        
-        
-    end
-end
-
-if (matlabpool('size') > 0); matlabpool close; end
-close(handles.figure1);
+onMainWindowClose(hObject, eventdata);
 
 
 % --------------------------------------------------------------------
@@ -733,14 +716,31 @@ drawnow;
 
 
 % --------------------------------------------------------------------
-function onMainWindowClose(hObject, eventdata, handles)
+function onMainWindowClose(hObject, eventdata)
 % On Main Windows Close function    
 hMainGui = getappdata(0, 'hMainGui');
 hLogGui = getappdata(0, 'hLogGui');
+% Since the current function is invoked without passing handles, then
+% recover them with
+handles = guidata(hMainGui);
+
+% Check if there is setting file loaded in the application
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        % Ask if you want to save it before closing the application
+        interrupt = SaveAnalysisFile(hObject, handles);
+        
+        if (interrupt == 1)
+            return
+        end
+        
+        
+    end
+end
+
+if (matlabpool('size') > 0); matlabpool close; end
 
 delete(hLogGui);
-F_Exit_Callback(hObject, eventdata, handles);
+delete(hMainGui);
 
-
-
-    
