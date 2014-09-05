@@ -62,6 +62,7 @@ Im = cast(Im,'uint8');                                                      %tod
 
 CellLabels = zeros(ImSize,'uint16');                                        %todo: check casting: why using 16 bit for labels?
 
+%structuring element, SE, used for morphological operations
 se = strel('disk',2);   
 
 
@@ -69,33 +70,36 @@ se = strel('disk',2);
 
 % [0] Create starting seeds if not provide
 if ~GotStartingSeeds
-
+    
+    % Find the initial cell seeds (parameters: sigma1, threshold)
     DoInitialSeeding();
-    %if show  figure; imshow(CellSeeds(:,:)); input('press <enter> to continue','s');  end
+    if show  figure('Name','First seeding'); imshow(CellSeeds(:,:)); input('press <enter> to continue','s');  end
 
+    % Remove initial cell regions which touch & whose boundary is insufficient
+    % (parameters: params.MergeCriteria)
     MergeSeedsFromLabels() 
-    %if show  figure; imshow(CellSeeds(:,:),[]); input('press <enter> to continue','s');  end
+    if show  figure('Name','Seeding after merging'); imshow(CellSeeds(:,:),[]); input('press <enter> to continue','s');  end
 end
 
 
-% [1] Growing cells from seeds
+% [1] Growing cells from seeds (parameter: sigma3) TODO: add paramters in Name description!
 GrowCellsInFrame()
-%if show CreateColorBoundaries(); figure; imshow(ColIm,[]);  end
+if show CreateColorBoundaries(); figure('Name','First cell boundaries'); imshow(ColIm,[]);  end
 
 % [2] Eliminate labelling from background
 DelabelFlatBackground()
-%if show CreateColorBoundaries(); figure; imshow(ColIm,[]);  end
+if show CreateColorBoundaries(); figure('Name','Boundaries after background substraction'); imshow(ColIm,[]);  end
 
-% [3] Eliminate labels from seeds which are poorly segmented
+% [3] Eliminate labels from seeds which have poor boundary intensity
 UnlabelPoorSeedsInFrame()
-%if show CreateColorBoundaries(); figure; imshow(ColIm,[]);  end
+if show CreateColorBoundaries(); figure('Name','Boundaries after poor cell removal'); imshow(ColIm,[]);  end
 
 % [4] I have no idea what this function does!
 NeutralisePtsNotUnderLabelInFrame();
 
 % [5] Generate colored boundaries
 CreateColorBoundaries()
-%if show  figure; imshow(ColIm,[]);  end
+if show  figure('Name','Final cell boundaries'); imshow(ColIm,[]);  end
 
 
 
@@ -187,19 +191,19 @@ CreateColorBoundaries()
         
         % -------------------------------------------------------------------------
         % Log current application status
-        log2dev(sprintf('Eliminating poor segmented cells unlabeling their seeds'), 'INFO');
+        log2dev(sprintf('Eliminating cell labels with insufficient boundary intensity'), 'INFO');
         % -------------------------------------------------------------------------
         
         L = CellLabels;
         f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
         smoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
-        labelList = unique(L);
+        labelList = unique(L); %i.e. every cell is marked by one unique integer label 
         labelList = labelList(labelList~=0);
-        IBounds = [];
+        IBounds = zeros(length(labelList),1);
         
         % -------------------------------------------------------------------------
         % Log current application status
-        log2dev(sprintf('Found %i labels to remove', length(labelList)), 'DEBUG');
+        log2dev(sprintf('Found %i cells to anlayze', length(labelList)), 'DEBUG');
         % -------------------------------------------------------------------------
         
         for c = 1:length(labelList)
@@ -210,7 +214,7 @@ CreateColorBoundaries()
             miny = min(cpy); maxy = max(cpy);
             minx = max(minx-5,1); miny = max(miny-5,1);
             maxx = min(maxx+5,ImSize(2)); maxy = min(maxy+5,ImSize(1));
-            % reduced to region
+            % reduced to region of the boundary
             reducedMask = mask(miny:maxy, minx:maxx);
             reducedIm = smoothedIm(miny:maxy, minx:maxx);
             dilatedMask = imdilate(reducedMask, se);
@@ -220,20 +224,40 @@ CreateColorBoundaries()
             H = reducedIm(boundaryMask>0);
             IEr = reducedIm(erodedMask>0);
             IBound = mean(boundaryIntensities);
+            IBounds(c) = IBound;
             
+            % cell seed information is retrieved as comparison
             F2 = CellSeeds;
             F2(~mask) = 0;
             [cpy cpx]=find(F2 > 252);
             ICentre = smoothedIm(cpy , cpx);
             
+            %Figure out which conditions make the label invalid
+            %1. IBoundMax, gives the Lower bound to the mean intensity
+            %   1.b condition upon that the cell seed has less than 20% intensity difference to the mean
+            %   => If the cell boundary is low and not very different from the seed, cancel the region
+            %2. W/o (1.b) the lower bound is reduced by ~17% (1 - 0.833) to be decisive
+            %3. If the minimum retrieved in the boundary mask is 0 (dangerous!)
+            %4. If the amount of low intensity signal (i.e. < 20) is more than 10% 
             if ( IBound < IBoundMax && IBound/ICentre < 1.2 ) ...
                     || IBound < IBoundMax *25./30. ...
                     || min(boundaryIntensities)==0 ...
                     || sum(H<20)/length(H) > 0.1
+                
+                %The label is cancelled (inverted mask multiplication.)
                 CellLabels = CellLabels.*uint16(mask==0);
             end
+            
         end
-        if show  figure, hist(IBounds,100); input('press <enter> to continue','s');  end
+        %The following debug figure shows the distribution of mean cell boundary intensity
+        %if the threshold parameter IBoundMax is too high, valid cells might be delabeled
+        if show  
+            figure('Name','Histogram of cell boundary intensity');
+            hist(IBounds,100); 
+            xlabel('mean boundary intensity');
+            ylabel('percentage of cells');
+            input('press <enter> to continue','s');  
+        end
     end
 
     function DelabelVeryLargeAreas()
@@ -404,12 +428,16 @@ CreateColorBoundaries()
     end
 
     function NeutralisePtsNotUnderLabelInFrame()
-        % the idea here is to set seeds not labelled to 253 ie invisible to retracking (and to growing, caution!)
+        % the idea here is to set seeds not labelled to 253
+        % ie invisible to retracking (and to growing, caution!)
         L = CellLabels;
         F = CellSeeds;
         F2 = F;
         F2(L~=0) = 0;
         F(F2 > 252) = 253;
+%         if(~all(F2 < 252))
+%             frpintf('There is a cell seed that has an unlabled region');
+%         end
         CellSeeds(:,:) = F;
     end
     

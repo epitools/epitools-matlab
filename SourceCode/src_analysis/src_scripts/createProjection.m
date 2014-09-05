@@ -53,7 +53,7 @@ xnodes = 1:s(2);
 ynodes = 1:s(1);
 tilesize = max(s(1),s(2));
 
-%                                                                          % parameter break down, e.g. 
+% for more information on gridfit see the program header
 [zg1,xg1,yg1] = gridfit(...
     x,y,z,xnodes,ynodes,...
     'tilesize',tilesize,...
@@ -73,14 +73,25 @@ if ShowProcess
 end
 
 
-depthmap3=abs(zg1-depthmap2);                                              % whats happening here?
-
+% given the hight locations of the surface (zg1) compute the difference
+% towards the 1st quartile location (depthmap2), ignore the rest (==0);
+% the result reflects the distance (abs) between estimate and points.
+depthmap3=abs(zg1-depthmap2);                                              
 depthmap3(depthmap2==0)=0;
 
-% only keep points which are relatively close to our first estimate
+% only keep points which are relatively close to our first estimate,
+% i.e. below the threshold. TIP: if the first estimate is too detailed(~=smooth)
+% the points from the peripodial membrane will not be eliminated since
+% the surface approximated them well. Increase the smoothness to prevent this.
 depthmap4 = depthmap2.*(depthmap3 < depthThreshold); 
 
-% --- 2nd iteration -                                                      % why a second iteration? 
+%TIP: depthmap4 should only contain signal of interest at this point.
+
+% --- 2nd iteration - 
+% compute a better more detailed estimate with the filtered list (depthmap4)
+% this is to make sure that the highest intensity points will be
+% selected from the correct surface (The coarse grained estimate could
+% potentially approximate the origin of the point to another plane)
 
 [y,x]=find( depthmap4 > 0);
 z=depthmap4(depthmap4 > 0);
