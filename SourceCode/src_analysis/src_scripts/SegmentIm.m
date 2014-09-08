@@ -345,48 +345,62 @@ if show  figure('Name','Final cell boundaries'); imshow(ColIm,[]);  end
             [cpy cpx]=find(F2 > 253);
             ICentre = smoothedIm(cpy , cpx);
                         
-            stdB = std(double(centralIntensity));
+            background_std = std(double(centralIntensity));
             
             % get labels of surrounding cells (neighbours)
             neighbourLabels = unique(reducedLabels( dilatedMask > 0 ));
             neighbourLabels = neighbourLabels(neighbourLabels~=label);
             
-            R3s = [];
+            low_intensity_ratios = [];
             for i = 1:size(neighbourLabels)
                 neighbLabel = neighbourLabels(i);
-                B = dilatedMask;
-                B(reducedLabels~=neighbLabel)=0;                           % slice of neighbour around cell
-                B3 = imdilate(B,se);
-                B3(reducedLabels~=label) = 0;                              % slice of cell closest to neighbour
-                B3 = (B3 + B) > 0;                                         % combination of both creating boundary region
-                B4 = reducedIm;
-                B4(~B3) = 0;                                               % intensities at boundary
+                neighbor_border = dilatedMask;
+                neighbor_border(reducedLabels~=neighbLabel)=0;             % slice of neighbour around cell
+                cell_border = imdilate(neighbor_border,se);
+                cell_border(reducedLabels~=label) = 0;                     % slice of cell closest to neighbour
                 
-                % average number of points in boundary where int is 
+                joint_border = ...
+                    (cell_border + neighbor_border) > 0;                   % combination of both creating boundary region
+                border_intensities = reducedIm;
+                border_intensities(~joint_border) = 0;                     % intensities at boundary
+                
+                % average number of points in boundary where intensity is 
                 % of low quality (dodgy)
-                R3 = sum(B4(B3) < ICentre+stdB/2.)/size(B4(B3),1);
-                R3s = [R3s R3];
+                low_intensity_threshold = ICentre + (background_std/2.);
+                low_intensity_pixels = ...
+                    border_intensities(joint_border) < low_intensity_threshold;
+                
+                low_intensity_ratio = ...
+                    sum(low_intensity_pixels)/size(border_intensities(joint_border),1);
+                
+                low_intensity_ratios = [low_intensity_ratios low_intensity_ratio];
             end
-                        
-            [Br2,mC] = max(R3s);
-            neighbLabel = neighbourLabels(mC);
+               
+            
+            %Find out which is border with the lowest intensity ratio
+            [worst_intensity_ratio,worst_neighbor_index] = max(low_intensity_ratios);
+            neighbLabel = neighbourLabels(worst_neighbor_index);
             
             
             % if the label value is of poor quality, then recursively check
             % the merge criteria in order to add it as a potential label in
             % the label set. 
             
-            if Br2 > params.MergeCriteria && label~=0 && neighbLabel~=0              
+            if ...
+                    worst_intensity_ratio > params.MergeCriteria && ...
+                    label~=0 && ...
+                    neighbLabel~=0              
                 
                 % -------------------------------------------------------------------------
                 % Log current application status
-                log2dev(sprintf('Trying to merge label %i with value of %0.2f | ABOVE threshold of %0.2f',label,Br2,params.MergeCriteria), 'DEBUG');
+                log2dev(sprintf('Trying to merge label %i with value of %0.2f | ABOVE threshold of %0.2f',label,worst_intensity_ratio,params.MergeCriteria), 'DEBUG');
                 % -------------------------------------------------------------------------
                 
                 MergeLabels(label,neighbLabel);
                 labelList = unique(CellLabels);
                 labelList = labelList(labelList~=0);
-                c = c-1;                                                   % make it recursive! (go back of one label?)
+                c = c-1;                                                   % reanalyze the same cell for more 
+                                                                           % possible mergings
             
             end
             
