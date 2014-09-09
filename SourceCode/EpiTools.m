@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 04-Sep-2014 12:15:56
+% Last Modified by GUIDE v2.5 09-Sep-2014 19:40:02
 
 % Begin initialization code - DO NOT EDIT
 %
@@ -382,8 +382,8 @@ strModuleName = 'Skeletons';
 
 
 if(intOut)
-    out = SkeletonConversion(stgObj);
-    %waitfor(out);
+    out = SkeletonConversionGUI(stgObj);
+    waitfor(out);
 end
 
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
@@ -403,20 +403,10 @@ strModuleName = 'Polygon_Masking';
 
 intOut = SaveAnalysisModule(hObject, handles, strModuleName);
 
-tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
-tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
-
-[polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
-
-StackView(cropped_CellLabelIm,'hMainGui','figureA');
-
-save([stgObj.data_analysisoutdir,'/PoligonalMask'],'polygonal_mask');
-save([stgObj.data_analysisoutdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
-
-stgObj.AddResult(strModuleName,'polygonal_mask_path','PoligonalMask.mat');
-stgObj.AddResult(strModuleName,'cropped_cell_labels','CroppedCellLabels.mat');
-
-waitfor(polygonal_mask);
+if(intOut)
+    out = PolygonMaskingGUI(stgObj);
+    waitfor(out);
+end 
 
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
@@ -762,5 +752,3 @@ log2dev('***********************************************************','INFO');
 
 delete(hLogGui);
 delete(hMainGui);
-
-
