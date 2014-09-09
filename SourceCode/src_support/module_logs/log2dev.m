@@ -54,13 +54,13 @@ if(~doesAexist)
         else
             settings_executionuid = getappdata(hMainGui,'settings_executionuid');
             
-            if(exists(['~/',settings_executionuid])) 
+            %if(exists(['~/',settings_executionuid])) 
                 % if initial log file exist, then copy lines in the new one
                 % and remove it. 
                 
                 
                 % remove file
-            end
+            %end
             fullpath = stgObj.data_fullpath;
         end
         
