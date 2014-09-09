@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 19-May-2014 16:26:38
+% Last Modified by GUIDE v2.5 09-Sep-2014 13:59:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -113,25 +113,25 @@ stgObj  = getappdata(hSegGui, 'settings_objectname');
 module_name = getappdata(hSegGui, 'settings_modulename');
 
     
-    caption = sprintf('Minimal cell size = %.2f',stgObj.analysis_modules.(char(module_name)).settings.mincellsize);
+    caption = sprintf('Minimal cell area = %.2f',stgObj.analysis_modules.(char(module_name)).settings.mincellsize);
     set(handles.min_cell_label, 'String', caption);
     
-    caption = sprintf('Sigma 1 = %.2f',stgObj.analysis_modules.(char(module_name)).settings.sigma1);
+    caption = sprintf('Gaussian smoothing = %.2f',stgObj.analysis_modules.(char(module_name)).settings.sigma1);
     set(handles.sigma1_label, 'String', caption);
     
-    caption = sprintf('Threshold = %.2f',stgObj.analysis_modules.(char(module_name)).settings.threshold);
+    caption = sprintf('Minimal membrane intensity = %.2f',stgObj.analysis_modules.(char(module_name)).settings.threshold);
     set(handles.threshold_label, 'String', caption);
 
-    caption = sprintf('Sigma 3 = %.2f',stgObj.analysis_modules.(char(module_name)).settings.sigma3);
+    caption = sprintf('Gaussian smoothing = %.2f',stgObj.analysis_modules.(char(module_name)).settings.sigma3);
     set(handles.sigma3_label, 'String', caption);
    
-    caption = sprintf('Maximal cell size = %.2f',stgObj.analysis_modules.(char(module_name)).settings.LargeCellSizeThres);
+    caption = sprintf('Maximal cell area = %.2f',stgObj.analysis_modules.(char(module_name)).settings.LargeCellSizeThres);
     set(handles.max_cell_label, 'String', caption);
     
-    caption = sprintf('Merge criteria = %.2f',stgObj.analysis_modules.(char(module_name)).settings.MergeCriteria);
+    caption = sprintf('Minimal intensity ratio = %.2f',stgObj.analysis_modules.(char(module_name)).settings.MergeCriteria);
     set(handles.merge_label, 'String', caption);
     
-    caption = sprintf('Maximal IBound = %.2f',stgObj.analysis_modules.(char(module_name)).settings.IBoundMax);
+    caption = sprintf('Minimal mean intensity = %.2f',stgObj.analysis_modules.(char(module_name)).settings.IBoundMax);
     set(handles.ibound_label, 'String', caption);
 
 
@@ -358,3 +358,10 @@ Segmentation(stgObj);
 %close segmentation gui after execution
 hSegGui = getappdata(0,'hSegGui');
 delete(hSegGui);
+
+
+% --- Executes on button press in pushbutton3.
+function pushbutton3_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
