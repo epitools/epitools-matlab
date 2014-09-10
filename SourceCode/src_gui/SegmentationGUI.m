@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 09-Sep-2014 13:59:43
+% Last Modified by GUIDE v2.5 10-Sep-2014 16:00:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -154,17 +154,17 @@ function run_segmentation_Callback(hObject, eventdata, handles)
 
 updateAndGather(handles);
 
-hMainGui = getappdata(0, 'hMainGui');
-stgObj  = getappdata(hMainGui, 'settings_objectname');
+hSegGui = getappdata(0  , 'hSegGui');
+stgObj  = getappdata(hSegGui, 'settings_objectname');
+module_name = getappdata(hSegGui, 'settings_modulename');
 
 %gathered_data.SingleFrame = false;
-stgObj.AddSetting('Segmentation','SingleFrame',false);
-stgObj.AddSetting('Segmentation','debug',false);
+stgObj.AddSetting(module_name,'SingleFrame',false);
+stgObj.AddSetting(module_name,'debug',false);
 
 Segmentation(stgObj);
 
 %close segmentation gui after execution
-hSegGui = getappdata(0  , 'hSegGui');
 delete(hSegGui);
 
 
@@ -346,17 +346,20 @@ function test_segmentation_Callback(hObject, eventdata, handles)
 
 updateAndGather(handles);
 
-hMainGui = getappdata(0, 'hMainGui');
-stgObj  = getappdata(hMainGui, 'settings_objectname');
+hSegGui = getappdata(0,'hSegGui');
+stgObj  = getappdata(hSegGui, 'settings_objectname');
+module_name = getappdata(hSegGui, 'settings_modulename');
+
+%Check if the user wants to visualize results
+show_debug = get(handles.debug_checkbox,'value');
 
 %gathered_data.SingleFrame = false;
-stgObj.AddSetting('Segmentation','SingleFrame',true);
-stgObj.AddSetting('Segmentation','debug',false);
+stgObj.AddSetting(module_name,'SingleFrame',true);
+stgObj.AddSetting(module_name,'debug',show_debug);
 
 Segmentation(stgObj);
 
 %close segmentation gui after execution
-hSegGui = getappdata(0,'hSegGui');
 delete(hSegGui);
 
 
@@ -365,3 +368,12 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in debug_checkbox.
+function debug_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to debug_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of debug_checkbox
