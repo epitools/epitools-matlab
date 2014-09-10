@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 10-Sep-2014 16:00:05
+% Last Modified by GUIDE v2.5 10-Sep-2014 18:05:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -377,3 +377,12 @@ function debug_checkbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of debug_checkbox
+
+
+% --- Executes on button press in pushbutton4.
+function pushbutton4_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('http://imls-bg-arthemis.uzh.ch/epitools-wiki/site/Analysis%20Modules/segmentation/');

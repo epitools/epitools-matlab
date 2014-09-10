@@ -22,7 +22,7 @@ function varargout = ProjectionGUI(varargin)
 
 % Edit the above text to modify the response to help ProjectionGUI
 
-% Last Modified by GUIDE v2.5 28-Jul-2014 19:11:58
+% Last Modified by GUIDE v2.5 10-Sep-2014 17:27:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -260,3 +260,12 @@ function show_surface_checkbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of show_surface_checkbox
+
+
+% --- Executes on button press in help_button.
+function help_button_Callback(hObject, eventdata, handles)
+% hObject    handle to help_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('http://imls-bg-arthemis.uzh.ch/epitools-wiki/site/Analysis%20Modules/projection/');

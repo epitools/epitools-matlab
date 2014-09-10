@@ -22,7 +22,7 @@ function varargout = PolygonMaskingGUI(varargin)
 
 % Edit the above text to modify the response to help PolygonMaskingGUI
 
-% Last Modified by GUIDE v2.5 09-Sep-2014 18:31:24
+% Last Modified by GUIDE v2.5 10-Sep-2014 18:08:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -109,3 +109,12 @@ waitfor(polygonal_mask);
 
 %close polygon crop gui after execution
 delete(hMaskGui);
+
+
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('http://imls-bg-arthemis.uzh.ch/epitools-wiki/site/Analysis%20Modules/polygonMask/');

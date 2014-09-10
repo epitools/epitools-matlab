@@ -22,7 +22,7 @@ function varargout = SkeletonConversionGUI(varargin)
 
 % Edit the above text to modify the response to help SkeletonConversionGUI
 
-% Last Modified by GUIDE v2.5 09-Sep-2014 18:59:46
+% Last Modified by GUIDE v2.5 10-Sep-2014 18:06:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -117,3 +117,12 @@ function use_corrected_segmentation_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of use_corrected_segmentation
+
+
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('http://imls-bg-arthemis.uzh.ch/epitools-wiki/site/Analysis%20Modules/skeleton/');
