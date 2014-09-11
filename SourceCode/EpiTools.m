@@ -425,7 +425,10 @@ strModuleName = 'ReSegmentation';
 
 intOut = SaveAnalysisModule(hObject, handles, strModuleName);
 
-ReSegmentation(stgObj);
+if(intOut)
+    out = ReSegmentationGUI(stgObj);
+    waitfor(out);
+end 
 
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
