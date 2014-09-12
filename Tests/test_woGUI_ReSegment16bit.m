@@ -1,5 +1,11 @@
 %Test function for headless execution of EpiTools
 
+% data: ./16bitDataset/test_set16bit.tif (203x * 210y * 11z * 11t)
+
+% In order to run the EpiTools *GUI* after the execution of this test
+% please make sure to remove the ds-settings data structure from the Workspace 
+% before launching the gui. 
+
 file_path = pwd;
 cd([file_path,'/../SourceCode']);
 LoadEpiTools();
