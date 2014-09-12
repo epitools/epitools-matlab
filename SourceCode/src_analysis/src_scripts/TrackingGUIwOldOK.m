@@ -1,7 +1,5 @@
 function fig = TrackingGUI(ImageSeries,Ilabel,Clabel,ColLabels,Ilabelsout,params, oldOKs, FramesToRegrow_old)
 
-%print_GUI_explanation();
-
 %% Reconversion input parameters
 
 Ilabel = uint8(Ilabel);
@@ -20,7 +18,7 @@ else
     NFrames = ImSize(3);
 end
 
-% this typecasting is still necessary?
+% is this typecasting still necessary?
 ImageSeries = double(ImageSeries);
 ImageSeries = uint8(ImageSeries/max(ImageSeries(:))*255);                  %todo : check casting!
 
@@ -64,6 +62,7 @@ RemoveTrack = false;
 AddDummyPt = false;
 InspectPt = false;
 NeedToRetrack = false;
+WipeFrame = false;
 FramesToRegrow = [];
 
 cellBoundaries = zeros(ImSize,'int8');
@@ -107,9 +106,12 @@ cellBoundaries = zeros(ImSize,'int8');
 
     
 %% First run executions
+log2dev('retrack', 'DEBUG');
 Retrack();
+log2dev('recalculate cell boundaries', 'DEBUG');
 RecalculateCellBoundaries();
 %Retrack();
+log2dev('update figure', 'DEBUG');
 img = Update();
 
 
@@ -142,7 +144,7 @@ img = Update();
     function img = Update()
         
         % implicit pass of fig obj
-        %figure(fig);
+        % figure(fig);
         
         if zoommode
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
@@ -588,6 +590,10 @@ img = Update();
                 AddDummyPt = true;
             case {'i'}
                 InspectPt = true;
+            case {'w'}
+                WipeFrame = true;
+                log2dev('Key W pressed', 'DEBUG');
+                Update();
         end
     end
 
@@ -719,92 +725,5 @@ img = Update();
         
     end
         
-
-%     function print_GUI_explanation()
-%
-%         disp('This GUI allows the user to see the tracks automatically build by');
-%         disp(' celltracking4.cc');
-%         disp(' celltracking4 is C code which needs to be compiled for matlab:');
-%
-%         fprintf('\n');
-%
-%         disp(' >>mex celltracking4.cc');
-%
-%         fprintf('\n');
-%
-%         disp(' The GUI show the seeds as given by ILabels');
-%         disp('              the boundaries as given by ColLabels');
-%         disp('              the registered images RegIm as background image');
-%
-%         fprintf('\n');
-%
-%         disp(' You can scroll through the time-trajectory using the scroll on the mouse');
-%         disp(' or the slider or the left/rigth arrows');
-%
-%         fprintf('\n');
-%
-%         disp(' You can zoom into the picure by right-clicking into it, you get out of');
-%         disp(' zoom-mode by pressing the <space> bar');
-%
-%         fprintf('\n');
-%
-%         disp(' In zomm-mode the trajectories which go all the was through the stack are');
-%         disp(' larger, the other are potential problems');
-%
-%         fprintf('\n');
-%
-%         disp(' You can delete a seed by clicking on it and place another one by clicking');
-%         disp(' in a free space. The algo will automatically recalculate the');
-%         disp(' trajectories.');
-%
-%         fprintf('\n');
-%
-%         disp(' by pressing ''i'' (for ''inspect'') before clicking on such a potential problem seed, the');
-%         disp(' software will take you to the timeframe where it thinks the problem is');
-%         disp(' (might be just after / before!)');
-%
-%         fprintf('\n');
-%
-%         disp(' by pressing ''o'' (for ''ok'') before clicking on such a potential problem seed you');
-%         disp(' indicate that you have checked this trajectory and altough it does not go');
-%         disp(' through the whole stack, it will not be flagged as a problem anymore');
-%         disp(' (could be due to a delamination or a cell division event)');
-%
-%         fprintf('\n');
-%
-%         disp(' You can toggle showing the segmentation on/off using ''h'' (for ''hide'')');
-%
-%         fprintf('\n');
-%
-%         disp(' if you click the ''final check'' button, you will only be shown the');
-%         disp(' remaining problem areas');
-%
-%         fprintf('\n');
-%
-%         disp(' pressing ''s'' (for ''save'') saves your new seeding into the file specified in ''output''');
-%
-%         fprintf('\n');
-%         fprintf('\n');
-%
-%         disp(' parameters');
-%
-%         disp(' TrackingRadius: the algo performs a search of the seeds in the next');
-%         disp(' frame, assigning those that are closest to their former position first');
-%         disp(' and progressively searching further up to the distance specified in TrackingRadius');
-%
-%         fprintf('\n');
-%
-%         disp(' ''t'' to delete an entire track');
-%
-%         fprintf('\n');
-%
-%         disp(' ''d'' to ''wipe'' out whole areas of seed, when you want to get rid of lots');
-%         disp(' of seeds');
-%
-%         fprintf('\n');
-%
-%         disp(' You can pan the view using the right mouse button');
-%
-%     end
 
 end
