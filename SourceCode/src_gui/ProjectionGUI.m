@@ -268,4 +268,4 @@ function help_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-web('http://imls-bg-arthemis.uzh.ch/epitools-wiki/site/Analysis%20Modules/projection/');
+web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis%20Modules/00_projection/');
