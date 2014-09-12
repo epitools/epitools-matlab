@@ -1,5 +1,11 @@
 %Test function for headless execution of EpiTools
 
+% data: /8bitDataset/test_set.tif (206x * 199y * 30z * 8t) 
+
+% In order to run the EpiTools *GUI* after the execution of this test
+% please make sure to remove the ds-settings data structure from the Workspace 
+% before launching the gui. 
+
 file_path = pwd;
 cd([file_path,'/../SourceCode']);
 LoadEpiTools();
@@ -106,7 +112,7 @@ ds.AddSetting(strModuleName, 'MergeCriteria', 0.35);
 ds.AddSetting(strModuleName, 'IBoundMax', 30); 
 
 % Performance Options (show=show_steps)
-ds.AddSetting(strModuleName, 'debug', true);
+ds.AddSetting(strModuleName, 'debug', false);
 ds.AddSetting(strModuleName, 'Parallel', false);
 ds.AddSetting(strModuleName, 'SingleFrame', false);
 

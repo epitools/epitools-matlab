@@ -1,6 +1,6 @@
 .DS_Store
 *.m~
-Tests/Data/Analysis/*
+Tests/16bitDataset/Analysis/*
 Tests/8bitDataset/Analysis/*
 SourceCode/findjobj/findjobj.m
 SourceCode/findjobj/license.txt
