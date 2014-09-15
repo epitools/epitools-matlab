@@ -1,4 +1,4 @@
-function fig = TrackingGUI(ImageSeries,Ilabel,Clabel,ColLabels,Ilabelsout,params, oldOKs, FramesToRegrow_old)
+function fig = TrackingGUIwOldOK(ImageSeries,Ilabel,Clabel,ColLabels,Ilabelsout,params, oldOKs, FramesToRegrow_old)
 
 %% Reconversion input parameters
 
@@ -25,7 +25,6 @@ ImageSeries = uint8(ImageSeries/max(ImageSeries(:))*255);                  %todo
 %% Initialization of the variables
 
 fs=fspecial('laplacian',0.9);
-
 CColors = [];
 Itracks = [];
 tracklength=[];
@@ -277,9 +276,14 @@ img = Update();
         
         
         set(img,'ButtonDownFcn',@wbmFcn)
-        
         set(framenum,'String',CurrentFrame);
-        drawnow
+        
+        % Attached statistics figures
+        
+        %plotHist = imshow(Itracks);
+        
+        
+        drawnow;
     end
 
 %deletion of a point, intensity 25 is assigned
