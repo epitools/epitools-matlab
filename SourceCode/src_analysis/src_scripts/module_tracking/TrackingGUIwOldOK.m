@@ -68,41 +68,66 @@ cellBoundaries = zeros(ImSize,'int8');
 
 %% Gui Preparation 
 
-    % Create a new figure
-    fig = figure;
-    set(fig,'WindowButtonDownFcn',@wbmFcn)
-    set(fig,'KeyPressFcn',@keyPrsFcn)
-    if ~SingleFrame
-        slider = uicontrol( fig ...
-            ,'style'    ,'slider'   ...
-            ,'units'    ,'normalized' ...
-            ,'position' ,[0.17 0.05 0.80 0.04] ...
-            );
+% Create a new figure
+fig = figure;
+set(fig,'Color', [0.314 0.314 0.314]);
+set(fig,'Position', [0 0 1024 860]);
+movegui(fig,'center');
 
-        % sliderListener = addlistener(slider,'ContinuousValueChange',@sliderActionEventCb);
-        set(slider,'Callback',@sliderActionEventCb);
+axes_img = axes('Parent',fig,...
+                'Position',[0.20 0.25 0.70 0.70]);
+% Create axes for statistics hist
+axes1 = axes('Parent',fig,...
+            'YColor',[0.50 0.50 0.50],...
+            'XGrid','on',...
+            'XColor',[0.50 0.50 0.50],...
+            'Position',[0.04 0.10 0.93 0.055],...
+            'FontName','Tahoma',...
+            'Color',[0 0 0],...
+            'Ylim', [0.5 1.7],...
+            'YTick',1);
 
-        set(fig,'WindowScrollWheelFcn',@figScroll);
+ box(axes1,'on');
+ hold(axes1,'all');
 
-        set(slider,'max', NFrames);
-        set(slider,'min', 1);
-        set(slider,'Value', 1);
-    end
-
-    cbh1 = uicontrol(fig,'Style','checkbox',...
-        'String','Final check',...
-        'Value',0, ...
-        'units'    ,'normalized', ...
-        'Position',[0.04 0.1 0.1 0.04],...
-        'Callback',@cb1Callback);
-
-    framenum = uicontrol(fig ...
-        ,'style'    ,'edit' ...
+set(fig,'WindowButtonDownFcn',@wbmFcn)
+set(fig,'KeyPressFcn',@keyPrsFcn)
+if ~SingleFrame
+    slider = uicontrol( fig ...
+        ,'style'    ,'slider'   ...
         ,'units'    ,'normalized' ...
-        ,'position' ,[0.04 0.05 0.1 0.04] ...
-        ,'string'   ,1 ...
+        ,'position' ,[0.11 0.0 0.78 0.035] ...
         );
 
+    set(slider,'sliderstep',[1/(NFrames),1],...
+        'max',NFrames,'min',1, 'Value', 1);
+
+    % sliderListener = addlistener(slider,'ContinuousValueChange',@sliderActionEventCb);
+    set(slider,'Callback',@sliderActionEventCb);
+    set(fig,'WindowScrollWheelFcn',@figScroll);
+
+end
+
+cbh1 = uicontrol(fig,'Style','checkbox',...
+                'String','Final check',...
+                'Value',0, ...
+                'units'    ,'normalized', ...
+                'Position',[0.04 0.85 0.1 0.04],...
+                'Callback',@cb1Callback);
+
+framenum = uicontrol(fig ...
+                    ,'style'    ,'edit' ...
+                    ,'units'    ,'normalized' ...
+                    ,'position' ,[0.04 0.01 0.05 0.04] ...
+                    ,'string'   ,1 ...
+                    );
+uiLastFrame = uicontrol(fig ...
+                ,'style'    ,'edit' ...
+                ,'units'    ,'normalized' ...
+                ,'position' ,[0.92 0.01 0.05 0.04] ...
+                ,'string'   ,1 ...
+                );
+set(uiLastFrame,'String',NFrames);
     
 %% First run executions
 log2dev('retrack', 'DEBUG');
@@ -141,10 +166,7 @@ img = Update();
     end
 
     function img = Update()
-        
-        % implicit pass of fig obj
-        % figure(fig);
-        
+               
         if zoommode
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
             PaddedIm = zeros(ImSize(1)+200,ImSize(2)+200,3);
@@ -226,7 +248,8 @@ img = Update();
                 PaddedIm(100:end-101,100:end-101,3) = .2*double(cellBoundaries(:,:,CurrentFrame)) + PaddedIm(100:end-101,100:end-101,3).*(1-double(cellBoundaries(:,:,CurrentFrame)));
             end
             
-            img = imshow(PaddedIm(Cpt(1)-WindowSize+100:Cpt(1)+WindowSize+100,Cpt(2)-WindowSize+100:Cpt(2)+WindowSize+100,:));
+            img = imshow(PaddedIm(Cpt(1)-WindowSize+100:Cpt(1)+WindowSize+100,Cpt(2)-WindowSize+100:Cpt(2)+WindowSize+100,:),...
+                        'Parent', axes_img);
             
         else
             
@@ -270,7 +293,8 @@ img = Update();
                 Irgb(:,:,1) = .5*double(cellBoundaries(:,:,CurrentFrame)) + Irgb(:,:,1).*(1-double(cellBoundaries(:,:,CurrentFrame)));
             end
             
-            img = imshow(Irgb);
+            img = imshow(Irgb,...
+                        'Parent', axes_img);
             
         end
         
@@ -279,16 +303,87 @@ img = Update();
         set(framenum,'String',CurrentFrame);
         
         % Attached statistics figures
-        
-        %plotHist = imshow(Itracks);
-        
+        trajectories_statistics(CurrentFrame);
         
         drawnow;
+
+    end
+
+    function trajectories_statistics(idxtime)
+
+        cmplength = [];
+        cmphists = [];
+        
+        [x1,y1] = find(Itracks(:,:,idxtime));
+        [x2,y2] = find(Ilabel(:,:,idxtime)==255);
+        orphan_seeds = setdiff([x2,y2],[x1,y1], 'rows');
+%         for idx=1:numel(x)
+%             track_uid = Itracks(x(idx),y(idx),idxtime);
+%             cmplength(idxtime,idx) = tracklength(track_uid);
+%         end
+%         
+        track_uids = Itracks(x1,y1,idxtime);
+        track_uids = sort(track_uids(track_uids~=0));
+        
+        % Seeds not associated to any track (value == 255) are those which
+        % coordinate is present in Ilabel but not in Itracks.
+        orphan_seeds = ones(size(orphan_seeds,1),1);
+
+        %cmpstarts(idxtime,:) = trackstarts(track_uids);
+        cmplength = [tracklength(track_uids); orphan_seeds]';
+        
+        % compute bins
+        if NFrames <= 10; nbins = NFrames;else nbins = round((NFrames/10)*2.5); end
+        binEdges = linspace(min(cmplength),max(cmplength),nbins-1);
+
+        % assign values to bins
+        cmphists = histc(cmplength, [binEdges(1:end-1) Inf])/sum(histc(cmplength, [binEdges(1:end-1) Inf]));
+        
+        % Histograms to include in update image function passing time id
+
+        data = [cmphists;NaN(size(cmphists,2),1)'];
+         
+        % per each frame represent track length distribution in percentage 
+        hDataSeries = barh(data,...
+                        'Stacked',...
+                        'EdgeColor',[0.83 0.81 0.78],...
+                        'Parent',axes1);
+
+        hPatches = get(hDataSeries,'Children');
+        try hPatches = cell2mat(hPatches); catch, end  % no need in case of single patch
+        yData = get(hPatches(1),'YData');
+        yPos = yData(end,:) - 0.40;
+        xData = get(hPatches,'XData');
+        try xData = cell2mat(xData); catch, end
+        barXs = xData(2:4:end,:);
+        barValues = diff([zeros(1,size(barXs,2)); barXs]);
+        barValues(bsxfun(@minus,barValues,sum(barValues))==0) = 0;  % no sub-total for bars having only a single sub-total
+        xPos = xData(1:4:end,:) + barValues/3;
+        yPos = yPos(ones(1,size(xPos,1)),:);
+        
+        yPos(barValues==0)      = [];  % remove entries for empty bars patches
+        xPos(barValues==0)      = [];  % remove entries for empty bars patches
+        barValues(barValues==0) = [];  % remove entries for empty bars patches
+        barValues = barValues * 100;
+        cutoffpercentage = 2.5;
+        labels = strcat(' ', arrayfun(@(x) num2str(x,'%0.1f'),barValues(:),'uniform',false), '%');
+        hText = text(xPos(find(barValues>=cutoffpercentage)), yPos(find(barValues>=cutoffpercentage)), labels(find(barValues>=cutoffpercentage)), 'Parent', axes1);
+        set(hText, 'FontSize',9, 'Color', [0.40 0.40 0.40], 'FontName', 'Tahoma');
+        title(axes1, 'Trajectories length distribution', 'FontName', 'Tahoma', 'FontSize',9,'Color', [0.50 0.50 0.50] );
+        
+        legend1 = legend(axes1,arrayfun(@num2str,binEdges, 'uniform',false),...
+                        'TextColor',[0.80 0.80 0.80],...
+                        'Orientation','horizontal',...
+                        'Location','NorthOutside');
+     
+         set(axes1,'Position',[0.04 0.10 0.93 0.055]);
+
     end
 
 %deletion of a point, intensity 25 is assigned
     function deletePt(x,y,Frame)
-        Ilabel(y, x,Frame) = 25;
+        %Ilabel(y, x,Frame) = 25;
+        Ilabel(y,x,Frame) = ImageSeries(y,x,Frame);
         Itracks(y,x,Frame) = 0;
     end
 
@@ -320,6 +415,9 @@ img = Update();
         
         % -----------------------------------------------------------------
         % in order to get rid of the click outside the image frame
+        
+        %get(axes_img,'CurrentPoint')
+        
         xlim = get(img,'XData');
         ylim = get(img,'YData');
              
@@ -419,15 +517,21 @@ img = Update();
                         F = Ilabel(:,:,CurrentFrame);
                         C = Clabel(:,:,CurrentFrame);
                         Cnum = C(Cpt(1)-WindowSize+pt(2)-1,Cpt(2)-WindowSize+pt(1)-1)
+                        % Cancel the cell label belonging to the clicked point. 
                         Clabel(:,:,CurrentFrame) = C.*int16(C~=Cnum);
+                        % Now, neutralize the seed corresponding to the
+                        % deleted label.
+                        % 1. Find image region corresponding to label 
                         
                         F = F.*uint8(C==Cnum);
+                        % 2. Find the seeds in the cancelled region
                         [cpy cpx]=find(F > 252)
+                        % 3. Neutralised the seed setting its value to 251
                         neutralisePt(cpx,cpy,CurrentFrame);
                         
                         cellBoundaries(:,:,CurrentFrame) = filter2(fs,Clabel(:,:,CurrentFrame)) >.5;
                     end
-                end
+                 end
             else
                 if deleteMode
                     
@@ -552,9 +656,10 @@ img = Update();
                 img = Update();
             case {'s'}
                 %fprintf('Saving ... ');
-                ILabels = Ilabel;
+                ILabels = Ilabel;      
                 FramesToRegrow = union(FramesToRegrow,FramesToRegrow_old);
-                save(Ilabelsout,'ILabels','FramesToRegrow','oktrajs');
+                
+                save(Ilabelsout,'ILabels','FramesToRegrow','oktrajs','Itracks','tracklength','trackstartX','trackstartY','trackstarts');
                 % -------------------------------------------------------------------------
                 log2dev(sprintf('Saving trackign file as %s', Ilabelsout), 'INFO');
                 log2dev('Tracking module is over!', 'INFO');
