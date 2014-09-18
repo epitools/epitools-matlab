@@ -107,13 +107,7 @@ if ~SingleFrame
     set(fig,'WindowScrollWheelFcn',@figScroll);
 
 end
-
-cbh1 = uicontrol(fig,'Style','checkbox',...
-                'String','Final check',...
-                'Value',0, ...
-                'units'    ,'normalized', ...
-                'Position',[0.04 0.85 0.1 0.04],...
-                'Callback',@cb1Callback);
+set(fig,'MenuBar','none');
 
 framenum = uicontrol(fig ...
                     ,'style'    ,'edit' ...
@@ -128,6 +122,77 @@ uiLastFrame = uicontrol(fig ...
                 ,'string'   ,1 ...
                 );
 set(uiLastFrame,'String',NFrames);
+
+% uiStatisticPanel = uicontrol(fig ...
+%                 ,'style'    ,'edit' ...
+%                 ,'units'    ,'normalized' ...
+%                 ,'position' ,[0.92 0.01 0.05 0.04] ...
+%                 ,'string'   ,1 ...
+%                 );
+%             
+% uiStatisticDesc = uicontrol(fig ...
+%                 ,'style'    ,'edit' ...
+%                 ,'units'    ,'normalized' ...
+%                 ,'position' ,[0.92 0.01 0.05 0.04] ...
+%                 ,'string'   ,1 ...
+%                 );
+%             
+% ToolBar
+% Create the toolbar
+th = uitoolbar(fig);
+
+% Add a push tool to the toolbar
+
+
+% Open button
+pth1 = uipushtool(th,'CData',gif2cdata('images/gif/folder.gif'),...
+               'TooltipString','Open a tracking file',...
+               'HandleVisibility','off');
+
+% Save button
+pth2 = uipushtool(th,'CData',gif2cdata('images/gif/action_save.gif'),...
+               'TooltipString','Save the current tracking corrections',...
+               'HandleVisibility','off',...
+               'ClickedCallback', {@keyPrsFcn,'s'});
+
+% Wipe toogle       
+tth4 = uipushtool(th,'CData',gif2cdata('images/gif/action_go.gif'),'Separator','on',...
+                   'TooltipString','Wipe orphan seeds',...
+                   'HandleVisibility','off',...
+                   'ClickedCallback', {@keyPrsFcn,'w'});
+               
+           
+% Delete toogle       
+tth3 = uitoggletool(th,'CData',gif2cdata('images/gif/action_stop.gif'),'Separator','on',...
+                   'TooltipString','Delete seeds',...
+                   'HandleVisibility','off',...
+                   'ClickedCallback', {@keyPrsFcn,'d'});
+
+% Add seed with automatic center toogle
+tth9 = uitoggletool(th,'CData',gif2cdata('images/gif/page_wizard.gif'),'Separator','on',...
+                   'TooltipString','Final inspection',...
+                   'HandleVisibility','off',...
+                   'ClickedCallback', {});
+               
+% Hide boundaries toogle
+tth5 = uitoggletool(th,'CData',gif2cdata('images/gif/calendar.gif'),'Separator','on',...
+                   'TooltipString','Hide cell boundaries',...
+                   'HandleVisibility','off',...
+                   'ClickedCallback', {@keyPrsFcn,'h'});
+               
+% Inspect toogle
+tth6 = uitoggletool(th,'CData',gif2cdata('images/gif/icon_wand.gif'),'Separator','on',...
+                   'TooltipString','Inspect mode',...
+                   'HandleVisibility','off',...
+                   'ClickedCallback', {@keyPrsFcn,'i'});
+               
+% Final inspect toogle
+tth7 = uitoggletool(th,'CData',gif2cdata('images/gif/icon_monitor_pc.gif'),'Separator','on',...
+                   'TooltipString','Final inspection',...
+                   'HandleVisibility','off',...
+                   'ClickedCallback', {@cb1Callback});
+
+
     
 %% First run executions
 log2dev('retrack', 'DEBUG');
@@ -142,7 +207,7 @@ img = Update();
 %% Support functions
 % Evaluate the final check
     function cb1Callback(src,evt)
-        Ch1On = get(cbh1,'Value');
+        if(Ch1On);Ch1On = false;else Ch1On = true; end
         img = Update();
     end
 
@@ -166,7 +231,7 @@ img = Update();
     end
 
     function img = Update()
-               
+
         if zoommode
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
             PaddedIm = zeros(ImSize(1)+200,ImSize(2)+200,3);
@@ -305,6 +370,14 @@ img = Update();
         % Attached statistics figures
         trajectories_statistics(CurrentFrame);
         
+        
+        % Reset toolbar toggles
+
+        if(showCells);set(tth5,'State','on');else set(tth5,'State','off');end
+        if(deleteMode);set(tth3,'State','on');else set(tth3,'State','off');end
+        if(InspectPt);set(tth6,'State','on');else set(tth6,'State','off');end
+        if(Ch1On);set(tth7,'State','on');else set(tth7,'State','off');end
+        
         drawnow;
 
     end
@@ -330,11 +403,11 @@ img = Update();
         orphan_seeds = ones(size(orphan_seeds,1),1);
 
         %cmpstarts(idxtime,:) = trackstarts(track_uids);
-        cmplength = [tracklength(track_uids); orphan_seeds]';
+        cmplength = [tracklength(track_uids)+2; orphan_seeds]';
         
         % compute bins
         if NFrames <= 10; nbins = NFrames;else nbins = round((NFrames/10)*2.5); end
-        binEdges = linspace(min(cmplength),max(cmplength),nbins-1);
+        binEdges = linspace(min(cmplength),max(cmplength),nbins);
 
         % assign values to bins
         cmphists = histc(cmplength, [binEdges(1:end-1) Inf])/sum(histc(cmplength, [binEdges(1:end-1) Inf]));
@@ -371,7 +444,7 @@ img = Update();
         set(hText, 'FontSize',9, 'Color', [0.40 0.40 0.40], 'FontName', 'Tahoma');
         title(axes1, 'Trajectories length distribution', 'FontName', 'Tahoma', 'FontSize',9,'Color', [0.50 0.50 0.50] );
         
-        legend1 = legend(axes1,arrayfun(@(x) num2str(x,'%0.1f'),binEdges,'uniform',false), 'uniform',false),...
+        legend1 = legend(axes1,arrayfun(@(x) num2str(x,'%0.1f'), binEdges ,'uniform',false),...
                         'TextColor',[0.80 0.80 0.80],...
                         'Orientation','horizontal',...
                         'Location','NorthOutside');
@@ -417,7 +490,7 @@ img = Update();
         % in order to get rid of the click outside the image frame
         
         %get(axes_img,'CurrentPoint')
-        
+
         xlim = get(img,'XData');
         ylim = get(img,'YData');
              
@@ -498,6 +571,7 @@ img = Update();
                         end
                     end
                     if InspectPt InspectPt = false; end
+                    if(InspectPt);set(tth6,'State','on');else set(tth6,'State','off');end
                     if okeydown okeydown = false; end
                     if ~OnASeed
                         if ~AddDummyPt
@@ -629,8 +703,10 @@ img = Update();
     end
 
 % KEY PRESS FUNCTION
-    function keyPrsFcn(src,evt)
+    function keyPrsFcn(src,evt,ch)
+        if nargin < 3
         ch = get(gcf,'CurrentCharacter');
+        end
         switch ch
             case {29} %RIGHT ARROW
                 if CurrentFrame < size(Ilabel,3)
