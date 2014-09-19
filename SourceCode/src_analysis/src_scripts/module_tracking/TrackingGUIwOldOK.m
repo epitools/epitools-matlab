@@ -51,6 +51,9 @@ Ch1On = false;
 Cpt = [0 0];
 CCellNum = 0;
 
+% Backward / Forward visualisation for alt-clicked point
+bf_visual = [];
+
 % Application status
 okeydown = false;
 
@@ -338,6 +341,11 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
 
     function img = Update()
         
+        f1 = [];
+        f2 = [];
+        b1 = [];
+        b2 = [];
+        
         if zoommode
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
             PaddedIm = zeros(ImSize(1)+200,ImSize(2)+200,3);
@@ -427,6 +435,24 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                              'edgecolor','r',...
                              'LineWidth',2,...
                              'Parent', axes_subimg_nav);
+                                    
+            if ~isempty(bf_visual)
+        
+                if CurrentFrame + 1 < NFrames; 
+                    
+                PaddedIm(100:end-101,100:end-101,1) = .5*double(cellBoundaries(:,:,CurrentFrame+1)) + PaddedIm(100:end-101,100:end-101,1).*(1-double(cellBoundaries(:,:,CurrentFrame+1)));
+                PaddedIm(100:end-101,100:end-101,2) = .2*double(cellBoundaries(:,:,CurrentFrame+1)) + PaddedIm(100:end-101,100:end-101,2).*(1-double(cellBoundaries(:,:,CurrentFrame+1)));
+                PaddedIm(100:end-101,100:end-101,3) = .2*double(cellBoundaries(:,:,CurrentFrame+1)) + PaddedIm(100:end-101,100:end-101,3).*(1-double(cellBoundaries(:,:,CurrentFrame+1)));
+                    
+                    
+                    f1 = ;  
+                end
+                if CurrentFrame + 2 < NFrames; f2 = ; end 
+                if CurrentFrame - 1 > 0; b1 = ;  end 
+                if CurrentFrame - 2 > 0; b2 = ;  end 
+            
+            end
+            
         else
             
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
@@ -486,14 +512,21 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
             grid(axes_img);
             grid on;
         end
-        
-        
         % Mini display 
         
-        imshow([],'Parent', axes_subimg_f2);
-        imshow([],'Parent', axes_subimg_f1);
-        imshow([],'Parent', axes_subimg_b1);
-        imshow([],'Parent', axes_subimg_b2);
+
+        
+
+
+        
+
+        
+        imshow(f2,'Parent', axes_subimg_f2);
+        imshow(f1,'Parent', axes_subimg_f1);
+        imshow(b1,'Parent', axes_subimg_b1);
+        imshow(b2,'Parent', axes_subimg_b2);     
+        
+
         
         
 
@@ -788,6 +821,10 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                                 Ilabel(y, x,CurrentFrame),x,y),...
                                 'INFO');
                         end
+                        
+                        % Visualise backward/forward frames
+                        bf_visual = [x,y];
+                        img = Update();
                         break
                         
                     end
