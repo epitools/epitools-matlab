@@ -69,6 +69,8 @@ cellBoundaries = zeros(ImSize,'int8');
 
 % Create a new figure
 fig = figure;
+setappdata(0,'hTrackingGUI',fig);
+
 set(fig,'Color', [0.314 0.314 0.314]);
 set(fig,'Position', [0 0 1024 860]);
 movegui(fig,'center');
@@ -199,7 +201,7 @@ RecalculateCellBoundaries();
 log2dev('update figure', 'DEBUG');
 
 img = Update();
-set(fig,'WindowButtonDownFcn',{@wbmFcn,img})
+
 set(fig,'KeyPressFcn',@keyPrsFcn)
 
 %% Support functions
@@ -313,7 +315,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
             
             img = imshow(PaddedIm(Cpt(1)-WindowSize+100:Cpt(1)+WindowSize+100,Cpt(2)-WindowSize+100:Cpt(2)+WindowSize+100,:),...
                         'Parent', axes_img);
-            
+            set(img,'ButtonDownFcn',@wbmFcn);
         else
             
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
@@ -358,7 +360,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
             
             img = imshow(Irgb,...
                         'Parent', axes_img);
-            
+            set(img,'ButtonDownFcn',@wbmFcn);
         end
         
         
@@ -479,7 +481,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
 
 % WBMFCN or WindowButtonMotionFunCtioN
 % i.e. what happens for MOUSE events
-    function wbmFcn(src,evt,img)
+    function wbmFcn(src,evt)
         pt = get(gca,'Currentpoint');
         pt = round([pt(1,1), pt(1,2)]);
         
@@ -487,12 +489,11 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         % in order to get rid of the click outside the image frame
         
         %get(axes_img,'CurrentPoint')
-
-        xlim = get(img,'XData');
-        ylim = get(img,'YData');
+        %xlim = get(img,'XData');
+        %ylim = get(img,'YData');
              
-        if(isempty(find([xlim(1):xlim(2)] == pt(1),1))); return;end
-        if(isempty(find([ylim(1):ylim(2)] == pt(2),1))); return;end
+        %if(isempty(find([xlim(1):xlim(2)] == pt(1),1))); return;end
+        %if(isempty(find([ylim(1):ylim(2)] == pt(2),1))); return;end
         % -----------------------------------------------------------------
         
         mouseuse  = get(gcf,'SelectionType');
