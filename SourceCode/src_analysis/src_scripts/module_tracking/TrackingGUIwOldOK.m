@@ -53,9 +53,8 @@ CCellNum = 0;
 
 % Application status
 okeydown = false;
-deleteMode = false;
+
 delabelMode = false;
-showCells = true;
 RemoveTrack = false;
 AddDummyPt = false;
 InspectPt = false;
@@ -63,134 +62,241 @@ NeedToRetrack = false;
 WipeFrame = false;
 FramesToRegrow = [];
 
+deleteMode = false;
+showCells = true;
+gridmode = true;
+legendmode = false;
+
 cellBoundaries = zeros(ImSize,'int8');
 
-%% Gui Preparation 
+%% Gui Preparation
 
 % Create a new figure
 fig = figure;
 setappdata(0,'hTrackingGUI',fig);
 
-set(fig,'Color', [0.314 0.314 0.314]);
-set(fig,'Position', [0 0 1024 860]);
+set(fig,...
+    'Color', [0.314 0.314 0.314],...
+    'Units', 'normalized',...
+    'MenuBar','none',...
+    'Position', [0 0 0.60 0.80]);
+%    
 movegui(fig,'center');
 
 axes_img = axes('Parent',fig,...
-                'Position',[0.20 0.25 0.70 0.70]);
-% Create axes for statistics hist
-axes1 = axes('Parent',fig,...
-            'YColor',[0.50 0.50 0.50],...
-            'XGrid','on',...
-            'XColor',[0.50 0.50 0.50],...
-            'Position',[0.04 0.10 0.93 0.055],...
-            'FontName','Tahoma',...
-            'Color',[0 0 0],...
-            'Ylim', [0.5 1.7],...
-            'Xlim', [0 1],...
-            'YTick',1);
+    'Position',[0.16 0.20 0.70 0.70]);
+set(axes_img, 'Tag', 'axes_img');
 
- box(axes1,'on');
- hold(axes1,'all');
 
 if ~SingleFrame
     slider = uicontrol( fig ...
         ,'style'    ,'slider'   ...
         ,'units'    ,'normalized' ...
-        ,'position' ,[0.11 0.0 0.78 0.035] ...
+        ,'position' ,[0.11 0.0 0.78 0.025] ...
         );
-
+    
     set(slider,'sliderstep',[1/(NFrames),1],...
         'max',NFrames,'min',1, 'Value', 1);
-
+    
     % sliderListener = addlistener(slider,'ContinuousValueChange',@sliderActionEventCb);
     set(slider,'Callback',@sliderActionEventCb);
     set(fig,'WindowScrollWheelFcn',@figScroll);
-
+    
 end
-set(fig,'MenuBar','none');
 
-framenum = uicontrol(fig ...
-                    ,'style'    ,'edit' ...
-                    ,'units'    ,'normalized' ...
-                    ,'position' ,[0.04 0.01 0.05 0.04] ...
-                    ,'string'   ,1 ...
-                    );
-uiLastFrame = uicontrol(fig ...
-                ,'style'    ,'edit' ...
-                ,'units'    ,'normalized' ...
-                ,'position' ,[0.92 0.01 0.05 0.04] ...
-                ,'string'   ,1 ...
-                );
-set(uiLastFrame,'String',NFrames);
+uiControlPanel = uipanel(fig, ...
+    'units'    ,'normalized', ...
+    'position' ,[0.00 0.00 1 0.05], ...
+    'title', 'Image controls',...
+    'FontName','Tahoma',...
+    'FontUnits','normalized',...
+    'FontSize',0.2,...
+    'BackgroundColor',[0.6000    0.6000    0.6000]);
 
-% uiStatisticPanel = uicontrol(fig ...
-%                 ,'style'    ,'edit' ...
-%                 ,'units'    ,'normalized' ...
-%                 ,'position' ,[0.92 0.01 0.05 0.04] ...
-%                 ,'string'   ,1 ...
-%                 );
-%             
-% uiStatisticDesc = uicontrol(fig ...
-%                 ,'style'    ,'edit' ...
-%                 ,'units'    ,'normalized' ...
-%                 ,'position' ,[0.92 0.01 0.05 0.04] ...
-%                 ,'string'   ,1 ...
-%                 );
-%             
+framenum = uicontrol(fig, ...
+    'style'    ,'edit', ...
+    'units'    ,'normalized', ...
+    'FontName','Tahoma',...
+    'FontUnits','normalized',...
+    'FontSize',0.4, ...
+    'position' ,[0.04 0.010 0.028 0.025], ...
+    'string',1);
+uiLastFrame = uicontrol(fig, ...
+    'style'    ,'edit', ...
+    'units'    ,'normalized', ...
+    'FontName','Tahoma',...
+    'FontUnits','normalized',...
+    'FontSize',0.4,...
+    'position' ,[0.92 0.010 0.028 0.025], ...
+    'string',1);
+
+
+% Statistic panel
+uiStatisticPanel = uipanel(fig, ...
+    'units'    ,'normalized', ...
+    'position' ,[0.04 0.67 0.17 0.235], ...
+    'title', 'Statistics',...
+    'FontName','Tahoma',...
+    'FontUnits','normalized',...
+    'FontSize',0.04,...
+    'BackgroundColor',[0.6000    0.6000    0.6000]);
+
+cnames = {'# current','# cumulated'};
+rnames = {'tracks','cells','checked','orphans'};
+uiTableStatistics  = uitable('Parent',uiStatisticPanel,...
+                             'Data',[],...
+                             'ColumnName',cnames,... 
+                             'RowName',rnames,...
+                             'units'    ,'normalized', ...
+                             'Position',[0.02 0.01 0.97 0.97]);
+
+% Navigator panel
+uiNavigatorPanel = uipanel(fig, ...
+    'units'    ,'normalized', ...
+    'position' ,[0.80  0.67 0.17 0.235], ...
+    'title', 'Navigator',...
+    'FontName','Tahoma',...
+    'FontUnits','normalized',...
+    'FontSize',0.04,...
+    'BackgroundColor',[0.6000    0.6000    0.6000]);
+
+axes_subimg_nav = axes('Parent',uiNavigatorPanel,...
+    'units'    ,'normalized', ...
+    'Position',[0.01 0.02 0.98 0.98]);
+
+% Preview left
+uiPLPanel = uipanel(fig, ...
+    'units'    ,'normalized', ...
+    'position' ,[0.04 0.20 0.17 0.45], ...
+    'FontName','Tahoma',...
+    'FontUnits','normalized',...
+    'FontSize',0.03,...
+    'BackgroundColor',[0.6000    0.6000    0.6000]);
+
+axes_subimg_b1 = axes('Parent',uiPLPanel,...
+    'units'    ,'normalized', ...
+    'Position',[0.01 0.50 0.98 0.45]);
+
+axes_subimg_b2 = axes('Parent',uiPLPanel,...
+    'units'    ,'normalized', ...
+    'Position',[0.01 0.01 0.98 0.45]);
+
+set(axes_subimg_b1, 'Tag', 'axes_subimg_b1');
+set(axes_subimg_b2, 'Tag', 'axes_subimg_b2');
+
+title(axes_subimg_b1,'1 frame backward');
+title(axes_subimg_b2,'2 frames backward');
+
+% Preview right
+uiPRPanel = uipanel(fig, ...
+    'units'    ,'normalized', ...
+    'position' ,[0.80 0.20 0.17 0.45], ...
+    'FontName','Tahoma',...
+    'FontUnits','normalized',...
+    'FontSize',0.03,...
+    'BackgroundColor',[0.6000    0.6000    0.6000]);
+
+axes_subimg_f1 = axes('Parent',uiPRPanel,...
+    'units'    ,'normalized', ...
+    'Position',[0.01 0.50 0.98 0.45]);
+
+
+axes_subimg_f2 = axes('Parent',uiPRPanel,...
+    'units'    ,'normalized', ...
+    'Position',[0.01 0.01 0.98 0.45]);
+
+set(axes_subimg_f1, 'Tag', 'axes_subimg_f2');
+set(axes_subimg_f2, 'Tag', 'axes_subimg_f2');
+title(axes_subimg_f1,'1 frame forward');
+title(axes_subimg_f2,'2 frames forward');
+
+% Parameters panel
+uiParametersPanel = uipanel(fig, ...
+    'units'    ,'normalized', ...
+    'position' ,[0.00 0.95  1 0.05], ...
+    'FontName','Tahoma',...
+    'FontUnits','normalized',...
+    'FontSize',0.03,...
+    'BackgroundColor',[0.6000    0.6000    0.6000]);
+
+% Create axes for statistics hist
+axes1 = axes('Parent',fig,...
+        'YColor',[0.50 0.50 0.50],...
+        'XGrid','on',...
+        'XColor',[0.50 0.50 0.50],...
+        'Position',[0.04 0.08 0.93 0.055],...
+        'FontName','Tahoma',...
+        'Color',[0 0 0],...
+        'Ylim', [0.5 1.7],...
+        'Xlim', [0 1],...
+        'YTick',1);
+
+set(axes1, 'Tag', 'axes1');
+box(axes1,'on');
+hold(axes1,'all');
+
+
 % ToolBar
 % Create the toolbar
 th = uitoolbar(fig);
 
-% Add a push tool to the toolbar
-
-
 % Open button
 pth1 = uipushtool(th,'CData',gif2cdata('images/gif/folder.gif'),...
-               'TooltipString','Open a tracking file',...
-               'HandleVisibility','off');
+    'TooltipString','Open a tracking file',...
+    'HandleVisibility','off');
 
 % Save button
 pth2 = uipushtool(th,'CData',gif2cdata('images/gif/action_save.gif'),...
-               'TooltipString','Save the current tracking corrections',...
-               'HandleVisibility','off',...
-               'ClickedCallback', {@keyPrsFcn,'s'});
+    'TooltipString','Save the current tracking corrections',...
+    'HandleVisibility','off',...
+    'ClickedCallback', {@keyPrsFcn,'s'});
 
-% Wipe toogle       
+% Wipe toogle
 tth4 = uipushtool(th,'CData',gif2cdata('images/gif/action_go.gif'),'Separator','on',...
-                   'TooltipString','Wipe orphan seeds',...
-                   'HandleVisibility','off',...
-                   'ClickedCallback', {@keyPrsFcn,'w'});
-               
-           
-% Delete toogle       
+    'TooltipString','Wipe orphan seeds',...
+    'HandleVisibility','off',...
+    'ClickedCallback', {@keyPrsFcn,'w'});
+
+
+% Delete toogle
 tth3 = uitoggletool(th,'CData',gif2cdata('images/gif/action_stop.gif'),'Separator','on',...
-                   'TooltipString','Delete seeds',...
-                   'HandleVisibility','off',...
-                   'ClickedCallback', {@keyPrsFcn,'d'});
+    'TooltipString','Delete seeds',...
+    'HandleVisibility','off',...
+    'ClickedCallback', {@keyPrsFcn,'d'});
 
 % Add seed with automatic center toogle
 tth9 = uitoggletool(th,'CData',gif2cdata('images/gif/page_wizard.gif'),'Separator','on',...
-                   'TooltipString','Final inspection',...
-                   'HandleVisibility','off',...
-                   'ClickedCallback', {});
-               
+    'TooltipString','Final inspection',...
+    'HandleVisibility','off',...
+    'ClickedCallback', {});
+
 % Hide boundaries toogle
 tth5 = uitoggletool(th,'CData',gif2cdata('images/gif/calendar.gif'),'Separator','on',...
-                   'TooltipString','Hide cell boundaries',...
-                   'HandleVisibility','off',...
-                   'ClickedCallback', {@keyPrsFcn,'h'});
-               
+    'TooltipString','Show/Hide cell boundaries',...
+    'HandleVisibility','off',...
+    'ClickedCallback', {@keyPrsFcn,'h'});
+% Grid toogle
+tth8 = uitoggletool(th,'CData',gif2cdata('images/gif/table.gif'),'Separator','on',...
+    'TooltipString','Show/Hide grid on image',...
+    'HandleVisibility','off',...
+    'ClickedCallback', {@keyPrsFcn,'g'});
+% Legend toogle
+tth10 = uitoggletool(th,'CData',gif2cdata('images/gif/file_font_truetype.gif'),'Separator','on',...
+    'TooltipString','Show/Hide graph legend',...
+    'HandleVisibility','off',...
+    'ClickedCallback', {@keyPrsFcn,'l'});
+
 % Inspect toogle
 tth6 = uitoggletool(th,'CData',gif2cdata('images/gif/icon_wand.gif'),'Separator','on',...
-                   'TooltipString','Inspect mode',...
-                   'HandleVisibility','off',...
-                   'ClickedCallback', {@keyPrsFcn,'i'});
-               
+    'TooltipString','Inspect mode',...
+    'HandleVisibility','off',...
+    'ClickedCallback', {@keyPrsFcn,'i'});
+
 % Final inspect toogle
 tth7 = uitoggletool(th,'CData',gif2cdata('images/gif/icon_monitor_pc.gif'),'Separator','on',...
-                   'TooltipString','Final inspection',...
-                   'HandleVisibility','off',...
-                   'ClickedCallback', {@cb1Callback});
+    'TooltipString','Final inspection',...
+    'HandleVisibility','off',...
+    'ClickedCallback', {@cb1Callback});
 
 %% First run executions
 log2dev('retrack', 'DEBUG');
@@ -231,7 +337,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
     end
 
     function img = Update()
-
+        
         if zoommode
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
             PaddedIm = zeros(ImSize(1)+200,ImSize(2)+200,3);
@@ -307,6 +413,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                     end
                 end
             end
+            
             if showCells
                 PaddedIm(100:end-101,100:end-101,1) = .5*double(cellBoundaries(:,:,CurrentFrame)) + PaddedIm(100:end-101,100:end-101,1).*(1-double(cellBoundaries(:,:,CurrentFrame)));
                 PaddedIm(100:end-101,100:end-101,2) = .2*double(cellBoundaries(:,:,CurrentFrame)) + PaddedIm(100:end-101,100:end-101,2).*(1-double(cellBoundaries(:,:,CurrentFrame)));
@@ -314,8 +421,12 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
             end
             
             img = imshow(PaddedIm(Cpt(1)-WindowSize+100:Cpt(1)+WindowSize+100,Cpt(2)-WindowSize+100:Cpt(2)+WindowSize+100,:),...
-                        'Parent', axes_img);
-            set(img,'ButtonDownFcn',@wbmFcn);
+                'Parent', axes_img);
+            nav = imshow(Irgb,'Parent', axes_subimg_nav);
+            rect = rectangle('Position',[Cpt(2),Cpt(1),15,15],...
+                             'edgecolor','r',...
+                             'LineWidth',2,...
+                             'Parent', axes_subimg_nav);
         else
             
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
@@ -359,35 +470,60 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
             end
             
             img = imshow(Irgb,...
-                        'Parent', axes_img);
-            set(img,'ButtonDownFcn',@wbmFcn);
+                'Parent', axes_img);
+            nav = imshow(Irgb,...
+                'Parent', axes_subimg_nav);
+            
+        end
+        
+        if gridmode;
+            set(axes_img,'Visible','on',...
+                'GridLineStyle', ':',...
+                'FontName','Tahoma',...
+                'XColor', [0    1.0000    0.2000],...
+                'YColor', [0    1.0000    0.2000],...
+                'Color', [0    1.0000    0.2000]);
+            grid(axes_img);
+            grid on;
         end
         
         
+        % Mini display 
+        
+        imshow([],'Parent', axes_subimg_f2);
+        imshow([],'Parent', axes_subimg_f1);
+        imshow([],'Parent', axes_subimg_b1);
+        imshow([],'Parent', axes_subimg_b2);
+        
+        
+
+        % Set catch for mouse events
         set(img,'ButtonDownFcn',@wbmFcn)
-        set(framenum,'String',CurrentFrame);
         
         % Attached statistics figures
-        trajectories_statistics(CurrentFrame);
+        trajectories_statistics(CurrentFrame,legendmode);
         
-        
+        % ------------------------------------------------------------------
+        % Set current fig values to controls
+        set(framenum,'String',CurrentFrame);
+        set(uiLastFrame,'String',NFrames);
         % Reset toolbar toggles
-
         if(showCells);set(tth5,'State','on');else set(tth5,'State','off');end
         if(deleteMode);set(tth3,'State','on');else set(tth3,'State','off');end
         if(InspectPt);set(tth6,'State','on');else set(tth6,'State','off');end
         if(Ch1On);set(tth7,'State','on');else set(tth7,'State','off');end
+        if(gridmode);set(tth8,'State','on');else set(tth8,'State','off');end
+        if(legendmode);set(tth10,'State','on');else set(tth10,'State','off');end
         
         drawnow;
-
+        
     end
 
-    function trajectories_statistics(idxtime)
+    function trajectories_statistics(idxtime,legend)
         % ---------------------------------------------------------------
         % Data preparation
         cmplength = [];
         cmphists = [];
-        
         
         [x1,y1] = find(Itracks(:,:,idxtime));
         [x2,y2] = find(Ilabel(:,:,idxtime)==255);
@@ -398,14 +534,14 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         % Seeds not associated to any track (value == 255) are those which
         % coordinate is present in Ilabel but not in Itracks.
         orphan_seeds = ones(size(orphan_seeds,1),1);
-
+        
         %cmpstarts(idxtime,:) = trackstarts(track_uids);
         cmplength = [tracklength(track_uids)+2; orphan_seeds]';
         
         % compute bins
         if NFrames <= 10; nbins = NFrames;else nbins = round((NFrames/10)*2.5); end
         binEdges = linspace(min(cmplength),max(cmplength),nbins);
-
+        
         % assign values to bins
         cmphists = histc(cmplength, [binEdges(1:end-1) Inf])/sum(histc(cmplength, [binEdges(1:end-1) Inf]));
         
@@ -414,13 +550,14 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         
         % ---------------------------------------------------------------
         % Plotting
-        % per each frame represent track length distribution in percentage 
-
+        % per each frame represent track length distribution in percentage
+        
         hDataSeries = barh(data,...
-                        'Stacked',...
-                        'EdgeColor',[0.83 0.81 0.78],...
-                        'Parent',axes1);
-
+            'Stacked',...
+            'EdgeColor',[0.83 0.81 0.78],...
+            'Parent',axes1);
+       
+        colormap(axes1,'Jet');
         hPatches = get(hDataSeries,'Children');
         try hPatches = cell2mat(hPatches); catch, end  % no need in case of single patch
         yData = get(hPatches(1),'YData');
@@ -442,14 +579,22 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         hText = text(xPos(find(barValues>=cutoffpercentage)), yPos(find(barValues>=cutoffpercentage)), labels(find(barValues>=cutoffpercentage)), 'Parent', axes1);
         set(hText, 'FontSize',9, 'Color', [0.40 0.40 0.40], 'FontName', 'Tahoma');
         title(axes1, 'Trajectories length distribution', 'FontName', 'Tahoma', 'FontSize',9,'Color', [0.50 0.50 0.50] );
+        myCell = arrayfun(@(x) num2str(x,'%0.1f'), binEdges ,'uniform',false);
         
-        %legend1 = legend(axes1,arrayfun(@(x) num2str(x,'%0.1f'), binEdges ,'uniform',false),...
-        %                'TextColor',[0.80 0.80 0.80],...
-        %                'Orientation','horizontal',...
-        %                'Location','NorthOutside');
-     
-        set(axes1,'Position',[0.04 0.10 0.93 0.055]);
-
+        
+        if legend
+            hcb=colorbar('location','EastOutside');
+            set(axes1,'Position',[0.04 0.08 0.90 0.045]);
+            set(hcb, 'Tag', 'colorbar_s1', 'UserData', struct('associatedAxes', axes1));
+%              legend(axes1,arrayfun(@num2str,floor(binEdges), 'uniform',false),...
+%                     'TextColor',[0.80 0.80 0.80],...
+%                     'Orientation','horizontal',...
+%                     'Location','NorthOutside');
+        else
+            colorbar('off');
+            set(axes1,'Position',[0.04 0.08 0.93 0.045]);
+        end
+        
     end
 
 %deletion of a point, intensity 25 is assigned
@@ -491,7 +636,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         %get(axes_img,'CurrentPoint')
         %xlim = get(img,'XData');
         %ylim = get(img,'YData');
-             
+        
         %if(isempty(find([xlim(1):xlim(2)] == pt(1),1))); return;end
         %if(isempty(find([ylim(1):ylim(2)] == pt(2),1))); return;end
         % -----------------------------------------------------------------
@@ -519,11 +664,11 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                         Retrack();
                         NeedToRetrack = true;
                     end
-
+                    
                     % find all known seeds
                     [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
                     OnASeed = false;
-        
+                    
                     % loop through all seeds
                     for n =1:length(cpy)
                         y = cpy(n); x = cpx(n);
@@ -589,11 +734,11 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                         F = Ilabel(:,:,CurrentFrame);
                         C = Clabel(:,:,CurrentFrame);
                         Cnum = C(Cpt(1)-WindowSize+pt(2)-1,Cpt(2)-WindowSize+pt(1)-1)
-                        % Cancel the cell label belonging to the clicked point. 
+                        % Cancel the cell label belonging to the clicked point.
                         Clabel(:,:,CurrentFrame) = C.*int16(C~=Cnum);
                         % Now, neutralize the seed corresponding to the
                         % deleted label.
-                        % 1. Find image region corresponding to label 
+                        % 1. Find image region corresponding to label
                         
                         F = F.*uint8(C==Cnum);
                         % 2. Find the seeds in the cancelled region
@@ -603,7 +748,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                         
                         cellBoundaries(:,:,CurrentFrame) = filter2(fs,Clabel(:,:,CurrentFrame)) >.5;
                     end
-                 end
+                end
             else
                 if deleteMode
                     
@@ -632,7 +777,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                     y = cpy(n); x = cpx(n);
                     
                     if checkSeedMatch(x,y,pt)
-
+                        
                         cnum = Itracks(y,x,CurrentFrame);
                         if cnum ~= 0
                             log2dev(sprintf('label=%i x=%i y=%i cellnum=%i tracklen=%i trackStart=%i',...
@@ -651,8 +796,10 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 %potential bug here that sends img error
                 xinit = pt(1); yinit = pt(2);
                 Cptinit = Cpt;
-                set(src,'WindowButtonMotionFcn',@wbmcb);
-                set(src,'WindowButtonUpFcn',@wbucb);
+                set(src,'ButtonDownFcn',@wbmcb);
+                
+                % I do not understand the need of this function
+                %set(src,'WindowButtonUpFcn',@wbucb);
             else
                 if deleteMode
                     % delete label of this cell
@@ -703,7 +850,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
 % KEY PRESS FUNCTION
     function keyPrsFcn(src,evt,ch)
         if nargin < 3
-        ch = get(gcf,'CurrentCharacter');
+            ch = get(gcf,'CurrentCharacter');
         end
         switch ch
             case {29} %RIGHT ARROW
@@ -730,14 +877,14 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 img = Update();
             case {'s'}
                 %fprintf('Saving ... ');
-                ILabels = Ilabel;      
+                ILabels = Ilabel;
                 FramesToRegrow = union(FramesToRegrow,FramesToRegrow_old);
                 
                 save(Ilabelsout,'ILabels','FramesToRegrow','oktrajs','Itracks','tracklength','trackstartX','trackstartY','trackstarts');
                 % -------------------------------------------------------------------------
                 log2dev(sprintf('Saving trackign file as %s', Ilabelsout), 'INFO');
                 log2dev('Tracking module is over!', 'INFO');
-                % ------------------------------------------------------------------------- 
+                % -------------------------------------------------------------------------
                 %fprintf('done\n');
                 hMainGui = getappdata(0, 'hMainGui');
                 stgObj = getappdata(hMainGui, 'settings_objectname');
@@ -745,7 +892,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 if isfield(stgObj.analysis_modules.Tracking.metadata, 'click_counts')
                     stgObj.ModifyMetadata('Tracking','click_counts', stgObj.analysis_modules.Tracking.metadata.click_counts + NClicks);
                 else
-                   stgObj.AddMetadata('Tracking','click_counts', NClicks); 
+                    stgObj.AddMetadata('Tracking','click_counts', NClicks);
                 end
                 close(gcf);
             case {'o'}
@@ -761,11 +908,13 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                     deleteMode = false;
                 end
             case {'h'}
-                if showCells
-                    showCells = false;
-                else
-                    showCells = true;
-                end
+                if showCells; showCells = false; else showCells = true; end
+                Update();
+            case {'g'}
+                if gridmode; gridmode = false; else gridmode = true; end
+                Update();
+            case {'l'}
+                if legendmode; legendmode = false; else legendmode = true; end
                 Update();
             case {'t'}
                 RemoveTrack = true;
@@ -783,7 +932,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
     function Retrack()
         % -------------------------------------------------------------------------
         log2dev('Start retracking', 'DEBUG');
-        % -------------------------------------------------------------------------   
+        % -------------------------------------------------------------------------
         %fprintf('Retracking!')
         tic
         %output vectors
@@ -824,9 +973,9 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
     end
 
     function does_seed_match_point = checkSeedMatch(x,y,pt)
-    %This function checks whether the seed has been selected
-    %by the user. Pt is the mouse location clicked by the user.
-    
+        %This function checks whether the seed has been selected
+        %by the user. Pt is the mouse location clicked by the user.
+        
         buffer_down = 5;%3;
         buffer_up = 5;%1;
         
@@ -838,15 +987,15 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
             y < abs_pt_y + buffer_up   &&...
             x > abs_pt_x - buffer_down &&...
             x < abs_pt_x + buffer_up;
-
-%         %Feedback function in case correspondence should be checked
-%         if does_seed_match_point
-%             fprintf(...
-%                 'x %d\t%d\t%d\t%d\ny %d\t%d\t%d\t%d\nFx %d\nFy %d\nWd %d\n',...
-%                 x,abs_pt_x - buffer_down,abs_pt_x,abs_pt_x + buffer_up,...
-%                 y,abs_pt_y - buffer_down,abs_pt_y,abs_pt_y + buffer_up,...
-%                 Cpt(1),Cpt(2),WindowSize);
-%         end
+        
+        %         %Feedback function in case correspondence should be checked
+        %         if does_seed_match_point
+        %             fprintf(...
+        %                 'x %d\t%d\t%d\t%d\ny %d\t%d\t%d\t%d\nFx %d\nFy %d\nWd %d\n',...
+        %                 x,abs_pt_x - buffer_down,abs_pt_x,abs_pt_x + buffer_up,...
+        %                 y,abs_pt_y - buffer_down,abs_pt_y,abs_pt_y + buffer_up,...
+        %                 Cpt(1),Cpt(2),WindowSize);
+        %         end
     end
 
     function has_seed_valid_label = checkLabelValidity(x,y)
@@ -870,7 +1019,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
     end
 
     function is_seed_outside_image = checkPointValidity(x,y)
-        %Checks whether the point is within an image 
+        %Checks whether the point is within an image
         %and whether there is labelled area below.
         
         % Keep in mind indeces are inversed
@@ -907,5 +1056,5 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         is_seed_outside_image = 1;
         
     end
-        
+
 end
