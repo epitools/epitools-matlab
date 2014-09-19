@@ -5,7 +5,6 @@ function fig = TrackingGUIwOldOK(ImageSeries,Ilabel,Clabel,ColLabels,Ilabelsout,
 Ilabel = uint8(Ilabel);
 Clabel = uint16(Clabel);                                                   %unit16 because more than 256 labels possible!
 
-
 %% Check on image dimensions
 ImSize = size(ImageSeries);
 % ImSize = [x, y, t];
@@ -91,8 +90,6 @@ axes1 = axes('Parent',fig,...
  box(axes1,'on');
  hold(axes1,'all');
 
-set(fig,'WindowButtonDownFcn',@wbmFcn)
-set(fig,'KeyPressFcn',@keyPrsFcn)
 if ~SingleFrame
     slider = uicontrol( fig ...
         ,'style'    ,'slider'   ...
@@ -193,8 +190,6 @@ tth7 = uitoggletool(th,'CData',gif2cdata('images/gif/icon_monitor_pc.gif'),'Sepa
                    'HandleVisibility','off',...
                    'ClickedCallback', {@cb1Callback});
 
-
-    
 %% First run executions
 log2dev('retrack', 'DEBUG');
 Retrack();
@@ -202,8 +197,10 @@ log2dev('recalculate cell boundaries', 'DEBUG');
 RecalculateCellBoundaries();
 %Retrack();
 log2dev('update figure', 'DEBUG');
-img = Update();
 
+img = Update();
+set(fig,'WindowButtonDownFcn',{@wbmFcn,img})
+set(fig,'KeyPressFcn',@keyPrsFcn)
 
 %% Support functions
 % Evaluate the final check
@@ -239,7 +236,7 @@ img = Update();
             PaddedIm(100:99+ImSize(1), 100:99+ImSize(2),:) = squeeze(Irgb(:, :,:));
             
             % 251 marks the threshold for a seed pixel!
-            [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
+            [cpy,cpx]=find(Ilabel(:,:,CurrentFrame) > 251);
             
             for n =1:length(cpy)
                 y = cpy(n); x = cpx(n);
@@ -273,7 +270,7 @@ img = Update();
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,2) = col(2);
                         PaddedIm(y-1+100:y+1+100,x-1+100:x+1+100,3) = col(3);
                         
-                        if CelN~=0 & ~SingleFrame
+                        if CelN~=0 && ~SingleFrame
                             %if track-problem is due to late start, e.g.
                             %correctly tracked daughter cell, left pixel
                             %is added
@@ -321,7 +318,7 @@ img = Update();
             
             Irgb = gray2rgb(ImageSeries(:,:,CurrentFrame));
             
-            [cpy cpx]=find(Ilabel(:,:,CurrentFrame) > 253);
+            [cpy,cpx]=find(Ilabel(:,:,CurrentFrame) > 253);
             for n =1:length(cpy)
                 y = cpy(n); x = cpx(n);
                 
@@ -335,12 +332,12 @@ img = Update();
                 else
                     col = CColors(CelN,:);
                     col = col*.8;
-                    TrackL = tracklength(CelN);
+                    %TrackL = tracklength(CelN);
                 end
                 
                 ymin = max(y-2,1); ymax = min(y+2,ImSize(1));
                 xmin = max(x-2,1); xmax = min(x+2,ImSize(2));
-                if ~SingleFrame &&  CelN ~=0 && tracklength(CelN) ~= NFrames-1 && isempty(find(oktrajs == TrajKey(trackstartX(CelN), trackstartY(CelN) ,trackstarts(CelN))))
+                if ~SingleFrame &&  CelN ~=0 && tracklength(CelN) ~= NFrames-1 && isempty(find(oktrajs == TrajKey(trackstartX(CelN), trackstartY(CelN) ,trackstarts(CelN)), 1))
                     Irgb(ymin:ymax,xmin:xmax,:) = 1;
                 else
                     if CelN ==0
@@ -384,18 +381,15 @@ img = Update();
     end
 
     function trajectories_statistics(idxtime)
-
+        % ---------------------------------------------------------------
+        % Data preparation
         cmplength = [];
         cmphists = [];
         
+        
         [x1,y1] = find(Itracks(:,:,idxtime));
         [x2,y2] = find(Ilabel(:,:,idxtime)==255);
-        orphan_seeds = setdiff([x2,y2],[x1,y1], 'rows');
-%         for idx=1:numel(x)
-%             track_uid = Itracks(x(idx),y(idx),idxtime);
-%             cmplength(idxtime,idx) = tracklength(track_uid);
-%         end
-%         
+        orphan_seeds = setdiff([x2,y2],[x1,y1], 'rows', 'stable');
         track_uids = Itracks(x1,y1,idxtime);
         track_uids = sort(track_uids(track_uids~=0));
         
@@ -414,10 +408,12 @@ img = Update();
         cmphists = histc(cmplength, [binEdges(1:end-1) Inf])/sum(histc(cmplength, [binEdges(1:end-1) Inf]));
         
         % Histograms to include in update image function passing time id
-
         data = [cmphists;NaN(size(cmphists,2),1)'];
-         
+        
+        % ---------------------------------------------------------------
+        % Plotting
         % per each frame represent track length distribution in percentage 
+
         hDataSeries = barh(data,...
                         'Stacked',...
                         'EdgeColor',[0.83 0.81 0.78],...
@@ -445,12 +441,12 @@ img = Update();
         set(hText, 'FontSize',9, 'Color', [0.40 0.40 0.40], 'FontName', 'Tahoma');
         title(axes1, 'Trajectories length distribution', 'FontName', 'Tahoma', 'FontSize',9,'Color', [0.50 0.50 0.50] );
         
-        legend1 = legend(axes1,arrayfun(@(x) num2str(x,'%0.1f'), binEdges ,'uniform',false),...
-                        'TextColor',[0.80 0.80 0.80],...
-                        'Orientation','horizontal',...
-                        'Location','NorthOutside');
+        %legend1 = legend(axes1,arrayfun(@(x) num2str(x,'%0.1f'), binEdges ,'uniform',false),...
+        %                'TextColor',[0.80 0.80 0.80],...
+        %                'Orientation','horizontal',...
+        %                'Location','NorthOutside');
      
-         set(axes1,'Position',[0.04 0.10 0.93 0.055]);
+        set(axes1,'Position',[0.04 0.10 0.93 0.055]);
 
     end
 
@@ -483,7 +479,7 @@ img = Update();
 
 % WBMFCN or WindowButtonMotionFunCtioN
 % i.e. what happens for MOUSE events
-    function wbmFcn(src,evt)
+    function wbmFcn(src,evt,img)
         pt = get(gca,'Currentpoint');
         pt = round([pt(1,1), pt(1,2)]);
         
@@ -911,5 +907,4 @@ img = Update();
         
     end
         
-
 end
