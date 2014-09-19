@@ -1,4 +1,4 @@
-function argout = SaveAnalysisFile(hObject, handles, intForce)
+function argout = SaveAnalysisFile(~, ~, intForce)
 hMainGui = getappdata(0, 'hMainGui');
 strRootPath = getappdata(hMainGui,'settings_rootpath');
 stgObj = getappdata(hMainGui,'settings_objectname');
