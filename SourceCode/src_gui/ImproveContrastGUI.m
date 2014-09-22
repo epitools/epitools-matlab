@@ -22,7 +22,7 @@ function varargout = ImproveContrastGUI(varargin)
 
 % Edit the above text to modify the response to help ImproveContrastGUI
 
-% Last Modified by GUIDE v2.5 19-May-2014 10:02:57
+% Last Modified by GUIDE v2.5 10-Sep-2014 18:11:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -184,3 +184,12 @@ end
 
 default_enhancement_limit = 0.02;
 set(hObject, 'value', default_enhancement_limit);
+
+
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis%20Modules/02_clahe/');

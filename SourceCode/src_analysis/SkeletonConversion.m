@@ -5,13 +5,38 @@ function [varargout] = SkeletonConversion(stgObj)
 %load(DataSpecificsPath);
 tmpStgObj = stgObj.analysis_modules.Skeletons.settings;
 
-corrected_segmentation = [stgObj.data_analysisindir,'/SegResultsCorrected'];
-%possibly substitute with hasModule ecc..
-if(exist([corrected_segmentation,'.mat'],'file'))
-    tmpSegObj = load(corrected_segmentation);
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev('******************* SKELETON GENERATION *******************','INFO');
+log2dev('* Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti       * ','INFO');
+log2dev('* Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00       *','INFO');
+log2dev('***********************************************************','INFO');
+log2dev('Started skeleton analysis module', 'INFO');
+% -------------------------------------------------------------------------      
+
+local_use_corrections = 0;
+corrected_segmentation_file = 'none';
+
+%if user decided to use the corrected segmentation results
+if(isfield(tmpStgObj,'use_corrected_segmentation')) %backwards compatability
+    if tmpStgObj.use_corrected_segmentation
+        corrected_segmentation_file = [stgObj.data_analysisindir,'/SegResultsCorrected'];
+        %possibly substitute with hasModule ecc..
+        if(exist([corrected_segmentation_file,'.mat'],'file'))
+            local_use_corrections = 1;
+        else
+            log2dev('No Corrections found. Please create corrected segmentation results before','INFO');
+        end
+    end
+end
+    
+    
+if local_use_corrections
+    tmpSegObj = load(corrected_segmentation_file);
 else
     tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
 end
+
 
 progressbar('Loading Segmentation results...');
 
@@ -20,6 +45,29 @@ progressbar('Loading Segmentation results...');
 %load(InputFile);
 
 progressbar(1);
+
+%if user decided to apply cropping crop CLabels here
+if(isfield(tmpStgObj,'use_polygon_crop')) %backwards compatability
+    if tmpStgObj.use_polygon_crop
+        if(exist([stgObj.data_analysisindir,'/PoligonalMask.mat'],'file'))
+
+            tmpMaskObj = load([stgObj.data_analysisindir,'/PoligonalMask']);
+
+            [~, cropped_CellLabelIm] = PolygonCrop(tmpSegObj.RegIm,...
+                tmpSegObj.CLabels,tmpMaskObj.polygonal_mask);
+
+            tmpSegObj.CLabels = cropped_CellLabelIm;
+
+        else
+
+            log2dev('No Polygon Mask Found. Please create one in case you want to crop the skeletons','INFO');
+
+        end
+    end
+end
+
+
+
 progressbar('Creating skeletons...');
 
 %SkelDirec = [AnaDirec,'/skeletons'];

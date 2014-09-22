@@ -23,6 +23,7 @@ classdef settings < handle
         data_extensionmask = '.xml';
         icy_is_used = 0;
         exec_commandline = false;
+        exec_sandboxinuse = false;
     end
     
     methods
@@ -91,6 +92,7 @@ classdef settings < handle
             obj.platform_id = addr_allOneString;
             obj.icy_is_used = 0;
             obj.exec_commandline = false;
+            obj.exec_sandboxinuse = false;
             
         end      
         
@@ -206,6 +208,31 @@ classdef settings < handle
         % already initialized.
                 
                 obj.analysis_modules.(mdname).results.(arg) = value; 
+
+        end
+        
+        function AddMetadata(obj,mdname, arg, value)
+        % Add setting parameter to a certain module * the module has to be
+        % already initialized.
+
+                
+                obj.analysis_modules.(mdname).metadata.(arg) = value; 
+
+        end
+        
+        function RemoveMetadata(obj,mdname, arg)
+        % Remove setting parameter to a certain module * the module has to be
+        % already initialized.
+
+                obj.analysis_modules.(mdname).metadata = rmfield(obj.analysis_modules.(mdname).metadata,arg);
+        
+        end
+        
+        function ModifyMetadata(obj,mdname, arg,value)
+        % Modify setting parameter value in a certain module * the module has to be
+        % already initialized.
+                
+                obj.analysis_modules.(mdname).metadata.(arg) = value; 
 
         end
 

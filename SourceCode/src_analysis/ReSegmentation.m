@@ -7,18 +7,35 @@ function [varargout] =  ReSegmentation(stgObj)
 
 %Please locate the last Tracking module used
 %This should be handled outomatically in the future
+tic
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev('***************** RESEGEMENTATION MODULE ******************','INFO');
+log2dev('* Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti       * ','INFO');
+log2dev('* Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00       *','INFO');
+log2dev('***********************************************************','INFO');
+log2dev('Started re-segmentation analysis module', 'INFO');
+% -------------------------------------------------------------------------        
 
 if(stgObj.hasModule('Segmentation'))
     segmentation_module = stgObj.analysis_modules.Segmentation;
 else
-    errordlg('Segmentation module missing, cannot proceed with resegmentation');
+    %errordlg('Segmentation module missing, cannot proceed with resegmentation');
+    % -------------------------------------------------------------------------
+    % Log status of current application status
+    log2dev('Segmentation module missing, cannot proceed with resegmentation', 'ERR');
+    % -------------------------------------------------------------------------
     return;
 end
 
 if(stgObj.hasModule('Tracking'))
     tracking_module = stgObj.analysis_modules.Tracking;
 else
-    errordlg('Tracking module missing, cannot proceed with resegmentation');
+    %errordlg('Tracking module missing, cannot proceed with resegmentation');
+    % -------------------------------------------------------------------------
+    % Log status of current application status
+    log2dev('Tracking module missing, cannot proceed with resegmentation', 'ERR');
+    % -------------------------------------------------------------------------
     return;
 end
 
@@ -61,14 +78,31 @@ NX = size(RegIm,1);
 NY = size(RegIm,2);
 NT = size(RegIm,3);
 
-save([stgObj.data_analysisoutdir,'/SegResultsCorrected'], 'RegIm','ILabels', 'CLabels' ,'ColIms','tmpStgObj','NX','NY','NT','IL','-v7.3' );
 
+% Storage results
+save([stgObj.data_analysisoutdir,'/SegResultsCorrected'], 'RegIm','ILabels', 'CLabels' ,'ColIms','tmpStgObj','NX','NY','NT','IL','-v7.3' );
 stgObj.AddResult('ReSegmentation','ReSegmentation_path','SegResultsCorrected.mat');
+
+
+   
+elapsedTime = toc;
+% -------------------------------------------------------------------------
+% Log status of current application status
+log2dev(sprintf('Finished after %.2f', elapsedTime), 'DEBUG');
+% -------------------------------------------------------------------------
 
 %% inspect results
 if(~stgObj.exec_commandline)
     if(stgObj.icy_is_used)
         icy_vid3show(ColIms,'ReSegmented Sequence');
+        
+        
+        % -------------------------------------------------------------------------
+        % Log current application status
+        log2dev('Display results of re-segmentation module via IcyConnection ', 'DEBUG');
+        % -------------------------------------------------------------------------
+        
+        
     else
         if(strcmp(stgObj.data_analysisindir,stgObj.data_analysisoutdir))
             
@@ -80,10 +114,10 @@ if(~stgObj.exec_commandline)
             
             % Change banner description
             log2dev('Currently executing the [ReSegmentation] module',...
+                'GUI',...
+                2,...
                 'hMainGui',...
-                'uiBannerDescription',...
-                [],...
-                2 );
+                'uiBannerDescription');
             
             StackView(ColIms,'hMainGui','figureA');
 
@@ -97,6 +131,14 @@ if(~stgObj.exec_commandline)
             StackView(ColIms,'hMainGui','figureC2');
 
         end
+        
+        
+        % -------------------------------------------------------------------------
+        % Log status of current application status
+        log2dev('Display results of re-segmentation module via @StackView ', 'DEBUG');
+        % -------------------------------------------------------------------------
+
+        
         
     end
 else

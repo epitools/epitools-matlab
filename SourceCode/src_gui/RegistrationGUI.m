@@ -22,7 +22,7 @@ function varargout = RegistrationGUI(varargin)
 
 % Edit the above text to modify the response to help RegistrationGUI
 
-% Last Modified by GUIDE v2.5 04-Jul-2014 17:28:21
+% Last Modified by GUIDE v2.5 10-Sep-2014 18:02:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -144,3 +144,13 @@ function useStackReg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of useStackReg
+
+
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis%20Modules/01_registration/');

@@ -1,5 +1,11 @@
 %Test function for headless execution of EpiTools
 
+% data: ./16bitDataset/test_set16bit.tif (203x * 210y * 11z * 11t)
+
+% In order to run the EpiTools *GUI* after the execution of this test
+% please make sure to remove the ds-settings data structure from the Workspace 
+% before launching the gui. 
+
 file_path = pwd;
 cd([file_path,'/../SourceCode']);
 LoadEpiTools();
@@ -8,8 +14,15 @@ cd(file_path);
 
 %% Data setup (ds = Data Settings object)
 
-TestData = [pwd,'/Data/'];
+TestData = [pwd,'/16bitDataset/'];
 
+%% Logging setup [ this section is mandatory, w/o it the programm will crash ]
+
+log_settings.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR'};
+log_settings.log_device = 3;
+assignin('base', 'log_settings', log_settings);
+
+%% Settings setup
 ds = settings();
 
 ds.data_analysisindir = [TestData,'Analysis'];

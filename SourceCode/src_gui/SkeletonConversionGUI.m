@@ -22,7 +22,7 @@ function varargout = SkeletonConversionGUI(varargin)
 
 % Edit the above text to modify the response to help SkeletonConversionGUI
 
-% Last Modified by GUIDE v2.5 20-May-2014 20:23:30
+% Last Modified by GUIDE v2.5 10-Sep-2014 18:06:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,7 +56,7 @@ function SkeletonConversionGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 
-setappdata(0  , 'hTrackGui', gcf);
+setappdata(0  , 'hSkeletonGui', gcf);
 setappdata(gcf, 'settings_objectname', varargin{1});
 setappdata(gcf, 'settings_modulename', 'Skeletons');
 
@@ -85,7 +85,44 @@ function run_skeleton_conversion_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-hMainGui = getappdata(0, 'hMainGui');
-stgObj  = getappdata(hMainGui, 'settings_objectname');
+hSkeletonGui = getappdata(0, 'hSkeletonGui');
+stgObj  = getappdata(hSkeletonGui, 'settings_objectname');
+strModuleName = getappdata(hSkeletonGui, 'settings_modulename');
+
+use_polygon_crop = get(handles.use_polygon_crop,'value');
+use_corrected_segmentation = get(handles.use_corrected_segmentation,'value');
+
+stgObj.AddSetting(strModuleName,'use_polygon_crop',use_polygon_crop);
+stgObj.AddSetting(strModuleName,'use_corrected_segmentation',use_corrected_segmentation);
 
 SkeletonConversion(stgObj);
+
+%Close after completion
+delete(hSkeletonGui);
+
+
+% --- Executes on button press in use_polygon_crop.
+function use_polygon_crop_Callback(hObject, eventdata, handles)
+% hObject    handle to use_polygon_crop (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of use_polygon_crop
+
+
+% --- Executes on button press in use_corrected_segmentation.
+function use_corrected_segmentation_Callback(hObject, eventdata, handles)
+% hObject    handle to use_corrected_segmentation (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of use_corrected_segmentation
+
+
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis%20Modules/05_skeleton/');

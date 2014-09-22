@@ -1,15 +1,27 @@
 %Test function for headless execution of EpiTools
 
+% data: ./16bitDataset/test_set16bit.tif (203x * 210y * 11z * 11t)
+
+% In order to run the EpiTools *GUI* after the execution of this test
+% please make sure to remove the ds-settings data structure from the Workspace 
+% before launching the gui. 
+
 file_path = pwd;
 cd([file_path,'/../SourceCode']);
 LoadEpiTools();
 
 cd(file_path);
 
-%% Data setup (ds = Data Settings object)
+%% Activate logging
 
 TestData = [pwd,'/Data/'];
 
+log_settings.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR'};
+log_settings.log_device = 3;
+assignin('base', 'log_settings', log_settings);
+log2dev('Logging is now active','INFO');
+
+%% Data setup (ds = Data Settings object)
 ds = settings();
 
 ds.data_analysisindir = [TestData,'Analysis'];
@@ -102,6 +114,17 @@ CompareFiles([ds.data_analysisindir,'/TrackingStart'], [ds.data_benchmarkdir,'/T
 
 % load('/Users/alexandertournier/Documents/CRUK-UCL/Yanlan/epitools/Tests/Data/Analysis/SegResults.mat');
 % StackView(ColIms);
+
+%% PolygonCrop
+
+tmpSegObj = load([ds.data_analysisindir,'/SegResults']);
+tmpRegObj = load([ds.data_analysisindir,'/RegIm']);
+
+[polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
+StackView(cropped_CellLabelIm);
+
+save([ds.data_analysisoutdir,'/PoligonalMask'],'polygonal_mask');
+save([ds.data_analysisoutdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
 
 %% Execute rapid tracking correction
 

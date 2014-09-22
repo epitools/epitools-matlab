@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 18-Aug-2014 18:38:43
+% Last Modified by GUIDE v2.5 09-Sep-2014 19:40:02
 
 % Begin initialization code - DO NOT EDIT
 %
@@ -61,20 +61,30 @@ function EpiTools_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to EpiTools (see VARARGIN)
 
+% -------------------------------------------------------------------------
+% Exec splash screen 
+SplashHandle = findobj('tag','SplashScreenTag');
+if ishandle(SplashHandle)
+   close(SplashHandle);
+end
+
+% -------------------------------------------------------------------------
 % Choose default command line output for EpiTools
 handles.output = hObject;
 
+% -------------------------------------------------------------------------
 % Update handles structure
 guidata(hObject, handles);
 
+% -------------------------------------------------------------------------
 % Disable warnings for structOnObject (occours when struct is saved in xml)
 warning off MATLAB:structOnObject
 
+% -------------------------------------------------------------------------
+% Load libraries
 stsFunOut = LoadEpiTools();
 
-% UIWAIT makes EpiTools wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
-
+% -------------------------------------------------------------------------
 %set up app-data
 setappdata(0  , 'hMainGui'    , gcf);
 setappdata(gcf, 'data_specifics', 'none');
@@ -82,21 +92,48 @@ setappdata(gcf, 'icy_is_used', 0);
 setappdata(gcf, 'icy_is_loaded', 0);
 setappdata(gcf, 'icy_path', 'none');
 setappdata(gcf, 'settings_objectname', '');
+setappdata(gcf, 'settings_execution', '');
 setappdata(gcf, 'status_application',stsFunOut);
+setappdata(gcf, 'settings_executionuid',...
+                ['epitools-',...
+                getenv('USER'),...
+                '@',...
+                char(getHostName(java.net.InetAddress.getLocalHost)),...
+                '-',...
+                datestr(now,29),...
+                '.log']);
 
+% -------------------------------------------------------------------------
 % Prepare struct containing handles for UI
 hUIControls = struct();
 setappdata(gcf, 'hUIControls', hUIControls);
 
+% -------------------------------------------------------------------------
 %obtain absolute location on system
 current_script_path = mfilename('fullpath');
 [file_path,~,~] = fileparts(current_script_path);
 setappdata(gcf, 'settings_rootpath', file_path);
 
-SplashHandle = findobj('tag','SplashScreenTag');
-if ishandle(SplashHandle)
-   close(SplashHandle);
-end
+% -------------------------------------------------------------------------
+% Set log settings *device and level*
+SetExec = struct();
+SetExec.log_device = [1,4]; % FILE and GUI DEVICE
+SetExec.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
+
+setappdata(gcf, 'settings_execution', SetExec);
+
+% Open log window
+log2dev('***********************************************************','INFO');
+log2dev('*      EPITOOLS - IMAGE PROCESSING TOOL FOR EPITHELIA     * ','INFO');
+log2dev('*    Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti    * ','INFO');
+log2dev('*    Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00    *','INFO');
+log2dev('***********************************************************','INFO');
+
+% -------------------------------------------------------------------------
+% Add special procedure when the main windows is closed
+hMainGui = getappdata(0,'hMainGui');
+set(hMainGui, 'DeleteFcn', {@onMainWindowClose});
+
 handles_connection(hObject,handles)
 
 % --- Outputs from this function are returned to the command line.
@@ -110,6 +147,7 @@ diary off;
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
+
 % --------------------------------------------------------------------
 function handles_connection(hObject,handles)
 % If the metricdata field is present and the reset flag is false, it means
@@ -120,7 +158,7 @@ hMainGui = getappdata(0, 'hMainGui');
 % -------------------------------------------------------------------------
 % Log status of previous operations on GUI
 % set(handles.statusbar, 'String',getappdata(hMainGui, 'status_application') );
-log2dev( getappdata(hMainGui, 'status_application'), 'hMainGui', 'statusbar', 'FR0001' , 0 );
+log2dev( getappdata(hMainGui, 'status_application'), 'INFO', 0, 'hMainGui', 'statusbar' );
 % -------------------------------------------------------------------------
 
 if(isappdata(hMainGui,'settings_objectname'))
@@ -137,7 +175,8 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         % -------------------------------------------------------------------------
         % Log status of previous operations on GUI
-        log2dev(sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, num2str(stgObj.analysis_version),stgObj.data_extensionmask  ), 'hMainGui', 'statusbar', 'LD0001', 0 );
+        log2dev( sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, num2str(stgObj.analysis_version),stgObj.data_extensionmask),...
+                'INFO', 0, 'hMainGui', 'statusbar' );
         % -------------------------------------------------------------------------
         
     end
@@ -146,8 +185,11 @@ if(isappdata(hMainGui,'settings_objectname'))
     
 end
 
+movegui(hObject,'center');
+
 % Update handles structure
 guidata(hObject, handles);
+
 
 % --- Executes on button press in use_icy_checkbox.
 function use_icy_checkbox_Callback(hObject, eventdata, handles)
@@ -216,6 +258,7 @@ if(isappdata(hMainGui,'settings_objectname'))
         stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
     end
 end
+
 
 % --- Executes during object creation, after setting all properties.
 function use_icy_checkbox_CreateFcn(hObject, eventdata, handles)
@@ -339,7 +382,7 @@ strModuleName = 'Skeletons';
 
 
 if(intOut)
-    out = SkeletonConversion(stgObj);
+    out = SkeletonConversionGUI(stgObj);
     waitfor(out);
 end
 
@@ -360,18 +403,10 @@ strModuleName = 'Polygon_Masking';
 
 intOut = SaveAnalysisModule(hObject, handles, strModuleName);
 
-tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
-tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
-
-[polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
-
-save([stgObj.data_analysisoutdir,'/PoligonalMask'],'polygonal_mask');
-save([stgObj.data_analysisoutdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
-
-stgObj.AddResult(strModuleName,'polygonal_mask_path','PoligonalMask.mat');
-stgObj.AddResult(strModuleName,'cropped_cell_labels','CroppedCellLabels.mat');
-
-waitfor(polygonal_mask);
+if(intOut)
+    out = PolygonMaskingGUI(stgObj);
+    waitfor(out);
+end 
 
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
@@ -390,13 +425,14 @@ strModuleName = 'ReSegmentation';
 
 intOut = SaveAnalysisModule(hObject, handles, strModuleName);
 
-ReSegmentation(stgObj);
+if(intOut)
+    out = ReSegmentationGUI(stgObj);
+    waitfor(out);
+end 
 
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
-
-
 
 % --------------------------------------------------------------------
 function E_Undo_Callback(hObject, eventdata, handles)
@@ -404,20 +440,17 @@ function E_Undo_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 % --------------------------------------------------------------------
 function E_Redo_Callback(hObject, eventdata, handles)
 % hObject    handle to E_Redo (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 % --------------------------------------------------------------------
 function E_Preferences_Callback(hObject, eventdata, handles)
 % hObject    handle to E_Preferences (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 
 % --------------------------------------------------------------------
 function F_New_Callback(hObject, eventdata, handles)
@@ -483,7 +516,7 @@ diary on;
 installed_toolboxes=ver;
 if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
     if(stgObj.platform_units ~= 1);
-        matlabpool('local',stgObj.platform_units);
+        parpool('local',stgObj.platform_units);
     end
 end
 
@@ -492,6 +525,7 @@ stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
 
 % Update handles structure
 handles_connection(hObject, handles)
+
 
 % --------------------------------------------------------------------
 function F_Open_Callback(hObject, eventdata, handles)
@@ -566,8 +600,8 @@ if(strSettingFilePath)
     
     %Check if icy is in use
     stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
-    
-    diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
+    settings_executionuid = getappdata(hMainGui,'settings_executionuid');
+    diary([stgObj.data_fullpath,'/',settings_executionuid]);
     diary on;
     
     handles_connection(hObject, handles)
@@ -646,24 +680,7 @@ function F_Exit_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Exit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-hMainGui = getappdata(0, 'hMainGui');
-% Check if there is setting file loaded in the application
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        % Ask if you want to save it before closing the application
-        interrupt = SaveAnalysisFile(hObject, handles);
-        
-        if (interrupt == 1)
-            return
-        end
-        
-        
-    end
-end
-
-if (matlabpool('size') > 0); matlabpool close; end
-close(handles.figure1);
+onMainWindowClose(hObject, eventdata);
 
 
 % --------------------------------------------------------------------
@@ -671,7 +688,7 @@ function MHelp_Callback(hObject, eventdata, handles)
 % hObject    handle to MHelp (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+web('http://imls-bg-arthemis.uzh.ch/epitools/');
 
 % --------------------------------------------------------------------
 function MCredits_Callback(hObject, eventdata, handles)
@@ -680,90 +697,7 @@ function MCredits_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-function mainTextBoxImagePath_Callback(hObject, eventdata, handles)
-% hObject    handle to mainTextBoxImagePath (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of mainTextBoxImagePath as text
-%        str2double(get(hObject,'String')) returns contents of mainTextBoxImagePath as a double
-
-% --- Executes during object creation, after setting all properties.
-function mainTextBoxImagePath_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to mainTextBoxImagePath (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-function mainTextBoxSettingPath_Callback(hObject, eventdata, handles)
-% hObject    handle to mainTextBoxSettingPath (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of mainTextBoxSettingPath as text
-%        str2double(get(hObject,'String')) returns contents of mainTextBoxSettingPath as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function mainTextBoxSettingPath_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to mainTextBoxSettingPath (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in pushbutton9.
-function pushbutton9_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton9 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton10.
-function pushbutton10_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton10 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton11.
-function pushbutton11_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton11 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes when uipanel5 is resized.
-function uipanel5_ResizeFcn(hObject, eventdata, handles)
-% hObject    handle to uipanel5 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% --- Executes on button press in uiBannerDialog02.
-function uiBannerDialog02_Callback(hObject, eventdata, handles)
-% hObject    handle to uiBannerDialog02 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in uiBannerDialog01.
-function uiBannerDialog01_Callback(hObject, eventdata, handles)
-% hObject    handle to uiBannerDialog01 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
+% --------------------------------------------------------------------
 function SplashScreenHandle = SplashScreen
 % Splash screen before EpiTools loading
 
@@ -775,12 +709,49 @@ SplashScreenHandle = figure('MenuBar','None','NumberTitle','off','color',...
                         
 iptsetpref('ImshowBorder','tight');
 imshow(logo);
-set(0,'Units','pixels');
-scnsize = (get(0,'ScreenSize')/2);
-outerpos = get(SplashScreenHandle,'OuterPosition');
-set(SplashScreenHandle,'OuterPosition',[scnsize(3:4),outerpos(3:4)]) 
+
+movegui(SplashScreenHandle,'center');
 set(SplashScreenHandle, 'Visible', 'on');
 
 drawnow;
 
 
+% --------------------------------------------------------------------
+function onMainWindowClose(hObject, eventdata)
+% On Main Windows Close function    
+hMainGui = getappdata(0, 'hMainGui');
+hLogGui = getappdata(0, 'hLogGui');
+% Since the current function is invoked without passing handles, then
+% recover them with
+handles = guidata(hMainGui);
+
+% Check if there is setting file loaded in the application
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        % Ask if you want to save it before closing the application
+        interrupt = SaveAnalysisFile(hObject, handles);
+        
+        if (interrupt == 1)
+            return
+        end
+        
+        stgObj = getappdata(hMainGui, 'settings_objectname');
+        
+        %matlabpool is unrecognized on platforms without the Paralell Computing toolbox
+        if(stgObj.platform_units ~= 1)
+            if (matlabpool('size') > 0); matlabpool close; end
+        end
+        
+    end
+end
+
+
+settings_executionuid = getappdata(hMainGui, 'settings_executionuid');
+
+log2dev('***********************************************************','INFO');
+log2dev(sprintf('* End session %s * ',settings_executionuid),'INFO');
+log2dev('***********************************************************','INFO');
+
+delete(hLogGui);
+delete(hMainGui);

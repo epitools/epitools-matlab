@@ -70,9 +70,7 @@ uiwait(fig);
             setappdata(fig, 'directorypath', strDirectoryPath);
             set(txtDirectoryPath,'String',strDirectoryPath);
         end
-        
-
-        
+               
 end
 
     %% Confirm the changes and close the gui
@@ -80,6 +78,7 @@ end
         
         stgObj.(char(cell2mat(lstDirectory2Check(1,1)))) = getappdata(fig, 'directorypath');
         setappdata(hMainGui,'settings_objectname', stgObj);
+        SaveAnalysisFile([],[],1);
         delete(fig);
     end
 

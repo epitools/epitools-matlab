@@ -10,7 +10,26 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         stgObj = getappdata(hMainGui,'settings_objectname');
-         
+        
+        % Set the status of sandboxing (TODO: better patch)
+        % If any module has been called when sandbox is in use or if the 
+        % program has crashed before closing the sandbox, then reset in/out
+        % analysis dir and reset status sandbox
+        
+        if(stgObj.exec_sandboxinuse == true)
+            
+            % -------------------------------------------------------------------------
+            % Log status of previous operations
+            log2dev('Found Sandbox environment OPEN even if the module was not invoked before!', 'WARN');
+            log2dev('Resetting out analysis directory to original path', 'DEBUG');
+            % -------------------------------------------------------------------------
+            
+            stgObj.data_analysisoutdir = stgObj.data_analysisindir;
+            stgObj.exec_sandboxinuse = false;
+        
+        end
+        
+        
         if(sum(strcmp(fields(stgObj.analysis_modules), strModuleName)) == 1)
             
             % Workround for multiple executions of tracking module
@@ -31,15 +50,24 @@ if(isappdata(hMainGui,'settings_objectname'))
                 'Abort operations');
             
             switch out
-                case 'Overrite module'
-                    %SaveAnalysisFile(hObject, handles);
-                    msgbox('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module ')
+                case 'Overrite module'                  
+                    % -------------------------------------------------------------------------
+                    % Log status of previous operations
+                    log2dev('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module', 'WARN');
+                    % -------------------------------------------------------------------------
+
                     DiscardAnalysisModules(strModuleName, stgObj);
                     
                 case 'Comparare executions'
                     
                     % Initilization sandbox for the current module
                     sdb = sandbox();
+                    
+                    % Set the status of sandboxing (TODO: better patch)
+                    stgObj.exec_sandboxinuse = true;
+                    setappdata(hMainGui, 'settings_objectname', stgObj);
+                    SaveAnalysisFile(hObject,handles,1);
+                    
                     
                     % Create the variables for the current module
                     sdb.CreateSandbox(strModuleName,stgObj);
@@ -53,13 +81,7 @@ if(isappdata(hMainGui,'settings_objectname'))
                      
                     if (sdbExecStatus)
                         % Ask what to do with the results
-                        
-                        
-                        %out = questdlg(sprintf('The analysis has been completed.\n\nWhat do you want to do with the results?'),...
-                        %    'Control workflow of analysis modules',...
-                        %    'Discard new results',...
-                        %    'Accept new results',...
-                        %    'Accept new results');
+
                         
                         if(~isempty(getappdata(hMainGui, 'uidiag_userchoice')))
                             
@@ -104,12 +126,21 @@ if(isappdata(hMainGui,'settings_objectname'))
                             end
                             
                             sdbExecStatus = sdb.DestroySandbox();
+                            
+                            % Set the status of sandboxing (TODO: better patch)
+                            stgObj.exec_sandboxinuse = false;
+                            setappdata(hMainGui, 'settings_objectname', stgObj);
+                            SaveAnalysisFile(hObject,handles,1);
+                            
                             waitfor(sdbExecStatus);
                             % Destroy modules downstream the current module
                             if(sdb.results_validity)
-                                %msgbox('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module ');
-                                 sdbExecStatus2 = DiscardAnalysisModules( strModuleName, stgObj );
-                                 waitfor(sdbExecStatus2);
+                                % -------------------------------------------------------------------------
+                                % Log status of previous operations
+                                log2dev('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module', 'WARN');
+                                % ------------------------------------------------------------------------- 
+                                sdbExecStatus2 = DiscardAnalysisModules( strModuleName, stgObj );
+                                waitfor(sdbExecStatus2);
                             end
                             
                             
