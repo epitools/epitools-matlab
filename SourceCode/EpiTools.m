@@ -641,9 +641,10 @@ if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
         
         % Ask if you want to save it before closing the application
-        interrupt = SaveAnalysisFile(hObject, handles);
-        waitfor(interrupt);
-        if (interrupt == 1)
+        output = SaveAnalysisFile(hObject, handles);
+        %waitfor(output);
+        
+        if (output == 1)
             return
         end
         

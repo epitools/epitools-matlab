@@ -33,6 +33,7 @@ if (intForce == 1)
     end
     struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',num2str(stgObj.analysis_version),'.xml'));
     argout = 1;
+
 else
     
     
@@ -63,10 +64,12 @@ else
             struct2xml(tmp, strcat(stgObj.data_fullpath,'/',stgObj.analysis_name,'.',num2str(stgObj.analysis_version),'.xml'));
             
             argout = 0;
+            
         case 'No'
             
             %msgbox('Changes have been discarded');
             argout = 0;
+            
         case 'Abort'
             argout = 1;
     end

@@ -8,41 +8,40 @@ current_script_path = mfilename('fullpath');
 %define current working directory!
 cd(file_path)
 
-addpath([file_path,'/src_analysis']);
-addpath([file_path,'/src_analysis/src_scripts']);
-addpath([file_path,'/src_analysis/src_scripts/module_clahe']);
-addpath([file_path,'/src_analysis/src_scripts/module_icy']);
-addpath([file_path,'/src_analysis/src_scripts/module_polygoncrop']);
-addpath([file_path,'/src_analysis/src_scripts/module_registration']);
-addpath([file_path,'/src_analysis/src_scripts/module_segmentation']);
-addpath([file_path,'/src_analysis/src_scripts/module_statistics']);
-addpath([file_path,'/src_analysis/src_scripts/module_tracking']);
-addpath([file_path,'/src_analysis/src_scripts/module_visualise']);
+contents = dir();
 
-addpath([file_path,'/src_gui']);
-
-addpath([file_path,'/src_support']);
-addpath([file_path,'/src_support/module_settings']);
-addpath([file_path,'/src_support/module_xml']);
-addpath([file_path,'/src_support/module_logs']);
-addpath([file_path,'/src_support/module_integrity']);
-addpath([file_path,'/src_support/module_loader']);
-addpath([file_path,'/src_support/module_sandbox']);
-addpath([file_path,'/src_support/module_dataprocessing']);
-addpath([file_path,'/src_support/module_gui_controls']);
-addpath([file_path,'/src_support/module_progressbars/']);
-
-addpath([file_path,'/src_tools']);
-addpath([file_path,'/src_tools/ImageJ_interface']);
-addpath([file_path,'/src_tools/OME_LOCI_TOOLS']);
+for i=1:numel(contents)
+    
+    % Avoid considering file in the current directory
+    if (contents(i).isdir ~= 1);continue;end
+    
+    if (strfind(contents(i).name,'src_'))
+        % Add path and subfolders
+        addpath(genpath([file_path,'/',contents(i).name]));
+        
+        submodules = strsplit(genpath([file_path,'/',contents(i).name]),':');
+        for o=1:numel(submodules)
+            if(isempty(submodules{o}));continue;end
+            fprintf('Successfully loaded module: %s\n', submodules{o});
+        end
+        
+    end
+    
+end
 
 
+if ~ispc
+    % WARN: The following two commands do not work under win systems
+    system(['touch ', strcat(prefdir, '/javaclasspath.txt')]);
+    system(['echo  "', [file_path,'/src_support/module_progressbars/'] ,'" > ', prefdir, '/javaclasspath.txt']);
+else
+    % WARN: The following two commands work only under win systems
+    system(['echo $null >> ', strcat(prefdir, '/javaclasspath.txt')]);
+    system(['echo  "', [file_path,'/src_support/module_progressbars/'] ,'" >> ', prefdir, '/javaclasspath.txt']);
+end
 
-system(['touch ', strcat(prefdir, '/javaclasspath.txt')]);
-system(['echo  "', [file_path,'/src_support/module_progressbars/'] ,'" > ', prefdir, '/javaclasspath.txt']);
+
 javaaddpath([file_path,'/src_tools/OME_LOCI_TOOLS/bioformats_package.jar']);
-
-
 
 out = sprintf('Successfully loaded EpiTool functions from: %s\n',fileparts(file_path));
 

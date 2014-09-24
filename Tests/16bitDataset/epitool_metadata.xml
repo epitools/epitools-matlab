@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<main>
+   <file_analysis_name>Untitled</file_analysis_name>
+   <file_analysis_code>735866.10</file_analysis_code>
+   <file_date>24-Sep-2014</file_date>
+   <file_time>735866</file_time>
+   <files>
+      <file1>
+         <location>/Users/imagestation/epitools/Tests/16bitDataset</location>
+         <name>test_set16bit.tif</name>
+         <dim_x>203</dim_x>
+         <dim_y>210</dim_y>
+         <dim_z>11</dim_z>
+         <num_channels>1</num_channels>
+         <num_timepoints>11</num_timepoints>
+         <pixel_type>uint16</pixel_type>
+         <exec>1</exec>
+         <exec_dim_z>1-11</exec_dim_z>
+         <exec_channels>1-1</exec_channels>
+         <exec_num_timepoints>1-11</exec_num_timepoints>
+      </file1>
+   </files>
+</main>

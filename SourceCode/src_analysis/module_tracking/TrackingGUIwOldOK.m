@@ -8,6 +8,7 @@ Clabel = uint16(Clabel);                                                   %unit
 %% Check on image dimensions
 ImSize = size(ImageSeries);
 % ImSize = [x, y, t];
+
 % check for single frame
 if numel(ImSize) == 2 % of got a single frame here
     SingleFrame = true;
@@ -26,6 +27,8 @@ ImageSeries = uint8(ImageSeries/max(ImageSeries(:))*255);                  %todo
 fs=fspecial('laplacian',0.9);
 CColors = [];
 Itracks = [];
+% Position coordinates across time points for each seed
+pTracks = [];
 tracklength=[];
 trackstarts = [];
 trackstartX = [];
@@ -36,10 +39,14 @@ cellnum_total = length(unique(Clabel(:,:,:)));
 cellnum_curframe = [];
 tracksnum_curframe = [];
 
+cellBoundaries = zeros(ImSize,'int8');
+
 % Seed maker is white
 SeedMarker = 255;
+
 % Count user clicks
 NClicks = 0;
+
 % Start from the first frame
 CurrentFrame = 1;
 
@@ -60,7 +67,6 @@ bf_visual = [];
 
 % Application status
 okeydown = false;
-
 delabelMode = false;
 RemoveTrack = false;
 AddDummyPt = false;
@@ -68,19 +74,15 @@ InspectPt = false;
 NeedToRetrack = false;
 WipeFrame = false;
 FramesToRegrow = [];
-
 deleteMode = false;
 showCells = true;
 gridmode = true;
 legendmode = false;
 
-cellBoundaries = zeros(ImSize,'int8');
-
 %% Gui Preparation
 
 % Create a new figure
 fig = figure;
-
 set(fig,...
     'Name', 'Cell Tracking',... 
     'Color', [0.314 0.314 0.314],...
@@ -88,13 +90,10 @@ set(fig,...
     'MenuBar','none',...
     'Position', [0 0 0.60 0.80]);
 
-axes_img = axes('Parent',fig,...
-    'Position',[0.16 0.20 0.70 0.70],...
-    'Tag', 'axes_img');
-
 setappdata(0,'hTrackingGUI',fig);
 movegui(fig,'center');
 
+% In case the input is a 3D image
 if ~SingleFrame
     slider = uicontrol( fig ...
         ,'style'    ,'slider'   ...
@@ -153,9 +152,6 @@ axes1 = axes('Parent',fig,...
         'Xlim', [0 1],...
         'YTick',1);
 
-%box(axes1,'on');
-%hold(axes1,'all');
-
 
 % Statistic panel
 uiStatisticPanel = uipanel(fig, ...
@@ -194,6 +190,16 @@ uiNavigatorPanel = uipanel(fig, ...
 axes_subimg_nav = axes('Parent',uiNavigatorPanel,...
     'units'    ,'normalized', ...
     'Position',[0.01 0.02 0.98 0.98]);
+
+% Image panel
+uiImagePanel = uipanel(fig, ...
+    'units'    ,'normalized', ...
+    'position' ,[0.16 0.20 0.70 0.70], ...
+    'BackgroundColor',[0.6000    0.6000    0.6000]);
+
+axes_img = axes('Parent',uiImagePanel,...
+                'Position',[0.01 0.01 0.99 0.99],...
+                'Tag', 'axes_img');
 
 % Preview left
 uiPLPanel = uipanel(fig, ...
@@ -331,6 +337,11 @@ tth9 = uitoggletool(th,'CData',gif2cdata('images/gif/page_wizard.gif'),'Separato
 
 % Hide boundaries toogle
 tth5 = uitoggletool(th,'CData',gif2cdata('images/gif/calendar.gif'),'Separator','on',...
+    'TooltipString','Show/Hide cell boundaries',...
+    'HandleVisibility','off',...
+    'ClickedCallback', {@keyPrsFcn,'h'});
+% Show tracks toogle
+tth10 = uitoggletool(th,'CData',gif2cdata('images/gif/calendar.gif'),'Separator','on',...
     'TooltipString','Show/Hide cell boundaries',...
     'HandleVisibility','off',...
     'ClickedCallback', {@keyPrsFcn,'h'});
@@ -707,21 +718,17 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         cmplength = [];
         cmphists = [];
         
-        [x1,y1] = find(Itracks(:,:,idxtime));
-        [x2,y2] = find(Ilabel(:,:,idxtime)==255);
-        orphan_seeds = setdiff([x2,y2],[x1,y1], 'rows', 'stable');
-        track_uids = Itracks(x1,y1,idxtime);
-        track_uids = sort(track_uids(track_uids~=0));
+        orphan_seeds = find(Ilabel(:,:,idxtime)==255);      
+        tmpA = Itracks(:,:,idxtime);
+        track_uids = tmpA(Itracks(:,:,idxtime)~= 0);
         
-        cellnum_curframe = length(unique(Clabel(:,:,2)));
-        tracksnum_curframe = sum(unique(Itracks(:,:,idxtime)) ~= 0);
+        cellnum_curframe = length(unique(Clabel(:,:,idxtime)));
+        tracksnum_curframe = sum(sum(Itracks(:,:,idxtime) ~= 0));
        
-        
         % Seeds not associated to any track (value == 255) are those which
         % coordinate is present in Ilabel but not in Itracks.
         orphan_seeds = ones(size(orphan_seeds,1),1);
-        
-        %cmpstarts(idxtime,:) = trackstarts(track_uids);
+       
         cmplength = [tracklength(track_uids)+2; orphan_seeds]';
         
         % compute bins
@@ -767,7 +774,6 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         set(hText, 'FontSize',9, 'Color', [0.40 0.40 0.40], 'FontName', 'Tahoma');
         title(axes1, 'Trajectories length distribution', 'FontName', 'Tahoma', 'FontSize',9,'Color', [0.50 0.50 0.50] );
         myCell = arrayfun(@(x) num2str(x,'%0.1f'), binEdges ,'uniform',false);
-        
         
         if legend
             hcb=colorbar('location','EastOutside');
@@ -1270,6 +1276,17 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         
         is_seed_outside_image = 1;
         
+    end
+    
+    function weep_orphan_seeds()
+      
+        
+    end
+
+    function local_coordinates = find_local_minimum(x,y,intRadius)
+    
+        
+    
     end
 
 end
