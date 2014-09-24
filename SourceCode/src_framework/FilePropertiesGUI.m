@@ -22,7 +22,7 @@ function varargout = FilePropertiesGUI(varargin)
 
 % Edit the above text to modify the response to help FilePropertiesGUI
 
-% Last Modified by GUIDE v2.5 26-Aug-2014 15:22:16
+% Last Modified by GUIDE v2.5 24-Sep-2014 17:26:52
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,6 +60,10 @@ guidata(hObject, handles);
 
 setappdata(0  , 'hFPGui', gcf);
 setappdata(gcf, 'settings_objectname', varargin{1});
+
+
+movegui(hObject,'center');
+
 %set(handles.figure1,'Visible','on');
 initialize_gui(hObject, handles);
 
