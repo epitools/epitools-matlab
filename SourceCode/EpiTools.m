@@ -132,10 +132,10 @@ log2dev('***********************************************************','INFO');
 % -------------------------------------------------------------------------
 % Add special procedure when the main windows is closed
 hMainGui = getappdata(0,'hMainGui');
-set(hMainGui, 'DeleteFcn', {@onMainWindowClose});
+set(hMainGui, 'CloseRequestFcn', {@onMainWindowClose});
 
-set(hMainGui,'Position',[0 0 960	544]);
-movegui(hObject,'center');
+set(hMainGui,'Position',[0 0 400 100]);
+movegui(hMainGui,'center');
 
 handles_connection(hObject,handles)
 
