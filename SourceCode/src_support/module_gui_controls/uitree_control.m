@@ -106,7 +106,7 @@ tree.setModel( treeModel );
 % we often rely on the underlying java tree
 jtree = handle(tree.getTree,'CallbackProperties');
 
-set(tree, 'Units', 'normalized', 'position', [0.0 0.023 0.25 0.915]);
+set(tree, 'Units', 'normalized', 'position', [0.0 0.023 0.17 0.976]);
 %set(tree, 'NodeSelectedCallback', @selected_cb );
 
 % make root the initially selected node

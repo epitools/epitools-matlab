@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 09-Sep-2014 19:40:02
+% Last Modified by GUIDE v2.5 24-Sep-2014 14:08:19
 
 % Begin initialization code - DO NOT EDIT
 %
@@ -134,6 +134,9 @@ log2dev('***********************************************************','INFO');
 hMainGui = getappdata(0,'hMainGui');
 set(hMainGui, 'DeleteFcn', {@onMainWindowClose});
 
+set(hMainGui,'Position',[0 0 960	544]);
+movegui(hObject,'center');
+
 handles_connection(hObject,handles)
 
 % --- Outputs from this function are returned to the command line.
@@ -185,87 +188,8 @@ if(isappdata(hMainGui,'settings_objectname'))
     
 end
 
-movegui(hObject,'center');
-
 % Update handles structure
 guidata(hObject, handles);
-
-
-% --- Executes on button press in use_icy_checkbox.
-function use_icy_checkbox_Callback(hObject, eventdata, handles)
-% hObject    handle to use_icy_checkbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of use_icy_checkbox
-
-hMainGui = getappdata(0, 'hMainGui');
-
-if (get(hObject,'Value') == get(hObject,'Max'))
-    %only enter when tick is activated
-    
-    %get app data
-    icy_path =      getappdata(hMainGui,'icy_path');
-    icy_is_loaded = getappdata(hMainGui,'icy_is_loaded');
-    icy_is_used =   getappdata(hMainGui,'icy_is_used');
-    
-    %Check if icy's path was specified
-    if(strcmp(icy_path,'none'))
-        %user specification if none defined
-        icy_path = uigetdir('~/','Please locate /path/to/Icy/plugins/ylemontag/matlabcommunicator');
-        if(icy_path == 0) %user cancel
-            icy_path = 'none';
-        end
-    end
-    
-    %Check if icy functions are already loaded
-    if(~icy_is_loaded)
-        if(exist([icy_path,'/icy_init.m'],'file'))
-            fprintf('Successfully detected ICY at:%s\n',icy_path);
-            addpath(icy_path);
-            icy_init();
-            icy_is_used = 1;
-            icy_is_loaded = 1;
-        else
-            fprintf('ERROR, current icy path is not valid: %s\n',icy_path);
-            icy_path = 'none';
-        end
-    else
-        icy_is_used = 1;
-    end
-    
-    %Check if icy is used
-    if(icy_is_used ~= 1)
-        %do not check if icy_path was not set
-        set(hObject,'Value',get(hObject,'Min'));
-    end
-    
-    %set app data
-    setappdata(hMainGui,'icy_path',icy_path);
-    setappdata(hMainGui,'icy_is_loaded',icy_is_loaded);
-    setappdata(hMainGui,'icy_is_used',icy_is_used);
-    
-else
-    %checkbox is deselected
-    setappdata(hMainGui,'icy_is_used',0);
-    
-end
-
-%set preference in settings object if one exists
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
-    end
-end
-
-
-% --- Executes during object creation, after setting all properties.
-function use_icy_checkbox_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to use_icy_checkbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
 
 % --------------------------------------------------------------------
 function A_Proj_Callback(hObject, eventdata, handles)
@@ -284,7 +208,6 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
-
 
 % --------------------------------------------------------------------
 function A_StackReg_Callback(hObject, eventdata, handles)
@@ -307,7 +230,6 @@ statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
 
-
 % --------------------------------------------------------------------
 function A_CLAHE_Callback(hObject, eventdata, handles)
 % hObject    handle to A_CLAHE (see GCBO)
@@ -328,7 +250,6 @@ statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
 
-
 % --------------------------------------------------------------------
 function A_Segmentation_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Segmentation (see GCBO)
@@ -347,7 +268,6 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles);
-
 
 % --------------------------------------------------------------------
 function A_Tracking_Callback(hObject, eventdata, handles)
@@ -369,7 +289,6 @@ statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
 
-
 % --------------------------------------------------------------------
 function A_Skeletons_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Skeletons (see GCBO)
@@ -389,7 +308,6 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles);
-
 
 % --------------------------------------------------------------------
 function A_Polycrop_Callback(hObject, eventdata, handles)
@@ -526,7 +444,6 @@ stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
 % Update handles structure
 handles_connection(hObject, handles)
 
-
 % --------------------------------------------------------------------
 function F_Open_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Open (see GCBO)
@@ -607,7 +524,6 @@ if(strSettingFilePath)
     handles_connection(hObject, handles)
 end
 
-
 % --------------------------------------------------------------------
 function F_ImportSettings_Callback(hObject, eventdata, handles)
 % hObject    handle to F_ImportSettings (see GCBO)
@@ -645,7 +561,6 @@ end
 
 handles_connection(hObject, handles)
 
-
 % --------------------------------------------------------------------
 function F_Save_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Save (see GCBO)
@@ -653,7 +568,6 @@ function F_Save_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 SaveAnalysisFile(hObject, handles);
-
 
 % --------------------------------------------------------------------
 function F_Properties_Callback(hObject, eventdata, handles)
@@ -674,14 +588,12 @@ end
 % Update handles structure
 handles_connection(hObject, handles)
 
-
 % --------------------------------------------------------------------
 function F_Exit_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Exit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 onMainWindowClose(hObject, eventdata);
-
 
 % --------------------------------------------------------------------
 function MHelp_Callback(hObject, eventdata, handles)
@@ -696,12 +608,13 @@ function MCredits_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
+% --------------------------------------------------------------------
+% Support Functions
 % --------------------------------------------------------------------
 function SplashScreenHandle = SplashScreen
 % Splash screen before EpiTools loading
 
-logo = imread('ETsplash.jpg','jpg');
+logo = imread('logo.png','png');
 SplashScreenHandle = figure('MenuBar','None','NumberTitle','off','color',...
                             [1 1 1],'tag','SplashScreenTag','name',...
                             'EpiTools is loading...','color',[0.7,0.7,0.9],...
@@ -715,8 +628,6 @@ set(SplashScreenHandle, 'Visible', 'on');
 
 drawnow;
 
-
-% --------------------------------------------------------------------
 function onMainWindowClose(hObject, eventdata)
 % On Main Windows Close function    
 hMainGui = getappdata(0, 'hMainGui');
@@ -731,7 +642,7 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         % Ask if you want to save it before closing the application
         interrupt = SaveAnalysisFile(hObject, handles);
-        
+        waitfor(interrupt);
         if (interrupt == 1)
             return
         end
@@ -755,3 +666,107 @@ log2dev('***********************************************************','INFO');
 
 delete(hLogGui);
 delete(hMainGui);
+
+
+% --------------------------------------------------------------------
+function uiNewAnalysisPush_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiNewAnalysisPush (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+F_New_Callback(hObject, eventdata, handles);
+% --------------------------------------------------------------------
+function uiOpenAnalysisPush_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiOpenAnalysisPush (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+F_Open_Callback(hObject, eventdata, handles)
+% --------------------------------------------------------------------
+function uiSaveAnalysisPush_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiSaveAnalysisPush (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+F_Save_Callback(hObject, eventdata, handles)
+% --------------------------------------------------------------------
+function uiImportAnalysisPush_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiImportAnalysisPush (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+F_ImportSettings_Callback(hObject, eventdata, handles)
+% --------------------------------------------------------------------
+function uiIcyVisualizationToggle_OffCallback(hObject, eventdata, handles)
+% hObject    handle to uiIcyVisualizationToggle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+use_icy_checkbox_Callback(hObject, eventdata, handles, 0);
+% --------------------------------------------------------------------
+function uiIcyVisualizationToggle_OnCallback(hObject, eventdata, handles)
+% hObject    handle to uiIcyVisualizationToggle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+use_icy_checkbox_Callback(hObject, eventdata, handles, 1);
+
+% --- Executes on button press in use_icy_checkbox.
+function use_icy_checkbox_Callback(hObject, eventdata, handles, ToggleValue)
+% hObject    handle to use_icy_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+
+if ToggleValue
+    %only enter when tick is activated
+    
+    %get app data
+    icy_path =      getappdata(hMainGui,'icy_path');
+    icy_is_loaded = getappdata(hMainGui,'icy_is_loaded');
+    icy_is_used =   getappdata(hMainGui,'icy_is_used');
+    
+    %Check if icy's path was specified
+    if(strcmp(icy_path,'none'))
+        %user specification if none defined
+        icy_path = uigetdir('~/','Please locate /path/to/Icy/plugins/ylemontag/matlabcommunicator');
+        if(icy_path == 0) %user cancel
+            icy_path = 'none';
+        end
+    end
+    
+    %Check if icy functions are already loaded
+    if(~icy_is_loaded)
+        if(exist([icy_path,'/icy_init.m'],'file'))
+            
+            log2dev(sprintf('Successfully detected ICY at:%s\n',icy_path),'INFO');
+            addpath(icy_path);
+            icy_init();
+            icy_is_used = 1;
+            icy_is_loaded = 1;
+        else
+            icy_path = 'none';
+            log2dev(sprintf('Current icy path is not valid: %s\n',icy_path),'WARN');
+        end
+    else
+        icy_is_used = 1;
+    end
+    
+    %Check if icy is used
+    if(icy_is_used ~= 1)
+        %do not check if icy_path was not set
+        set(handles.uiIcyVisualizationToggle,'State','off');
+    end
+    
+    %set app data
+    setappdata(hMainGui,'icy_path',icy_path);
+    setappdata(hMainGui,'icy_is_loaded',icy_is_loaded);
+    setappdata(hMainGui,'icy_is_used',icy_is_used);
+    
+else
+    %checkbox is deselected
+    set(handles.uiIcyVisualizationToggle,'State','off');
+    
+end
+
+%set preference in settings object if one exists
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
+    end
+end
