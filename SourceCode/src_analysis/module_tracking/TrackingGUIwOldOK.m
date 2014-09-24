@@ -78,6 +78,7 @@ deleteMode = false;
 showCells = true;
 gridmode = true;
 legendmode = false;
+localizeminimumvalue = false;
 
 %% Gui Preparation
 
@@ -334,7 +335,7 @@ tth3 = uitoggletool(th,'CData',gif2cdata('images/gif/action_stop.gif'),'Separato
 tth9 = uitoggletool(th,'CData',gif2cdata('images/gif/page_wizard.gif'),'Separator','on',...
     'TooltipString','Final inspection',...
     'HandleVisibility','off',...
-    'ClickedCallback', {});
+    'ClickedCallback', {@keyPrsFcn,'c'});
 
 % Hide boundaries toogle
 tth5 = uitoggletool(th,'CData',gif2cdata('images/gif/calendar.gif'),'Separator','on',...
@@ -431,6 +432,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 if ~checkLabelValidity(x,y)
                     continue
                 end
+               
                 
                 if (y > Cpt(1)-WindowSize && y < Cpt(1)+WindowSize && x > Cpt(2)-WindowSize && x < Cpt(2)+WindowSize )
                     CelN = Itracks(y,x,CurrentFrame);
@@ -707,6 +709,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         if(Ch1On);set(tth7,'State','on');else set(tth7,'State','off');end
         if(gridmode);set(tth8,'State','on');else set(tth8,'State','off');end
         if(legendmode);set(tth10,'State','on');else set(tth10,'State','off');end
+        if(localizeminimumvalue);set(tth9,'State','on');else set(tth9,'State','off');end
         
         drawnow;
         bf_visual = [];
@@ -877,6 +880,17 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 
                 % NORMAL ACTION, i.e. not delete mode
                 if ~delabelMode
+                    
+                    % In case of automatic centering override x,y values passed
+                    % from mouse click with the automatic generated
+
+                    if localizeminimumvalue
+                        intRadius = get(uiSeedRadius,'String');
+                        log2dev(sprintf('Current coordinates: x:%u y:%u',pt(1),pt(2)), 'DEBUG');
+                        log2dev(sprintf('Radius %s',intRadius), 'DEBUG');
+                        [pt(1),pt(2)] = find_local_minimum(pt(1),pt(2),intRadius);
+                        log2dev(sprintf('New automatic generated coordinates: x:%u y:%u',pt(1),pt(2)), 'DEBUG');
+                    end
                     
                     if InspectPt && NeedToRetrack
                         Retrack();
@@ -1148,6 +1162,11 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 WipeFrame = true;
                 log2dev('Key W pressed', 'DEBUG');
                 Update();
+            case {'c'}
+                localizeminimumvalue = true;
+                log2dev('Key C pressed: automatic seed centering on minimum value active', 'DEBUG');
+                if(localizeminimumvalue);set(tth9,'State','on');else set(tth9,'State','off');end
+                %Update();
         end
     end
 
@@ -1280,14 +1299,44 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
     end
     
     function weep_orphan_seeds()
-      
+        % Retrieve coordinates of orphan seed for each frame
+        
         
     end
 
-    function local_coordinates = find_local_minimum(x,y,intRadius)
-    
+    function [y2,x2] = find_local_minimum(x,y,intRadius)    
+    % Find the minimum value within a specified radius
+        localizeminimumvalue = false;
+        if(~isempty(intRadius)); 
+            
+            if(isa(intRadius,'char')); intRadius = str2num(intRadius); end
+        else
+            intRadius=10; 
+        end
+        % Check if (x - inRadius) is still within the image, else take the
+        % min value available
+        if(x - intRadius > 1); area_x_left = x - intRadius; else area_x_left = 1; end   
+        % Check if (x + inRadius) is still within the image, else take the
+        % max value available
+        if(x + intRadius < ImSize(2)); area_x_right = x + intRadius; else area_x_right = ImSize(2);end
+        % Check if (y - inRadius) is still within the image, else take the
+        % min value available
+        if(y - intRadius > 1); area_y_left = y - intRadius; else area_y_left = 1; end   
+         % Check if (y + inRadius) is still within the image, else take the
+        % max value available
+        if(y + intRadius < ImSize(1)); area_y_right = y + intRadius; else area_y_right = ImSize(2);end
+            
+        rows = [area_y_left:area_y_right];
+        columns = [area_x_left:area_x_right];
         
-    
+        % Create subarray containing values within the boundaries specified
+        % above, compute minimum value, find its coordinates.
+        subset = ImageSeries([area_y_left:area_y_right],[area_x_left:area_x_right],CurrentFrame);
+        [y1,x1] = find(subset == min(subset(:)));
+        
+        % Return
+        y2=rows(y1(1));
+        x2=columns(x1(1));
     end
 
 end
