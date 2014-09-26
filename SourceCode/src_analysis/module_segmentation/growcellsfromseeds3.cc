@@ -116,7 +116,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 
                 // Are we touching another cell? If yes stop growing
                 
-                if(x < ncols-1 && B->rptr[x+1][y] > 0 && B->rptr[x+1][y] != cellID) { continue; } //need flag to avoid gaps
+                if(x < ncols-1 && B->rptr[x+1][y] > 0 && B->rptr[x+1][y] != cellID) { continue; }
                 if(x > 0 && B->rptr[x-1][y] > 0 && B->rptr[x-1][y] != cellID) { continue; }
                 if(y > 0 && B->rptr[x][y-1] > 0 && B->rptr[x][y-1] != cellID) { continue; }
                 if(y < mrows-1 && B->rptr[x][y+1] > 0 && B->rptr[x][y+1] != cellID) { continue; }
@@ -126,7 +126,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 // - below the current threshold level      [ A->rptr[x+1][y] < level ]
                 
                 
-                if(x < ncols-1 && B->rptr[x+1][y] < 1 && A->rptr[x+1][y] < level) //grow by level again //todo avaid background explosion
+                if(x < ncols-1 && B->rptr[x+1][y] < 1 && A->rptr[x+1][y] < level) //grow by level again //todo avoid background explosion
                 {
                     B->rptr[x+1][y] = B->rptr[x][y]; //growth! new label: B->rptr[x][y]
                     pixlist2[no_pixels2].x=x+1;
@@ -170,6 +170,30 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             
         } 
     }
+    
+    // ------ post processing of completed segmentation to remove small gaps left over by the initial growing
+     for (n=0; n < no_pixels1; n++)
+     {
+         x=pixlist[n].x;  y=pixlist[n].y;
+
+				if(x < ncols-1 && B->rptr[x+1][y] < 1 && A->rptr[x+1][y] < level) //grow by level again 
+                {
+                    B->rptr[x+1][y] = B->rptr[x][y]; //growth! new label: B->rptr[x][y]
+                }
+                if(x > 0 && B->rptr[x-1][y] < 1 && A->rptr[x-1][y] < level)
+                {
+                    B->rptr[x-1][y]=B->rptr[x][y];
+                }
+                if(y > 0 && B->rptr[x][y-1] < 1 && A->rptr[x][y-1] < level)
+                {
+					B->rptr[x][y-1]=B->rptr[x][y]; 
+				}
+                if(y < mrows-1 && B->rptr[x][y+1] < 1 && A->rptr[x][y+1] < level)
+                {
+					B->rptr[x][y+1]=B->rptr[x][y]; 
+				}
+                
+        }
     
     free( pixlist); free( pixlist2);
     mx_free( A); mx_free(B);
