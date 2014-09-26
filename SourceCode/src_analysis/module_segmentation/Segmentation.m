@@ -16,13 +16,24 @@ log2dev('Started segmentation analysis module', 'INFO');
 % it is more convenient to recall the setting file with a shorter variable
 % name: stgModule 
 tmpStgObj = stgObj.analysis_modules.Segmentation.settings;
+use_clahe_flag = 0;
 
-if(stgObj.hasModule('Contrast_Enhancement'))
+if(isfield(tmpStgObj,'use_clahe')) %backwards compatability
+    if(stgObj.hasModule('Contrast_Enhancement'))
+        if tmpStgObj.use_clahe
+            use_clahe_flag = 1;
+        end
+    else
+        log2dev('CLAHE option is not available if CLAHE module has not been executed beforehand','INFO');
+    end
+end
+
+if use_clahe_flag
     tmpRegObj = load([stgObj.data_analysisindir,'/RegIm_wClahe']);
 else
     tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
 end
-%load([AnaDirec,'/RegIm']);
+
 
 if tmpStgObj.SingleFrame
     %todo: SegmentStack should be able to handle single frames

@@ -22,7 +22,7 @@ function varargout = SegmentationGUI(varargin)
 
 % Edit the above text to modify the response to help SegmentationGUI
 
-% Last Modified by GUIDE v2.5 10-Sep-2014 18:05:16
+% Last Modified by GUIDE v2.5 26-Sep-2014 11:46:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -157,6 +157,10 @@ updateAndGather(handles);
 hSegGui = getappdata(0  , 'hSegGui');
 stgObj  = getappdata(hSegGui, 'settings_objectname');
 module_name = getappdata(hSegGui, 'settings_modulename');
+
+%Check if the user wants to use the clahe image
+use_clahe = get(handles.use_clahe_chckbx,'value');
+stgObj.AddSetting(module_name,'use_clahe',use_clahe);
 
 %gathered_data.SingleFrame = false;
 stgObj.AddSetting(module_name,'SingleFrame',false);
@@ -353,6 +357,10 @@ module_name = getappdata(hSegGui, 'settings_modulename');
 %Check if the user wants to visualize results
 show_debug = get(handles.debug_checkbox,'value');
 
+%Check if the user wants to use the clahe image
+use_clahe = get(handles.use_clahe_chckbx,'value');
+stgObj.AddSetting(module_name,'use_clahe',use_clahe);
+
 %gathered_data.SingleFrame = false;
 stgObj.AddSetting(module_name,'SingleFrame',true);
 stgObj.AddSetting(module_name,'debug',show_debug);
@@ -386,3 +394,12 @@ function pushbutton4_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis%20Modules/03_segmentation/');
+
+
+% --- Executes on button press in use_clahe_chckbx.
+function use_clahe_chckbx_Callback(hObject, eventdata, handles)
+% hObject    handle to use_clahe_chckbx (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of use_clahe_chckbx
