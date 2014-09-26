@@ -62,7 +62,7 @@ tilesize = max(s(1),s(2));
     'interp','bilinear','regularizer','springs');
 
 if ShowProcess
-    figure
+    figure('Name','1st Surface Estimation');
     surf(xg1,yg1,zg1) 
     zlim([0,max(zg1(:))]);
     shading interp
@@ -107,7 +107,7 @@ ynodes = 1:s(1);
     'interp','bilinear','regularizer','springs');
 
 if ShowProcess
-    figure
+    figure('Name','2nd Surface Estimation');
     surf(xg2,yg2,zg2)
     zlim([0,max(zg2(:))]);
     shading interp
