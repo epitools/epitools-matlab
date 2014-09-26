@@ -221,9 +221,10 @@ classdef sandbox < handle
                             'VERBOSE');                       
                     for i=1:numel(arrayResults)
                     
-                        arrayPathSegments = strsplit(sdb.analysis_settings.analysis_modules.(char(sdb.module_name)).results.(char(arrayResults(i))),'/');
-                        originalPathSegment = strsplit(sdb.analysis_settings.data_analysisindir,'/');
-                        sdb.analysis_settings.analysis_modules.(char(sdb.module_name)).results.(char(arrayResults(i))) = strjoin([arrayPathSegments(1:end-2),arrayPathSegments(end)],'/');
+                        arrayPathSegments = regexp(sdb.analysis_settings.analysis_modules.(char(sdb.module_name)).results.(char(arrayResults(i))),'/','split');
+                        originalPathSegment = regexp(sdb.analysis_settings.data_analysisindir,'/','split');
+                        sdb.analysis_settings.analysis_modules.(char(sdb.module_name)).results.(char(arrayResults(i))) ...
+                            = strjoin([arrayPathSegments(1:end-2),arrayPathSegments(end)],'/');
                         
                         log2dev(sprintf('Sanbox environment | Remapping: %s from %s to %s ',...
                                 char(arrayResults(i)),...
