@@ -19,7 +19,7 @@ for i=1:numel(contents)
         % Add path and subfolders
         addpath(genpath([file_path,'/',contents(i).name]));
         
-        submodules = strsplit(genpath([file_path,'/',contents(i).name]),':');
+        submodules = regexp(genpath([file_path,'/',contents(i).name]),':','split');
         for o=1:numel(submodules)
             if(isempty(submodules{o}));continue;end
             fprintf('Successfully loaded module: %s\n', submodules{o});
