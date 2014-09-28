@@ -144,6 +144,12 @@ regexFIG = {'\w*(?=.tif|.tiff|.jpg|.jpeg)'};
 a = struct2cell(lstFiles);
 intIMGFileidx = find(~cellfun(@isempty,regexp(a(1,:),regexFIG)));
 
+if(isempty(intIMGFileidx))
+    log2dev(sprintf('Image file discovery reported an error: no image files were found in the specified directory at: %s',stgObj.data_imagepath),'WARN');
+    argout = [];
+    return;
+end
+
 % In case this process is run in parallel mode, then this computes the real
 % progression of each single worker.
 ppm = ParforProgressStarter2('Discovering image files...', length(intIMGFileidx), 0.1, 0, 1, 1);

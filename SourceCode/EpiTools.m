@@ -28,6 +28,7 @@ function varargout = EpiTools(varargin)
 %
 
 
+
 % Add a splash screen before EpiTools loading
 if ~nargin
 SplashScreen;
@@ -149,7 +150,6 @@ function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 diary off;
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-
 
 % --------------------------------------------------------------------
 function handles_connection(hObject,handles)
@@ -420,10 +420,12 @@ if(strPathImages)
     stsFunOut = CreateMetadata(stgObj);
 end
 
-out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
-uiwait(out);
+if ~isempty(stsFunOut)
+    out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
+    uiwait(out);
+    SaveAnalysisFile(hObject, handles, 1);
+end
 
-SaveAnalysisFile(hObject, handles, 1);
 stgObj = getappdata(hMainGui,'settings_objectname');
 
 % logging on external device
@@ -613,7 +615,7 @@ function MCredits_Callback(hObject, eventdata, handles)
 % --------------------------------------------------------------------
 function SplashScreenHandle = SplashScreen
 % Splash screen before EpiTools loading
-
+addpath('./src_support/module_xml');
 logo = imread('logo.png','png');
 SplashScreenHandle = figure('MenuBar','None','NumberTitle','off','color',...
                             [1 1 1],'tag','SplashScreenTag','name',...
@@ -626,6 +628,36 @@ imshow(logo);
 movegui(SplashScreenHandle,'center');
 set(SplashScreenHandle, 'Visible', 'on');
 
+if(exist('release.xml','file'))
+    release = xml_read('release.xml');
+else
+    error('EpiTools installation is currupted. Exiting....');
+end
+
+if(exist('licence.xml','file'))
+    licence = xml_read('licence.xml');
+else
+    error('No licence file has been found in EpiTools directory');
+end
+
+text = uicontrol('Parent', SplashScreenHandle,...
+                'Style','text',...
+                'HorizontalAlignment', 'left',...
+                'FontName','Helvetica Neue',...
+                'String',sprintf('%s V%uR%uB%s licensed to %s %s %s for %u days',...
+                                release.programm_name,...
+                                release.version,...
+                                release.release,...
+                                release.build,...
+                                licence.customer.name,...
+                                licence.customer.lastname,...
+                                licence.customer.email, ...
+                                licence.key.validity),...
+                'Units', 'normalized',...
+                'Position', [0 0 1 0.05],...
+                'BackgroundColor', [0 0 0],...
+                'ForegroundColor', [1 1 1]);
+ 
 drawnow;
 
 function onMainWindowClose(hObject, eventdata)
@@ -667,7 +699,6 @@ log2dev('***********************************************************','INFO');
 
 delete(hLogGui);
 delete(hMainGui);
-
 
 % --------------------------------------------------------------------
 function uiNewAnalysisPush_ClickedCallback(hObject, eventdata, handles)

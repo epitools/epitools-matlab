@@ -119,6 +119,7 @@ if (stgObj.data_imagepath)
     elseif exist(strcat(stgObj.data_imagepath,'/','epitool_metadata.xml'), 'file') == 2
       
         MetadataFIGXML = xml_read(strcat(stgObj.data_imagepath,'/','epitool_metadata.xml'));
+       
         vecFields = fields(MetadataFIGXML.files);
 
         for i=1:length(vecFields)
@@ -265,8 +266,10 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 hFPGui = getappdata(0, 'hFPGui');
 stgObj = getappdata(hFPGui,'settings_objectname');
 
-% Reset data table loaded 
-stgObj.RemoveSetting('Main', 'data');
+% Reset data table loaded
+if(isfield(stgObj.analysis_modules.Main,'data'))
+    stgObj.RemoveSetting('Main', 'data');
+end
 % Recreate or reload xml metadata file
 stsFunOut = CreateMetadata(stgObj);
 waitfor(stsFunOut);
