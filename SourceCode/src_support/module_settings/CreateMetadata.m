@@ -138,8 +138,20 @@ stcMetaData.main.file_time = floor(now());
 stcMetaData.main.files = struct();
 tmpFileStruct = struct();
 
-% Supported image files
-regexFIG = {'\w*(?=.tif|.tiff|.jpg|.jpeg)'};
+% Supported image files from user preferences
+regexFIG = '\w*(?=';
+
+hMainGui = getappdata(0, 'hMainGui');
+SettingsExecution = getappdata(hMainGui,'settings_execution');
+formats = SettingsExecution.input.formats.ctl_inputformat.values(find(SettingsExecution.input.formats.ctl_inputformat.actived));
+for i=1:numel(formats)
+    if i == 1; regexFIG = strcat(regexFIG,formats(i)); end
+    regexFIG = strcat(regexFIG,'|',formats(i));
+    
+end
+regexFIG = strcat(regexFIG,')');
+
+%regexFIG = {'\w*(?=.tif|.tiff|.jpg|.jpeg)'};
 
 a = struct2cell(lstFiles);
 intIMGFileidx = find(~cellfun(@isempty,regexp(a(1,:),regexFIG)));
