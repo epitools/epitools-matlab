@@ -69,8 +69,9 @@
                <item>.bmp</item>
                <item>.png</item>
                <item>.pic</item>
+               <item>.mvd2</item>
             </values>
-            <actived>[0 0 0 1 0 0 0 0 0 1]</actived>
+            <actived>[0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 1]</actived>
          </ctl_inputformat>
       </formats>
    </input>
@@ -153,7 +154,7 @@
                <item>on</item>
                <item>off</item>
             </values>
-            <actived>[0 1]</actived>
+            <actived>[1 0]</actived>
          </ctl_activate>
       </autocentering>
    </windows>
@@ -227,8 +228,9 @@
                   <item>.bmp</item>
                   <item>.png</item>
                   <item>.pic</item>
+                  <item>.mvd2</item>
                </values>
-               <actived>[0 0 0 1 0 0 0 0 0 1]</actived>
+               <actived>[0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 1]</actived>
             </ctl_inputformat>
          </formats>
       </input>
@@ -311,7 +313,7 @@
                   <item>on</item>
                   <item>off</item>
                </values>
-               <actived>[0 1]</actived>
+               <actived>[1 0]</actived>
             </ctl_activate>
          </autocentering>
       </windows>

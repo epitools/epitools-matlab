@@ -14,6 +14,7 @@ intIDX = find(strcmp(arrayStgFields, curModuleName));
 % Delete all the downstream modules 
 for i=(intIDX+1):length(arrayStgFields)
 
+    if (isempty(stgObj.analysis_modules.(char(arrayStgFields(i))).results));continue;end
     % Move results into backup folder
     arrayResults = fields(stgObj.analysis_modules.(char(arrayStgFields(i))).results);
     

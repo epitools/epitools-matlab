@@ -36,8 +36,8 @@ settings.main.logs.devices.ctl_outdevices.actived = [0 0 1 1];
 settings.main.input.formats.ctl_inputformat.name = 'Select input image file format';
 settings.main.input.formats.ctl_inputformat.visible = 1;
 settings.main.input.formats.ctl_inputformat.desc = 'multiple';
-settings.main.input.formats.ctl_inputformat.values = {'.czi', '.zvi', '.cxd', '.ome', '.ome.tiff', '.mrc', '.tif', '.tiff', '.lif', '.lei', '.ipl', '.raw', '.ics', '.ids', '.bmp', '.png', '.pic'};
-settings.main.input.formats.ctl_inputformat.actived = [0 0 0 0 0 0 1 1 0 0 ];
+settings.main.input.formats.ctl_inputformat.values = {'.czi', '.zvi', '.cxd', '.ome', '.ome.tiff', '.mrc', '.tif', '.tiff', '.lif', '.lei', '.ipl', '.raw', '.ics', '.ids', '.bmp', '.png', '.pic', '.mvd2'};
+settings.main.input.formats.ctl_inputformat.actived = [0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0];
 
 %% Output format section
 
