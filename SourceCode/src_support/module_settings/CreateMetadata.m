@@ -139,7 +139,7 @@ stcMetaData.main.files = struct();
 tmpFileStruct = struct();
 
 % Supported image files
-regexFIG = {'\w*(?=.tif|.tiff|.jpg|.jpeg)'};
+regexFIG = {'\w*(?=.tif|.tiff|.jpg|.jpeg|.lif|.mvd2)'};
 
 a = struct2cell(lstFiles);
 intIMGFileidx = find(~cellfun(@isempty,regexp(a(1,:),regexFIG)));
