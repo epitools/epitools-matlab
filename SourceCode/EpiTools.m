@@ -117,11 +117,12 @@ setappdata(gcf, 'settings_rootpath', file_path);
 
 % -------------------------------------------------------------------------
 % Set log settings *device and level*
-SetExec = struct();
-SetExec.log_device = [1,4]; % FILE and GUI DEVICE
-SetExec.log_level = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
+if(~exist('./.usersettings.xml', 'file'));generate_empty_settingsfile();end
+    
+settingsobj = xml_read('./.usersettings.xml');
+settingsobj = settingsobj.main; 
 
-setappdata(gcf, 'settings_execution', SetExec);
+setappdata(gcf, 'settings_execution', settingsobj);
 
 % Open log window
 log2dev('***********************************************************','INFO');
@@ -137,8 +138,14 @@ set(hMainGui, 'CloseRequestFcn', {@onMainWindowClose});
 
 set(hMainGui,'Position',[0 0 400 100]);
 movegui(hMainGui,'center');
-
-handles_connection(hObject,handles)
+out = disclaimerGUI();
+waitfor(out);
+hLogGui = getappdata(0, 'hLogGui');
+if strcmp(out,'Exit')
+    onMainWindowClose(hObject, eventdata, handles);
+else
+    handles_connection(hObject,handles);
+end
 
 % --- Outputs from this function are returned to the command line.
 function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
@@ -149,7 +156,7 @@ function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 
 diary off;
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+%varargout{1} = handles.output;
 
 % --------------------------------------------------------------------
 function handles_connection(hObject,handles)
@@ -369,6 +376,9 @@ function E_Preferences_Callback(hObject, eventdata, handles)
 % hObject    handle to E_Preferences (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+UserSettingsGUI();
+
 
 % --------------------------------------------------------------------
 function F_New_Callback(hObject, eventdata, handles)
@@ -595,7 +605,7 @@ function F_Exit_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Exit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-onMainWindowClose(hObject, eventdata);
+onMainWindowClose(hObject, eventdata, handles);
 
 % --------------------------------------------------------------------
 function MHelp_Callback(hObject, eventdata, handles)
@@ -660,7 +670,7 @@ text = uicontrol('Parent', SplashScreenHandle,...
  
 drawnow;
 
-function onMainWindowClose(hObject, eventdata)
+function onMainWindowClose(hObject, eventdata, handles)
 % On Main Windows Close function    
 hMainGui = getappdata(0, 'hMainGui');
 hLogGui = getappdata(0, 'hLogGui');
