@@ -29,19 +29,21 @@ if(~doesAexist)
     if(isappdata(hMainGui,'settings_execution'))
         SettingsExecution = getappdata(hMainGui,'settings_execution');
         
+        listLevels = SettingsExecution.logs.levels.ctl_levelsvalue.values(find(SettingsExecution.logs.levels.ctl_levelsvalue.actived));
+        intOutputDev = find(SettingsExecution.logs.devices.ctl_outdevices.actived);
         
         % Log devices
-        if (isfield(SettingsExecution, 'log_device'))
-            
-            if isempty(intOutputDev)
-                intOutputDev = SettingsExecution.log_device;
-            end
-        end
+%         if (isfield(SettingsExecution, 'log_device'))
+%             
+%             if isempty(intOutputDev)
+%                 intOutputDev = SettingsExecution.log_device;
+%             end
+%         end
         
         % Log levels to print
-        if (isfield(SettingsExecution, 'log_level'))
-            listLevels = SettingsExecution.log_level;
-        end
+%         if (isfield(SettingsExecution, 'log_level'))
+%             listLevels = SettingsExecution.log_level;
+%         end
         
         % Retrieve log file name
         
