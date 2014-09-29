@@ -22,7 +22,7 @@ function varargout = SkeletonConversionGUI(varargin)
 
 % Edit the above text to modify the response to help SkeletonConversionGUI
 
-% Last Modified by GUIDE v2.5 10-Sep-2014 18:06:23
+% Last Modified by GUIDE v2.5 29-Sep-2014 17:46:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
