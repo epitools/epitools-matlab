@@ -115,6 +115,7 @@ ds.AddSetting(strModuleName, 'IBoundMax', 30);
 ds.AddSetting(strModuleName, 'debug', false);
 ds.AddSetting(strModuleName, 'Parallel', false);
 ds.AddSetting(strModuleName, 'SingleFrame', false);
+ds.AddSetting(strModuleName, 'use_clahe', true);
 
 Segmentation(ds);
 
