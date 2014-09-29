@@ -115,7 +115,7 @@ module_name = getappdata(hPrjGui, 'settings_modulename');
     caption = sprintf('Surface Smoothness 2 = %.0f', stgObj.analysis_modules.(char(module_name)).settings.SurfSmoothness2);
     set(handles.surface2_label, 'String', caption);
     
-    caption = sprintf('Projection Depth Threshold = %.2f', stgObj.analysis_modules.(char(module_name)).settings.ProjectionDepthThreshold);
+    caption = sprintf('Cutoff distance = %.2f', stgObj.analysis_modules.(char(module_name)).settings.ProjectionDepthThreshold);
     set(handles.depth_label, 'String', caption);
 
 % --- Outputs from this function are returned to the command line.
