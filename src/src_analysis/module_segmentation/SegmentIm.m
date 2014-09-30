@@ -2,7 +2,7 @@ function [CellSeeds ,CellLabels,ColIm] = SegmentIm(Im, params,CellSeeds)
 % SegmentIm segments a single frame extracting the cell outlines
 %
 % IN: 
-%   Im        -                                                                
+%   Im          - Image with high intensity membrane signal and low intensity cell background                                                               
 %   params      - mincellsize  : size of smallest cell expected
 %               - sigma1       : size of gaussian for smoothing image
 %               - sigma3       : size of gaussian for smoothing image
@@ -11,7 +11,8 @@ function [CellSeeds ,CellLabels,ColIm] = SegmentIm(Im, params,CellSeeds)
 %   Ilabel      - if you have a guess for the seeds, it goes here
 %
 % OUT: 
-%   Ilabel -> CellSeeds (uint8 - 253/254/255 are used for assignment)
+%   Ilabel -> CellSeeds (uint8 - Rescaled Image to fit the range [0,252]
+%                        253/254/255 are used for seed information)
 %   Clabel -> CellLables (uint16 - bitmap of cells colored with 16bit id)
 %   ColIm  -> Colored image to store tracking information 
 %
@@ -88,18 +89,18 @@ if show CreateColorBoundaries(); figure('Name','First cell boundaries'); imshow(
 
 % [2] Eliminate labelling from background
 DelabelFlatBackground()
-if show CreateColorBoundaries(); figure('Name','Boundaries after background substraction'); imshow(ColIm,[]);  end
+% if show CreateColorBoundaries(); figure('Name','Boundaries after background substraction'); imshow(ColIm,[]);  end
 
 % [3] Eliminate labels from seeds which have poor boundary intensity
 UnlabelPoorSeedsInFrame()
 if show CreateColorBoundaries(); figure('Name','Boundaries after poor cell removal'); imshow(ColIm,[]);  end
 
-% [4] I have no idea what this function does!
+% [4] Seeds whose label has been eliminated are converted to NeutralSeeds (value=253)
 NeutralisePtsNotUnderLabelInFrame();
 
-% [5] Generate colored boundaries
+% [5] Generate final colored image (RGB) to represent the segmentation results
 CreateColorBoundaries()
-if show  figure('Name','Final cell boundaries'); imshow(ColIm,[]);  end
+%if show  figure('Name','Final cell boundaries'); imshow(ColIm,[]);  end
 
 
 
