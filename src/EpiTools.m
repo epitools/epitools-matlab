@@ -26,9 +26,6 @@ function varargout = EpiTools(varargin)
 
 % Begin initialization code - DO NOT EDIT
 %
-
-
-
 % Add a splash screen before EpiTools loading
 if ~nargin
 SplashScreen;

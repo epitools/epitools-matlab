@@ -168,14 +168,18 @@ uiTableStatistics  = uitable('Parent',uiStatisticPanel,...
                              'Data',[],...
                              'ColumnName',{},... 
                              'RowName',{},...
+                             'FontSize',12,...
                              'units'    ,'normalized', ...
+                             'ColumnWidth', 'auto',...
                              'Position',[0.02 0.59 0.97 0.36]);
                          
 uiTableStatisticsBin  = uitable('Parent',uiStatisticPanel,...
                                 'Data',[],...
                                 'ColumnName',{},... 
+                                'FontSize',12,...
                                 'RowName',{},...
                                 'units'    ,'normalized', ...
+                                'ColumnWidth', 'auto',...
                                 'Position',[0.02 0.01 0.97 0.58]);
 
 % Navigator panel
@@ -323,7 +327,7 @@ pth2 = uipushtool(th,'CData',gif2cdata('images/gif/disk.gif'),...
 tth4 = uipushtool(th,'CData',gif2cdata('images/gif/bomb.gif'),'Separator','on',...
     'TooltipString','Wipe orphan seeds',...
     'HandleVisibility','off',...
-    'ClickedCallback', {@keyPrsFcn,'w'});
+    'ClickedCallback', {@keyPrsFcn,'b'});
 
 
 % Delete toogle
@@ -1165,9 +1169,9 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 AddDummyPt = true;
             case {'i'}
                 InspectPt = true;
-            case {'w'}
-                WipeFrame = true;
-                log2dev('Key W pressed', 'DEBUG');
+            case {'b'}
+                log2dev('Wipe orphan seed found in all the frames', 'DEBUG');
+                wipe_orphan_seeds();
                 Update();
             case {'c'}
                 if(localizeminimumvalue)
@@ -1310,9 +1314,22 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         
     end
     
-    function weep_orphan_seeds()
-        % Retrieve coordinates of orphan seed for each frame
-        
+    function wipe_orphan_seeds()
+        count = 0;
+        for idxtime=1:NFrames
+            % for each time point retrieve coordinates of orphan seed
+            [a,b] = find(Ilabel(:,:,idxtime)==255);
+            orphan_seeds = [a,b];
+            % for each coordinate, delete seed
+            for elnum=1:size(orphan_seeds,1)
+                local_y = orphan_seeds(elnum,1);
+                local_x = orphan_seeds(elnum,2);
+
+                deletePt(local_x,local_y,idxtime);
+                count = count+1;
+            end
+        end
+        log2dev(sprintf('Wipe Orphan Seeds has deleted %u seeds over %u frames',count,NFrames), 'DEBUG');
         
     end
 
