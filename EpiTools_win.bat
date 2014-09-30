@@ -1,2 +1,6 @@
-#!/bin/sh
-/Applications/MATLAB_R2014a.app/bin/matlab -nodesktop -nosplash -r "cd('/Users/imagestation/epitools/SourceCode/');EpiTools;"
+@echo off
+
+SET scriptpath=%~dp0
+SET matlabpath="C:\Program Files\MATLAB\R2014a\bin\matlab.exe"
+
+%matlabpath% -nodesktop -nosplash -r "cd('%scriptpath%\src');EpiTools;"
