@@ -125,4 +125,4 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis%20Modules/05_skeleton/');
+web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis_Modules/05_skeleton/');

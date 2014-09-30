@@ -153,4 +153,4 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis%20Modules/01_registration/');
+web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis_Modules/01_registration/');
