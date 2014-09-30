@@ -407,7 +407,7 @@ SandboxGUIRedesign(0);
 set(handles.('figureA'), 'Visible', 'off')
 a3 = get(handles.('figureA'), 'Children');
 set(a3,'Visible', 'off');
-
+stsFunOut = [];
 % Check if there is setting file loaded in the application
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
@@ -438,40 +438,45 @@ if(strPathAnalysisFile)
 else
     return;
 end
+while(isempty(stsFunOut)==1)
+    strPathImages = uigetdir('~','Select the directory containing your images');
 
-strPathImages       = uigetdir('~','Select the directory containing your images');
-
-if(strPathImages)
-    stgObj.data_imagepath = strPathImages;
-    stsFunOut = CreateMetadata(stgObj);
+    if(strPathImages)
+        stgObj.data_imagepath = strPathImages;
+        stsFunOut = CreateMetadata(stgObj);
+    else
+        break;
+    end
 end
+
+% Continue execution only if the previous passages has been completed
+% correctly.
 
 if ~isempty(stsFunOut)
     out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
     uiwait(out);
     SaveAnalysisFile(hObject, handles, 1);
-end
+    
+    stgObj = getappdata(hMainGui,'settings_objectname');
 
-stgObj = getappdata(hMainGui,'settings_objectname');
+    % logging on external device
+    diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
+    diary on;
 
-% logging on external device
-diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
-diary on;
-
-% Parallel
-installed_toolboxes=ver;
-if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
-    if(stgObj.platform_units ~= 1);
-        parpool('local',stgObj.platform_units);
+    % Parallel
+    installed_toolboxes=ver;
+    if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
+        if(stgObj.platform_units ~= 1);
+            parpool('local',stgObj.platform_units);
+        end
     end
+
+    %Check if icy is in use
+    stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
+
+    % Update handles structure
+    handles_connection(hObject, handles)
 end
-
-%Check if icy is in use
-stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
-
-% Update handles structure
-handles_connection(hObject, handles)
-
 % --------------------------------------------------------------------
 function F_Open_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Open (see GCBO)
