@@ -223,7 +223,7 @@ classdef sandbox < handle
                     for i=1:numel(arrayResults)
                     
                         arrayPathSegments = regexp(sdb.analysis_settings.analysis_modules.(char(sdb.module_name)).results.(char(arrayResults(i))),'/','split');
-                        originalPathSegment = regexp(sdb.analysis_settings.data_analysisindir,'/','split');
+                        %originalPathSegment = regexp(sdb.analysis_settings.data_analysisindir,'/','split');
                         sdb.analysis_settings.analysis_modules.(char(sdb.module_name)).results.(char(arrayResults(i))) ...
                             = strjoin([arrayPathSegments(1:end-2),arrayPathSegments(end)],'/'); %skipping tmp directory
                         
