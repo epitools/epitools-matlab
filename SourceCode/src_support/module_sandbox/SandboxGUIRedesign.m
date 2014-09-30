@@ -1,4 +1,4 @@
-function SandboxGUIRedesign( intStatus, colBackground )
+ function SandboxGUIRedesign( intStatus, colBackground )
 %SANDOBOXGUIREDESIGN Summary of this function goes here
 %   Detailed explanation goes here
 fig = getappdata(0  , 'hMainGui');
