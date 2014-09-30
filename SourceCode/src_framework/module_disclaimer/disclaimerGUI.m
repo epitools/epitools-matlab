@@ -22,7 +22,7 @@ function varargout = disclaimerGUI(varargin)
 
 % Edit the above text to modify the response to help disclaimerGUI
 
-% Last Modified by GUIDE v2.5 29-Sep-2014 08:40:39
+% Last Modified by GUIDE v2.5 30-Sep-2014 11:29:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -140,3 +140,31 @@ end
 if isequal(get(hObject,'CurrentKey'),'return')
     uiresume(handles.figure1);
 end    
+
+
+% --- Executes on button press in checkbox1.
+function checkbox1_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox1
+
+if(exist('./.usersettings.xml', 'file'))
+    
+    settingsobj = xml_read('./.usersettings.xml');
+    settingsobj = settingsobj.main; 
+    
+    if(get(handles.checkbox1, 'value') == 1)
+        settingsobj.licence.NDA.ctl_activate.actived = [0 1];
+        settingsobj.main = settingsobj;
+        xml_write('./.usersettings.xml',settingsobj);
+    end
+    
+    if(get(handles.checkbox1, 'value') == 0)
+        settingsobj.licence.NDA.ctl_activate.actived = [1 0];
+        settingsobj.main = settingsobj;
+        xml_write('./.usersettings.xml',settingsobj);
+    end
+
+end

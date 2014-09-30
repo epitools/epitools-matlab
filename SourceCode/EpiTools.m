@@ -95,6 +95,8 @@ setappdata(gcf, 'icy_path', 'none');
 setappdata(gcf, 'settings_objectname', '');
 setappdata(gcf, 'settings_execution', '');
 setappdata(gcf, 'status_application',stsFunOut);
+setappdata(gcf, 'settings_release',[]);
+setappdata(gcf, 'settings_licence',[]);
 setappdata(gcf, 'settings_executionuid',...
                 ['epitools-',...
                 getenv('USER'),...
@@ -131,6 +133,11 @@ log2dev('*    Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti    * ','INFO');
 log2dev('*    Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00    *','INFO');
 log2dev('***********************************************************','INFO');
 
+
+
+if(exist('release.xml','file')) release = xml_read('release.xml'); setappdata(gcf, 'settings_release',release);end
+if(exist('licence.xml','file')) licence = xml_read('licence.xml'); setappdata(gcf, 'settings_licence',licence);end
+
 % -------------------------------------------------------------------------
 % Add special procedure when the main windows is closed
 hMainGui = getappdata(0,'hMainGui');
@@ -138,14 +145,26 @@ set(hMainGui, 'CloseRequestFcn', {@onMainWindowClose});
 
 set(hMainGui,'Position',[0 0 400 100]);
 movegui(hMainGui,'center');
-out = disclaimerGUI();
-waitfor(out);
-hLogGui = getappdata(0, 'hLogGui');
-if strcmp(out,'Exit')
-    onMainWindowClose(hObject, eventdata, handles);
+
+
+%hLogGui = getappdata(0, 'hLogGui');
+
+
+% Display discaimer
+if(strcmp(settingsobj.licence.NDA.ctl_activate.values(find(settingsobj.licence.NDA.ctl_activate.actived)),'on'))
+    out = disclaimerGUI();
+    waitfor(out);
+        if strcmp(out,'Exit')
+            onMainWindowClose(hObject, eventdata, handles);
+        else
+            handles_connection(hObject,handles);
+        end
 else
     handles_connection(hObject,handles);
 end
+
+
+
 
 % --- Outputs from this function are returned to the command line.
 function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
@@ -646,8 +665,14 @@ end
 
 if(exist('licence.xml','file'))
     licence = xml_read('licence.xml');
+
+    
 else
-    error('No licence file has been found in EpiTools directory');
+    warn('No licence file has been found in EpiTools directory');
+    licence.customer.name = 'Unknown';
+    licence.customer.lastname = '';
+    licence.customer.email = '' ;
+    licence.key.validity = 0;
 end
 
 text = uicontrol('Parent', SplashScreenHandle,...
@@ -668,6 +693,8 @@ text = uicontrol('Parent', SplashScreenHandle,...
                 'BackgroundColor', [0 0 0],...
                 'ForegroundColor', [1 1 1]);
  
+            
+
 drawnow;
 
 function onMainWindowClose(hObject, eventdata, handles)

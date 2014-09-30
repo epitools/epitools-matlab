@@ -83,7 +83,13 @@ settings.main.windows.autocentering.ctl_activate.visible = 1;
 settings.main.windows.autocentering.ctl_activate.desc = 'single';
 settings.main.windows.autocentering.ctl_activate.values = {'on', 'off'};
 settings.main.windows.autocentering.ctl_activate.actived = [1 0];
+%% Licence
 
+settings.main.licence.NDA.ctl_activate.name = 'Non Disclosing Agreement (NDA)';
+settings.main.licence.NDA.ctl_activate.visible = 1;
+settings.main.licence.NDA.ctl_activate.desc = 'single';
+settings.main.licence.NDA.ctl_activate.values = {'on', 'off'};
+settings.main.licence.NDA.ctl_activate.actived = [1 0];
 
 %% Save settings
 xml_write( outpath, settings);
