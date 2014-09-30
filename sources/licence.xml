@@ -5,15 +5,15 @@
    <server>imls-bg-arthemis.uzh.ch</server>
    <date-release>28/09/2014</date-release>
    <cert>cert.pem</cert>
-   <validity>365</validity>
+   <validity>0</validity>
    <bind>0:0:0:0:0</bind>
    </key>
    <customer>
-   	<uid>001</uid>
-   	<username>lorenzo.gatti</username>
-   	<name>Lorenzo</name>
-   	<lastname>Gatti</lastname>
-   	<email>lorenzo.gatti.89@gmail.com</email>
+   	<uid>000</uid>
+   	<username>unknown.user</username>
+   	<name>unknown.user</name>
+   	<lastname></lastname>
+   	<email>email@test.com</email>
    </customer>
    <products>
    <product>

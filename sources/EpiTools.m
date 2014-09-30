@@ -106,6 +106,10 @@ setappdata(gcf, 'settings_executionuid',...
                 datestr(now,29),...
                 '.log']);
 
+% Load release and licence files in EpiTools
+if(exist('release.xml','file')==2); release = xml_read('release.xml'); setappdata(gcf, 'settings_release',release);end
+if(exist('licence.xml','file')==2); licence = xml_read('licence.xml'); setappdata(gcf, 'settings_licence',licence);end
+
 % -------------------------------------------------------------------------
 % Prepare struct containing handles for UI
 hUIControls = struct();
@@ -123,20 +127,13 @@ if(~exist('./.usersettings.xml', 'file'));generate_empty_settingsfile();end
     
 settingsobj = xml_read('./.usersettings.xml');
 settingsobj = settingsobj.main; 
-
 setappdata(gcf, 'settings_execution', settingsobj);
+
 
 % Open log window
 log2dev('***********************************************************','INFO');
 log2dev('*      EPITOOLS - IMAGE PROCESSING TOOL FOR EPITHELIA     * ','INFO');
-log2dev('*    Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti    * ','INFO');
-log2dev('*    Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00    *','INFO');
 log2dev('***********************************************************','INFO');
-
-
-
-if(exist('release.xml','file')) release = xml_read('release.xml'); setappdata(gcf, 'settings_release',release);end
-if(exist('licence.xml','file')) licence = xml_read('licence.xml'); setappdata(gcf, 'settings_licence',licence);end
 
 % -------------------------------------------------------------------------
 % Add special procedure when the main windows is closed
@@ -410,7 +407,7 @@ SandboxGUIRedesign(0);
 set(handles.('figureA'), 'Visible', 'off')
 a3 = get(handles.('figureA'), 'Children');
 set(a3,'Visible', 'off');
-
+stsFunOut = [];
 % Check if there is setting file loaded in the application
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
@@ -441,40 +438,45 @@ if(strPathAnalysisFile)
 else
     return;
 end
+while(isempty(stsFunOut)==1)
+    strPathImages = uigetdir('~','Select the directory containing your images');
 
-strPathImages       = uigetdir('~','Select the directory containing your images');
-
-if(strPathImages)
-    stgObj.data_imagepath = strPathImages;
-    stsFunOut = CreateMetadata(stgObj);
+    if(strPathImages)
+        stgObj.data_imagepath = strPathImages;
+        stsFunOut = CreateMetadata(stgObj);
+    else
+        break;
+    end
 end
+
+% Continue execution only if the previous passages has been completed
+% correctly.
 
 if ~isempty(stsFunOut)
     out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
     uiwait(out);
     SaveAnalysisFile(hObject, handles, 1);
-end
+    
+    stgObj = getappdata(hMainGui,'settings_objectname');
 
-stgObj = getappdata(hMainGui,'settings_objectname');
+    % logging on external device
+    diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
+    diary on;
 
-% logging on external device
-diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
-diary on;
-
-% Parallel
-installed_toolboxes=ver;
-if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
-    if(stgObj.platform_units ~= 1);
-        parpool('local',stgObj.platform_units);
+    % Parallel
+    installed_toolboxes=ver;
+    if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
+        if(stgObj.platform_units ~= 1);
+            parpool('local',stgObj.platform_units);
+        end
     end
+
+    %Check if icy is in use
+    stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
+
+    % Update handles structure
+    handles_connection(hObject, handles)
 end
-
-%Check if icy is in use
-stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
-
-% Update handles structure
-handles_connection(hObject, handles)
-
 % --------------------------------------------------------------------
 function F_Open_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Open (see GCBO)
@@ -638,14 +640,14 @@ function MCredits_Callback(hObject, eventdata, handles)
 % hObject    handle to MCredits (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+frmInfoSplash();
 % --------------------------------------------------------------------
 % Support Functions
 % --------------------------------------------------------------------
 function SplashScreenHandle = SplashScreen
 % Splash screen before EpiTools loading
 addpath('./src_support/module_xml');
-logo = imread('logo.png','png');
+logo = imread('./images/epitools_logo.png','png');
 SplashScreenHandle = figure('MenuBar','None','NumberTitle','off','color',...
                             [1 1 1],'tag','SplashScreenTag','name',...
                             'EpiTools is loading...','color',[0.7,0.7,0.9],...
