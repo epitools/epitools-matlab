@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Discover all the Matlab Installations
+installation_directories=($(ls /Applications/ | grep 'MATLAB_'))
+tLen=${#installation_directories[@]}
+
+# Pick the last one
+last_installation=${installation_directories[$tLen-1]}
+
+# Where am I?
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Command to execute
+/Applications/$last_installation/bin/matlab -nodesktop -nosplash -r "cd('$DIR/src/');EpiTools;"
