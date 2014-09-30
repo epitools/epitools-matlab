@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <main>
    <programm_name>EpiTools</programm_name>
-   <author>Lorenzo Gatti, Davide Heller</author>
+   <programm_desc>Image processing software for epithelial tissues</programm_desc>
+   <programm_authors>D. Heller, A. Tournier, A. Hoppe, S. Restrepo, L. Gatti, N. Tapon, K. Basler, Y. Mao</programm_authors>
    <version>1</version>
    <release>1</release>
    <build>S0001</build>

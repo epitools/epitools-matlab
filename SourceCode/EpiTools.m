@@ -106,6 +106,10 @@ setappdata(gcf, 'settings_executionuid',...
                 datestr(now,29),...
                 '.log']);
 
+% Load release and licence files in EpiTools
+if(exist('release.xml','file')==2); release = xml_read('release.xml'); setappdata(gcf, 'settings_release',release);end
+if(exist('licence.xml','file')==2); licence = xml_read('licence.xml'); setappdata(gcf, 'settings_licence',licence);end
+
 % -------------------------------------------------------------------------
 % Prepare struct containing handles for UI
 hUIControls = struct();
@@ -123,20 +127,13 @@ if(~exist('./.usersettings.xml', 'file'));generate_empty_settingsfile();end
     
 settingsobj = xml_read('./.usersettings.xml');
 settingsobj = settingsobj.main; 
-
 setappdata(gcf, 'settings_execution', settingsobj);
+
 
 % Open log window
 log2dev('***********************************************************','INFO');
 log2dev('*      EPITOOLS - IMAGE PROCESSING TOOL FOR EPITHELIA     * ','INFO');
-log2dev('*    Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti    * ','INFO');
-log2dev('*    Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00    *','INFO');
 log2dev('***********************************************************','INFO');
-
-
-
-if(exist('release.xml','file')) release = xml_read('release.xml'); setappdata(gcf, 'settings_release',release);end
-if(exist('licence.xml','file')) licence = xml_read('licence.xml'); setappdata(gcf, 'settings_licence',licence);end
 
 % -------------------------------------------------------------------------
 % Add special procedure when the main windows is closed
@@ -638,7 +635,7 @@ function MCredits_Callback(hObject, eventdata, handles)
 % hObject    handle to MCredits (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+frmInfoSplash();
 % --------------------------------------------------------------------
 % Support Functions
 % --------------------------------------------------------------------
