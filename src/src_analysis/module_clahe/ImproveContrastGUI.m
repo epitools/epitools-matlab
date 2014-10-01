@@ -22,7 +22,7 @@ function varargout = ImproveContrastGUI(varargin)
 
 % Edit the above text to modify the response to help ImproveContrastGUI
 
-% Last Modified by GUIDE v2.5 10-Sep-2014 18:11:09
+% Last Modified by GUIDE v2.5 01-Oct-2014 11:31:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -94,6 +94,7 @@ updateLegends(handles);
 
 function gathered_data = gatherData(handles)
     gathered_data.enhancement_limit = get(handles.enhancement_slider,'value');
+    gathered_data.enhancement_width = get(handles.enhancement_width,'value');
     
 
 % Valorise control legends 
@@ -102,9 +103,11 @@ hICoGui = getappdata(0  , 'hICoGui');
 stgObj  = getappdata(hICoGui, 'settings_objectname');
 module_name = getappdata(hICoGui, 'settings_modulename');
 
+caption = sprintf('Enhancement limit = %.3f', stgObj.analysis_modules.(char(module_name)).settings.enhancement_limit);
+set(handles.enhancement_label, 'String', caption);
 
-    caption = sprintf('Enhancement limit = %.3f', stgObj.analysis_modules.(char(module_name)).settings.enhancement_limit);
-    set(handles.enhancement_label, 'String', caption);
+caption = sprintf('Enhancement Width = %.0f', stgObj.analysis_modules.(char(module_name)).settings.enhancement_width);
+set(handles.enhancement_width_label, 'String', caption);
 
     
     
@@ -151,10 +154,6 @@ gatheredData = gatherData(handles);
 
 hICoGui = getappdata(0  , 'hICoGui');
 stgObj  = getappdata(hICoGui, 'settings_objectname');
-strModuleName = getappdata(gcf, 'settings_modulename');
-
-%add default parameter
-stgObj.AddSetting(strModuleName, 'clahe_square_width',30);
 
 ImproveContrast(stgObj);
 
@@ -196,3 +195,30 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis_Modules/02_clahe/');
+
+
+% --- Executes on slider movement.
+function enhancement_width_Callback(hObject, eventdata, handles)
+% hObject    handle to enhancement_width (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+updateAndGather(handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function enhancement_width_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to enhancement_width (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+default_width = 30;
+set(hObject, 'value', default_width);

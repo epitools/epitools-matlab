@@ -40,8 +40,8 @@ for i=1:size(tmpRegObj.RegIm,3)
     sizeX = size(tmpRegObj.RegIm,1);
     sizeY = size(tmpRegObj.RegIm,2);
     
-    numTilesX = round(sizeX / tmpStgObj.clahe_square_width);
-    numTilesY = round(sizeY / tmpStgObj.clahe_square_width);
+    numTilesX = round(sizeX / tmpStgObj.enhancement_width);
+    numTilesY = round(sizeY / tmpStgObj.enhancement_width);
     
     %todo, this needs to be adaptive for the image size
     %e.g. compute NumTiles based on a predifined size of tiling (e.g. 30px)
