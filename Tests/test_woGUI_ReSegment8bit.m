@@ -83,6 +83,7 @@ strModuleName = 'Contrast_Enhancement';
 ds.CreateModule(strModuleName);
 
 ds.AddSetting(strModuleName, 'enhancement_limit', 0.02);
+ds.AddSetting(strModuleName, 'clahe_square_width',30);
 
 ImproveContrast(ds);
 

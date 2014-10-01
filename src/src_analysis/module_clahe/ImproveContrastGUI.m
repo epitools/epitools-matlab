@@ -148,10 +148,13 @@ function run_clahe_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 gatheredData = gatherData(handles);
-enhancement_limit = gatheredData.enhancement_limit;
 
 hICoGui = getappdata(0  , 'hICoGui');
 stgObj  = getappdata(hICoGui, 'settings_objectname');
+strModuleName = getappdata(gcf, 'settings_modulename');
+
+%add default parameter
+stgObj.AddSetting(strModuleName, 'clahe_square_width',30);
 
 ImproveContrast(stgObj);
 
