@@ -4,7 +4,7 @@ function execution_status = generate_empty_settingsfile(outpath)
 
 %% In case of no arg are passed to the function
 if nargin < 1
-    outpath = './.usersettings.xml';
+    outpath = 'usersettings.xml';
 end
 
 %% Initialisation of structures
@@ -17,7 +17,7 @@ settings.main.logs.levels.ctl_levelsvalue.name = 'Select logging levels';
 settings.main.logs.levels.ctl_levelsvalue.visible = 1;
 settings.main.logs.levels.ctl_levelsvalue.desc = 'multiple';
 settings.main.logs.levels.ctl_levelsvalue.values = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
-settings.main.logs.levels.ctl_levelsvalue.actived = [1 1 1 1 1 1 1];
+settings.main.logs.levels.ctl_levelsvalue.actived = [1 0 0 1 0 0 0];
 
 settings.main.logs.execution.ctl_execution.name = 'Execute log';
 settings.main.logs.execution.ctl_execution.visible = 1;
@@ -37,7 +37,7 @@ settings.main.input.formats.ctl_inputformat.name = 'Select input image file form
 settings.main.input.formats.ctl_inputformat.visible = 1;
 settings.main.input.formats.ctl_inputformat.desc = 'multiple';
 settings.main.input.formats.ctl_inputformat.values = {'.czi', '.zvi', '.cxd', '.ome', '.ome.tiff', '.mrc', '.tif', '.tiff', '.lif', '.lei', '.ipl', '.raw', '.ics', '.ids', '.bmp', '.png', '.pic', '.mvd2'};
-settings.main.input.formats.ctl_inputformat.actived = [0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0];
+settings.main.input.formats.ctl_inputformat.actived = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1];
 
 %% Output format section
 

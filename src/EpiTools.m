@@ -120,9 +120,9 @@ setappdata(gcf, 'settings_rootpath', file_path);
 
 % -------------------------------------------------------------------------
 % Set log settings *device and level*
-if(~exist('./.usersettings.xml', 'file'));generate_empty_settingsfile();end
+if(~exist('usersettings.xml', 'file'));generate_empty_settingsfile();end
     
-settingsobj = xml_read('./.usersettings.xml');
+settingsobj = xml_read('usersettings.xml');
 settingsobj = settingsobj.main; 
 setappdata(gcf, 'settings_execution', settingsobj);
 
