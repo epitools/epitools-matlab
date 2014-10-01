@@ -155,12 +155,14 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                     else
                         img = imshow(squeeze(Is(:,:,:,i)),[],'Parent',handles.(pntAxes));
                     end
-                end
-                if s(4) == 3
-                    if(~exist('pntAxes', 'var'))
-                        img = imshow(squeeze(Is(:,:,i,:)));
-                    else
-                        img = imshow(squeeze(Is(:,:,i,:)),[],'Parent',handles.(pntAxes));
+                else
+                    %image might have 3 color channels on another dimension
+                    if s(4) == 3
+                        if(~exist('pntAxes', 'var'))
+                            img = imshow(squeeze(Is(:,:,i,:)));
+                        else
+                            img = imshow(squeeze(Is(:,:,i,:)),[],'Parent',handles.(pntAxes));
+                        end
                     end
                 end
                 %             if max(max(max(max(Is(:,:,:,i))))) == 0
