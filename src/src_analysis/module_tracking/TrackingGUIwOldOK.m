@@ -1135,7 +1135,14 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 %fprintf('done\n');
                 hMainGui = getappdata(0, 'hMainGui');
                 stgObj = getappdata(hMainGui, 'settings_objectname');
+
+                arrayResults = fields(stgObj.analysis_modules.Tracking.results);
                 
+                arrayPathSegments = regexp(Ilabelsout,'/','split');
+                filename = arrayPathSegments{length(arrayPathSegments)};
+                
+                stgObj.AddResult('Tracking',strcat('tracking_file_',num2str((length(arrayResults)+1))),[filename,'.mat']);
+
                 if isfield(stgObj.analysis_modules.Tracking.metadata, 'click_counts')
                     stgObj.ModifyMetadata('Tracking','click_counts', stgObj.analysis_modules.Tracking.metadata.click_counts + NClicks);
                 else
