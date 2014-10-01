@@ -37,9 +37,15 @@ for i=1:size(tmpRegObj.RegIm,3)
     
     RegIm_uint = tmpRegObj.RegIm(:,:,i);
     
+    sizeX = size(tmpRegObj.RegIm,1);
+    sizeY = size(tmpRegObj.RegIm,2);
+    
+    numTilesX = round(sizeX / tmpStgObj.enhancement_width);
+    numTilesY = round(sizeY / tmpStgObj.enhancement_width);
+    
     %todo, this needs to be adaptive for the image size
     %e.g. compute NumTiles based on a predifined size of tiling (e.g. 30px)
-    RegIm_clahe_uint = adapthisteq(RegIm_uint,'NumTiles',[70 70],'ClipLimit',tmpStgObj.enhancement_limit);
+    RegIm_clahe_uint = adapthisteq(RegIm_uint,'NumTiles',[numTilesX numTilesY],'ClipLimit',tmpStgObj.enhancement_limit);
    
     RegIm_clahe(:,:,i) = RegIm_clahe_uint; 
 

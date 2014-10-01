@@ -83,7 +83,7 @@ strModuleName = 'Contrast_Enhancement';
 ds.CreateModule(strModuleName);
 
 ds.AddSetting(strModuleName, 'enhancement_limit', 0.02);
-
+ds.AddSetting(strModuleName, 'enhancement_width',30);
 ImproveContrast(ds);
 
 CheckInputType(ds, 'RegIm');
