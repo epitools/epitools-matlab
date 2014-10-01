@@ -103,7 +103,7 @@ stgObj  = getappdata(hICoGui, 'settings_objectname');
 module_name = getappdata(hICoGui, 'settings_modulename');
 
 
-    caption = sprintf('Enhancement limit = %.2f', stgObj.analysis_modules.(char(module_name)).settings.enhancement_limit);
+    caption = sprintf('Enhancement limit = %.3f', stgObj.analysis_modules.(char(module_name)).settings.enhancement_limit);
     set(handles.enhancement_label, 'String', caption);
 
     
@@ -192,4 +192,4 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis%20Modules/02_clahe/');
+web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis_Modules/02_clahe/');
