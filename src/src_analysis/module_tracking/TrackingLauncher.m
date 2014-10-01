@@ -93,6 +93,6 @@ uiwait(fig);
 
 
 %% Saving results
-stgObj.AddResult('Tracking','tracking_file',strcat(strFilename,'.mat'));
+%stgObj.AddResult('Tracking','tracking_file',strcat(strFilename,'.mat'));
 end
 

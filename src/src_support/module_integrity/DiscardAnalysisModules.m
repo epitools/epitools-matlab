@@ -44,8 +44,12 @@ for i=(intIDX+1):length(arrayStgFields)
         
         
         
-        % Copy file
-        copyfile([strSourceFilePath,'/',strSourceFileName], [strSourceFilePath,'/Backups/',strSourceFileName]);
+        % Copy file  [strSourceFilePath,'/',strSourceFileName]
+        if(exist([strSourceFilePath,'/',strSourceFileName],'file')==2)
+            copyfile([strSourceFilePath,'/',strSourceFileName], [strSourceFilePath,'/Backups/',strSourceFileName]);
+        else
+            continue;
+        end
         
         % Remove file
         delete([strSourceFilePath,'/',strSourceFileName]);
