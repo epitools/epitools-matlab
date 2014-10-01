@@ -22,7 +22,7 @@ function varargout = TrackingIntroGUI(varargin)
 
 % Edit the above text to modify the response to help TrackingIntroGUI
 
-% Last Modified by GUIDE v2.5 21-Jul-2014 12:07:42
+% Last Modified by GUIDE v2.5 01-Oct-2014 09:55:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -153,3 +153,11 @@ end
 
 default_tracking_radius = 15;
 set(hObject,'value',default_tracking_radius);
+
+
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+web('http://imls-bg-arthemis.uzh.ch/epitools/?url=Analysis_Modules/05_tracking/');
