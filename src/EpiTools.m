@@ -157,9 +157,6 @@ else
     handles_connection(hObject,handles);
 end
 
-
-
-
 % --- Outputs from this function are returned to the command line.
 function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -782,14 +779,25 @@ function use_icy_checkbox_Callback(hObject, eventdata, handles, ToggleValue)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
+settingsobj = getappdata(hMainGui, 'settings_execution');
 
 if ToggleValue
+    
     %only enter when tick is activated
     
     %get app data
-    icy_path =      getappdata(hMainGui,'icy_path');
+    if(strcmp(settingsobj.output.icy.ctl_enableicyconnection.values(find(settingsobj.output.icy.ctl_enableicyconnection.actived)),'on'))
+        icy_is_used = 1;
+    else 
+        icy_is_used = 0;
+    end
+    
+    icy_path = settingsobj.output.icy.ctl_connectionstring.values;
+
+    %icy_path    =   getappdata(hMainGui,'icy_path');
+    %icy_is_used =   getappdata(hMainGui,'icy_is_used');
     icy_is_loaded = getappdata(hMainGui,'icy_is_loaded');
-    icy_is_used =   getappdata(hMainGui,'icy_is_used');
+    
     
     %Check if icy's path was specified
     if(strcmp(icy_path,'none'))
@@ -824,9 +832,15 @@ if ToggleValue
     end
     
     %set app data
-    setappdata(hMainGui,'icy_path',icy_path);
+    %setappdata(hMainGui,'icy_path',icy_path);
     setappdata(hMainGui,'icy_is_loaded',icy_is_loaded);
     setappdata(hMainGui,'icy_is_used',icy_is_used);
+    
+    if(icy_is_used);mtx = [1 0];else mtx = [0 1];end
+    settingsobj.output.icy.ctl_enableicyconnection.actived = mtx;
+    settingsobj.output.icy.ctl_connectionstring.value = icy_path;
+    
+    
     
 else
     %checkbox is deselected
@@ -834,6 +848,8 @@ else
     setappdata(hMainGui,'icy_is_used',0);
     
 end
+
+setappdata(hMainGui, 'settings_execution',settingsobj);
 
 %set preference in settings object if one exists
 if(isappdata(hMainGui,'settings_objectname'))

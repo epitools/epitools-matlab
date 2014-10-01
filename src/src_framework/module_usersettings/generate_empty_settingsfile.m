@@ -47,6 +47,19 @@ settings.main.output.formats.ctl_outputsformat.desc = 'multiple';
 settings.main.output.formats.ctl_outputsformat.values = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
 settings.main.output.formats.ctl_outputsformat.actived = [1 1 1 1 1 1 1];
 
+
+settings.main.output.icy.ctl_enableicyconnection.name = 'Enable connection to ICY';
+settings.main.output.icy.ctl_enableicyconnection.visible = 1;
+settings.main.output.icy.ctl_enableicyconnection.desc = 'single';
+settings.main.output.icy.ctl_enableicyconnection.values = {'on', 'off'};
+settings.main.output.icy.ctl_enableicyconnection.actived = [0 1];
+
+settings.main.output.icy.ctl_connectionstring.name = 'ICY connection string';
+settings.main.output.icy.ctl_connectionstring.visible = 1;
+settings.main.output.icy.ctl_connectionstring.desc = 'text';
+settings.main.output.icy.ctl_connectionstring.values = 'none';
+
+
 %% Framework option section
 
 settings.main.framework.memory.ctl_memoryvalue.name = 'Memory value';
@@ -83,6 +96,9 @@ settings.main.windows.autocentering.ctl_activate.visible = 1;
 settings.main.windows.autocentering.ctl_activate.desc = 'single';
 settings.main.windows.autocentering.ctl_activate.values = {'on', 'off'};
 settings.main.windows.autocentering.ctl_activate.actived = [1 0];
+
+
+
 %% Licence
 
 settings.main.licence.NDA.ctl_activate.name = 'Non Disclosing Agreement (NDA)';
