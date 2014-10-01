@@ -831,6 +831,7 @@ if ToggleValue
 else
     %checkbox is deselected
     set(handles.uiIcyVisualizationToggle,'State','off');
+    setappdata(hMainGui,'icy_is_used',0);
     
 end
 
