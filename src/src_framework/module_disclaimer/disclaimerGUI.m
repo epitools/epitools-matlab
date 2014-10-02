@@ -153,17 +153,14 @@ function checkbox1_Callback(hObject, eventdata, handles)
 if(exist('usersettings.xml', 'file'))
     
     settingsobj = xml_read('usersettings.xml');
-    settingsobj = settingsobj.main; 
     
     if(get(handles.checkbox1, 'value') == 1)
         settingsobj.licence.NDA.ctl_activate.actived = [0 1];
-        settingsobj.main = settingsobj;
         xml_write('usersettings.xml',settingsobj);
     end
     
     if(get(handles.checkbox1, 'value') == 0)
         settingsobj.licence.NDA.ctl_activate.actived = [1 0];
-        settingsobj.main = settingsobj;
         xml_write('usersettings.xml',settingsobj);
     end
 

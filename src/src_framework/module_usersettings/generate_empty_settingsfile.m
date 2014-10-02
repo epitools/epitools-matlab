@@ -8,107 +8,106 @@ if nargin < 1
 end
 
 %% Initialisation of structures
-settings = struct();
-settings.main = struct();
+settingsobj = struct();
 
 %% Log section
 
-settings.main.logs.levels.ctl_levelsvalue.name = 'Select logging levels';
-settings.main.logs.levels.ctl_levelsvalue.visible = 1;
-settings.main.logs.levels.ctl_levelsvalue.desc = 'multiple';
-settings.main.logs.levels.ctl_levelsvalue.values = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
-settings.main.logs.levels.ctl_levelsvalue.actived = [1 0 0 1 0 0 0];
+settingsobj.logs.levels.ctl_levelsvalue.name = 'Select logging levels';
+settingsobj.logs.levels.ctl_levelsvalue.visible = 1;
+settingsobj.logs.levels.ctl_levelsvalue.desc = 'multiple';
+settingsobj.logs.levels.ctl_levelsvalue.values = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
+settingsobj.logs.levels.ctl_levelsvalue.actived = [1 0 0 1 0 0 0];
 
-settings.main.logs.execution.ctl_execution.name = 'Execute log';
-settings.main.logs.execution.ctl_execution.visible = 1;
-settings.main.logs.execution.ctl_execution.desc = 'single';
-settings.main.logs.execution.ctl_execution.values = {'on', 'off'};
-settings.main.logs.execution.ctl_execution.actived = [1 0];
+settingsobj.logs.execution.ctl_execution.name = 'Execute log';
+settingsobj.logs.execution.ctl_execution.visible = 1;
+settingsobj.logs.execution.ctl_execution.desc = 'single';
+settingsobj.logs.execution.ctl_execution.values = {'on', 'off'};
+settingsobj.logs.execution.ctl_execution.actived = [1 0];
 
 
-settings.main.logs.devices.ctl_outdevices.name = 'Logging device';
-settings.main.logs.devices.ctl_outdevices.visible = 1;
-settings.main.logs.devices.ctl_outdevices.desc = 'multiple';
-settings.main.logs.devices.ctl_outdevices.values = {'file', 'generic-gui', 'console', 'log window' };
-settings.main.logs.devices.ctl_outdevices.actived = [0 0 1 1];
+settingsobj.logs.devices.ctl_outdevices.name = 'Logging device';
+settingsobj.logs.devices.ctl_outdevices.visible = 1;
+settingsobj.logs.devices.ctl_outdevices.desc = 'multiple';
+settingsobj.logs.devices.ctl_outdevices.values = {'file', 'generic-gui', 'console', 'log window' };
+settingsobj.logs.devices.ctl_outdevices.actived = [0 0 1 1];
 
 %% Input format section
-settings.main.input.formats.ctl_inputformat.name = 'Select input image file format';
-settings.main.input.formats.ctl_inputformat.visible = 1;
-settings.main.input.formats.ctl_inputformat.desc = 'multiple';
-settings.main.input.formats.ctl_inputformat.values = {'.czi', '.zvi', '.cxd', '.ome', '.ome.tiff', '.mrc', '.tif', '.tiff', '.lif', '.lei', '.ipl', '.raw', '.ics', '.ids', '.bmp', '.png', '.pic', '.mvd2'};
-settings.main.input.formats.ctl_inputformat.actived = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1];
+settingsobj.input.formats.ctl_inputformat.name = 'Select input image file format';
+settingsobj.input.formats.ctl_inputformat.visible = 1;
+settingsobj.input.formats.ctl_inputformat.desc = 'multiple';
+settingsobj.input.formats.ctl_inputformat.values = {'.czi', '.zvi', '.cxd', '.ome', '.ome.tiff', '.mrc', '.tif', '.tiff', '.lif', '.lei', '.ipl', '.raw', '.ics', '.ids', '.bmp', '.png', '.pic', '.mvd2'};
+settingsobj.input.formats.ctl_inputformat.actived = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1];
 
 %% Output format section
 
-settings.main.output.formats.ctl_outputsformat.name = 'Select output file format';
-settings.main.output.formats.ctl_outputsformat.visible = 0;
-settings.main.output.formats.ctl_outputsformat.desc = 'multiple';
-settings.main.output.formats.ctl_outputsformat.values = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
-settings.main.output.formats.ctl_outputsformat.actived = [1 1 1 1 1 1 1];
+settingsobj.output.formats.ctl_outputsformat.name = 'Select output file format';
+settingsobj.output.formats.ctl_outputsformat.visible = 0;
+settingsobj.output.formats.ctl_outputsformat.desc = 'multiple';
+settingsobj.output.formats.ctl_outputsformat.values = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
+settingsobj.output.formats.ctl_outputsformat.actived = [1 1 1 1 1 1 1];
 
 
-settings.main.output.icy.ctl_enableicyconnection.name = 'Enable connection to ICY';
-settings.main.output.icy.ctl_enableicyconnection.visible = 1;
-settings.main.output.icy.ctl_enableicyconnection.desc = 'single';
-settings.main.output.icy.ctl_enableicyconnection.values = {'on', 'off'};
-settings.main.output.icy.ctl_enableicyconnection.actived = [0 1];
+settingsobj.output.icy.ctl_enableicyconnection.name = 'Enable connection to ICY';
+settingsobj.output.icy.ctl_enableicyconnection.visible = 1;
+settingsobj.output.icy.ctl_enableicyconnection.desc = 'single';
+settingsobj.output.icy.ctl_enableicyconnection.values = {'on', 'off'};
+settingsobj.output.icy.ctl_enableicyconnection.actived = [0 1];
 
-settings.main.output.icy.ctl_connectionstring.name = 'ICY connection string';
-settings.main.output.icy.ctl_connectionstring.visible = 1;
-settings.main.output.icy.ctl_connectionstring.desc = 'text';
-settings.main.output.icy.ctl_connectionstring.values = 'none';
+settingsobj.output.icy.ctl_connectionstring.name = 'ICY connection string';
+settingsobj.output.icy.ctl_connectionstring.visible = 1;
+settingsobj.output.icy.ctl_connectionstring.desc = 'text';
+settingsobj.output.icy.ctl_connectionstring.values = 'none';
 
 
 %% Framework option section
 
-settings.main.framework.memory.ctl_memoryvalue.name = 'Memory value';
-settings.main.framework.memory.ctl_memoryvalue.visible = 1;
-settings.main.framework.memory.ctl_memoryvalue.desc = 'text';
-settings.main.framework.memory.ctl_memoryvalue.values = 512;
+settingsobj.framework.memory.ctl_memoryvalue.name = 'Memory value';
+settingsobj.framework.memory.ctl_memoryvalue.visible = 1;
+settingsobj.framework.memory.ctl_memoryvalue.desc = 'text';
+settingsobj.framework.memory.ctl_memoryvalue.values = 512;
 
-settings.main.framework.processors.ctl_processorsdefault.name = 'Default processors';
-settings.main.framework.processors.ctl_processorsdefault.visible = 1;
-settings.main.framework.processors.ctl_processorsdefault.desc = 'text';
-settings.main.framework.processors.ctl_processorsdefault.values = '';
+settingsobj.framework.processors.ctl_processorsdefault.name = 'Default processors';
+settingsobj.framework.processors.ctl_processorsdefault.visible = 1;
+settingsobj.framework.processors.ctl_processorsdefault.desc = 'text';
+settingsobj.framework.processors.ctl_processorsdefault.values = '';
 
-settings.main.framework.debug.ctl_debug.name = 'Debug mode';
-settings.main.framework.debug.ctl_debug.visible = 1;
-settings.main.framework.debug.ctl_debug.desc = 'single';
-settings.main.framework.debug.ctl_debug.values = {'on', 'off'};
-settings.main.framework.debug.ctl_debug.actived = [1 0];
+settingsobj.framework.debug.ctl_debug.name = 'Debug mode';
+settingsobj.framework.debug.ctl_debug.visible = 1;
+settingsobj.framework.debug.ctl_debug.desc = 'single';
+settingsobj.framework.debug.ctl_debug.values = {'on', 'off'};
+settingsobj.framework.debug.ctl_debug.actived = [1 0];
 
-settings.main.framework.sendinformations.ctl_usageinformation.name = 'Sending usage informations';
-settings.main.framework.sendinformations.ctl_usageinformation.visible = 1;
-settings.main.framework.sendinformations.ctl_usageinformation.desc = 'single';
-settings.main.framework.sendinformations.ctl_usageinformation.values = {'on', 'off'};
-settings.main.framework.sendinformations.ctl_usageinformation.actived = [1 0];
+settingsobj.framework.sendinformations.ctl_usageinformation.name = 'Sending usage informations';
+settingsobj.framework.sendinformations.ctl_usageinformation.visible = 1;
+settingsobj.framework.sendinformations.ctl_usageinformation.desc = 'single';
+settingsobj.framework.sendinformations.ctl_usageinformation.values = {'on', 'off'};
+settingsobj.framework.sendinformations.ctl_usageinformation.actived = [1 0];
 
-settings.main.framework.serverconnectionstring.ctl_serverstring.name = 'Connection string';
-settings.main.framework.serverconnectionstring.ctl_serverstring.visible = 1;
-settings.main.framework.serverconnectionstring.ctl_serverstring.desc = 'text';
-settings.main.framework.serverconnectionstring.ctl_serverstring.values = '';
+settingsobj.framework.serverconnectionstring.ctl_serverstring.name = 'Connection string';
+settingsobj.framework.serverconnectionstring.ctl_serverstring.visible = 1;
+settingsobj.framework.serverconnectionstring.ctl_serverstring.desc = 'text';
+settingsobj.framework.serverconnectionstring.ctl_serverstring.values = '';
 
 %% Window option section
 
-settings.main.windows.autocentering.ctl_activate.name = 'Resize activation';
-settings.main.windows.autocentering.ctl_activate.visible = 1;
-settings.main.windows.autocentering.ctl_activate.desc = 'single';
-settings.main.windows.autocentering.ctl_activate.values = {'on', 'off'};
-settings.main.windows.autocentering.ctl_activate.actived = [1 0];
+settingsobj.windows.autocentering.ctl_activate.name = 'Resize activation';
+settingsobj.windows.autocentering.ctl_activate.visible = 1;
+settingsobj.windows.autocentering.ctl_activate.desc = 'single';
+settingsobj.windows.autocentering.ctl_activate.values = {'on', 'off'};
+settingsobj.windows.autocentering.ctl_activate.actived = [1 0];
 
 
 
 %% Licence
 
-settings.main.licence.NDA.ctl_activate.name = 'Non Disclosing Agreement (NDA)';
-settings.main.licence.NDA.ctl_activate.visible = 1;
-settings.main.licence.NDA.ctl_activate.desc = 'single';
-settings.main.licence.NDA.ctl_activate.values = {'on', 'off'};
-settings.main.licence.NDA.ctl_activate.actived = [1 0];
+settingsobj.licence.NDA.ctl_activate.name = 'Non Disclosing Agreement (NDA)';
+settingsobj.licence.NDA.ctl_activate.visible = 1;
+settingsobj.licence.NDA.ctl_activate.desc = 'single';
+settingsobj.licence.NDA.ctl_activate.values = {'on', 'off'};
+settingsobj.licence.NDA.ctl_activate.actived = [1 0];
 
 %% Save settings
-xml_write( outpath, settings);
+xml_write( outpath, settingsobj);
 
 end
 

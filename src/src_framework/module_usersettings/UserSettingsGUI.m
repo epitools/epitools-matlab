@@ -14,7 +14,6 @@ movegui(hUSGui,'center');
 if(~exist('usersettings.xml', 'file'));generate_empty_settingsfile();end
 
 settingsobj = xml_read('usersettings.xml');
-settingsobj = settingsobj.main;
 
 jtree = uitree_control_usersettings(hUSGui,settingsobj);
 
@@ -47,7 +46,6 @@ abortcontrol = uicontrol('Style', 'pushbutton',...
             'Position', [0.25 0.10 0.75 0.90]);
         
         settingsobj = xml_read('usersettings.xml');
-        settingsobj = settingsobj.main;
         hMainGui = getappdata(0, 'hMainGui');
         setappdata(hMainGui, 'settings_execution', settingsobj);
     end
@@ -174,7 +172,6 @@ abortcontrol = uicontrol('Style', 'pushbutton',...
         vls = settingsobj.(root).(leaf).(ctl).values;
         mtx = ismember(vls,{get(eventdata.NewValue,'String')});
         settingsobj.(root).(leaf).(ctl).actived = +mtx;
-        settingsobj.main = settingsobj;
         xml_write('usersettings.xml',settingsobj);
     end
 
@@ -185,14 +182,12 @@ abortcontrol = uicontrol('Style', 'pushbutton',...
         elseif (settingsobj.(root).(leaf).(ctl).actived(pos) == 0)
             settingsobj.(root).(leaf).(ctl).actived(pos) = 1;
         end
-        settingsobj.main = settingsobj;
         xml_write('usersettings.xml',settingsobj);
     end
 
     function editcbk(source,eventdata,settingsobj,root,leaf,ctl)
         
         settingsobj.(root).(leaf).(ctl).values = get(source,'string');
-        settingsobj.main = settingsobj;
         xml_write('usersettings.xml',settingsobj);
     end
 end

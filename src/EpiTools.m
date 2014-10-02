@@ -123,7 +123,6 @@ setappdata(gcf, 'settings_rootpath', file_path);
 if(~exist('usersettings.xml', 'file'));generate_empty_settingsfile();end
     
 settingsobj = xml_read('usersettings.xml');
-settingsobj = settingsobj.main; 
 setappdata(gcf, 'settings_execution', settingsobj);
 
 
@@ -838,7 +837,7 @@ if ToggleValue
     
     if(icy_is_used);mtx = [1 0];else mtx = [0 1];end
     settingsobj.output.icy.ctl_enableicyconnection.actived = mtx;
-    settingsobj.output.icy.ctl_connectionstring.value = icy_path;
+    settingsobj.output.icy.ctl_connectionstring.values = icy_path;
     
     
     
@@ -858,3 +857,5 @@ if(isappdata(hMainGui,'settings_objectname'))
         stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
     end
 end
+
+xml_write('usersettings.xml', settingsobj);
