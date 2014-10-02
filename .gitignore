@@ -1,3 +1,6 @@
+src/usersettings.xml
+Tests/8bitDataset/Analysis/*
+Tests/16bitDataset/Analysis/*
 .DS_Store
 *.m~
 
