@@ -19,7 +19,7 @@ for(my $i=1; $i<=$#ARGV; $i=$i+2)
 {
     $ARGV_HASH->{$ARGV[$i]} = $ARGV[$i+1];
 }
-
+print Dumper($ARGV_HASH);
 # -----------------------------------------------------
 # If this script has been called with an xml file path as first arg, then parse
 # it and store its memory location (reference)
@@ -75,7 +75,7 @@ if (exists($ARGV_HASH->{branch}))
         }
 
         # in case the branch where commit has happened is exactly "development"
-        case "development"
+        case "develop"
         {            
             # if this build is triggered only by a commit into development branch,
             # then increase release value of 0.1 each time
@@ -117,7 +117,7 @@ if (exists($inputfile->{date_version})){ $date_build = $inputfile->{date_build};
 my $head_build = strftime "%b", localtime;
 my $head_build_date = strftime "%a %d %b %Y %H:%M:%S (UTC %z)", localtime;
 $build =  $head_build .'-0'. $ARGV_HASH->{build_uid};
-$date_build = $head_build_date .' due to commit uid ' . $ARGV_HASH->{commit_uid};
+$date_build = $head_build_date .' with build key ' . $ARGV_HASH->{build_key};
 
 $inputfile->{build} = $build;
 $inputfile->{date_build} = $date_build;
