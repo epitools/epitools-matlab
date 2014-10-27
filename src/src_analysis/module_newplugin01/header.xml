@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>001</uid>
+    <desc_name>Call establisher for server queue</desc_name>
+    <exec_priority>0</exec_priority>
+    <dependences_list>
+        <dependence>
+            <uid></uid>
+            <tags>
+                <tag></tag>
+            </tags>
+            <exceptions>
+                <exception>
+                    <uid></uid>
+                    <desc></desc>
+                    <tags>
+                        <tag>
+                            <id/>
+                            <rep/>
+                        </tag>
+                    </tags>
+                </exception>
+            </exceptions>
+        </dependence>
+    </dependences_list>
+    <exec_commands>
+        <command>
+            <uid>1</uid>
+            <exec>com.epitools.exe.dialer</exec>
+            <input/>
+            <output/>
+            <argvs>
+                <arg>"-cn localhost"</arg>
+                <arg>"-id sessionname'</arg>
+                <arg>"-a 0"</arg>
+            </argvs>
+            <tags>
+                <tag></tag>
+            </tags>
+        </command>
+    </exec_commands>
+</process>
