@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<avail_list>
+   <item>
+      <path>src_analysis/module_clahe</path>
+      <uid>CLAHE</uid>
+   </item>
+   <item>
+      <path>src_analysis/module_icy</path>
+      <uid>ICYCONNECTOR</uid>
+   </item>
+   <item>
+      <path>src_analysis/module_newplugin01</path>
+      <uid>DIALER</uid>
+   </item>
+   <item>
+      <path>src_analysis/module_newplugin02</path>
+      <uid>COPYDIALER</uid>
+   </item>
+</avail_list>
