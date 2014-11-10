@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>UNKNOWN-PROCESS</uid>
+    <desc_name>Test process used during developing phase of Server-Client Backbone</desc_name>
+    <exec_priority>0</exec_priority>
+    <dependences>
+        <dependence>
+            <uid>QA01</uid>
+            <tags>
+                <tag>Image_Depth_Bit8</tag>
+            </tags>
+            <exceptions>
+                <exception>
+                    <uid>Image_Depth_Bit8</uid>
+                    <desc>Loaded image is not compatible with the minimum module requirements</desc>
+                    <tags>
+                        <tag>
+                            <id>Image_Depth_Bit8</id>
+                            <rep>Image_Depth_Bit16</rep>
+                        </tag>
+                        <tag>
+                            <id>Image_Depth_Bit8</id>
+                            <rep>Image_Depth_Bit32</rep>
+                        </tag>
+                    </tags>
+                </exception>
+            </exceptions>
+        </dependence>
+    </dependences>
+    <commands>
+        <command>
+            <uid>1</uid>
+            <exec>touch</exec>
+            <input></input>
+            <output></output>
+            <argvs>
+                <arg>test.txt</arg>
+            </argvs>
+            <tags>
+                <tag>Metadata_Test_Text</tag>
+            </tags>
+        </command>
+    </commands>
+</process>

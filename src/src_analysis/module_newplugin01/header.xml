@@ -1,42 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process>
-    <uid>001</uid>
+    <uid>DIALER</uid>
     <desc_name>Call establisher for server queue</desc_name>
     <exec_priority>0</exec_priority>
-    <dependences_list>
+    <dependences>
         <dependence>
-            <uid></uid>
+            <uid>QA01</uid>
             <tags>
-                <tag></tag>
+                <tag>QUEUE_EMPTY</tag>
             </tags>
             <exceptions>
                 <exception>
-                    <uid></uid>
-                    <desc></desc>
+                    <uid>QA01</uid>
+                    <desc>Queue must be empty</desc>
                     <tags>
                         <tag>
-                            <id/>
-                            <rep/>
+                            <id>QUEUE_EMPTY</id>
+                            <rep>REPLACED01</rep>
+                        </tag>
+                        <tag>
+                            <id>QUEUE_EMPTY</id>
+                            <rep>REPLACED02</rep>
+                        </tag>
+                    </tags>
+                </exception>
+                <exception>
+                    <uid>QA02</uid>
+                    <desc>Queue must exist</desc>
+                    <tags>
+                        <tag>
+                            <id>QUEUE_EMPTY</id>
+                            <rep>REPLACED03</rep>
                         </tag>
                     </tags>
                 </exception>
             </exceptions>
         </dependence>
-    </dependences_list>
-    <exec_commands>
+        <dependence>
+            <uid>FD01</uid>
+            <tags>
+                <tag>ARMFILE</tag>
+            </tags>
+        </dependence>
+    </dependences>
+    <commands>
         <command>
             <uid>1</uid>
             <exec>com.epitools.exe.dialer</exec>
-            <input/>
-            <output/>
+            <input>in.txt</input>
+            <output>out.com</output>
             <argvs>
-                <arg>"-cn localhost"</arg>
-                <arg>"-id sessionname'</arg>
-                <arg>"-a 0"</arg>
+                <arg>-cn localhost</arg>
+                <arg>-id sessionname</arg>
+                <arg>-a 0</arg>
             </argvs>
             <tags>
-                <tag></tag>
+                <tag>DIALER_CONNECTION</tag>
             </tags>
         </command>
-    </exec_commands>
+        <command>
+            <uid>1</uid>
+            <exec>touch</exec>
+            <input>in.txt</input>
+            <output>out.com</output>
+            <tags>
+                <tag>STATUS_FILE</tag>
+            </tags>
+        </command>
+    </commands>
 </process>
