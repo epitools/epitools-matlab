@@ -3,7 +3,7 @@
     <uid>ICYCONNECTOR</uid>
     <desc_name>Icy Connector for MATLAB</desc_name>
     <exec_priority>0</exec_priority>
-    <dependences_list>
+    <dependences>
         <dependence>
             <uid></uid>
             <tags>
@@ -22,8 +22,8 @@
                 </exception>
             </exceptions>
         </dependence>
-    </dependences_list>
-    <exec_commands>
+    </dependences>
+    <commands>
         <command>
             <uid>1</uid>
             <exec>icy_matlab_communication.m</exec>
@@ -38,5 +38,5 @@
                 <tag></tag>
             </tags>
         </command>
-    </exec_commands>
+    </commands>
 </process>
