@@ -237,13 +237,17 @@ CreateColorBoundaries()
             %1. IBoundMax, gives the Lower bound to the mean intensity
             %   1.b condition upon that the cell seed has less than 20% intensity difference to the mean
             %   => If the cell boundary is low and not very different from the seed, cancel the region
+            first_condition = (IBound < IBoundMax && IBound/ICentre < 1.2);
             %2. W/o (1.b) the lower bound is reduced by ~17% (1 - 0.833) to be decisive
+            second_condition = (IBound < IBoundMax *25./30.);
             %3. If the minimum retrieved in the boundary mask is 0 (dangerous!)
+            third_condition = (min(boundaryIntensities)==0);
             %4. If the amount of low intensity signal (i.e. < 20) is more than 10% 
-            if ( IBound < IBoundMax && IBound/ICentre < 1.2 ) ...
-                    || IBound < IBoundMax *25./30. ...
-                    || min(boundaryIntensities)==0 ...
-                    || sum(H<20)/length(H) > 0.1
+            fourth_condition = (sum(H<20)/length(H) > 0.1);
+            if  first_condition...
+                    || second_condition ...
+                    || third_condition...
+                    || fourth_condition
                 
                 %The label is cancelled (inverted mask multiplication.)
                 CellLabels = CellLabels.*uint16(mask==0);
