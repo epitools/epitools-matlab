@@ -61,19 +61,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     
     for (n=0; n < mrows*ncols; n++)
     {
-        if (img[n] > celllevel) no_pixels1++;
         if (img[n] > maxval) maxval=img[n];
     }
     
     // creating initial pixel list
     
-    pixlist = (pix*)malloc(20*mrows*ncols*sizeof(pix));
-    pixlist2 = (pix*)malloc(20*mrows*ncols*sizeof(pix));
+    pixlist = (pix*)malloc(mrows*ncols*sizeof(pix));
+    pixlist2 = (pix*)malloc(mrows*ncols*sizeof(pix));
     
-    n=1;
+    n=0;
     
     // initial populating pixlist and label matrix B
-    // pixlist will just contains the seed points
+    // pixlist just contains the seed points
     for (y=0; y < A->rows; y++)
         for (x=0; x < A->cols; x++)
         {
@@ -81,16 +80,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             {
                 pixlist[n].x=x;
                 pixlist[n].y=y;
-                B->rptr[x][y]=n;
-                n++;
+                B->rptr[x][y]=n+1; // assign new cell ID to output matrix
+                n++; no_pixels1++;
             }
             else
                 B->rptr[x][y]=0;
         }
     
+    //printf("maxval: %d, n: %d\n", (int)maxval, no_pixels1);
     
-    
-    for (level=1; level < maxval; level=level+0.05) //maxval
+    for (level=1; level <= maxval; level=level+0.05) //maxval
     {
         no_pixels2=0;
         
@@ -99,10 +98,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         //2 pixel lists
         //alternative storing to avoid indefinitive growth
         //i.e. the label matrix is updated only at the end to not influence the current run
-        
-        //if (no_pixels1<mrows*ncols)
-        {
-            
+      
             for (n=0; n < no_pixels1; n++)
             {
                 x=pixlist[n].x;  y=pixlist[n].y;
@@ -121,6 +117,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 if(y > 0 && B->rptr[x][y-1] > 0 && B->rptr[x][y-1] != cellID) { continue; }
                 if(y < mrows-1 && B->rptr[x][y+1] > 0 && B->rptr[x][y+1] != cellID) { continue; }
                 
+                
                 // trying to grow - are we having pixels :
                 // - connecting unallocated pixels to cells [ B->rptr[x+1][y] < 1 ]
                 // - below the current threshold level      [ A->rptr[x+1][y] < level ]
@@ -128,34 +125,47 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 
                 if(x < ncols-1 && B->rptr[x+1][y] < 1 && A->rptr[x+1][y] < level) //grow by level again //todo avoid background explosion
                 {
-                    B->rptr[x+1][y] = B->rptr[x][y]; //growth! new label: B->rptr[x][y]
+                    B->rptr[x+1][y] = cellID; //growth! new label: B->rptr[x][y]
                     pixlist2[no_pixels2].x=x+1;
                     pixlist2[no_pixels2].y=y;
-                    no_pixels2++;
+                    no_pixels2++;   
                 }
-                if(x >  0 && B->rptr[x-1][y] < 1 && A->rptr[x-1][y] < level)
-                {
-                    B->rptr[x-1][y]=B->rptr[x][y];
-                    pixlist2[no_pixels2].x=x-1;
-                    pixlist2[no_pixels2].y=y;
-                    no_pixels2++; }
-                if(y >  0 && B->rptr[x][y-1] < 1 && A->rptr[x][y-1] < level)
-                { B->rptr[x][y-1]=B->rptr[x][y]; pixlist2[no_pixels2].x=x; pixlist2[no_pixels2].y=y-1; no_pixels2++; }
-                if(y < mrows-1 && B->rptr[x][y+1] < 1 && A->rptr[x][y+1] < level)
-                {B->rptr[x][y+1]=B->rptr[x][y]; pixlist2[no_pixels2].x=x; pixlist2[no_pixels2].y=y+1; no_pixels2++; }
                 
-            }
-            
+                
+                if(x > 0 && B->rptr[x-1][y] < 1 && A->rptr[x-1][y] < level)
+                {
+                    B->rptr[x-1][y]=cellID;
+                    pixlist2[no_pixels2].x=x-1;
+                    pixlist2[no_pixels2].y=y; 
+                    no_pixels2++; 
+                }
+                
+                
+                if(y > 0 && B->rptr[x][y-1] < 1 && A->rptr[x][y-1] < level)
+                { 
+					B->rptr[x][y-1]=cellID; 
+					pixlist2[no_pixels2].x=x; 
+					pixlist2[no_pixels2].y=y-1; 
+					no_pixels2++; 
+				}
+					
+                if(y < mrows-1 && B->rptr[x][y+1] < 1 && A->rptr[x][y+1] < level)
+                {
+					B->rptr[x][y+1]=cellID; 
+					pixlist2[no_pixels2].x=x; 
+					pixlist2[no_pixels2].y=y+1;  
+					no_pixels2++; 
+				}
+				
         }
         
-        //printf("nopixels1 %d and nopixel2s %d\n",no_pixels1, no_pixels2);
+        //printf("level: %f, nopixels1 %d and nopixels2 %d\n", level, no_pixels1, no_pixels2);
         
         
         // populating pixellist from old pixellist with allocated pixels only
         no_pixels1 =0;
         
-        //
-    	for (n=0; n < no_pixels2; n++)
+        for (n=0; n < no_pixels2; n++)
     	{
             x=pixlist2[n].x;
             y=pixlist2[n].y;
@@ -170,6 +180,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             
         } 
     }
+    
     
     // ------ post processing of completed segmentation to remove small gaps left over by the initial growing
      for (n=0; n < no_pixels1; n++)
@@ -194,7 +205,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 				}
                 
         }
-    
+        
+   
     free( pixlist); free( pixlist2);
     mx_free( A); mx_free(B);
 }
