@@ -74,12 +74,12 @@ if ~GotStartingSeeds
     
     % Find the initial cell seeds (parameters: sigma1, threshold)
     DoInitialSeeding();
-    if show  figure('Name','First seeding'); imshow(CellSeeds(:,:)); input('press <enter> to continue','s');  end
+    if show  figure('Name','First seeding'); imshow(CellSeeds(:,:),[]);  end
 
     % Remove initial cell regions which touch & whose boundary is insufficient
     % (parameters: params.MergeCriteria)
     MergeSeedsFromLabels() 
-    if show  figure('Name','Seeding after merging'); imshow(CellSeeds(:,:),[]); input('press <enter> to continue','s');  end
+    if show  figure('Name','Seeding after merging'); imshow(CellSeeds(:,:),[]); end
 end
 
 
@@ -87,18 +87,14 @@ end
 GrowCellsInFrame()
 if show CreateColorBoundaries(); figure('Name','First cell boundaries'); imshow(ColIm,[]);  end
 
-% [2] Eliminate labelling from background
-DelabelFlatBackground()
-% if show CreateColorBoundaries(); figure('Name','Boundaries after background substraction'); imshow(ColIm,[]);  end
-
-% [3] Eliminate labels from seeds which have poor boundary intensity
+% [2] Eliminate labels from seeds which have poor boundary intensity
 UnlabelPoorSeedsInFrame()
 if show CreateColorBoundaries(); figure('Name','Boundaries after poor cell removal'); imshow(ColIm,[]);  end
 
-% [4] Seeds whose label has been eliminated are converted to NeutralSeeds (value=253)
+% [3] Seeds whose label has been eliminated are converted to NeutralSeeds (value=253)
 NeutralisePtsNotUnderLabelInFrame();
 
-% [5] Generate final colored image (RGB) to represent the segmentation results
+% [4] Generate final colored image (RGB) to represent the segmentation results
 CreateColorBoundaries()
 %if show  figure('Name','Final cell boundaries'); imshow(ColIm,[]);  end
 
@@ -157,9 +153,8 @@ CreateColorBoundaries()
         % Generate CellLabels from InitalLabelling
         CellLabels(:,:) = uint16(InitialLabelling);
         
-        % deal with background *no idea of what these functions do! 
+        % eliminate very large areas
         DelabelVeryLargeAreas();
-        DelabelFlatBackground();
         
         % Use true centre of cells as labels
         centroids = round(calculateCellPositions(SmoothedIm,CellLabels(:,:), false));
@@ -297,13 +292,6 @@ CreateColorBoundaries()
                'DEBUG');
         % -------------------------------------------------------------------------
 
-        CellLabels = L;
-    end
-
-    function DelabelFlatBackground()                                       %todo: check this is still useful!
-        L = CellLabels;
-        D = Im(:,:);
-        L(D==0) = 0;
         CellLabels = L;
     end
 
