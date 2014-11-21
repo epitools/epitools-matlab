@@ -155,6 +155,7 @@ CreateColorBoundaries()
         
         % eliminate very large areas
         DelabelVeryLargeAreas();
+        % DelabelFlatBackground()
         
         % Use true centre of cells as labels
         centroids = round(calculateCellPositions(SmoothedIm,CellLabels(:,:), false));
@@ -167,6 +168,17 @@ CreateColorBoundaries()
         CellSeeds(:,:) = uint8(SmoothedIm);
         
     end
+
+
+%     % Initial specification was encoding background pixels as zero values in cell images.
+%     % DelabelFlatBackground() removes such background pixels from the cell label image,
+%     % i.e. it is applying a mask.     
+%     function DelabelFlatBackground()                                       
+%         L = CellLabels;
+%         D = Im(:,:);
+%         L(D==0) = 0;
+%         CellLabels = L;
+%     end
 
     function GrowCellsInFrame()
         
