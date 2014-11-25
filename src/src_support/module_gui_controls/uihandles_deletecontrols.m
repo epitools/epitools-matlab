@@ -10,17 +10,22 @@ if(~isempty(hUIControls))
 switch input
     case 'all'
         items = fields(hUIControls);
+        if(~isempty(items))
         for i=1:numel(items)
-
+            try
             delete(hUIControls.(char(items(i))));
+            catch
+            end
             hUIControls = rmfield(hUIControls,char(items(i)));
         end
-        
+        end
     otherwise
         
         if (isfield(hUIControls, input))
-            
+            try
             delete(hUIControls.(char(input)));
+            catch
+            end
             hUIControls = rmfield(hUIControls,char(input));
             
         end

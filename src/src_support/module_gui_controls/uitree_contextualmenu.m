@@ -91,7 +91,6 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         jmenu.remove(item);
     end
 
-
 % callback functions
     function openModuleResultsinMainView(hObject, eventData)
         hMainGui = getappdata(0, 'hMainGui');
@@ -150,8 +149,6 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         
     end
 
-
-
     function openModuleSettings(hObject, eventData)
         hMainGui = getappdata(0, 'hMainGui');
         mdName = getappdata(hMainGui,'module_name');
@@ -180,9 +177,6 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         
         
     end
-
-
-
 
     function openModuleinFinder(hObject, eventData)
         hMainGui = getappdata(0, 'hMainGui');
