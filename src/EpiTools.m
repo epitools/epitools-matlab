@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 24-Sep-2014 14:08:19
+% Last Modified by GUIDE v2.5 24-Nov-2014 14:23:22
 
 % Begin initialization code - DO NOT EDIT
 %
@@ -50,7 +50,6 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
-
 % --- Executes just before EpiTools is made visible.
 function EpiTools_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -94,6 +93,9 @@ setappdata(gcf, 'settings_execution', '');
 setappdata(gcf, 'status_application',stsFunOut);
 setappdata(gcf, 'settings_release',[]);
 setappdata(gcf, 'settings_licence',[]);
+setappdata(gcf, 'server_instances',struct());
+setappdata(gcf, 'client_modules',struct());
+setappdata(gcf, 'pool_instances',struct());
 setappdata(gcf, 'settings_executionuid',...
                 ['epitools-',...
                 getenv('USER'),...
@@ -139,9 +141,8 @@ set(hMainGui, 'CloseRequestFcn', {@onMainWindowClose});
 set(hMainGui,'Position',[0 0 400 100]);
 movegui(hMainGui,'center');
 
-
-%hLogGui = getappdata(0, 'hLogGui');
-
+% Installing Clients
+installClients();
 
 % Display discaimer
 if(strcmp(settingsobj.licence.NDA.ctl_activate.values(find(settingsobj.licence.NDA.ctl_activate.actived)),'on'))
@@ -155,7 +156,6 @@ if(strcmp(settingsobj.licence.NDA.ctl_activate.values(find(settingsobj.licence.N
 else
     handles_connection(hObject,handles);
 end
-
 % --- Outputs from this function are returned to the command line.
 function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -166,7 +166,6 @@ function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 diary off;
 % Get default command line output from handles structure
 %varargout{1} = handles.output;
-
 % --------------------------------------------------------------------
 function handles_connection(hObject,handles)
 % If the metricdata field is present and the reset flag is false, it means
@@ -186,12 +185,11 @@ if(isappdata(hMainGui,'settings_objectname'))
         
         stgObj = getappdata(hMainGui,'settings_objectname');
         
-        set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
-        set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
+
         set(handles.figure1, 'Name', ['EpiTools | ', num2str(stgObj.analysis_code), ' - ' , stgObj.analysis_name])
         
         LoadControls(hMainGui, stgObj);
-        
+
         % -------------------------------------------------------------------------
         % Log status of previous operations on GUI
         log2dev( sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, num2str(stgObj.analysis_version),stgObj.data_extensionmask),...
@@ -206,7 +204,6 @@ end
 
 % Update handles structure
 guidata(hObject, handles);
-
 % --------------------------------------------------------------------
 function A_Proj_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Proj (see GCBO)
@@ -224,7 +221,6 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
-
 % --------------------------------------------------------------------
 function A_StackReg_Callback(hObject, eventdata, handles)
 % hObject    handle to A_StackReg (see GCBO)
@@ -245,7 +241,6 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
-
 % --------------------------------------------------------------------
 function A_CLAHE_Callback(hObject, eventdata, handles)
 % hObject    handle to A_CLAHE (see GCBO)
@@ -265,7 +260,6 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
-
 % --------------------------------------------------------------------
 function A_Segmentation_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Segmentation (see GCBO)
@@ -284,7 +278,6 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles);
-
 % --------------------------------------------------------------------
 function A_Tracking_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Tracking (see GCBO)
@@ -304,7 +297,6 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
-
 % --------------------------------------------------------------------
 function A_Skeletons_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Skeletons (see GCBO)
@@ -324,7 +316,6 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles);
-
 % --------------------------------------------------------------------
 function A_Polycrop_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Polycrop (see GCBO)
@@ -345,7 +336,6 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
-
 % --------------------------------------------------------------------
 function A_ReSegmentation_Callback(hObject, eventdata, handles)
 % hObject    handle to A_ReSegmentation (see GCBO)
@@ -367,19 +357,10 @@ end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
 
 handles_connection(hObject,handles)
-
 % --------------------------------------------------------------------
 function E_Undo_Callback(hObject, eventdata, handles)
-% hObject    handle to E_Undo (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 % --------------------------------------------------------------------
 function E_Redo_Callback(hObject, eventdata, handles)
-% hObject    handle to E_Redo (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 % --------------------------------------------------------------------
 function E_Preferences_Callback(hObject, eventdata, handles)
 % hObject    handle to E_Preferences (see GCBO)
@@ -387,8 +368,6 @@ function E_Preferences_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 UserSettingsGUI();
-
-
 % --------------------------------------------------------------------
 function F_New_Callback(hObject, eventdata, handles)
 % hObject    handle to F_New (see GCBO)
@@ -469,6 +448,13 @@ if ~isempty(stsFunOut)
 
     % Update handles structure
     handles_connection(hObject, handles)
+    
+    % Execute procedures required by server-client modules
+    disconnectPool
+    connectPool('clipro');% DEBUG
+    connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
+    connectServer();
+
 end
 % --------------------------------------------------------------------
 function F_Open_Callback(hObject, eventdata, handles)
@@ -548,8 +534,15 @@ if(strSettingFilePath)
     diary on;
     
     handles_connection(hObject, handles)
+    
+    % Execute procedures required by server-client modules
+    disconnectPool();
+    connectPool('clipro');% DEBUG
+    connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
+    connectServer();
+    
+    
 end
-
 % --------------------------------------------------------------------
 function F_ImportSettings_Callback(hObject, eventdata, handles)
 % hObject    handle to F_ImportSettings (see GCBO)
@@ -586,7 +579,6 @@ if(strSettingFilePath ~= 0)
 end
 
 handles_connection(hObject, handles)
-
 % --------------------------------------------------------------------
 function F_Save_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Save (see GCBO)
@@ -594,7 +586,6 @@ function F_Save_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 SaveAnalysisFile(hObject, handles);
-
 % --------------------------------------------------------------------
 function F_Properties_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Properties (see GCBO)
@@ -613,128 +604,24 @@ end
 
 % Update handles structure
 handles_connection(hObject, handles)
-
 % --------------------------------------------------------------------
 function F_Exit_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Exit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 onMainWindowClose(hObject, eventdata, handles);
-
 % --------------------------------------------------------------------
 function MHelp_Callback(hObject, eventdata, handles)
 % hObject    handle to MHelp (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 web('http://imls-bg-arthemis.uzh.ch/epitools/');
-
 % --------------------------------------------------------------------
 function MCredits_Callback(hObject, eventdata, handles)
 % hObject    handle to MCredits (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 frmInfoSplash();
-% --------------------------------------------------------------------
-% Support Functions
-% --------------------------------------------------------------------
-function SplashScreenHandle = SplashScreen
-% Splash screen before EpiTools loading
-addpath('./src_support/module_xml');
-logo = imread('./images/epitools_logo.png','png');
-SplashScreenHandle = figure('MenuBar','None','NumberTitle','off','color',...
-                            [1 1 1],'tag','SplashScreenTag','name',...
-                            'EpiTools is loading...','color',[0.7,0.7,0.9],...
-                            'Visible', 'off');
-                        
-iptsetpref('ImshowBorder','tight');
-imshow(logo);
-
-movegui(SplashScreenHandle,'center');
-set(SplashScreenHandle, 'Visible', 'on');
-
-if(exist('release.xml','file'))
-    release = xml_read('release.xml');
-else
-    error('EpiTools installation is currupted. Exiting....');
-end
-
-if(exist('licence.xml','file'))
-    licence = xml_read('licence.xml');
-
-    
-else
-    warn('No licence file has been found in EpiTools directory');
-    licence.customer.name = 'Unknown';
-    licence.customer.lastname = '';
-    licence.customer.email = '' ;
-    licence.key.validity = 0;
-end
-
-text = uicontrol('Parent', SplashScreenHandle,...
-                'Style','text',...
-                'HorizontalAlignment', 'left',...
-                'FontName','Helvetica Neue',...
-                'String',sprintf('%s V%uR%uB%s licensed to %s %s (%s) for %u days',...
-                                release.programm_name,...
-                                release.version,...
-                                release.release,...
-                                release.build,...
-                                licence.customer.name,...
-                                licence.customer.lastname,...
-                                licence.customer.email, ...
-                                licence.key.validity),...
-                'Units', 'normalized',...
-                'Position', [0 0 1 0.05],...
-                'BackgroundColor', [0 0 0],...
-                'ForegroundColor', [1 1 1]);
- 
-            
-
-drawnow;
-
-function onMainWindowClose(hObject, eventdata, handles)
-% On Main Windows Close function    
-hMainGui = getappdata(0, 'hMainGui');
-hLogGui = getappdata(0, 'hLogGui');
-% Since the current function is invoked without passing handles, then
-% recover them with
-handles = guidata(hMainGui);
-
-% Check if there is setting file loaded in the application
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
-        % Ask if you want to save it before closing the application
-        output = SaveAnalysisFile(hObject, handles);
-        %waitfor(output);
-        
-        if (output == 1)
-            return
-        end
-        
-        stgObj = getappdata(hMainGui, 'settings_objectname');
-        
-        %matlabpool is unrecognized on platforms without the Paralell Computing toolbox
-        if(stgObj.platform_units ~= 1)
-            if (matlabpool('size') > 0); matlabpool close; end
-        end
-        
-    end
-end
-
-
-settings_executionuid = getappdata(hMainGui, 'settings_executionuid');
-
-log2dev('***********************************************************','INFO');
-log2dev(sprintf('* End session %s * ',settings_executionuid),'INFO');
-log2dev('***********************************************************','INFO');
-
-if exist(['~/',settings_executionuid], 'file')
-    delete(['~/',settings_executionuid]);
-end
-delete(hLogGui);
-delete(hMainGui);
-
 % --------------------------------------------------------------------
 function uiNewAnalysisPush_ClickedCallback(hObject, eventdata, handles)
 % hObject    handle to uiNewAnalysisPush (see GCBO)
@@ -771,12 +658,9 @@ function uiIcyVisualizationToggle_OnCallback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 use_icy_checkbox_Callback(hObject, eventdata, handles, 1);
-
-% --- Executes on button press in use_icy_checkbox.
+% --------------------------------------------------------------------
 function use_icy_checkbox_Callback(hObject, eventdata, handles, ToggleValue)
-% hObject    handle to use_icy_checkbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% --- Executes on button press in use_icy_checkbox.
 hMainGui = getappdata(0, 'hMainGui');
 settingsobj = getappdata(hMainGui, 'settings_execution');
 
@@ -859,3 +743,174 @@ if(isappdata(hMainGui,'settings_objectname'))
 end
 
 xml_write('usersettings.xml', settingsobj);
+% --------------------------------------------------------------------
+function uiExecuteServerQueue_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiExecuteServerQueue (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+server_instances = getappdata(hMainGui, 'server_instances');
+client_modules = getappdata(hMainGui, 'client_modules');
+pool_instances = getappdata(hMainGui, 'pool_instances');
+
+server = server_instances(2).ref;
+clients = client_modules(2).ref;
+
+for i = 1:size(pool_instances(2:end),2)
+    if (pool_instances(i+1).ref.active)
+        server.receiveMessage(clients(1),pool_instances(i+1).ref);
+    end
+end
+% --------------------------------------------------------------------
+function uiManagePoolActivation_ClickedCallback(hObject, eventdata,handles)
+hMainGui = getappdata(0, 'hMainGui');
+pool_instances = getappdata(hMainGui, 'pool_instances');
+if(numel(pool_instances) >=2)
+    poold_PoolActivationManagerGUI;
+end
+% ====================================================================
+% Support Functions
+% ====================================================================
+function SplashScreenHandle = SplashScreen
+% Splash screen before EpiTools loading
+addpath('./src_support/module_xml');
+logo = imread('./images/epitools_logo.png','png');
+SplashScreenHandle = figure('MenuBar','None','NumberTitle','off','color',...
+                            [1 1 1],'tag','SplashScreenTag','name',...
+                            'EpiTools is loading...','color',[0.7,0.7,0.9],...
+                            'Visible', 'off');
+                        
+iptsetpref('ImshowBorder','tight');
+imshow(logo);
+
+movegui(SplashScreenHandle,'center');
+set(SplashScreenHandle, 'Visible', 'on');
+
+if(exist('release.xml','file'))
+    release = xml_read('release.xml');
+else
+    error('EpiTools installation is currupted. Exiting....');
+end
+
+if(exist('licence.xml','file'))
+    licence = xml_read('licence.xml');
+
+    
+else
+    warn('No licence file has been found in EpiTools directory');
+    licence.customer.name = 'Unknown';
+    licence.customer.lastname = '';
+    licence.customer.email = '' ;
+    licence.key.validity = 0;
+end
+
+text = uicontrol('Parent', SplashScreenHandle,...
+                'Style','text',...
+                'HorizontalAlignment', 'left',...
+                'FontName','Helvetica Neue',...
+                'String',sprintf('%s V%uR%uB%s licensed to %s %s (%s) for %u days',...
+                                release.programm_name,...
+                                release.version,...
+                                release.release,...
+                                release.build,...
+                                licence.customer.name,...
+                                licence.customer.lastname,...
+                                licence.customer.email, ...
+                                licence.key.validity),...
+                'Units', 'normalized',...
+                'Position', [0 0 1 0.05],...
+                'BackgroundColor', [0 0 0],...
+                'ForegroundColor', [1 1 1]);
+ 
+            
+
+drawnow;
+% --------------------------------------------------------------------
+function onMainWindowClose(hObject, eventdata, handles)
+% On Main Windows Close function    
+hMainGui = getappdata(0, 'hMainGui');
+hLogGui = getappdata(0, 'hLogGui');
+% Since the current function is invoked without passing handles, then
+% recover them with
+handles = guidata(hMainGui);
+
+% Check if there is setting file loaded in the application
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
+        % Ask if you want to save it before closing the application
+        output = SaveAnalysisFile(hObject, handles);
+        %waitfor(output);
+        
+        if (output == 1)
+            return
+        end
+        
+        stgObj = getappdata(hMainGui, 'settings_objectname');
+        
+        %matlabpool is unrecognized on platforms without the Paralell Computing toolbox
+        if(stgObj.platform_units ~= 1)
+            if (matlabpool('size') > 0); matlabpool close; end
+        end
+        
+    end
+end
+
+
+settings_executionuid = getappdata(hMainGui, 'settings_executionuid');
+
+log2dev('***********************************************************','INFO');
+log2dev(sprintf('* End session %s * ',settings_executionuid),'INFO');
+log2dev('***********************************************************','INFO');
+
+if exist(['~/',settings_executionuid], 'file')
+    delete(['~/',settings_executionuid]);
+end
+delete(hLogGui);
+delete(hMainGui);
+% --------------------------------------------------------------------
+%                        SERVER-CLIENT INTEGRATION
+% --------------------------------------------------------------------
+function connectServer()
+hMainGui = getappdata(0, 'hMainGui');
+% Retrieve GUI handle from calling environment
+hUIControls = getappdata(hMainGui,'hUIControls');
+%% Initialisation of server
+%  The following code initialise the server daemon which will store client
+%  requests and forward command to queue and ask the workers to run them.
+%  It will retrieve outcomes and it will redirect to dedicated pool.
+server_instance = serverd();
+% Announce to framework
+server_instance.announceToFramework(hMainGui);
+server_instance.buildGUInterface(hUIControls.uipanel_serverqueue);
+% --------------------------------------------------------------------
+function installClients()
+hMainGui = getappdata(0, 'hMainGui');
+%% Client availability checking
+%  The following code will list all the client available in the
+%  src_analysis folder and it will allow the framework to know their status
+client_modules = clients_load();
+% Announce to framework
+client_modules.announceToFramework(hMainGui);
+% --------------------------------------------------------------------
+function disconnectServer()
+% --------------------------------------------------------------------
+function connectPool(poolname)
+hMainGui = getappdata(0, 'hMainGui');
+hUIControls = getappdata(hMainGui,'hUIControls');
+%% Initialisation of pool
+%  The following code will initialize the pool containing exported tags 
+%  from commands executed by server workers.
+pool = poold(poolname);
+pool.loadPool();
+% Announce to framework
+pool.announceToFramework(hMainGui);
+pool_instances = getappdata(hMainGui, 'pool_instances');
+pool.buildGUInterface(hUIControls.uipanel_serverpool, pool_instances);
+% --------------------------------------------------------------------
+function disconnectPool()
+hMainGui = getappdata(0, 'hMainGui');
+setappdata(hMainGui, 'pool_instances',struct());
+%setappdata(hMainGui, 'server_instances',struct());
+%setappdata(hMainGui, 'client_modules',struct());
+% --------------------------------------------------------------------
