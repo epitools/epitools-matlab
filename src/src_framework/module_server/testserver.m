@@ -8,7 +8,7 @@ import java.io.*;
 
 %% Create Socket
 %port = input('Enter port number: ');
-port = 9003;
+port = 9004;
 Server = ServerSocket(port);
  
 %% Listen to connection
