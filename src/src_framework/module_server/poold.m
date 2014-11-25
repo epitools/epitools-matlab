@@ -7,46 +7,54 @@ classdef poold < handle
     properties (SetAccess = private)
         file = [];
         tags = {};
+        active = false;
+        handleGraphics = '';
+        handleJTreeTable = '';
     end
     
     events
     
         AddedTag
         RemovedTag
+        PoolInstance
         
     end
     
     methods
-        
         function pool = poold(filename)
+        % This function instanziate the pool object which will trigger its
+        % announcement to the calling environment
         
-            if (~nargin==1); filename = strcat('unknown',num2str(randi(1000)));end
-            pool.file = strcat('pool_',filename,'.xml');
-            pool.tags = {};
-            
-            poold_manager.listenerEvents(pool);
+        % If no file name has been specified, then assigned one randomly
+        if (~nargin==1); filename = strcat('unknown',num2str(randi(1000)));end
+        pool.file = strcat('pool_',filename,'.xml');
+        pool.tags = {};
+        pool.active = false;
+        pool.handleGraphics = '';
+        pool.handleJTreeTable = '';
+        
+        % Listeners
+        poold_manager.listenerEvents(pool);
+        % Announce to environment
+        notify(pool,'PoolInstance');
 
-            
         end
-        
-        % =================================================================
+        % ====================================================================
         % Tag functions
-        
         function appendTag(pool,tagstruct)
         
             % Append structure to xml definition file  (pool.file)
             % Add pointer to pool list (pool.tags)
             notify(pool, 'AddedTag');
         end
-        
-
-        function removeTag(pool,tagcode)        
+        % --------------------------------------------------------------------
+        function removeTag(pool,tagcode)
         
             % Remove structure from xml definition file  (pool.file)    
             % Delete pointer from pool list (pool.tags)
             notify(pool, 'RemovedTag');
         end
-        
+        % --------------------------------------------------------------------
         % Check if a certain tag is present in the avail tag list
         function boolean = existsTag(pool,tagcode)
             boolean = false;
@@ -55,7 +63,7 @@ classdef poold < handle
             end
             
         end
-        
+        % --------------------------------------------------------------------      
         % Retrieve tag association between tag and pool file
         function tag = retrieveTag(pool,tagcode)
         
@@ -64,24 +72,59 @@ classdef poold < handle
             tag = tags.tag(level);
 
         end
-        
+        % --------------------------------------------------------------------
         % Print all tag in the pool
         function getTagList(pool)
         
         end
-        
+        % --------------------------------------------------------------------
         % This funciton loads tags stored in xml pool file
         function loadPool(pool)
-
-            tags = xml_read(['tmp/',pool.file]);
-            for i=1:numel(tags.tag)
+            if exist(['tmp/',pool.file], 'file');
+                tags = xml_read(['tmp/',pool.file]);
+                for i=1:numel(tags.tag)
 
                 pool.tags{i} = tags.tag(i).uid;
 
+                end
             end
-            
         end
+        % --------------------------------------------------------------------
+         % This function save in a xml files tags stored in pool object
+        function savePool(pool)
         
+            xml_write(['tmp/',pool.file], pool);
+
+        end
+        % --------------------------------------------------------------------
+        % Save reference in session available resources.
+        function announceToFramework(pool, callerID)
+            pool_instances = getappdata(callerID, 'pool_instances');
+            if isempty(pool_instances)
+               pool_instances(1).ref = pool;
+            else
+               pool_instances(end+1).ref = pool;
+            end
+            setappdata(callerID, 'pool_instances', pool_instances);
+        end
+        % --------------------------------------------------------------------
+        function buildGUInterface(pool, GraphicHandle, globalHandle)
+            if nargin >= 2
+                pool.handleGraphics = GraphicHandle;
+            end
+            pool.handleJTreeTable   = uitreetable_serverpool(pool.handleGraphics, globalHandle);
+        end
+        % --------------------------------------------------------------------
+        function activatePool(pool)
+            pool.active = true;
+            notify(pool,'PoolInstance');
+        end
+        function deactivatePool(pool)
+            pool.active = false;
+            notify(pool,'PoolInstance');
+        end
+        % --------------------------------------------------------------------
+    
     end
     
 end
