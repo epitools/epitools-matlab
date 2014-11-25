@@ -1,14 +1,12 @@
-function clients_load
-%CLIENTS_LOAD This function recursively checks all the modules available 
+function inst_client  = clients_load
+%CLIENTS_LOAD This function recursively checks all the modules available
 %in the src_analysis folder and exports their APIs to pool
 % This function checks recursively src_analysis folder in order to identify
 % and export all the APIs available. This process will terminate exporting
-% to [pool] all the implemented resources to the main environment. 
+% to [pool] all the implemented resources to the main environment.
 
 % Initialisation local variables
-modules_found = 0;
-avail_list = struct();
-
+inst_client = clientd();
 % Explode src_analysis folder
 contents = dir('src_analysis');
 
@@ -21,20 +19,12 @@ for i=1:numel(contents)
         % Check if exist a file named> header.xml in each module_ prefixed
         % folders contained in src_analysis.
         if(exist(['src_analysis/',contents(i).name,'/header.xml'],'file'))
-          
-          a = xml_read(['src_analysis/',contents(i).name,'/header.xml']);
-          modules_found = modules_found +1;
-          
-          % Export PATH,UID,DESC_NAME for each modules found in src_analysis       
-          avail_list(modules_found).path = ['src_analysis/',contents(i).name];
-          avail_list(modules_found).uid = a.uid;
-
-        end   
+            
+            filename = ['src_analysis/',contents(i).name,'/header.xml'];
+            inst_client = inst_client.addClient(filename, 'active');
+            
+        end
     end
-    
 end
-xml_write('modules_available.xml',avail_list);
 end
-
-
 
