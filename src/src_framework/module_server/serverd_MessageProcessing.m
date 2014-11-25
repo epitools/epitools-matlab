@@ -63,11 +63,40 @@ for i = 1:numel(local.dependences)
             end
             
             if ~found
-                fprintf('------------------------------------------------------------------------------------------\n');
-                fprintf('%i dependences not satisfied after exception checking.\n', (length(status)-sum(status)));
-                disp(CLIPROINST);
-                fprintf('The process cannot be sent to server!\n');
-                fprintf('------------------------------------------------------------------------------------------\n')
+                clientproperties = fieldnames(CLIPROINST);
+                
+                message = sprintf('-----------------------------------------------------------------------');
+                log2dev(message,'INFO');
+                message = sprintf('%i dependences not satisfied after exception checking.',...
+                                  (length(status)-sum(status)));
+                log2dev(message,'INFO');
+                message = sprintf('client process with properties:');
+                log2dev(message,'INFO');
+                log2dev('','INFO');
+                for idx_clpr=1:numel(clientproperties)
+                    if isa(CLIPROINST.(char(clientproperties(idx_clpr))), 'struct')
+                        message = sprintf('%s%s',...
+                            clientproperties{idx_clpr},...
+                            structstruct(CLIPROINST.(char(clientproperties(idx_clpr)))));
+                        log2dev(message,'DEBUG');
+                    elseif isa(CLIPROINST.(char(clientproperties(idx_clpr))), 'double')
+                        message = sprintf('%s:\t%s',...
+                            clientproperties{idx_clpr},...
+                            num2str(CLIPROINST.(char(clientproperties(idx_clpr)))));
+                        log2dev(message,'INFO');
+                    else
+                        message = sprintf('%s:\t%s',...
+                            clientproperties{idx_clpr},...
+                            CLIPROINST.(char(clientproperties(idx_clpr))));
+                        log2dev(message,'INFO');
+                    end
+                end
+                log2dev('','INFO');
+                message = sprintf('The process cannot be sent to server!');
+                log2dev(message,'INFO');
+                message = sprintf('-----------------------------------------------------------------------');
+                log2dev(message,'INFO');
+                
                 return;
             end
 
@@ -119,9 +148,10 @@ for idxCom = 1:length(CLIPROINST.commands.command)
 
     messagestruct.command       = [CLIPROINST.commands.command(idxCom).exec,' ',input,output,argvs];
     messagestruct.priority      = CLIPROINST.exec_priority;
-    messagestruct.date_submit   = datenum(now());
+    messagestruct.date_submit   = now();
     messagestruct.export_tag    = CLIPROINST.commands.command(idxCom).tags;
     messagestruct.etc           = 10000;
+    messagestruct.refpool       = pools.file;
 
     % Submit message to server process
     SERVERINST.AppendMessage(messagestruct);
