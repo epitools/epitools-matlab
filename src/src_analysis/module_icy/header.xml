@@ -25,7 +25,7 @@
     </dependences>
     <commands>
         <command>
-            <uid>1</uid>
+            <uid>ICYCONNECTOR01</uid>
             <exec>icy_matlab_communication.m</exec>
             <input/>
             <output/>

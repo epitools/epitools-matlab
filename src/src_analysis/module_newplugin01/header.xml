@@ -45,7 +45,7 @@
     </dependences>
     <commands>
         <command>
-            <uid>1</uid>
+            <uid>DIALER01</uid>
             <exec>com.epitools.exe.dialer</exec>
             <input>in.txt</input>
             <output>out.com</output>
@@ -59,7 +59,7 @@
             </tags>
         </command>
         <command>
-            <uid>1</uid>
+            <uid>DIALER02</uid>
             <exec>touch</exec>
             <input>in.txt</input>
             <output>out.com</output>

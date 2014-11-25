@@ -25,7 +25,7 @@
     </dependences>
     <commands>
         <command>
-            <uid>1</uid>
+            <uid>CLAHE01</uid>
             <exec>ImproveContrastGUI.m</exec>
             <input/>
             <output/>
@@ -35,7 +35,7 @@
                 <arg>"-a 0"</arg>
             </argvs>
             <tags>
-                <tag></tag>
+                <tag>CLAHE</tag>
             </tags>
         </command>
     </commands>
