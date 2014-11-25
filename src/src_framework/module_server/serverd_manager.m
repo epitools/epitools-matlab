@@ -63,58 +63,120 @@ classdef serverd_manager
            jtable.repaint;
            
         end %updateServerQueueGUI
-        
+        % ---------------------------------------------------------------------------
         function executeQueue(sd)
-            
             % If queue lenght is below the execution threshold, then
             % do not proceed with execution. However, listen for [force event]
             if (length(sd.queue) <  sd.execProcessThreshold);return;end
-            
-            %fprintf('\nQueue length is: %i\n\n',length(sd.queue));
-            messages = numel(sd.queue);
-            
+            %% Executing messages stored in queue from top to bottom
+            %  Execution is invoked for each message in the queue.
+            %  Evaluation of priority is required since messages are
+            %  prioritized according to their content. 
             while ~isempty(sd.queue)
-                %if (isempty(sd.queue));return;end
-                i = numel(sd.queue);
+                if (isempty(sd.queue));return;end
+                nomatlab = false; nosystem = false;
+                %i = numel(sd.queue);
+                i = 1;
                 procMeta = struct();
-                % Executing messages stored in queue from top to bottom
+                %% Display execution status 
                 log2dev(sprintf('\nProcessing message at position [%s] with code %s \n',sd.queue(i).idx,sd.queue(i).code ),'INFO');
-
+                % Direct messages on predefined machine if not specified
+                % otherwise in user preferences. 
                 procMeta.machine_exec    = 'localhost';
                 procMeta.execution_start = now();
-
-                % Evaluate command in message
-                
-                
-                 % Release tags in pool
-                if (strcmp(sd.status(idxMessage).desc,'Processed'))
-                    
-                    % find pool in the workspace or hMainGui available variables
-            
-                sd.queue(idxMessage).refpool;
-                
-                pool.addTag(sd.queue(i).export_tag)
-           
-                    if(~isempty(sd.handleGraphics))
-
-
-
+                %% Evaluate command in message
+                % Send the command line to the auxiliary execution of matlab if allowed in
+                % the setting properties of EpiTools. In case an auxiliary execution is not
+                % running, then if allowed, run it. In case the user did not set it, then
+                % execute it locally, suspending all other processes.   
+                %
+                % Execute the command as a MATLAB Function
+                try
+                    [status,~] = eval(sd.queue(i).command);
+                    % Check output status and adjust stored status accordingly.
+                    if(status == 0)
+                        procMeta.status = 'Processed';
                     else
-                        eval(sd.queue(idxMessage).refpool.appendTag(''));
+                        procMeta.status = 'Failed:MATLAB-Error0';
                     end
-            
+                catch err
+                    % Check output status and adjust stored status accordingly.
+                    procMeta.status = 'Failed';
+                    log2dev(sprintf('\nEPITOOLS:executeQueue:MATLAB-Error0 | %s\n',...
+                                    err.message),...
+                            'DEBUG');
+                    nomatlab = true;
                 end
-
+                % Execute the command as SYSTEM call if the previous
+                % attempt.
+                if(nomatlab)
+                    try
+                        [status,~] = system(sd.queue(i).command);
+                        % Check output status and adjust stored status accordingly.
+                        if(status == 0)
+                            procMeta.status = 'Processed';
+                        else
+                            procMeta.status = 'Failed:MATLAB-Error0';
+                        end
+                    catch err
+                        % Check output status and adjust stored status accordingly.
+                        procMeta.status = 'Failed';
+                        log2dev(sprintf('\nEPITOOLS:executeQueue:System-Error0 | %s\n',...
+                                        err.message),...
+                                'DEBUG');
+                        nosystem = true;
+                    end
+                end
+                % Execution ended and time of execution is recorded despite
+                % the outcome.
                 procMeta.execution_end = now();
-                procMeta.status = 'Processed';
-
+                %% Display execution status 
+                if(nomatlab && nosystem) 
+                    log2dev(sprintf('\nEPITOOLS:executeQueue:destinationUnsupported | Message at position [%s] on machine %s cannot be executed. \n',...
+                                    sd.queue(i).idx,...
+                                    procMeta.machine_exec),...
+                            'WARN');
+                else
+                    log2dev(sprintf('\nExecuted message at position [%s] on machine %s in %i seconds\n',...
+                                    sd.queue(i).idx,...
+                                    procMeta.machine_exec,...
+                                    procMeta.execution_end-procMeta.execution_start),...
+                            'INFO');
+                end
+                %% Tag exporting in Pool
+                % if execution status has been positive, then release tags
+                % in associated pool. Execution status is stored after
+                % [evaluate command in messase] section. Only positively
+                % ended execution allow for tag exportation. 
+                if (~strcmp(procMeta.status,'Processed'))
+                    if(~isempty(sd.handleGraphics)) % find pool hMainGui environment variables
+                         sd.queue(i).refpool;
+                         pool.addTag(sd.queue(i).export_tag)
+                     else % find pool in the workspace variables if one of the possible pool variables is associated with the fil
+                         % Retrieve all variables names
+                         varList = who();
+                         for idxVar = 1:numel(varList)
+                            if(isa(varList(idxVar),'poold'))
+                                
+                                if(strcmp(varList(idxVar).file, sd.queue(i).refpool))
+                                    try
+                                       eval(varList(idxVar).appendTag(export_tag));
+                                    catch err
+                                       log2dev(sprintf('\nEPITOOLS:executeQueue:ExportingTaginPool | %s\n',...
+                                                        err.message),...
+                                                'WARN');
+                                    end 
+                                end % if
+                            end % if
+                         end % for
+                     end % if
+                 end % if
+                %% Flush message from queue    
                 % Update message queue> status and pass it to history
-                log2dev(sprintf('\nExecuted message at position [%s] on machine %s in %i seconds\n',sd.queue(i).code,procMeta.machine_exec,procMeta.execution_end-procMeta.execution_start),'INFO');
-                sd.FlushMessage(i, procMeta);     
-                
-            end
+                sd.FlushMessage(i, procMeta);               
+            end % /while
              
         end %executeQueue
-     
+         % ---------------------------------------------------------------------------
     end
 end

@@ -133,6 +133,7 @@ classdef serverd < handle
         end
         % =================================================================
         % Server functions: internal
+        % =================================================================
         % Append Message to server daemon queue
         function AppendMessage(sd,structMessage)
             % Append message at the end of the queue
@@ -216,7 +217,6 @@ classdef serverd < handle
             % Notify event if everything above was executed correctly
             notify(sd,'MessageRemoved');
         end
-        % =================================================================
         % Display Server Health status
         function [outQueue, outHistory] = PrintQueue(sd)
             outHistory = [];
@@ -260,7 +260,6 @@ classdef serverd < handle
             
             
         end     
-        % =================================================================
         % Announce to Framework 
         function announceToFramework(sd, callerID)
             server_instances = getappdata(callerID, 'server_instances');
@@ -273,6 +272,7 @@ classdef serverd < handle
         end
         % =================================================================
         % Server Functions: external
+        % =================================================================
         function receiveMessage(sd, clientprocess, pool)
         
             sd = serverd_MessageProcessing( clientprocess, sd, pool);
