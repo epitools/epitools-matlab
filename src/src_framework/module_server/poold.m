@@ -7,6 +7,7 @@ classdef poold < handle
     properties (SetAccess = private)
         file = [];
         directory = '';
+        name = '';
         tags = {};
         active = false;
         handleGraphics = '';
@@ -21,28 +22,37 @@ classdef poold < handle
     
     methods
         function pool = poold(filename)
-        % This function instanziate the pool object which will trigger its
-        % announcement to the calling environment
-        %
-        % If no file name has been specified, then assigned one randomly
-        if (~nargin==1); filename = strcat('unknown',num2str(randi(1000)));end
-        pool.file = strcat('pool_',filename,'.xml');
-        pool.directory = filename;
-        pool.tags = {};
-        pool.active = false;
-        pool.handleGraphics = '';
-        pool.handleJTreeTable = '';
-        % Listeners
-        poold_manager.listenerEvents(pool);
-        % Announce to environment
-        notify(pool,'PoolInstance');
+            % This function instanziate the pool object which will trigger its
+            % announcement to the calling environment
+            %
+            % If no file name has been specified, then assigned one randomly
+            if (~nargin==1); filename = strcat('unknown',num2str(randi(1000)));end
+            pool.file = strcat('pool_',filename,'.xml');
+            pool.name = filename;
+            pool.directory = filename;
+            pool.tags = {};
+            pool.active = false;
+            pool.handleGraphics = '';
+            pool.handleJTreeTable = '';
+            % Listeners
+            poold_manager.listenerEvents(pool);
+            % Announce to environment
+            notify(pool,'PoolInstance');
         end
         % ====================================================================
         % Tag functions
         function appendTag(pool,tagstruct)
-            % Append structure to xml definition file  (pool.file)
-
             % Add pointer to pool list (pool.tags)
+            for i=1:numel(tagstruct) 
+                if(sum(strcmp(tagstruct(i).tag,pool.tags))>=1)
+                    idx = find(strcmp(tagstruct(i).tag,pool.tags),1,'first');
+                    pool.tags{idx} = tagstruct(i).tag;
+                else
+                    pool.tags{end+1} = tagstruct(i).tag;
+                end
+            end
+            % Append structure to xml definition file  (pool.file)
+            
             notify(pool, 'AddedTag');
         end
         % --------------------------------------------------------------------
@@ -117,12 +127,12 @@ classdef poold < handle
             pool.active = true;
             notify(pool,'PoolInstance');
         end
+        % --------------------------------------------------------------------
         function deactivatePool(pool)
             pool.active = false;
             notify(pool,'PoolInstance');
         end
         % --------------------------------------------------------------------
-    
     end
     
 end
