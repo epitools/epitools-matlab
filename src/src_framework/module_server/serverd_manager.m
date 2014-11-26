@@ -149,10 +149,29 @@ classdef serverd_manager
                 % [evaluate command in messase] section. Only positively
                 % ended execution allow for tag exportation. 
                 if (~strcmp(procMeta.status,'Processed'))
-                    if(~isempty(sd.handleGraphics)) % find pool hMainGui environment variables
-                         sd.queue(i).refpool;
-                         
-                         pool.addTag(sd.queue(i).export_tag)
+                    % find pool hMainGui environment variables
+                    if(~isempty(sd.handleGraphics)) 
+                         % Load [poold] objects saved in EpiTools environment
+                         hMainGui = getappdata(0, 'hMainGui');
+                         pool_instances = getappdata(hMainGui, 'pool_instances');
+                         % Loop along the available pools: searching for
+                         % the pool associated with executed command
+                         poolfound = false;
+                         for idxPool = 1:numel(pool_instances(2:end))
+                             if(strcmp(pool_instances(i+1).ref.file, sd.queue(i).refpool))
+                                % Append tags in correspondent pool
+                                pool_instances(i+1).ref.appendTag(sd.queue(i).export_tag);
+                                % Store pool reference collector into
+                                % session environment
+                                setappdata(hMainGui, 'pool_instances',pool_instances);
+                                poolfound = true;
+                             end
+                         end
+                         if ~poolfound
+                         	log2dev(sprintf('\nEPITOOLS:executeQueue:ExportingTaginPool | Message at position [%s] does not have a valid pool reference or pool not found. Possible Data Loss!\n',...
+                                            sd.queue(i).idx),...
+                                    'WARN');
+                         end
                      else % find pool in the workspace variables if one of the possible pool variables is associated with the fil
                          % Retrieve all variables names
                          varList = who();

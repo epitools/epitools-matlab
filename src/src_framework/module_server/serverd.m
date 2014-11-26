@@ -146,7 +146,6 @@ classdef serverd < handle
             % * EXPORT_TAG                  * DESC
             % * ETC
             %
-
             if(isempty(fieldnames(sd.queue)))
                 idx = 1;
             elseif( length(sd.queue) == 1 && ~isempty(fieldnames(sd.queue)) )
@@ -154,9 +153,7 @@ classdef serverd < handle
             else
                 idx = length(sd.queue) +1;
             end
-            
             % Count messages sent to history structure
-
             structMessage.idx =  strcat('Q',num2str(idx + length(sd.history)));
             status.code = structMessage.code;
             status.machineid = '';
@@ -164,9 +161,6 @@ classdef serverd < handle
             status.execution_end = '';
             status.desc = 'pending';
             status.idx = structMessage.idx;
-            
-            
-            
             if(~isempty(sd.queue) && ~isempty(fieldnames(sd.queue)))
                 sd.queue(end+1) = structMessage;
                 sd.status(end+1) = status;
@@ -174,12 +168,9 @@ classdef serverd < handle
                 sd.queue = structMessage;
                 sd.status = status;
             end
-            
             sd.eventData = length(sd.queue);
-            
             % Notify event if everything above was executed correctly
             notify(sd,'MessageAdded');
-            
         end   
         % Remove Message from server daemon queue
         function RemoveMessage(sd, position_numbers)
