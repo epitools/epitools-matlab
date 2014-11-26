@@ -27,8 +27,10 @@
         <command>
             <uid>CLAHE01</uid>
             <exec>ImproveContrastGUI.m</exec>
-            <input/>
-            <output/>
+            <input>image</input> 
+            <input>settings</input> 
+            <output>image</output>
+            <output>metadata</output>
             <argvs>
                 <arg>"-cn localhost"</arg>
                 <arg>"-id sessionname'</arg>
@@ -36,6 +38,8 @@
             </argvs>
             <tags>
                 <tag>CLAHE</tag>
+                <tag>Image_MultiDimensional_T</tag>
+                <tag>Image_MultiDimensional_XY</tag>
             </tags>
         </command>
     </commands>
