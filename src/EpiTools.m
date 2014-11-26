@@ -758,7 +758,8 @@ clients = client_modules(2).ref;
 
 for i = 1:size(pool_instances(2:end),2)
     if (pool_instances(i+1).ref.active)
-        server.receiveMessage(clients(1),pool_instances(i+1).ref);
+        %server.receiveMessage(clients(1),pool_instances(i+1).ref);
+        server.receiveMessage(clients(4),pool_instances(i+1).ref);
     end
 end
 % --------------------------------------------------------------------
