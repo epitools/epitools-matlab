@@ -79,7 +79,7 @@ classdef serverd_manager
                 i = 1;
                 procMeta = struct();
                 %% Display execution status 
-                log2dev(sprintf('\nProcessing message at position [%s] with code %s \n',sd.queue(i).idx,sd.queue(i).code ),'INFO');
+                log2dev(sprintf('Processing message at position [%s] with code %s',sd.queue(i).idx,sd.queue(i).code ),'INFO');
                 % Direct messages on predefined machine if not specified
                 % otherwise in user preferences. 
                 procMeta.machine_exec    = 'localhost';
@@ -92,9 +92,9 @@ classdef serverd_manager
                 %
                 % Execute the command as a MATLAB Function
                 try
-                    [status,~] = eval(sd.queue(i).command);
+                    [argvar] = eval(sd.queue(i).command);
                     % Check output status and adjust stored status accordingly.
-                    if(status == 0)
+                    if(argvar >= 0)
                         procMeta.status = 'Processed';
                     else
                         procMeta.status = 'Failed:MATLAB-ErrorGreaterThan0';
@@ -102,7 +102,7 @@ classdef serverd_manager
                 catch err
                     % Check output status and adjust stored status accordingly.
                     procMeta.status = 'Failed';
-                    log2dev(sprintf('\nEPITOOLS:executeQueue:MATLAB-ErrorExecNotFound | %s\n',...
+                    log2dev(sprintf('EPITOOLS:executeQueue:MATLAB-ErrorExecutableNotFound | %s',...
                                     err.message),...
                             'DEBUG');
                     nomatlab = true;
@@ -121,7 +121,7 @@ classdef serverd_manager
                     catch err
                         % Check output status and adjust stored status accordingly.
                         procMeta.status = 'Failed';
-                        log2dev(sprintf('\nEPITOOLS:executeQueue:SYSTEM-ErrorExecNotFound | %s\n',...
+                        log2dev(sprintf('EPITOOLS:executeQueue:SYSTEM-ErrorExecutableNotFound | %s',...
                                         err.message),...
                                 'DEBUG');
                         nosystem = true;
@@ -132,12 +132,12 @@ classdef serverd_manager
                 procMeta.execution_end = now();
                 %% Display execution status 
                 if(nomatlab && nosystem) 
-                    log2dev(sprintf('\nEPITOOLS:executeQueue:destinationUnsupported | Message at position [%s] on machine %s cannot be executed. \n',...
+                    log2dev(sprintf('EPITOOLS:executeQueue:DestinationUnsupported | Message at position [%s] on machine %s cannot be executed since no executable destination has been found!',...
                                     sd.queue(i).idx,...
                                     procMeta.machine_exec),...
                             'WARN');
                 else
-                    log2dev(sprintf('\nExecuted message at position [%s] on machine %s in %i seconds\n',...
+                    log2dev(sprintf('Executed message at position [%s] on machine %s in %i seconds',...
                                     sd.queue(i).idx,...
                                     procMeta.machine_exec,...
                                     procMeta.execution_end-procMeta.execution_start),...
@@ -148,7 +148,7 @@ classdef serverd_manager
                 % in associated pool. Execution status is stored after
                 % [evaluate command in messase] section. Only positively
                 % ended execution allow for tag exportation. 
-                if (~strcmp(procMeta.status,'Processed'))
+                if (strcmp(procMeta.status,'Processed'))
                     % find pool hMainGui environment variables
                     if(~isempty(sd.handleGraphics)) 
                          % Load [poold] objects saved in EpiTools environment
@@ -158,9 +158,9 @@ classdef serverd_manager
                          % the pool associated with executed command
                          poolfound = false;
                          for idxPool = 1:numel(pool_instances(2:end))
-                             if(strcmp(pool_instances(i+1).ref.file, sd.queue(i).refpool))
+                             if(strcmp(pool_instances(idxPool+1).ref.name, sd.queue(i).refpool))
                                 % Append tags in correspondent pool
-                                pool_instances(i+1).ref.appendTag(sd.queue(i).export_tag);
+                                pool_instances(idxPool+1).ref.appendTag(sd.queue(i).export_tag);
                                 % Store pool reference collector into
                                 % session environment
                                 setappdata(hMainGui, 'pool_instances',pool_instances);
@@ -168,26 +168,33 @@ classdef serverd_manager
                              end
                          end
                          if ~poolfound
-                         	log2dev(sprintf('\nEPITOOLS:executeQueue:ExportingTaginPool | Message at position [%s] does not have a valid pool reference or pool not found. Possible Data Loss!\n',...
+                         	log2dev(sprintf('EPITOOLS:executeQueue:ExportingTagsInPool | Message at position [%s] does not have a valid pool reference or pool not found. Possible Data Loss!',...
                                             sd.queue(i).idx),...
                                     'WARN');
                          end
                      else % find pool in the workspace variables if one of the possible pool variables is associated with the fil
                          % Retrieve all variables names
                          varList = who();
+                         poolfound = false;
                          for idxVar = 1:numel(varList)
                             if(isa(varList(idxVar),'poold'))
-                                if(strcmp(varList(idxVar).file, sd.queue(i).refpool))
+                                if(strcmp(varList(idxVar).name, sd.queue(i).refpool))
                                     try
                                        eval(varList(idxVar).appendTag(export_tag));
+                                       poolfound = true;
                                     catch err
-                                       log2dev(sprintf('\nEPITOOLS:executeQueue:ExportingTaginPool | %s\n',...
+                                       log2dev(sprintf('EPITOOLS:executeQueue:ExportingTaginPool | %s',...
                                                         err.message),...
                                                'WARN');
                                     end 
                                 end % if
                             end % if
                          end % for
+                         if ~poolfound
+                            log2dev(sprintf('EPITOOLS:executeQueue:ExportingTagsInPool | Message at position [%s] does not have a valid pool reference or pool not found. Possible Data Loss!',...
+                                            sd.queue(i).idx),...
+                                    'WARN');
+                         end
                      end % if
                  end % if
                 %% Flush message from queue    
