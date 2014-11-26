@@ -5,7 +5,7 @@
 % date:     2014-02-25
 
 %% Add plugin path
-addpath('/Users/davide/programs/icy_1.3.6.0_updated/plugins/ylemontag/matlabcommunicator');
+addpath('/Users/user/programs/icy_1.3.6.0_updated/plugins/ylemontag/matlabcommunicator');
 
 %% start program
 icy_init();
