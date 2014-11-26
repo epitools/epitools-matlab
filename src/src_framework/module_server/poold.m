@@ -6,6 +6,7 @@ classdef poold < handle
     
     properties (SetAccess = private)
         file = [];
+        directory = '';
         tags = {};
         active = false;
         handleGraphics = '';
@@ -13,37 +14,34 @@ classdef poold < handle
     end
     
     events
-    
         AddedTag
         RemovedTag
         PoolInstance
-        
     end
     
     methods
         function pool = poold(filename)
         % This function instanziate the pool object which will trigger its
         % announcement to the calling environment
-        
+        %
         % If no file name has been specified, then assigned one randomly
         if (~nargin==1); filename = strcat('unknown',num2str(randi(1000)));end
         pool.file = strcat('pool_',filename,'.xml');
+        pool.directory = filename;
         pool.tags = {};
         pool.active = false;
         pool.handleGraphics = '';
         pool.handleJTreeTable = '';
-        
         % Listeners
         poold_manager.listenerEvents(pool);
         % Announce to environment
         notify(pool,'PoolInstance');
-
         end
         % ====================================================================
         % Tag functions
         function appendTag(pool,tagstruct)
-        
             % Append structure to xml definition file  (pool.file)
+
             % Add pointer to pool list (pool.tags)
             notify(pool, 'AddedTag');
         end
@@ -61,7 +59,6 @@ classdef poold < handle
             if(sum(strcmp(pool.tags, tagcode)>=1));
                 boolean = true;
             end
-            
         end
         % --------------------------------------------------------------------      
         % Retrieve tag association between tag and pool file
@@ -83,18 +80,14 @@ classdef poold < handle
             if exist(['tmp/',pool.file], 'file');
                 tags = xml_read(['tmp/',pool.file]);
                 for i=1:numel(tags.tag)
-
-                pool.tags{i} = tags.tag(i).uid;
-
+                    pool.tags{i} = tags.tag(i).uid;
                 end
             end
         end
         % --------------------------------------------------------------------
          % This function save in a xml files tags stored in pool object
         function savePool(pool)
-        
             xml_write(['tmp/',pool.file], pool);
-
         end
         % --------------------------------------------------------------------
         % Save reference in session available resources.
@@ -105,6 +98,11 @@ classdef poold < handle
             else
                pool_instances(end+1).ref = pool;
             end
+            % Set pool directory according to analysis folder
+            settings_objectname = getappdata(callerID, 'settings_objectname');
+            pool.directory = strcat(settings_objectname.data_analysisindir,'/',pool.directory);
+            % Store pool reference collector into
+            % session environment
             setappdata(callerID, 'pool_instances', pool_instances);
         end
         % --------------------------------------------------------------------
