@@ -97,12 +97,12 @@ classdef serverd_manager
                     if(status == 0)
                         procMeta.status = 'Processed';
                     else
-                        procMeta.status = 'Failed:MATLAB-Error0';
+                        procMeta.status = 'Failed:MATLAB-ErrorGreaterThan0';
                     end
                 catch err
                     % Check output status and adjust stored status accordingly.
                     procMeta.status = 'Failed';
-                    log2dev(sprintf('\nEPITOOLS:executeQueue:MATLAB-Error0 | %s\n',...
+                    log2dev(sprintf('\nEPITOOLS:executeQueue:MATLAB-ErrorExecNotFound | %s\n',...
                                     err.message),...
                             'DEBUG');
                     nomatlab = true;
@@ -116,12 +116,12 @@ classdef serverd_manager
                         if(status == 0)
                             procMeta.status = 'Processed';
                         else
-                            procMeta.status = 'Failed:MATLAB-Error0';
+                            procMeta.status = 'Failed:SYSTEM-ErrorGreaterThan0';
                         end
                     catch err
                         % Check output status and adjust stored status accordingly.
                         procMeta.status = 'Failed';
-                        log2dev(sprintf('\nEPITOOLS:executeQueue:System-Error0 | %s\n',...
+                        log2dev(sprintf('\nEPITOOLS:executeQueue:SYSTEM-ErrorExecNotFound | %s\n',...
                                         err.message),...
                                 'DEBUG');
                         nosystem = true;
@@ -151,20 +151,20 @@ classdef serverd_manager
                 if (~strcmp(procMeta.status,'Processed'))
                     if(~isempty(sd.handleGraphics)) % find pool hMainGui environment variables
                          sd.queue(i).refpool;
+                         
                          pool.addTag(sd.queue(i).export_tag)
                      else % find pool in the workspace variables if one of the possible pool variables is associated with the fil
                          % Retrieve all variables names
                          varList = who();
                          for idxVar = 1:numel(varList)
                             if(isa(varList(idxVar),'poold'))
-                                
                                 if(strcmp(varList(idxVar).file, sd.queue(i).refpool))
                                     try
                                        eval(varList(idxVar).appendTag(export_tag));
                                     catch err
                                        log2dev(sprintf('\nEPITOOLS:executeQueue:ExportingTaginPool | %s\n',...
                                                         err.message),...
-                                                'WARN');
+                                               'WARN');
                                     end 
                                 end % if
                             end % if
