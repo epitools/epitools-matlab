@@ -19,35 +19,21 @@ status = [];
 %                                   neeeded to complete the process execution
 % ===========================================================================
 % For each dependence in the dependences structure
-for i = 1:numel(local.dependences)
-    
-    % ===================================================================
-    % TAGS
+for i = 1:numel(local.dependences) 
     % For each tag in tag list check if present in all the possible pools
-    %
     for ntag=1:numel(local.dependences(i).tags)
-        
         % Check if the current tag is among those in the pool system
-        if(pools.existsTag(local.dependences(i).tags(ntag).tag));
-            
+        if(pools.existsTag(local.dependences(i).tags(ntag).tag));   
             dependence{end+1} = local.dependences(i).tags(ntag).tag;
             status(end+1) = true;
-            
+        else
             % If the current is not in the pool system, check if there is an exception
             % associated to it.
-            
-        else
-            
-            % ===================================================================
-            % EXCEPTIONS
             % Generate lookup table for the current tag
-            %
             lookup_rep = generateLookupTable();
-            
             % iterate on lookup_rep until all the exception tag are checked
             found = false;
             for idx_lkrep = 1:length(lookup_rep)
-                
                 if(pools.existsTag(lookup_rep(idx_lkrep)));
                     found=true;
                     dependence(end+1) = lookup_rep(idx_lkrep);
@@ -56,19 +42,14 @@ for i = 1:numel(local.dependences)
                     dependence(end+1) = lookup_rep(idx_lkrep);
                     status(end+1) = false;
                 end
-                
             end
-            
             if ~found
                 clientproperties = fieldnames(CLIPROINST);
-                
                 message = sprintf('-----------------------------------------------------------------------');
                 log2dev(message,'INFO');
-                message = sprintf('%i dependences not satisfied after exception checking.',...
-                    (length(status)-sum(status)));
-                log2dev(message,'INFO');
-                message = sprintf('client process with properties:');
-                log2dev(message,'INFO');
+                log2dev(sprintf('%i dependences not satisfied after exception checking.',...
+                                (length(status)-sum(status))),'INFO');
+                log2dev(sprintf('client process with properties:'),'INFO');
                 log2dev('','INFO');
                 for idx_clpr=1:numel(clientproperties)
                     if isa(CLIPROINST.(char(clientproperties(idx_clpr))), 'struct')
@@ -93,15 +74,10 @@ for i = 1:numel(local.dependences)
                 log2dev(message,'INFO');
                 message = sprintf('-----------------------------------------------------------------------');
                 log2dev(message,'INFO');
-                
                 return;
             end
-            
-            
         end % end else condition
-        
     end % next dependence in the list
-    
 end
 %% Split commands in CLIPROINST in order to be sented singoularly
 for idxCom = 1:length(CLIPROINST.commands.command)
@@ -158,7 +134,6 @@ for idxCom = 1:length(CLIPROINST.commands.command)
             end
         end
         % Completing reassembly of command line
-        
         if isempty(output)
             messagestruct.command  = [regexprep(CLIPROINST.commands.command(idxCom).exec,'\.m',''),input,';'];
         else
@@ -206,12 +181,11 @@ for idxCom = 1:length(CLIPROINST.commands.command)
         % Completing reassembly of command line
         messagestruct.command = [CLIPROINST.commands.command(idxCom).exec,' ',input,output,argvs];
     end
-    
     messagestruct.priority      = CLIPROINST.exec_priority;
     messagestruct.date_submit   = now();
     messagestruct.export_tag    = CLIPROINST.commands.command(idxCom).tags;
     messagestruct.etc           = 10000;
-    messagestruct.refpool       = pools.file;
+    messagestruct.refpool       = pools.name;
     % Submit message to server process
     SERVERINST.AppendMessage(messagestruct);
 end
@@ -219,7 +193,6 @@ end
 checklist = struct();
 checklist.dependence = dependence;
 checklist.status = status;
-end
 %% Subfunctions
 function lookup_rep = generateLookupTable()
 lookup_rep = {};
@@ -230,5 +203,6 @@ for idxExc=1:numel(local.dependences(i).exceptions.exception)
             lookup_rep{end+1} = local.dependences(i).exceptions.exception(idxExc).tags.tag(idxTags).rep;
         end
     end
+end
 end
 end
