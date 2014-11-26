@@ -11,7 +11,6 @@ tmpStgObj = stgObj.analysis_modules.Contrast_Enhancement.settings;
 tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
         
 % -------------------------------------------------------------------------
-
 log2dev('*********************** CLAHE MODULE **********************','INFO');
 log2dev('* Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti       * ','INFO');
 log2dev('* Revision: 0.1 beta    $ Date: 2014/09/02 11:37:00       *','INFO');
@@ -31,7 +30,6 @@ RegIm_clahe = zeros(size(tmpRegObj.RegIm), class(tmpRegObj.RegIm));
 
 
 %% Apply CLAHE
-
 for i=1:size(tmpRegObj.RegIm,3)
     %parameter needs to be adapted for specific image input:
     
@@ -58,14 +56,13 @@ for i=1:size(tmpRegObj.RegIm,3)
 end
 
 elapsedTime = toc;
+
 % -------------------------------------------------------------------------
 % Log status of current application status
 log2dev(sprintf('Finished after %.2f', elapsedTime), 'DEBUG');
 % -------------------------------------------------------------------------
-
 progressbar(1);
-
-% inspect results
+%% Inspect results
 if(~stgObj.exec_commandline)
     if(stgObj.icy_is_used)
         icy_vidshow(RegIm_clahe,'CLAHE Sequence');
@@ -178,37 +175,35 @@ else
     StackView(RegIm_clahe);
     saveClahe();
 end
+end
+%% Callback functions
+function out = ctrlAcceptResult_callback(hObject,eventdata,handles)
 
-% Callback functions
+    out = 'Accept result';
+    %backup previous result
+    saveClahe();
+    uiresume(fig);
 
-    function out = ctrlAcceptResult_callback(hObject,eventdata,handles)
-        
-        out = 'Accept result';
-        %backup previous result
-        saveClahe();
-        uiresume(fig);
-        
-        StackView(RegIm_clahe,'hMainGui','figureA');
-        
-    end
-
-    function out = ctrlDiscardResult_callback(hObject,eventdata,handles)
-        
-        out = 'Discard result';
-        setappdata(fig,'uidiag_userchoice', out);
-        uiresume(fig);
-        
-        StackView(tmpRegObj.RegIm,'hMainGui','figureA');
-        
-    end
-
-	function saveClahe()
-	
-		%save new version with contrast enhancement
-		RegIm = RegIm_clahe;
-		stgObj.AddResult('Contrast_Enhancement','clahe_path','RegIm_wClahe.mat');
-		save([stgObj.data_analysisoutdir,'/RegIm_wClahe'],'RegIm');
-	
-	end
+    StackView(RegIm_clahe,'hMainGui','figureA');
 
 end
+% -------------------------------------------------------------------------
+function out = ctrlDiscardResult_callback(hObject,eventdata,handles)
+
+    out = 'Discard result';
+    setappdata(fig,'uidiag_userchoice', out);
+    uiresume(fig);
+
+    StackView(tmpRegObj.RegIm,'hMainGui','figureA');
+
+end
+% -------------------------------------------------------------------------
+function saveClahe()
+
+    %save new version with contrast enhancement
+    RegIm = RegIm_clahe;
+    stgObj.AddResult('Contrast_Enhancement','clahe_path','RegIm_wClahe.mat');
+    save([stgObj.data_analysisoutdir,'/RegIm_wClahe'],'RegIm');
+
+end
+% -------------------------------------------------------------------------
