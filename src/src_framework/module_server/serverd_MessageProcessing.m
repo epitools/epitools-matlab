@@ -158,7 +158,12 @@ for idxCom = 1:length(CLIPROINST.commands.command)
             end
         end
         % Completing reassembly of command line
-        messagestruct.command  = [output,' = ',regexprep(CLIPROINST.commands.command(idxCom).exec,'\.m',''),input,';'];
+        
+        if isempty(output)
+            messagestruct.command  = [regexprep(CLIPROINST.commands.command(idxCom).exec,'\.m',''),input,';'];
+        else
+            messagestruct.command  = [output,' = ',regexprep(CLIPROINST.commands.command(idxCom).exec,'\.m',''),input,';'];
+        end
     else
         % If a SYSTEM command is invoked, then composed the command has follows:
         % Input splitting and reassembly
