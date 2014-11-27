@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 24-Nov-2014 14:23:22
+% Last Modified by GUIDE v2.5 27-Nov-2014 12:09:03
 
 % Begin initialization code - DO NOT EDIT
 %
@@ -150,12 +150,16 @@ if(strcmp(settingsobj.licence.NDA.ctl_activate.values(find(settingsobj.licence.N
     waitfor(out);
         if strcmp(out,'Exit')
             onMainWindowClose(hObject, eventdata, handles);
-        else
-            handles_connection(hObject,handles);
+            return;
         end
-else
-    handles_connection(hObject,handles);
 end
+handles_connection(hObject,handles);
+%         else
+%             handles_connection(hObject,handles);
+%         end
+% else
+%     handles_connection(hObject,handles);
+% end
 % --- Outputs from this function are returned to the command line.
 function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -172,36 +176,26 @@ function handles_connection(hObject,handles)
 % we are we are just re-initializing a GUI by calling it from the cmd line
 % while it is up. So, bail out as we dont want to reset the data.
 hMainGui = getappdata(0, 'hMainGui');
-
 % -------------------------------------------------------------------------
 % Log status of previous operations on GUI
 % set(handles.statusbar, 'String',getappdata(hMainGui, 'status_application') );
-log2dev( getappdata(hMainGui, 'status_application'), 'INFO', 0, 'hMainGui', 'statusbar' );
+log2dev( getappdata(hMainGui, 'status_application'), 'INFO', 0, hMainGui, 'statusbar' );
 % -------------------------------------------------------------------------
-
 if(isappdata(hMainGui,'settings_objectname'))
-    
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        
         stgObj = getappdata(hMainGui,'settings_objectname');
-        
-
         set(handles.figure1, 'Name', ['EpiTools | ', num2str(stgObj.analysis_code), ' - ' , stgObj.analysis_name])
-        
         LoadControls(hMainGui, stgObj);
-
         % -------------------------------------------------------------------------
         % Log status of previous operations on GUI
-        log2dev( sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, num2str(stgObj.analysis_version),stgObj.data_extensionmask),...
-                'INFO', 0, 'hMainGui', 'statusbar' );
-        % -------------------------------------------------------------------------
-        
-    end
-    
-    
-    
+        log2dev(sprintf('A setting file %s%s%s has been correctly loaded in the framework',...
+                        stgObj.analysis_name,...
+                        num2str(stgObj.analysis_version),...
+                        stgObj.data_extensionmask),...
+                'INFO', 0, hMainGui, 'statusbar' );
+        % -------------------------------------------------------------------------  
+    end 
 end
-
 % Update handles structure
 guidata(hObject, handles);
 % --------------------------------------------------------------------
@@ -374,11 +368,13 @@ function F_New_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
+% Graphics
 uihandles_deletecontrols('all');
 SandboxGUIRedesign(0);
 set(handles.('figureA'), 'Visible', 'off')
 a3 = get(handles.('figureA'), 'Children');
 set(a3,'Visible', 'off');
+
 stsFunOut = [];
 % Check if there is setting file loaded in the application
 if(isappdata(hMainGui,'settings_objectname'))
@@ -394,12 +390,9 @@ if(isappdata(hMainGui,'settings_objectname'))
         
     end
 end
-
 % Ask to the user to specify the image directory and the fullpath where the
 % analysis file will be stored
-
 strPathAnalysisFile = uigetdir('~','Select the directory where your analysis file will be stored');
-
 if(strPathAnalysisFile)
     % Initialize a new setting file and call the form FilePropertiesGUI
     stgObj = settings();
@@ -412,7 +405,6 @@ else
 end
 while(isempty(stsFunOut)==1)
     strPathImages = uigetdir('~','Select the directory containing your images');
-
     if(strPathImages)
         stgObj.data_imagepath = strPathImages;
         stsFunOut = CreateMetadata(stgObj);
@@ -420,10 +412,8 @@ while(isempty(stsFunOut)==1)
         break;
     end
 end
-
 % Continue execution only if the previous passages has been completed
 % correctly.
-
 if ~isempty(stsFunOut)
     out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
     uiwait(out);
@@ -431,10 +421,12 @@ if ~isempty(stsFunOut)
     
     stgObj = getappdata(hMainGui,'settings_objectname');
 
-    % logging on external device
+    % Logging on external device
     diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
     diary on;
-
+    % Status operations
+    min = 0; max=100; value=10;
+    log2dev('Parallel computing toolbox availability check...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
     % Parallel
     installed_toolboxes=ver;
     if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
@@ -442,19 +434,31 @@ if ~isempty(stsFunOut)
             parpool('local',stgObj.platform_units);
         end
     end
-
+    % Status operations
+    min = 0; max=100; value=45;
+    log2dev('Storing temporary variables...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
     %Check if icy is in use
     stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
-
+    % Status operations
+    min = 0; max=100; value=65;
+    log2dev('Graphics initialization...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
     % Update handles structure
     handles_connection(hObject, handles)
-    
+    % Status operations
+    min = 0; max=100; value=75;
+    log2dev('Pool connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
     % Execute procedures required by server-client modules
     disconnectPool
     connectPool('clipro');% DEBUG
     connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
+    % Status operations
+    min = 0; max=100; value=85;
+    log2dev('Server connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
+    % Connect to server instance
     connectServer();
-
+    % Status operations
+    min = 0; max=100; value=100;
+    log2dev(sprintf('File loading completed for analysis %s generated by %s on %s', stgObj.analysis_name, stgObj.user_name, stgObj.platform_id),'INFO',0,'hMainGui', 'statusbar',{min,max,value});
 end
 % --------------------------------------------------------------------
 function F_Open_Callback(hObject, eventdata, handles)
@@ -462,12 +466,15 @@ function F_Open_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
+% Graphics
 uihandles_deletecontrols('all');
 SandboxGUIRedesign(0);
 set(handles.('figureA'), 'Visible', 'off')
 a3 = get(handles.('figureA'), 'Children');
 set(a3,'Visible', 'off');
-
+% Status operations
+min = 0; max=100; value=1;
+log2dev('Loading file...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
 % Check if there is setting file loaded in the application
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
@@ -482,43 +489,33 @@ if(isappdata(hMainGui,'settings_objectname'))
         
     end
 end
-
 [strSettingFileName,strSettingFilePath,~] = uigetfile('~/*.xml','Select analysis file');
-
 % If the user select a file to open
 if(strSettingFilePath)
-    
     stgObj = xml_read([strSettingFilePath,strSettingFileName]);
+    % Check for validity
+    % Status operations
+    min = 0; max=100; value=5;
+    log2dev('File integrity check running...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
+    % Storing as setting object
     stgObj = settings(stgObj);
-    
     arrayFiles = fields(stgObj.analysis_modules.Main.data);
     tmpFileStruct = {};
     for i=1:numel(arrayFiles)
         idx = arrayFiles(i);
-        
         stgObj.analysis_modules.Main.data.(char(idx)).exec = logical(stgObj.analysis_modules.Main.data.(char(idx)).exec);
         tmpFileStruct(i,:) = struct2cell(stgObj.analysis_modules.Main.data.(char(idx)))';
-        
     end
-    
-    
     stgObj.analysis_modules.Main.data = tmpFileStruct;
-    
     %load([strSettingFilePath,strSettingFileName], '-mat');
     setappdata(hMainGui, 'settings_objectname', stgObj);
-    
     % Global integrity check
     if(DataIntegrityCheck(hObject, handles, strSettingFilePath))
         stgObj = getappdata(hMainGui, 'settings_objectname');
     end
-    
-    % Print a message in case of success
-    h = msgbox(sprintf('Name: %s  \nVersion: %s \nAuthor: %s \n\ncompleted with success!',...
-        stgObj.analysis_name,...
-        stgObj.analysis_version,...
-        stgObj.user_name ),...
-        'Operation succesfully completed','help');
-    
+    % Status operations
+    min = 0; max=100; value=25;
+    log2dev('Folder integrity check running...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
     % Parallel
     installed_toolboxes=ver;
     if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
@@ -526,22 +523,37 @@ if(strSettingFilePath)
             matlabpool('local',stgObj.platform_units);
         end
     end
-    
+    % Status operations
+    min = 0; max=100; value=35;
+    log2dev('Parallel computing toolbox availability check...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
     %Check if icy is in use
     stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
     settings_executionuid = getappdata(hMainGui,'settings_executionuid');
     diary([stgObj.data_fullpath,'/',settings_executionuid]);
     diary on;
-    
+    % Status operations
+    min = 0; max=100; value=45;
+    log2dev('Storing temporary variables...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
+    % Activate controls and refresh main window
     handles_connection(hObject, handles)
-    
+    % Status operations
+    min = 0; max=100; value=65;
+    log2dev('Graphics initialization...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
     % Execute procedures required by server-client modules
     disconnectPool();
+    % Status operations
+    min = 0; max=100; value=75;
+    log2dev('Pool connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
     connectPool('clipro');% DEBUG
     connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
+    % Status operations
+    min = 0; max=100; value=85;
+    log2dev('Server connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
     connectServer();
-    
-    
+    min = 0; max=100; value=100;
+    log2dev(sprintf('File loading completed for analysis %s generated by %s on %s', stgObj.analysis_name, stgObj.user_name, stgObj.platform_id),'INFO',0,'hMainGui', 'statusbar',{min,max,value});
+else
+    log2dev( getappdata(hMainGui, 'status_application'), 'INFO', 0, hMainGui, 'statusbar' );
 end
 % --------------------------------------------------------------------
 function F_ImportSettings_Callback(hObject, eventdata, handles)
@@ -769,6 +781,11 @@ pool_instances = getappdata(hMainGui, 'pool_instances');
 if(numel(pool_instances) >=2)
     poold_PoolActivationManagerGUI;
 end
+% --------------------------------------------------------------------
+function uiFlushServerQueue_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiFlushServerQueue (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 % ====================================================================
 % Support Functions
 % ====================================================================
