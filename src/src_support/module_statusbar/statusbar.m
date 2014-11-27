@@ -59,10 +59,10 @@ function statusbarHandles = statusbar(varargin)
 %      set(sb, 'Background',java.awt.Color.cyan);
 %
 %      % sb.ProgressBar is by default invisible, determinite, non-continuous fill, min=0, max=100, initial value=0
-%      set(sb.ProgressBar, 'Visible','on', 'Minimum',0, 'Maximum',500, 'Value',234);
-%      set(sb.ProgressBar, 'Visible','on', 'Indeterminate','off'); % indeterminate (annimated)
-%      set(sb.ProgressBar, 'Visible','on', 'StringPainted','on');  % continuous fill
-%      set(sb.ProgressBar, 'Visible','on', 'StringPainted','on', 'string',''); % continuous fill, no percentage text
+%      set(sb.ProgressBar, 'Visible',logical(1), 'Minimum',0, 'Maximum',500, 'Value',234)
+%      set(sb.ProgressBar, 'Visible',logical(1), 'Indeterminate','off'); % indeterminate (annimated)
+%      set(sb.ProgressBar, 'Visible',logical(1), 'StringPainted','on');  % continuous fill
+%      set(sb.ProgressBar, 'Visible',logical(1), 'StringPainted','on', 'string',''); % continuous fill, no percentage text
 %
 %      % Adding a checkbox
 %      jCheckBox = javax.swing.JCheckBox('cb label');
