@@ -154,12 +154,6 @@ if(strcmp(settingsobj.licence.NDA.ctl_activate.values(find(settingsobj.licence.N
         end
 end
 handles_connection(hObject,handles);
-%         else
-%             handles_connection(hObject,handles);
-%         end
-% else
-%     handles_connection(hObject,handles);
-% end
 % --- Outputs from this function are returned to the command line.
 function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
