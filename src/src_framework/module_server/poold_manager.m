@@ -9,16 +9,21 @@ classdef poold_manager
                 @(src, evnt)poold_manager.refreshLinks(src));
             addlistener(pool, 'RemovedTag', ...
                 @(src, evnt)poold_manager.refreshLinks(src));
+            addlistener(pool, 'PoolModified', ...
+                @(src, evnt)poold_manager.updatePool(src));
 
 	end
 
 	function refreshLinks(pool)
     % Refresh association between avail tag list and pool xml file
-
-         
-
-
     end
-
+    % --------------------------------------------------------------------
+    %% Standalone functions (GUI Related)
+    function updatePool(pool)
+         if ~isempty(pool.handleJTreeTable)
+                pool.buildGUInterface;
+         end
+    end
+    % --------------------------------------------------------------------
     end 
 end
