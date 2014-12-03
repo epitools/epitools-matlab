@@ -10,60 +10,31 @@ classdef serverd_manager
                 @(src, evnt)serverd_manager.removedMessage(src));
             addlistener(sd, 'QueueFlushed', ...
                 @(src, evnt)serverd_manager.flushedQueue(src)); 
+            addlistener(sd, 'QueueModified', ...
+                @(src, evnt)serverd_manager.updateQueue(src)); 
         end
-
+        
+        %% Dispatchers
         % Dispatcher function for MessageAdded events
         function receivedMessage(sd)
-            if ~isempty(sd.handleJTreeTable)
-%                 
-%                 temp = struct2cell(sd.queue(sd.eventData))';
-%                 temp = [temp(end),temp(1:3),sd.status(sd.eventData).desc];
-%                 
-%                 serverd_manager.updateServerQueueGUI('Add',...
-%                                                      sd.handleJTreeTable,...
-%                                                      temp)
-                    sd.buildGUInterface;
-             end
             serverd_manager.executeQueue(sd)
         end %receivedMessage
-        
         % Dispatcher function for MessageRemoved events
         function removedMessage(sd)
-             if ~isempty(sd.handleJTreeTable)
-%                 serverd_manager.updateServerQueueGUI('Remove',...
-%                                                      sd.handleJTreeTable,...
-%                                                      sd.eventData)
-
-                  sd.buildGUInterface;
-            end
-            
             serverd_manager.executeQueue(sd)
         end %removedMessage
-      
+        % Dispatcher for flushedQueue events
         function flushedQueue(sd)
             serverd_manager.executeQueue(sd)
         end %flushedQueue
-        
+        %% Standalone functions (GUI Related)
+        function updateQueue(sd)
+             if ~isempty(sd.handleJTreeTable)
+                    sd.buildGUInterface;
+             end
+        end
         %% Service functions for dispatchers
         % Display server queue in JTableTree Swing Object
-        function updateServerQueueGUI(action, handle, varargin)
-           
-           jtable = handle;
-           model = jtable.getModel.getActualModel.getActualModel;
-           if(isempty(model.getDataVector.get(0).firstElement))
-                model.removeRow(0)
-           end
-           
-           switch action
-               case 'Add'
-                    model.addRow(varargin{1})
-               case 'Remove'
-                    model.removeRow(varargin{1})
-           end
-           jtable.repaint;
-           
-        end %updateServerQueueGUI
-        % ---------------------------------------------------------------------------
         function executeQueue(sd)
             % If queue lenght is below the execution threshold, then
             % do not proceed with execution. However, listen for [force event]
@@ -92,9 +63,9 @@ classdef serverd_manager
                 %
                 % Execute the command as a MATLAB Function
                 try
-                    [argvar] = eval(sd.queue(i).command);
+                    [status_exec, argvar] = eval(sd.queue(i).command);
                     % Check output status and adjust stored status accordingly.
-                    if(argvar >= 0)
+                    if(status_exec == 0)
                         procMeta.status = 'Processed';
                     else
                         procMeta.status = 'Failed:MATLAB-ErrorGreaterThan0';
@@ -172,15 +143,31 @@ classdef serverd_manager
                                             sd.queue(i).idx),...
                                     'WARN');
                          end
-                     else % find pool in the workspace variables if one of the possible pool variables is associated with the fil
+                     else % find pool in the workspace variables if one of the possible pool variables is associated with the file
                          % Retrieve all variables names
-                         varList = who();
+                         varList = evalin('base','whos');
                          poolfound = false;
                          for idxVar = 1:numel(varList)
-                            if(isa(varList(idxVar),'poold'))
+                            if(strcmp(varList(idxVar).class,'poold'))
                                 if(strcmp(varList(idxVar).name, sd.queue(i).refpool))
                                     try
-                                       eval(varList(idxVar).appendTag(export_tag));
+                                       p = evalin('base',varList(idxVar).name);
+                                       % Get process UID from list of available processes
+                                       clientdWrap = varList(strcmp({varList.class},'clientd')).name;
+                                       clientObj = evalin('base',clientdWrap);
+                                       clientProcess = clientObj(strcmp({clientObj.path},'src_analysis/module_newplugin02'));
+                                       % Composing outgoing message to pool tag exportation method
+                                       poolmessage = struct();
+                                       poolmessage.uid = clientProcess.uid;
+                                       poolmessage.path = clientProcess.path;
+                                       poolmessage.tagstruct = sd.queue(i).export_tag;
+                                       poolmessage.execvalues = argvar;
+                                       poolmessage.argvar = clientProcess;
+                                       % Exporting to pool
+                                       p.appendTag(poolmessage);
+                                       % Reassing object pool to calling environment
+                                       assignin('base', varList(idxVar).name, p);
+                                       % Pool was found and used correctly
                                        poolfound = true;
                                     catch err
                                        log2dev(sprintf('EPITOOLS:executeQueue:ExportingTaginPool | %s',...
