@@ -181,11 +181,13 @@ for idxCom = 1:length(CLIPROINST.commands.command)
         % Completing reassembly of command line
         messagestruct.command = [CLIPROINST.commands.command(idxCom).exec,' ',input,output,argvs];
     end
-    messagestruct.priority      = CLIPROINST.exec_priority;
-    messagestruct.date_submit   = now();
-    messagestruct.export_tag    = CLIPROINST.commands.command(idxCom).tags;
-    messagestruct.etc           = 10000;
-    messagestruct.refpool       = pools.name;
+    messagestruct.priority          = CLIPROINST.exec_priority;
+    messagestruct.date_submit       = now();
+    messagestruct.export_tag        = CLIPROINST.commands.command(idxCom).tags;
+    messagestruct.etc               = 10000;
+    messagestruct.refpool           = pools.name;
+    messagestruct.refclientprocess  = CLIPROINST.path;
+    
     % Submit message to server process
     SERVERINST.AppendMessage(messagestruct);
 end
