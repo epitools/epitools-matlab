@@ -17,6 +17,7 @@ classdef serverd < handle
     events
         MessageAdded
         MessageRemoved
+        QueueModified
         QueueFlushed
         QueueEmpty
         ServerInstance
@@ -97,39 +98,35 @@ classdef serverd < handle
         function FlushMessage(sd, idxMessage, metadata)
         % Remove all messages in queue after flushing them and report
         % their status to session history
-
             try
-            % Move into session history
-            
-            sd.status(idxMessage).machineid         = metadata.machine_exec;
-            sd.status(idxMessage).execution_start   = metadata.execution_start;
-            sd.status(idxMessage).execution_end     = metadata.execution_end;
-            sd.status(idxMessage).desc              = metadata.status;      
-
-                       
-            merged = struct('idx', {sd.queue(idxMessage).idx},...
-                    'code', {sd.queue(idxMessage).code}, ...
-                    'command', {sd.queue(idxMessage).command},...
-                    'priority',{sd.queue(idxMessage).priority},...
-                    'date_submit',{sd.queue(idxMessage).date_submit},...
-                    'export_tag',{sd.queue(idxMessage).export_tag},...
-                    'machine_exec',{sd.status(idxMessage).machineid},...
-                    'execution_start',{sd.status(idxMessage).execution_start},...
-                    'execution_end',{sd.status(idxMessage).execution_end},...
-                    'execution_status',{sd.status(idxMessage).desc});     
-            
-            if(length(sd.history) < 1);sd.history = merged;else sd.history(end+1) = merged; end
-            
-            % Flush queue
-            sd.queue(idxMessage)  = [];
-            sd.status(idxMessage) = [];
-            
-            catch exceptions
-         
-                disp(exceptions);
-            
+                % Move into session history            
+                sd.status(idxMessage).machineid         = metadata.machine_exec;
+                sd.status(idxMessage).execution_start   = metadata.execution_start;
+                sd.status(idxMessage).execution_end     = metadata.execution_end;
+                sd.status(idxMessage).desc              = metadata.status;      
+                % Create substructure merging execution informations with process informations
+                merged = struct('idx', {sd.queue(idxMessage).idx},...
+                        'code', {sd.queue(idxMessage).code}, ...
+                        'command', {sd.queue(idxMessage).command},...
+                        'priority',{sd.queue(idxMessage).priority},...
+                        'date_submit',{sd.queue(idxMessage).date_submit},...
+                        'export_tag',{sd.queue(idxMessage).export_tag},...
+                        'machine_exec',{sd.status(idxMessage).machineid},...
+                        'execution_start',{sd.status(idxMessage).execution_start},...
+                        'execution_end',{sd.status(idxMessage).execution_end},...
+                        'execution_status',{sd.status(idxMessage).desc});     
+                % Append data to history structure
+                if(length(sd.history) < 1);sd.history = merged;else sd.history(end+1) = merged; end
+                % Flush queue
+                sd.queue(idxMessage)  = [];
+                sd.status(idxMessage) = [];
+                % Notify event to manager
+                notify(sd,'QueueModified');
+            catch err
+                log2dev(sprintf('EPITOOLS:serverd:FlushMessage:GenericErrorInFlushingMessage | %s',...
+                                err.message),...
+                        'DEBUG');
             end
-            
         end
         % =================================================================
         % Server functions: internal
@@ -171,17 +168,15 @@ classdef serverd < handle
             sd.eventData = length(sd.queue);
             % Notify event if everything above was executed correctly
             notify(sd,'MessageAdded');
+            notify(sd,'QueueModified');
         end   
         % Remove Message from server daemon queue
         function RemoveMessage(sd, position_numbers)
             % Remove message at the end of the queue given position number.
-            %
             % * POSITION_NUMBER
-            
             sd.status(position_numbers).desc = 'purged from queue';
-           
             [code, idxQueue, idxStatus] = intersect({sd.queue.code},{sd.status.code});
-            
+            % Create substructure merging execution informations with process informations
             merged = struct('code', code, ...
                 'command', {sd.queue(idxQueue).command},...
                 'priority',{sd.queue(idxQueue).priority},...
@@ -191,22 +186,16 @@ classdef serverd < handle
                 'execution_start',{sd.status(idxStatus).execution_start},...
                 'execution_end',{sd.status(idxStatus).execution_end},...
                 'execution_status',{sd.status(idxStatus).desc});
-            
-            if(length(sd.history) == 1)
-                
-                sd.history = merged;
-            else
-                sd.history(end+1) = merged;
-            end
-            
-            
+            % Append data to history structure
+            if(length(sd.history) == 1); sd.history = merged; else sd.history(end+1) = merged; end
+            % Empty structures
             sd.queue(position_numbers) = [];
             sd.status(position_numbers) = [];
-            
+            % Store last queue position evaluated
             sd.eventData = position_numbers;
-            
             % Notify event if everything above was executed correctly
             notify(sd,'MessageRemoved');
+            notify(sd,'QueueModified');
         end
         % Display Server Health status
         function [outQueue, outHistory] = PrintQueue(sd)
@@ -265,7 +254,6 @@ classdef serverd < handle
         % Server Functions: external
         % =================================================================
         function receiveMessage(sd, clientprocess, pool)
-        
             sd = serverd_MessageProcessing( clientprocess, sd, pool);
         end
         % Initialize GUI interface for server process
