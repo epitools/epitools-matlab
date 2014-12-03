@@ -16,8 +16,9 @@ Server_00 = serverd();
 %% Initialisation of pool
 %  The following code will initialize the pool containing exported tags 
 %  from commands executed by server workers.
-Pool_00 = poold('clipro');
-Pool_00.loadPool();
+clipro = poold('clipro');
+clipro.loadPool();
+assignin('base', 'clipro', clipro);
 % Announce to framework
 %Pool_00.announceToFramework();
 %% Client availability checking
@@ -38,6 +39,6 @@ Pool_00.loadPool();
 Server_00.receiveMessage(Clients_00(1),Pool_00);
 Server_00.receiveMessage(Clients_00(2),Pool_00);
 Server_00.receiveMessage(Clients_00(3),Pool_00);
-Server_00.receiveMessage(Clients_00(4),Pool_00);
+Server_00.receiveMessage(Clients_00(4),clipro);
 % Check the Queue status
 Server_00.PrintQueue
