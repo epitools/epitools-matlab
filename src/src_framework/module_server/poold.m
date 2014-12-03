@@ -17,6 +17,7 @@ classdef poold < handle
     events
         AddedTag
         RemovedTag
+        PoolModified
         PoolInstance
     end
     
@@ -41,8 +42,26 @@ classdef poold < handle
         end
         % ====================================================================
         % Tag functions
-        function appendTag(pool,tagstruct)
-            % Add pointer to pool list (pool.tags)
+        function appendTag(pool,clientProcess)
+
+            %% Load tag file associated with the process id
+            % ClientOutMessage.uid = client process code
+            % ClientOutMessage.path = client relative location path
+            % ClientOutMessage.tagstruct = tag structure to exported
+            % ClientOutMessage.execvalues = values exported from command execution
+            
+            % templateTag = xml_read([ClientOutMessage.path,'/tags.xml');
+            
+            %% Extract tag structure from clientRequest
+            tagstruct = clientProcess.tagstruct;
+            
+            %% Substitute variables with values from command execution
+            for i=1:numel(templateTag.tags.tag)
+
+            end
+
+            
+            %% Add pointer to pool list (pool.tags)
             for i=1:numel(tagstruct) 
                 if(sum(strcmp(tagstruct(i).tag,pool.tags))>=1)
                     idx = find(strcmp(tagstruct(i).tag,pool.tags),1,'first');
@@ -51,9 +70,13 @@ classdef poold < handle
                     pool.tags{end+1} = tagstruct(i).tag;
                 end
             end
-            % Append structure to xml definition file  (pool.file)
+            %% Append structure to xml definition file  (pool.file)
             
+            
+            
+            %% Send notification for added tag and modified pool
             notify(pool, 'AddedTag');
+            notify(pool, 'PoolModified');
         end
         % --------------------------------------------------------------------
         function removeTag(pool,tagcode)
@@ -61,6 +84,7 @@ classdef poold < handle
             % Remove structure from xml definition file  (pool.file)    
             % Delete pointer from pool list (pool.tags)
             notify(pool, 'RemovedTag');
+            notify(pool, 'PoolModified');
         end
         % --------------------------------------------------------------------
         % Check if a certain tag is present in the avail tag list
@@ -119,7 +143,12 @@ classdef poold < handle
         function buildGUInterface(pool, GraphicHandle, globalHandle)
             if nargin >= 2
                 pool.handleGraphics = GraphicHandle;
+            elseif nargin == 1
+                hMainGui = getappdata(0, 'hMainGui');
+                pool_instances = getappdata(hMainGui, 'pool_instances');
+                globalHandle = pool_instances;
             end
+            
             pool.handleJTreeTable   = uitreetable_serverpool(pool.handleGraphics, globalHandle);
         end
         % --------------------------------------------------------------------
