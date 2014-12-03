@@ -7,7 +7,9 @@ classdef clientd < handle
     properties
         uid
         desc_name
+        path
         filepath
+        tagpath
         dependences
         commands
         exec_priority
@@ -22,7 +24,9 @@ classdef clientd < handle
         % in the header.xml file in the correspondent folder.
             cli.uid = [];
             cli.desc_name = [];
+            cli.path = [];
             cli.filepath = [];
+            cli.tagpath = [];
             cli.dependences = [];
             cli.commands = [];
             cli.exec_priority = [];
@@ -48,13 +52,21 @@ classdef clientd < handle
                 cli(idx).(char(attributes(i))) = a.(char(attributes(i)));
             end
             cli(idx).filepath = clientfile;
+            
+            cli(idx).tagpath = clientfile;
+            
             cli(idx).status = status; 
             splitStr = regexp(cli(idx).filepath,'/','split');
             if(exist(char(strcat(splitStr(1),'/',splitStr(2),'/tags.xml')),'file'))
                 cli(idx).tags = xml_read(char(strcat(splitStr(1),'/',splitStr(2),'/tags.xml')));
+                cli(idx).tagpath = char(strcat(splitStr(1),'/',splitStr(2),'/tags.xml'));
             else
                 cli(idx).tags = [];
+                cli(idx).tagpath = [];
             end
+            
+            cli(idx).path = char(strcat(splitStr(1),'/',splitStr(2)));
+            
         end
         % --------------------------------------------------------------------
         function setPriority(cli,intPriority)
