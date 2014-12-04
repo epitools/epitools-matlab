@@ -43,24 +43,75 @@ classdef poold < handle
         % ====================================================================
         % Tag functions
         function appendTag(pool,clientProcess)
-
             %% Load tag file associated with the process id
             % ClientOutMessage.uid = client process code
             % ClientOutMessage.path = client relative location path
             % ClientOutMessage.tagstruct = tag structure to exported
             % ClientOutMessage.execvalues = values exported from command execution
-            
-            % templateTag = xml_read([ClientOutMessage.path,'/tags.xml');
-            
             %% Extract tag structure from clientRequest
             tagstruct = clientProcess.tagstruct;
-            
             %% Substitute variables with values from command execution
-            for i=1:numel(templateTag.tags.tag)
+            % Check if a tag.xml file exists in the client process directory 
+            if(exist([clientProcess.path,'/tags.xml'],'file'))
+                % Read the file
+                tag_template = xml_read([clientProcess.path,'/tags.xml']);
+                % Recursively process every TAG in the exported tag list           
+                for i=1:numel(clientProcess.tagstruct)
+                    for o = 1:numel(tag_template.tag(strcmp({tag_template.tag.uid},...
+                                    clientProcess.tagstruct(i).tag)).attributes.attribute)     
+                        if (isa(tag_template.tag(strcmp({tag_template.tag.uid},...
+                             clientProcess.tagstruct(i).tag)).attributes.attribute(o).path,'double'))
+                             exp = regexp(num2str(tag_template.tag(strcmp({tag_template.tag.uid},...
+                             clientProcess.tagstruct(i).tag)).attributes.attribute(o).path),...
+                             '\$(.*?)\$',...
+                             'match');
+                        else
+                             exp = regexp(tag_template.tag(strcmp({tag_template.tag.uid},...
+                             clientProcess.tagstruct(i).tag)).attributes.attribute(o).path,...
+                             '\$(.*?)\$',...
+                             'match');
+                        end
+                        if(~isempty(exp))
+                            exp2 = strrep(exp, '$', '');
+                            c = clientProcess.execvalues.ref;
+                            if(~strcmp(exp2,c) == 0)
+                                newval = clientProcess.execvalues(strcmp(exp2,c)).object;
+                                if isa(newval,'double');newval = num2str(newval); end
+                                tag_template.tag(strcmp({tag_template.tag.uid},...
+                                    clientProcess.tagstruct(i).tag)).attributes.attribute(o).path = strrep(tag_template.tag(strcmp({tag_template.tag.uid},...
+                                    clientProcess.tagstruct(i).tag)).attributes.attribute(o).path,...
+                                    exp{1},...
+                                    newval);
+                            end
+                        end %if
+                    end %for
+                end %for
+                % Write back to file
+                tags = struct(); tags.tag = tag_template.tag;
+                current_pool = xml_read(['tmp/',pool.file]);
+                fields = fieldnames(current_pool);
+                nstruct = struct();
+                % If none of the tags are already present in the pool, then merge the structures.
+                if(~isempty(find(strcmp({current_pool.tag.uid},{tags.tag.uid}))))
+                    
+                else
+                    id = find(strcmp({current_pool.tag.uid},{tags.tag.uid}));
+                    for i = 1:numel(id)
+                    % If the tag is already present in the pool file, then overwrite it
+                        if(sum(strcmp(current_pool.tag(i).uid,{tags.tag.uid}))~=0)
 
-            end
+                            nstruct.tag(i).class      = tags.tag(id(i)).class;
+                            nstruct.tag(i).uid        = tags.tag(id(i)).uid;
+                            nstruct.tag(i).attributes = tags.tag(id(i)).attributes;
+                            nstruct.tag(i).timestamp  = now();
+                            nstruct.tag(i).validity   = tags.tag(id(i)).validity;
 
-            
+                        end
+                    end
+                end
+                Pref.StructItem = false;
+                xml_write(['tmp/',pool.file], tags, 'tags', Pref);
+            end %if
             %% Add pointer to pool list (pool.tags)
             for i=1:numel(tagstruct) 
                 if(sum(strcmp(tagstruct(i).tag,pool.tags))>=1)
