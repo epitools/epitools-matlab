@@ -130,8 +130,20 @@ classdef serverd_manager
                          poolfound = false;
                          for idxPool = 1:numel(pool_instances(2:end))
                              if(strcmp(pool_instances(idxPool+1).ref.name, sd.queue(i).refpool))
+                                % Get process UID from list of available processes
+                                hMainGui = getappdata(0, 'hMainGui');
+                                clientdWrap = getappdata(hMainGui, 'client_modules');
+                                clientdWrap = clientdWrap(2).ref;
+                                clientProcess = clientdWrap(strcmp({clientdWrap.path},sd.queue(i).refclientprocess));
+                                % Composing outgoing message to pool tag exportation method
+                                poolmessage = struct();
+                                poolmessage.uid = clientProcess.uid;
+                                poolmessage.path = clientProcess.path;
+                                poolmessage.tagstruct = sd.queue(i).export_tag;
+                                poolmessage.execvalues = argvar;
+                                poolmessage.argvar = clientProcess;
                                 % Append tags in correspondent pool
-                                pool_instances(idxPool+1).ref.appendTag(sd.queue(i).export_tag);
+                                pool_instances(idxPool+1).ref.appendTag(poolmessage);
                                 % Store pool reference collector into
                                 % session environment
                                 setappdata(hMainGui, 'pool_instances',pool_instances);
@@ -155,7 +167,7 @@ classdef serverd_manager
                                        % Get process UID from list of available processes
                                        clientdWrap = varList(strcmp({varList.class},'clientd')).name;
                                        clientObj = evalin('base',clientdWrap);
-                                       clientProcess = clientObj(strcmp({clientObj.path},'src_analysis/module_newplugin02'));
+                                       clientProcess = clientObj(strcmp({clientObj.path},sd.queue(i).refclientprocess));
                                        % Composing outgoing message to pool tag exportation method
                                        poolmessage = struct();
                                        poolmessage.uid = clientProcess.uid;
