@@ -443,7 +443,7 @@ if ~isempty(stsFunOut)
     log2dev('Pool connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
     % Execute procedures required by server-client modules
     disconnectPool
-    connectPool('clipro');% DEBUG
+    %connectPool('clipro');% DEBUG
     connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
     % Status operations
     min = 0; max=100; value=85;
@@ -538,7 +538,7 @@ if(strSettingFilePath)
     % Status operations
     min = 0; max=100; value=75;
     log2dev('Pool connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
-    connectPool('clipro');% DEBUG
+    %connectPool('clipro');% DEBUG
     connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
     % Status operations
     min = 0; max=100; value=85;
