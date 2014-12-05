@@ -7,38 +7,20 @@
         <dependence>
             <uid></uid>
             <tags>
-                <tag>QUEUE_EMPTY</tag>
+                <tag>Image_MultiDimensional_XY</tag>
             </tags>
-            <exceptions>
-                <exception>
-                    <uid>1</uid>
-                    <desc>Queue length must be null</desc>
-                    <tags>
-                        <tag>
-                            <id>QUEUE_EMPTY</id>
-                            <rep>QUEUE_EMPTY</rep>
-                        </tag>
-                    </tags>
-                </exception>
-            </exceptions>
+            <exceptions/>
         </dependence>
     </dependences>
     <commands>
         <command>
             <uid>CLAHE01</uid>
             <exec>ImproveContrastGUI.m</exec>
-            <input>image</input> 
             <input>settings</input> 
-            <output>image</output>
-            <output>metadata</output>
-            <argvs>
-                <arg>"-cn localhost"</arg>
-                <arg>"-id sessionname'</arg>
-                <arg>"-a 0"</arg>
-            </argvs>
+            <output/>
+            <argvs/>
             <tags>
-                <tag>CLAHE</tag>
-                <tag>Image_MultiDimensional_T</tag>
+                <tag>AnalysisModules_Clahe</tag>
                 <tag>Image_MultiDimensional_XY</tag>
             </tags>
         </command>

@@ -1,29 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <tags>
 	<tag>
-         <uid>DIALER_CONNECTION_ESTABLISHED</uid>
+         <uid>AnalysisModules_Clahe</uid>
          <class>public</class>
          <attributes>
             <attribute>
                   <class>file</class>
                   <path>$OUT1$</path>
             </attribute>
-            <attribute>
-                  <class>file</class>
-                  <path>$OUT3$test</path>
-            </attribute>
          </attributes>
          <validity>illimited</validity>
 	</tag>
     <tag>
-         <uid>TEST01</uid>
+         <uid>Image_MultiDimensional_XY</uid>
          <class>public</class>
-         <attributes>
-            <attribute>
-               <class>file</class>
-               <path>$OUT2$</path>
-            </attribute>
-         </attributes>
+         <attributes/>
          <validity>illimited</validity>
 	</tag>
 </tags>
