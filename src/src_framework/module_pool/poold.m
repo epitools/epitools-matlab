@@ -55,10 +55,13 @@ classdef poold < handle
             if(exist([clientProcess.path,'/tags.xml'],'file'))
                 % Read the file
                 tag_template = xml_read([clientProcess.path,'/tags.xml']);
-                % Recursively process every TAG in the exported tag list           
+                % Recursively process every TAG in the exported tag list          
+                id = false(1,numel(tag_template.tag));
                 for i=1:numel(clientProcess.tagstruct)
                     for o = 1:numel(tag_template.tag(strcmp({tag_template.tag.uid},...
                                     clientProcess.tagstruct(i).tag)).attributes.attribute)     
+                        % Store id tag that is going to be used. Discard the others.         
+                        id(strcmp({tag_template.tag.uid},clientProcess.tagstruct(i).tag)) = true;        
                         if (isa(tag_template.tag(strcmp({tag_template.tag.uid},...
                              clientProcess.tagstruct(i).tag)).attributes.attribute(o).path,'double'))
                              exp = regexp(num2str(tag_template.tag(strcmp({tag_template.tag.uid},...
@@ -71,6 +74,7 @@ classdef poold < handle
                              '\$(.*?)\$',...
                              'match');
                         end
+                        
                         if(~isempty(exp))
                             exp2 = strrep(exp, '$', '');
                             c = clientProcess.execvalues.ref;
@@ -86,34 +90,47 @@ classdef poold < handle
                         end %if
                     end %for
                 end %for
-                % Write back to file
-                tags = struct(); tags.tag = tag_template.tag;
-                current_pool = xml_read(['tmp/',pool.file]);
-                fields = fieldnames(current_pool);
-                nstruct = struct();
-                % If none of the tags are already present in the pool, then merge the structures.
-                if(~isempty(find(strcmp({current_pool.tag.uid},{tags.tag.uid}))))
-                    
-                else
-                    id = find(strcmp({current_pool.tag.uid},{tags.tag.uid}));
-                    for i = 1:numel(id)
-                    % If the tag is already present in the pool file, then overwrite it
-                        if(sum(strcmp(current_pool.tag(i).uid,{tags.tag.uid}))~=0)
-
-                            nstruct.tag(i).class      = tags.tag(id(i)).class;
-                            nstruct.tag(i).uid        = tags.tag(id(i)).uid;
-                            nstruct.tag(i).attributes = tags.tag(id(i)).attributes;
-                            nstruct.tag(i).timestamp  = now();
-                            nstruct.tag(i).validity   = tags.tag(id(i)).validity;
-
-                        end
+                %% Purge unused tags from template
+                if ~isempty(find(~id))
+                    for i = find(~id)
+                        tag_template.tag(i) = [];
                     end
                 end
+                %% Append structure to xml definition file  (pool.file)
+                % Write back to file
+                current_pool = xml_read(['tmp/',pool.file]);
+                id = false(1,numel(tag_template.tag));
+                % Loop along the current_pool.tags and check for any correspondences with the local tag.
+                % In case the tag to append is already present in the current structure, then
+                % overwrite it, otherwise append it. 
+                for i = 1:numel(current_pool.tag)
+                    if ~isempty(tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})))
+                        current_pool.tag(i).class = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).class;
+                        current_pool.tag(i).uid = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).uid;
+                        current_pool.tag(i).attributes = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).attributes;
+                        current_pool.tag(i).timestamp = now();
+                        current_pool.tag(i).validity = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).validity;
+                        id(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})) = true;
+                    end
+                end
+                % Check if there are any tag to append 
+                if sum(~id)>0
+                    for i = find(~id)
+                        nextid = numel(current_pool.tag) + 1;
+                        current_pool.tag(nextid).class       =   tag_template.tag(i).class;
+                        current_pool.tag(nextid).uid         =   tag_template.tag(i).uid;
+                        current_pool.tag(nextid).attributes  =   tag_template.tag(i).attributes;
+                        current_pool.tag(nextid).timestamp   =   now();
+                        current_pool.tag(nextid).validity    =   tag_template.tag(i).validity;
+                    end
+                end
+                % Set preferences for xml_write procedure
                 Pref.StructItem = false;
-                xml_write(['tmp/',pool.file], tags, 'tags', Pref);
+                % Write to xml pool file
+                xml_write(['tmp/',pool.file], current_pool, 'tags', Pref);
             end %if
             %% Add pointer to pool list (pool.tags)
-            for i=1:numel(tagstruct) 
+            for i=1:numel(clientProcess.tagstruct) 
                 if(sum(strcmp(tagstruct(i).tag,pool.tags))>=1)
                     idx = find(strcmp(tagstruct(i).tag,pool.tags),1,'first');
                     pool.tags{idx} = tagstruct(i).tag;
@@ -121,10 +138,6 @@ classdef poold < handle
                     pool.tags{end+1} = tagstruct(i).tag;
                 end
             end
-            %% Append structure to xml definition file  (pool.file)
-            
-            
-            
             %% Send notification for added tag and modified pool
             notify(pool, 'AddedTag');
             notify(pool, 'PoolModified');
@@ -160,7 +173,7 @@ classdef poold < handle
         
         end
         % --------------------------------------------------------------------
-        % This funciton loads tags stored in xml pool file
+        % This function loads tags stored in xml pool file
         function loadPool(pool)
             if exist(['tmp/',pool.file], 'file');
                 tags = xml_read(['tmp/',pool.file]);
