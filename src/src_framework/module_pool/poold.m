@@ -129,15 +129,15 @@ classdef poold < handle
                 % Write to xml pool file
                 xml_write(['tmp/',pool.file], current_pool, 'tags', Pref);
             end %if
-            %% Add pointer to pool list (pool.tags)
-            for i=1:numel(clientProcess.tagstruct) 
-                if(sum(strcmp(tagstruct(i).tag,pool.tags))>=1)
-                    idx = find(strcmp(tagstruct(i).tag,pool.tags),1,'first');
-                    pool.tags{idx} = tagstruct(i).tag;
-                else
-                    pool.tags{end+1} = tagstruct(i).tag;
-                end
-            end
+%             %% Add pointer to pool list (pool.tags)
+%             for i=1:numel(clientProcess.tagstruct) 
+%                 if(sum(strcmp(tagstruct(i).tag,pool.tags))>=1)
+%                     idx = find(strcmp(tagstruct(i).tag,pool.tags),1,'first');
+%                     pool.tags{idx} = tagstruct(i).tag;
+%                 else
+%                     pool.tags{end+1} = tagstruct(i).tag;
+%                 end
+%             end
             %% Send notification for added tag and modified pool
             notify(pool, 'AddedTag');
             notify(pool, 'PoolModified');

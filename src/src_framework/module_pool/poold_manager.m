@@ -21,7 +21,8 @@ classdef poold_manager
     %% Standalone functions (GUI Related)
     function updatePool(pool)
          if ~isempty(pool.handleJTreeTable)
-                pool.buildGUInterface;
+             pool.loadPool;  
+             pool.buildGUInterface;
          end
     end
     % --------------------------------------------------------------------
