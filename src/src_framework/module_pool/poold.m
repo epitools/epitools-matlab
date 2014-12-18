@@ -44,12 +44,15 @@ classdef poold < handle
         % Tag functions
         function appendTag(pool,clientProcess)
             %% Load tag file associated with the process id
-            % ClientOutMessage.uid = client process code
-            % ClientOutMessage.path = client relative location path
-            % ClientOutMessage.tagstruct = tag structure to exported
-            % ClientOutMessage.execvalues = values exported from command execution
+            % clientProcess.uid = client process code
+            % clientProcess.path = client relative location path
+            % clientProcess.tagstruct = tag structure to exported
+            % clientProcess.execvalues = values exported from command execution
             %% Extract tag structure from clientRequest
-            tagstruct = clientProcess.tagstruct;
+            if ~isa(clientProcess.tagstruct.tag,'cell')
+                clientProcess.tagstruct.tag = {clientProcess.tagstruct.tag};
+            end
+            %tagstruct = clientProcess.tagstruct;
             %% Substitute variables with values from command execution
             % Check if a tag.xml file exists in the client process directory 
             if(exist([clientProcess.path,'/tags.xml'],'file'))
@@ -57,35 +60,38 @@ classdef poold < handle
                 tag_template = xml_read([clientProcess.path,'/tags.xml']);
                 % Recursively process every TAG in the exported tag list          
                 id = false(1,numel(tag_template.tag));
-                for i=1:numel(clientProcess.tagstruct)
+                for i=1:numel(clientProcess.tagstruct.tag)
                     for o = 1:numel(tag_template.tag(strcmp({tag_template.tag.uid},...
-                                    clientProcess.tagstruct(i).tag)).attributes.attribute)     
+                                    clientProcess.tagstruct.tag(i))).attributes.attribute)     
                         % Store id tag that is going to be used. Discard the others.         
-                        id(strcmp({tag_template.tag.uid},clientProcess.tagstruct(i).tag)) = true;        
+                        id(strcmp({tag_template.tag.uid},clientProcess.tagstruct.tag(i))) = true;        
                         if (isa(tag_template.tag(strcmp({tag_template.tag.uid},...
-                             clientProcess.tagstruct(i).tag)).attributes.attribute(o).path,'double'))
+                             clientProcess.tagstruct.tag(i))).attributes.attribute(o).path,'double'))
                              exp = regexp(num2str(tag_template.tag(strcmp({tag_template.tag.uid},...
-                             clientProcess.tagstruct(i).tag)).attributes.attribute(o).path),...
+                             clientProcess.tagstruct.tag(i))).attributes.attribute(o).path),...
                              '\$(.*?)\$',...
                              'match');
+                             log2dev(sprintf('Found 1 variable to export %s',exp{1}),'DEBUG');
                         else
                              exp = regexp(tag_template.tag(strcmp({tag_template.tag.uid},...
-                             clientProcess.tagstruct(i).tag)).attributes.attribute(o).path,...
+                             clientProcess.tagstruct.tag(i))).attributes.attribute(o).path,...
                              '\$(.*?)\$',...
                              'match');
-                        end
-                        
+                             log2dev(sprintf('Found 1 variable to export %s',exp{1}),'DEBUG');
+                        end  
                         if(~isempty(exp))
                             exp2 = strrep(exp, '$', '');
-                            c = clientProcess.execvalues.ref;
-                            if(~strcmp(exp2,c) == 0)
+                            c = [clientProcess.execvalues.ref];
+                            if~(sum(strcmp(exp2,c)) == 0)
                                 newval = clientProcess.execvalues(strcmp(exp2,c)).object;
                                 if isa(newval,'double');newval = num2str(newval); end
                                 tag_template.tag(strcmp({tag_template.tag.uid},...
-                                    clientProcess.tagstruct(i).tag)).attributes.attribute(o).path = strrep(tag_template.tag(strcmp({tag_template.tag.uid},...
-                                    clientProcess.tagstruct(i).tag)).attributes.attribute(o).path,...
+                                    clientProcess.tagstruct.tag(i))).attributes.attribute(o).path = strrep(tag_template.tag(strcmp({tag_template.tag.uid},...
+                                    clientProcess.tagstruct.tag(i))).attributes.attribute(o).path,...
                                     exp{1},...
                                     newval);
+                                log2dev(sprintf('Substituted with %s',tag_template.tag(strcmp({tag_template.tag.uid},...
+                                    clientProcess.tagstruct.tag(i))).attributes.attribute(o).path),'DEBUG');
                             end
                         end %if
                     end %for
@@ -98,49 +104,47 @@ classdef poold < handle
                 end
                 %% Append structure to xml definition file  (pool.file)
                 % Write back to file
-                current_pool = xml_read(['tmp/',pool.file]);
-                id = false(1,numel(tag_template.tag));
-                % Loop along the current_pool.tags and check for any correspondences with the local tag.
-                % In case the tag to append is already present in the current structure, then
-                % overwrite it, otherwise append it. 
-                for i = 1:numel(current_pool.tag)
-                    if ~isempty(tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})))
-                        current_pool.tag(i).class = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).class;
-                        current_pool.tag(i).uid = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).uid;
-                        current_pool.tag(i).attributes = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).attributes;
-                        current_pool.tag(i).timestamp = now();
-                        current_pool.tag(i).validity = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).validity;
-                        id(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})) = true;
+                if(exist(['tmp/',pool.file],'file'))
+                    current_pool = xml_read(['tmp/',pool.file]);
+                    id = false(1,numel(tag_template.tag));
+                    % Loop along the current_pool.tags and check for any correspondences with the local tag.
+                    % In case the tag to append is already present in the current structure, then
+                    % overwrite it, otherwise append it. 
+                    for i = 1:numel(current_pool.tag)
+                        if ~isempty(tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})))
+                            current_pool.tag(i).class = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).class;
+                            current_pool.tag(i).uid = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).uid;
+                            current_pool.tag(i).attributes = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).attributes;
+                            current_pool.tag(i).timestamp = now();
+                            current_pool.tag(i).validity = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).validity;
+                            id(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})) = true;
+                        end
                     end
-                end
-                % Check if there are any tag to append 
-                if sum(~id)>0
-                    for i = find(~id)
-                        nextid = numel(current_pool.tag) + 1;
-                        current_pool.tag(nextid).class       =   tag_template.tag(i).class;
-                        current_pool.tag(nextid).uid         =   tag_template.tag(i).uid;
-                        current_pool.tag(nextid).attributes  =   tag_template.tag(i).attributes;
-                        current_pool.tag(nextid).timestamp   =   now();
-                        current_pool.tag(nextid).validity    =   tag_template.tag(i).validity;
+                    % Check if there are any tag to append 
+                    if sum(~id)>0
+                        for i = find(~id)
+                            nextid = numel(current_pool.tag) + 1;
+                            current_pool.tag(nextid).class       =   tag_template.tag(i).class;
+                            current_pool.tag(nextid).uid         =   tag_template.tag(i).uid;
+                            current_pool.tag(nextid).attributes  =   tag_template.tag(i).attributes;
+                            current_pool.tag(nextid).timestamp   =   now();
+                            current_pool.tag(nextid).validity    =   tag_template.tag(i).validity;
+                        end
                     end
-                end
-                % Set preferences for xml_write procedure
-                Pref.StructItem = false;
-                % Write to xml pool file
-                xml_write(['tmp/',pool.file], current_pool, 'tags', Pref);
+                    % Set preferences for xml_write procedure
+                    Pref.StructItem = false;
+                    % Write to xml pool file
+                    xml_write(['tmp/',pool.file], current_pool, 'tags', Pref);
+                else
+                    % Set preferences for xml_write procedure
+                    Pref.StructItem = false;
+                    % Write to xml pool file
+                    xml_write(['tmp/',pool.file], tag_template, 'tags', Pref);
+                end   
             end %if
-%             %% Add pointer to pool list (pool.tags)
-%             for i=1:numel(clientProcess.tagstruct) 
-%                 if(sum(strcmp(tagstruct(i).tag,pool.tags))>=1)
-%                     idx = find(strcmp(tagstruct(i).tag,pool.tags),1,'first');
-%                     pool.tags{idx} = tagstruct(i).tag;
-%                 else
-%                     pool.tags{end+1} = tagstruct(i).tag;
-%                 end
-%             end
             %% Send notification for added tag and modified pool
-            notify(pool, 'AddedTag');
             notify(pool, 'PoolModified');
+            notify(pool, 'AddedTag');
         end
         % --------------------------------------------------------------------
         function removeTag(pool,tagcode)
@@ -160,11 +164,28 @@ classdef poold < handle
         end
         % --------------------------------------------------------------------      
         % Retrieve tag association between tag and pool file
-        function tag = retrieveTag(pool,tagcode)
-        
+        function out = getTag(pool,tagcode,varargin)
+            if nargin < 3
+                varargin = {};
+            end
+            out = struct();
+            % Read associated tag file
             tags = xml_read(['tmp/',pool.file]);
             level = find(strcmp(tagcode,pool.tags));
-            tag = tags.tag(level);
+            % If the level required (varargin) is empty, then export all tag structure
+            if isempty(varargin)
+                out = tags.tag(char(level));
+            else
+                for i=1:numel(varargin)
+                    try
+                       out.(char(varargin(i))) = tags.tag(char(level)).(char(varargin(i)));
+                    catch err
+                        log2dev(sprintf('EPITOOLS:poold:method:getTag:RequiredLevelNotRetrieved| %s',...
+                                        err.message),...
+                                'ERR');
+                    end
+                end    
+            end
 
         end
         % --------------------------------------------------------------------
@@ -218,12 +239,12 @@ classdef poold < handle
         % --------------------------------------------------------------------
         function activatePool(pool)
             pool.active = true;
-            notify(pool,'PoolInstance');
+            notify(pool,'PoolModified');
         end
         % --------------------------------------------------------------------
         function deactivatePool(pool)
             pool.active = false;
-            notify(pool,'PoolInstance');
+            notify(pool,'PoolModified');
         end
         % --------------------------------------------------------------------
     end
