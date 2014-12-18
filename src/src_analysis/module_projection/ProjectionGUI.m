@@ -42,8 +42,6 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
-
-
 % --- Executes just before ProjectionGUI is made visible.
 function ProjectionGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -69,7 +67,6 @@ guidata(hObject, handles);
 updateAndGather(handles);
 
 function updateAndGather(handles)
-
 hPrjGui = getappdata(0  , 'hPrjGui');
 hMainGui = getappdata(0  , 'hMainGui');
 stgObj  = getappdata(hPrjGui, 'settings_objectname');
@@ -86,38 +83,30 @@ for i=1:numel(fieldgd)
         stgObj.ModifySetting(module_name, char(idx), gathered_data.(char(idx)));
     end
 end
-
+% Store settings in setting object
 setappdata(hMainGui, 'settings_objectname', stgObj);
 updateLegends(handles);
 
-
 % Gather slider values set on the controls
 function gathered_data = gatherData(handles)
-    
     gathered_data.SmoothingRadius = get(handles.smoothing_slider,'value');
     gathered_data.SurfSmoothness1 = get(handles.surface1_slider,'value');
     gathered_data.SurfSmoothness2 = get(handles.surface2_slider,'value');
     gathered_data.ProjectionDepthThreshold = get(handles.depth_slider,'value');
-
 % Valorise control legends 
 function updateLegends(handles)
 hPrjGui = getappdata(0  , 'hPrjGui');
 stgObj  = getappdata(hPrjGui, 'settings_objectname');
 module_name = getappdata(hPrjGui, 'settings_modulename');
-
-
     caption = sprintf('Smoothing Radius = %.2f', stgObj.analysis_modules.(char(module_name)).settings.SmoothingRadius);
     set(handles.smoothing_label, 'String', caption);
-
     caption = sprintf('Surface Smoothness 1 = %.0f', stgObj.analysis_modules.(char(module_name)).settings.SurfSmoothness1);
     set(handles.surface1_label, 'String', caption);
-    
     caption = sprintf('Surface Smoothness 2 = %.0f', stgObj.analysis_modules.(char(module_name)).settings.SurfSmoothness2);
     set(handles.surface2_label, 'String', caption);
-    
     caption = sprintf('Cutoff distance = %.2f', stgObj.analysis_modules.(char(module_name)).settings.ProjectionDepthThreshold);
     set(handles.depth_label, 'String', caption);
-
+    
 % --- Outputs from this function are returned to the command line.
 function varargout = ProjectionGUI_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -127,7 +116,6 @@ function varargout = ProjectionGUI_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-
 % --- Executes on slider movement.
 function smoothing_slider_Callback(hObject, eventdata, handles)
 % hObject    handle to smoothing_slider (see GCBO)
@@ -138,7 +126,6 @@ function smoothing_slider_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 updateAndGather(handles);
-
 % --- Executes during object creation, after setting all properties.
 function smoothing_slider_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to smoothing_slider (see GCBO)
@@ -153,7 +140,6 @@ end
 %set defaults
 default_smoothing_radius = 1;
 set(hObject, 'value', default_smoothing_radius);
-
 % --- Executes on slider movement.
 function surface1_slider_Callback(hObject, eventdata, handles)
 % hObject    handle to surface1_slider (see GCBO)
@@ -164,7 +150,6 @@ function surface1_slider_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 updateAndGather(handles);
-
 % --- Executes during object creation, after setting all properties.
 function surface1_slider_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to surface1_slider (see GCBO)
@@ -178,7 +163,6 @@ end
 
 default_surface_smoothness_1 = 30;
 set(hObject, 'value', default_surface_smoothness_1);
-
 % --- Executes on slider movement.
 function surface2_slider_Callback(hObject, eventdata, handles)
 % hObject    handle to surface2_slider (see GCBO)
@@ -188,7 +172,6 @@ function surface2_slider_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 updateAndGather(handles);
-
 % --- Executes during object creation, after setting all properties.
 function surface2_slider_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to surface2_slider (see GCBO)
@@ -202,7 +185,6 @@ end
 
 default_surface_smoothness_2 = 20;
 set(hObject, 'value', default_surface_smoothness_2);
-
 % --- Executes on slider movement.
 function depth_slider_Callback(hObject, eventdata, handles)
 % hObject    handle to depth_slider (see GCBO)
@@ -212,7 +194,6 @@ function depth_slider_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 updateAndGather(handles);
-
 % --- Executes during object creation, after setting all properties.
 function depth_slider_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to depth_slider (see GCBO)
@@ -225,8 +206,6 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 default_projection_depth_threshold = 1.2;
 set(hObject, 'value', default_projection_depth_threshold);
-
-
 % --- Executes on button press in start_projection.
 function start_projection_Callback(hObject, eventdata, handles)
 % hObject    handle to start_projection (see GCBO)
@@ -234,34 +213,26 @@ function start_projection_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
 stgObj  = getappdata(hMainGui, 'settings_objectname');
-
-%params = gatherData(handles);
 %params.InspectResults = true;         % show fit or not
 show_surfaces_fitting = get(handles.show_surface_checkbox,'value');
 stgObj.AddSetting('Projection','InspectResults',show_surfaces_fitting);
 %params.Parallel = true;               % Use parallelisation?
 stgObj.AddSetting('Projection','Parallel',true);
-
+% Save settings and store them in global variable
 updateAndGather(handles);
 
-%data_specifics = getappdata(hMainGui,'data_specifics');
-%Projection(data_specifics);
-Projection(stgObj);
+projection_caller(stgObj);
+%Projection(stgObj);
 
 %close projection gui after execution
-hProjGui = getappdata(0,'hPrjGui');
-delete(hProjGui);
-
-
+%hProjGui = getappdata(0,'hPrjGui');
+delete(getappdata(0,'hPrjGui'));
 % --- Executes on button press in show_surface_checkbox.
 function show_surface_checkbox_Callback(hObject, eventdata, handles)
 % hObject    handle to show_surface_checkbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 % Hint: get(hObject,'Value') returns toggle state of show_surface_checkbox
-
-
 % --- Executes on button press in help_button.
 function help_button_Callback(hObject, eventdata, handles)
 % hObject    handle to help_button (see GCBO)

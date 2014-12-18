@@ -5,3 +5,5 @@ Tests/16bitDataset/Analysis/*
 *.m~
 
 
+pool_clipro.xml
+epitool_metadata.xml

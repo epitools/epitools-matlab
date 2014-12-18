@@ -149,14 +149,12 @@ function run_clahe_Callback(hObject, eventdata, handles)
 % hObject    handle to run_clahe (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 gatheredData = gatherData(handles);
-
 hICoGui = getappdata(0  , 'hICoGui');
 stgObj  = getappdata(hICoGui, 'settings_objectname');
 
-ImproveContrast(stgObj);
-
+improvecontrast_caller(stgObj);
+%ImproveContrast(stgObj);
 %close gui after execution
 delete(hICoGui);
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>CLAHE</uid>
+    <desc_name>Contrast limited adaptive histogram equalisation module</desc_name>
+    <exec_priority>0</exec_priority>
+        <dependences>
+        <dependence/>
+    </dependences>
+    <withdrawals>
+        <tags/>
+    </withdrawals> 
+    <commands>
+        <command>
+            <uid>CLAHE01</uid>
+            <exec>improvecontrast_func.m</exec>
+            <input></input> 
+            <output/>
+            <argvs/>
+            <tags>
+                <tag>CLAHE</tag>
+            </tags>
+        </command>
+    </commands>
+</process>

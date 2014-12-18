@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>DIALER</uid>
+    <desc_name>Call establisher for server queue</desc_name>
+    <exec_priority>0</exec_priority>
+    <dependences>
+        <dependence>
+            <uid>QA01</uid>
+            <tags>
+                <tag>QUEUE_EMPTY</tag>
+            </tags>
+            <exceptions>
+                <exception>
+                    <uid>QA01</uid>
+                    <desc>Queue must be empty</desc>
+                    <tags>
+                        <tag>
+                            <id>QUEUE_EMPTY</id>
+                            <rep>REPLACED01</rep>
+                        </tag>
+                        <tag>
+                            <id>QUEUE_EMPTY</id>
+                            <rep>REPLACED02</rep>
+                        </tag>
+                    </tags>
+                </exception>
+                <exception>
+                    <uid>QA02</uid>
+                    <desc>Queue must exist</desc>
+                    <tags>
+                        <tag>
+                            <id>QUEUE_EMPTY</id>
+                            <rep>REPLACED03</rep>
+                        </tag>
+                    </tags>
+                </exception>
+            </exceptions>
+        </dependence>
+        <dependence>
+            <uid>FD01</uid>
+            <tags>
+                <tag>ARMFILE</tag>
+            </tags>
+        </dependence>
+    </dependences>
+    <commands>
+        <command>
+            <uid>DIALER01</uid>
+            <exec>np02_test.m</exec>
+            <input>matlabroot</input>
+            <output/>
+            <argvs>
+                <arg>{'Test01',1}</arg>
+                <arg>{'Test02',2}</arg>
+            </argvs>   
+            <tags>
+                <tag>DIALER_CONNECTION_ESTABLISHED</tag>
+            </tags>
+        </command>
+    </commands>
+</process>

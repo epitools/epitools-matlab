@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tags>
+	<tag>
+         <uid>CLAHE</uid>
+         <class>graphics</class>
+         <attributes>
+            <attribute>
+                  <class>file</class>
+                  <path>$CLAHEIMAGEPATH$</path>
+            </attribute>
+            <attribute>
+                  <class>settings</class>
+                  <path>$CLAHESETTINGS$</path>
+            </attribute>
+         </attributes>
+         <validity>illimited</validity>
+	</tag>
+</tags>

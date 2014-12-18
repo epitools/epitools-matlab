@@ -1,6 +1,6 @@
 function uitree_contextualmenu( jtree )
-%JTREE_CONTEXTUALMENU 
-%   
+%JTREE_CONTEXTUALMENU
+%
 
 % Prepare the context menu (note the use of HTML labels)
 menuItem1 = javax.swing.JMenuItem('<html> Open module settings </html>', javax.swing.ImageIcon('./images/icons/magnifier.png'));
@@ -91,14 +91,20 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         jmenu.remove(item);
     end
 
-
 % callback functions
     function openModuleResultsinMainView(hObject, eventData)
         hMainGui = getappdata(0, 'hMainGui');
         stgObj = getappdata(hMainGui,'settings_objectname');
         mdName = getappdata(hMainGui,'module_name');
-        
-         switch mdName        
+        uihandles_deletecontrols( 'uiSWslider' );
+        uihandles_deletecontrols( 'uiSWImage' );
+        uihandles_deletecontrols( 'uiSWFrameNumLabel' );
+        uihandles_deletecontrols( 'uiSWFrameNumEdit' );
+        uihandles_deletecontrols( 'uiBannerDescription' );
+        uihandles_deletecontrols( 'uiBannerContenitor' );
+        uihandles_deletecontrols( 'GraphicHandleSingleVDisplay' );
+        varargin = {};
+        switch mdName
             case 'Projection'
                 SandboxGUIRedesign(0);
                 data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.projection_path]);
@@ -106,7 +112,11 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
                 if(stgObj.icy_is_used)
                     icy_vidshow(data.ProjIm,'Projected Sequence');
                 else
-                    StackView(data.ProjIm,'hMainGui','figureA');
+                    inputs{1} = hMainGui;
+                    inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.projection_path]};
+                    inputs{3} = {mdName};
+                    %varargin = {'Comparative',1};
+                    %StackView(data.ProjIm,'hMainGui','figureA');
                 end
                 
             case 'Stack_Registration'
@@ -116,56 +126,63 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
                 if(stgObj.icy_is_used)
                     icy_vidshow(data.RegIm,'Registered Sequence');
                 else
-                    StackView(data.RegIm,'hMainGui','figureA');
+                    %StackView(data.RegIm,'hMainGui','figureA');
+                    inputs{1} = hMainGui;
+                    inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.registration_path]};
+                    inputs{3} = {mdName};
                 end
                 
             case 'Contrast_Enhancement'
                 SandboxGUIRedesign(0);
                 data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.clahe_path]);
-
+                
                 if(stgObj.icy_is_used)
                     icy_vidshow(data.RegIm,'CLAHE Sequence');
                 else
-                    StackView(data.RegIm,'hMainGui','figureA');
+                    %StackView(data.RegIm,'hMainGui','figureA');
+                    inputs{1} = hMainGui;
+                    inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.clahe_path]};
+                    inputs{3} = {mdName};
                 end
-
+                
             case 'Segmentation'
                 SandboxGUIRedesign(0);
                 data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.segmentation_path]);
-                
                 if(stgObj.icy_is_used)
                     icy_vid3show(data.ColIms,'Segmented Sequence');
                 else
-                    StackView(data.ColIms,'hMainGui','figureA');
+                    %StackView(data.ColIms,'hMainGui','figureA');
+                    inputs{1} = hMainGui;
+                    inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.segmentation_path]};
+                    inputs{3} = {mdName};
                 end
 
-
-             otherwise
+            otherwise
                 h = msgbox('The function has not been implemented for the current module. ', 'Exception handler - DEV');
+                
+        end
+        if ~isempty(inputs);[status,argout] = dataexplorer_imageview( inputs , varargin);end
+        if ~status;
+            uihandles_savecontrols( argout(1).description ,argout(1).object );
+            log2dev( 'Slide visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
+        end
 
-         end
-        
-         
-        
-        
     end
-
-
 
     function openModuleSettings(hObject, eventData)
         hMainGui = getappdata(0, 'hMainGui');
         mdName = getappdata(hMainGui,'module_name');
         stgObj = getappdata(hMainGui,'settings_objectname');
         
-        switch mdName        
+        switch mdName
             case 'Projection'
                 out = ProjectionGUI(stgObj);
                 uiwait(out);
                 
             case 'Contrast_Enhancement'
                 out = ImproveContrastGUI(stgObj);
-                uiwait(out);                
-
+                uiwait(out);
+                
             case 'Segmentation'
                 out = SegmentationGUI(stgObj);
                 uiwait(out);
@@ -181,9 +198,6 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         
     end
 
-
-
-
     function openModuleinFinder(hObject, eventData)
         hMainGui = getappdata(0, 'hMainGui');
         stgObj = getappdata(hMainGui,'settings_objectname');
@@ -191,23 +205,23 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         if(ispc);command = ['explorer ',stgObj.data_analysisindir];end
         if(isunix);command = ['open ',stgObj.data_analysisindir];end
         status = system(command);
-
+        
     end
 
     function exportModuleasXML(hObject, eventData)
         hMainGui = getappdata(0, 'hMainGui');
-        mdName = getappdata(hMainGui,'module_name'); 
+        mdName = getappdata(hMainGui,'module_name');
         stgObj = getappdata(hMainGui,'settings_objectname');
         
         if(strcmp(mdName,'Main'))
             h = msgbox('The function has not been implemented for the current module. ', 'Exception handler - DEV');
-
+            
         else
             tmp = struct();
             tmp.main = stgObj.analysis_modules.(char(mdName));
             struct2xml(tmp, strcat(stgObj.data_fullpath,'/',mdName,'.xml'));
         end
-            
+        
     end
 
     function exportResultsasZIP(hObject, eventData)
@@ -234,7 +248,7 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         stgObj = getappdata(hMainGui,'settings_objectname');
         hMainGui_handles = guidata(hMainGui);
         
-        strUserSel = questdlg(sprintf('You are about to delete this module from your analysis.\n\n Do you really want to continue?'),'Delete analysis module - User confirm','Yes','No','No'); 
+        strUserSel = questdlg(sprintf('You are about to delete this module from your analysis.\n\n Do you really want to continue?'),'Delete analysis module - User confirm','Yes','No','No');
         
         switch strUserSel
             case 'Yes'
@@ -243,8 +257,8 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
                 SaveAnalysisFile(hMainGui, hMainGui_handles, 1);
                 LoadControls(hMainGui,stgObj);
                 
-        end    
-     end
+        end
+    end
 end
 
 

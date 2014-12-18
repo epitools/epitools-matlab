@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tags>
+   <tag>
+      <uid>IMAGE_INDECES</uid>
+      <class>public</class>
+      <attributes>
+         <attribute>
+            <class>variable</class>
+            <path>$Indices_Structure$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+</tags>
