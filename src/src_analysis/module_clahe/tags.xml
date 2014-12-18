@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <tags>
 	<tag>
-         <uid>AnalysisModules_Clahe</uid>
-         <class>public</class>
+         <uid>CLAHE</uid>
+         <class>graphics</class>
          <attributes>
             <attribute>
                   <class>file</class>
-                  <path>$OUT1$</path>
+                  <path>$CLAHEIMAGEPATH$</path>
+            </attribute>
+            <attribute>
+                  <class>settings</class>
+                  <path>$CLAHESETTINGS$</path>
             </attribute>
          </attributes>
-         <validity>illimited</validity>
-	</tag>
-    <tag>
-         <uid>Image_MultiDimensional_XY</uid>
-         <class>public</class>
-         <attributes/>
          <validity>illimited</validity>
 	</tag>
 </tags>
