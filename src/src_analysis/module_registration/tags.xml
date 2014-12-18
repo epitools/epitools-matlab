@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tags>
+   <tag>
+      <uid>REGISTERED_IMAGE</uid>
+      <class>graphics</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$REGIMAGEPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$REGSETTINGS$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+</tags>

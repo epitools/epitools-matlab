@@ -121,7 +121,6 @@ hMainGui = getappdata(0, 'hMainGui');
 hRegGui = getappdata(0  , 'hRegGui');
 stgObj  = getappdata(hRegGui, 'settings_objectname');
 module_name = getappdata(hRegGui, 'settings_modulename');
-
 %params = gatherData(handles);
 %params.InspectResults = true;         % show fit or not
 stgObj.AddSetting(module_name,'InspectResults',true);
@@ -129,9 +128,8 @@ stgObj.AddSetting(module_name,'InspectResults',true);
 stgObj.AddSetting(module_name,'Parallel',true);
 %params.SkipFirstRegStep = true;
 stgObj.AddSetting(module_name,'SkipFirstRegStep',true);
-
-
-Registration(stgObj);
+registration_caller(stgObj);
+%Registration(stgObj);
 
 %close projection gui after execution
 delete(hRegGui);
