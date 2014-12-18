@@ -6,6 +6,20 @@ local.dependences = CLIPROINST.dependences.dependence;
 pools = SESSIONPOOLS;
 dependence = {};
 status = [];
+%% Check for withdrawals
+if(~isempty(CLIPROINST.withdrawals))
+    for i = 1:numel(CLIPROINST.withdrawals.tags)
+        if pools.existsTag(CLIPROINST.withdrawals.tags(i).tag);
+            message = sprintf('-----------------------------------------------------------------------');
+            log2dev(message,'INFO');
+            log2dev(sprintf('The process named %s will not be submitted since it has been already computed in the current pool',...
+                            CLIPROINST.uid),'INFO');
+            message = sprintf('-----------------------------------------------------------------------');
+            log2dev(message,'INFO');
+            return; 
+        end
+    end
+end
 %% Check dependences list
 % Instance - Admission to queue list subjected to dependence check
 % Subdivide CLIPROINST into segments
@@ -81,7 +95,7 @@ for i = 1:numel(local.dependences)
 end
 %% Split commands in CLIPROINST in order to be sented singoularly
 for idxCom = 1:length(CLIPROINST.commands.command)
-    argvs = '';
+    argvs = '{';
     input = '';
     % CODE
     messagestruct.code = CLIPROINST.commands.command(idxCom).uid;
@@ -92,7 +106,8 @@ for idxCom = 1:length(CLIPROINST.commands.command)
         if(isempty(CLIPROINST.commands.command(idxCom).input));
             input = '';
         else
-            input = '(';
+            input = '';
+            %input = '(';
             if(~isa(CLIPROINST.commands.command(idxCom).input,'char'))
             for idxInput = 1:numel(CLIPROINST.commands.command(idxCom).input)
                 if(idxInput == numel(CLIPROINST.commands.command(idxCom).input))
@@ -104,7 +119,7 @@ for idxCom = 1:length(CLIPROINST.commands.command)
             else
                 input = [input,CLIPROINST.commands.command(idxCom).input];
             end
-            input = [input, ')'];
+            %input = [input, ')'];
         end
         % Output splitting and reassembly
         if(isempty(CLIPROINST.commands.command(idxCom).output));
@@ -126,18 +141,27 @@ for idxCom = 1:length(CLIPROINST.commands.command)
         end
         % Extra variables splitting and reassembly
         if(~isempty(CLIPROINST.commands.command(idxCom).argvs));
-            for idxArg=1:numel(CLIPROINST.commands.command(idxCom).argvs)
-                argvs = [argvs, ...
-                    sprintf('%s ',...
-                    CLIPROINST.commands.command(idxCom).argvs(idxArg).arg{1:end-1},...
-                    CLIPROINST.commands.command(idxCom).argvs(idxArg).arg{end})];
+            for idxArg=1:size(CLIPROINST.commands.command(idxCom).argvs.arg,1)
+                if isa(CLIPROINST.commands.command(idxCom).argvs.arg{idxArg,2}, 'char')
+                    str = ['''',CLIPROINST.commands.command(idxCom).argvs.arg{idxArg,1},''',''',CLIPROINST.commands.command(idxCom).argvs.arg{idxArg,2},''';'];
+                else
+                    str = ['''',CLIPROINST.commands.command(idxCom).argvs.arg{idxArg,1},''',',CLIPROINST.commands.command(idxCom).argvs.arg{idxArg,2},';'];
+                end
+                argvs = [argvs, str];
+%                     sprintf('%s ',...
+%                     CLIPROINST.commands.command(idxCom).argvs(idxArg).arg{1:end-1},...
+%                     CLIPROINST.commands.command(idxCom).argvs(idxArg).arg{end})];
             end
         end
+        argvs = [argvs, '}'];
+        if ~isempty(argvs);
+            if isempty(input);funarg = argvs;else funarg = [input,',',argvs]; end
+        else funarg = input; end
         % Completing reassembly of command line
         if isempty(output)
-            messagestruct.command  = [regexprep(CLIPROINST.commands.command(idxCom).exec,'\.m',''),input,';'];
+            messagestruct.command  = [regexprep(CLIPROINST.commands.command(idxCom).exec,'\.m',''),'(',funarg,')',';'];
         else
-            messagestruct.command  = [output,' = ',regexprep(CLIPROINST.commands.command(idxCom).exec,'\.m',''),input,';'];
+            messagestruct.command  = [output,' = ',regexprep(CLIPROINST.commands.command(idxCom).exec,'\.m',''),'(',funarg,')',';'];
         end
     else
         % If a SYSTEM command is invoked, then composed the command has follows:

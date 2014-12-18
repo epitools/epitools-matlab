@@ -21,6 +21,7 @@ classdef serverd < handle
         QueueFlushed
         QueueEmpty
         ServerInstance
+        ForceQueueExecution
     end
     
     methods   
@@ -45,13 +46,10 @@ classdef serverd < handle
         function FlushQueue(sd)
             % Remove all messages in queue after flushing them and report
             % their status to session history
-
             try % If queue is empty, then do not flush
             if isempty(fieldnames(sd.queue)); return; end
-            
             % Move into session history
             for i=1:numel(sd.queue)
-                
                 sd.queue(i).machineid       = sd.status(i).machineid;
                 sd.queue(i).execution_start = sd.status(i).execution_start;
                 sd.queue(i).execution_end   = sd.status(i).execution_end;
@@ -60,13 +58,10 @@ classdef serverd < handle
                 else
                     sd.status(i).desc          = sd.status(i).desc;
                 end
-                
-                
             end
-            
             [code, idxQueue, idxStatus] = intersect({sd.queue.idx},{sd.status.idx});
-            
-            merged = struct('code', code, ...
+            merged = struct('idx', {sd.queue(idxQueue).idx},...
+                'code', code, ...
                 'command', {sd.queue(idxQueue).command},...
                 'priority',{sd.queue(idxQueue).priority},...
                 'date_submit',{sd.queue(idxQueue).date_submit},...
@@ -75,26 +70,22 @@ classdef serverd < handle
                 'execution_start',{sd.status(idxStatus).execution_start},...
                 'execution_end',{sd.status(idxStatus).execution_end},...
                 'execution_status',{sd.status(idxStatus).desc});
-            
-            if(length(sd.history) == 1)
-                
+            if(isempty(sd.history));
                 sd.history = merged;
-            else
-                sd.history(end+1) = merged;
+            else 
+                for i=1:length(merged)
+                    sd.history(end+1) =merged(i);
+                end
             end
-            
             % Flush queue
             sd.queue = struct();
             sd.status = struct();
-            
             % Server queue is empty
-            notify(sd,'QueueEmpty');
-            catch exceptions
-            
-                disp(exceptions);
+            notify(sd,'QueueModified');
+            catch err
+                log2dev(sprintf('EPITOOLS:serverd:FlushQueue:GenericErrorInFlushingServerQueue | %s',err.message),'ERR');
             end
-            
-        end 
+        end
         function FlushMessage(sd, idxMessage, metadata)
         % Remove all messages in queue after flushing them and report
         % their status to session history
@@ -123,9 +114,7 @@ classdef serverd < handle
                 % Notify event to manager
                 notify(sd,'QueueModified');
             catch err
-                log2dev(sprintf('EPITOOLS:serverd:FlushMessage:GenericErrorInFlushingMessage | %s',...
-                                err.message),...
-                        'DEBUG');
+                log2dev(sprintf('EPITOOLS:serverd:FlushMessage:GenericErrorInFlushingMessage | %s',err.message),'DEBUG');
             end
         end
         % =================================================================
@@ -249,6 +238,13 @@ classdef serverd < handle
                server_instances(end+1).ref = sd;
             end
             setappdata(callerID, 'server_instances', server_instances);
+        end
+        function setFlushQueueBound(sd,value)
+            sd.execProcessThreshold = value;
+        end
+        % Force Execution Queue
+        function forceExecutionQueue(sd)
+            notify(sd,'ForceQueueExecution');
         end
         % =================================================================
         % Server Functions: external

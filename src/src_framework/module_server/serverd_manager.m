@@ -11,7 +11,9 @@ classdef serverd_manager
             addlistener(sd, 'QueueFlushed', ...
                 @(src, evnt)serverd_manager.flushedQueue(src)); 
             addlistener(sd, 'QueueModified', ...
-                @(src, evnt)serverd_manager.updateQueue(src)); 
+                @(src, evnt)serverd_manager.updateQueue(src));
+            addlistener(sd, 'ForceQueueExecution', ...
+                @(src, evnt)serverd_manager.forceExecution(src)); 
         end
         
         %% Dispatchers
@@ -27,18 +29,21 @@ classdef serverd_manager
         function flushedQueue(sd)
             serverd_manager.executeQueue(sd)
         end %flushedQueue
+        % Dispatcher for flushedQueue events
+        function forceExecution(sd)
+            serverd_manager.executeQueue(sd,'force')
+        end %forceExecution
         %% Standalone functions (GUI Related)
         function updateQueue(sd)
-             if ~isempty(sd.handleJTreeTable)
-                    sd.buildGUInterface;
-             end
+             if ~isempty(sd.handleJTreeTable);sd.buildGUInterface;end
         end
         %% Service functions for dispatchers
         % Display server queue in JTableTree Swing Object
-        function executeQueue(sd)
+        function executeQueue(sd,strInput)
+            if nargin<2; strInput = 'noforce'; end
             % If queue lenght is below the execution threshold, then
             % do not proceed with execution. However, listen for [force event]
-            if (length(sd.queue) <  sd.execProcessThreshold);return;end
+            if (length(sd.queue) <  sd.execProcessThreshold) && strcmp(strInput, 'noforce');return;end
             %% Executing messages stored in queue from top to bottom
             %  Execution is invoked for each message in the queue.
             %  Evaluation of priority is required since messages are
