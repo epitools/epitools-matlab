@@ -24,7 +24,7 @@ assignin('base', 'clipro', clipro);
 %% Client availability checking
 %  The following code will list all the client available in the
 %  src_analysis folder and it will allow the framework to know their status
-Clients_00 = clients_load();
+Clients_00 = clients_load('src_analysis/');
 % Announce to framework
 %Clients_00.announceToFramework();
 %% Sending process to server according SH01-CLIENT-SENDMESSAGE
