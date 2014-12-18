@@ -68,13 +68,21 @@ s = size(Is);
 if size(s,2) > 3
     set(slider,'max', s(4));
     maxS = s(4);
+    set(slider,'min', 1);
+set(slider,'Value', i);
+elseif size(s,2) < 3
+%     set(slider,'max', 1);
+%     %maxS = s(2);
+%     maxS = 1;
+delete(slider);
 else
     set(slider,'max', s(3));
     maxS = s(3);
+    set(slider,'min', 1);
+set(slider,'Value', i);
 end
 
-set(slider,'min', 1);
-set(slider,'Value', i);
+
 
 %check if axis are specified
 if(~exist('pntAxes', 'var'))
@@ -106,36 +114,34 @@ else
         ,'string'   ,1 ...
         );
 end
-
 % savehandle
 if(~strcmp(pntDevice,'new'))
-uihandles_savecontrols( 'uiSWFrameNumLabel', uiSWFrameNumLabel );
-uihandles_savecontrols( 'uiSWFrameNumEdit', framenum );
+    uihandles_savecontrols( 'uiSWFrameNumLabel', uiSWFrameNumLabel );
+    uihandles_savecontrols( 'uiSWFrameNumEdit', framenum );
 end
+
 Update();
 
 set(img,'ButtonDownFcn',@wbmFcn)
-
 set(fig,'KeyPressFcn',@keyPrsFcn)
-
-
-    function sliderActionEventCb(src,evt)
-        newi = round(get(src,'Value'));
-        if newi == i 
-            return
-        end
-        %tic
-        i = newi;
-        set(src,'Value',i);
-        Update();
-        %toc
-    end
 
     function Update()
         figure(fig);
 %         imshow(imadjust(Is{i}));
         %img = imshow(Is{i},[]);
         switch size(s,2)
+            case 2 % Single frame
+                im = Is(:,:);
+                q = quantile(single(im(:)),[.001 .999]);
+                im(im<q(1))=q(1);
+%                 im = im - q(1);
+                im(im>q(2)) = q(2);
+                if(~exist('pntAxes', 'var'))
+                    img = imshow(im,[]);
+                else
+                    img = imshow(im,[],'Parent',handles.(pntAxes));
+                    uihandles_savecontrols( 'uiSWImage', img );
+                end
             case 3
                 im = Is(:,:,i);
                 q = quantile(single(im(:)),[.001 .999]);
@@ -147,6 +153,8 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                     img = imshow(im,[]);
                 else
                     img = imshow(im,[],'Parent',handles.(pntAxes));
+                    uihandles_savecontrols( 'uiSWImage', img );
+
                 end
             case 4
                 if s(3) == 3
@@ -154,6 +162,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                         img = imshow(squeeze(Is(:,:,:,i)),[]);
                     else
                         img = imshow(squeeze(Is(:,:,:,i)),[],'Parent',handles.(pntAxes));
+                        uihandles_savecontrols( 'uiSWImage', handles.(pntAxes) );
                     end
                 else
                     %image might have 3 color channels on another dimension
@@ -162,6 +171,7 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                             img = imshow(squeeze(Is(:,:,i,:)));
                         else
                             img = imshow(squeeze(Is(:,:,i,:)),[],'Parent',handles.(pntAxes));
+                            uihandles_savecontrols( 'uiSWImage', handles.(pntAxes) );
                         end
                     end
                 end
@@ -170,7 +180,15 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
 %         set(img,'ButtonDownFcn',@wbmFcn)
         set(framenum,'String',i);
     end
-
+    function sliderActionEventCb(src,evt)
+        newi = round(get(src,'Value'));
+        if newi == i 
+            return
+        end
+        i = newi;
+        set(src,'Value',i);
+        Update();
+    end
     function wbmFcn(src,evt)
         pt = get(gca,'Currentpoint');
         crd = [pt(1,1), pt(1,2)]
@@ -194,7 +212,6 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 MakeMovie()
         end
     end
-
     function MakeMovie()
         clear('M');
         for i = 1:maxS
