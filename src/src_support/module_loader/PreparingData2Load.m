@@ -35,7 +35,7 @@ function [ status, argout ] = PreparingData2Load( input_args, varargin )
 % ------------------------------------------------------------------------------
 %% Retrieve supplementary arguments (they are exported as reported in the tags.xml file)
 if (nargin<2)
-    varargin(1:2) = {'OUT1'};
+    varargin(1:2) = {'Indices_Structure'};
 end
 %% Status initialization
 status = 1;
@@ -78,7 +78,7 @@ idxPoints.T = convertInput2Mat(11);
                         tmpidxPoints = [tmpidxPoints,str2double(ans1{o}{1}):str2double(ans1{o}{2})]; 
                     end
                     % all the singles *ATT: it can generate NAN values (getting rid of
-                    % them with line -> 79
+                    % them with line -> 87
                     ans2 = regexp(char(input_args.analysis_modules.Main.data(i,intItem2Extract)), '([0-9]*)-([0-9]*)', 'split');
                     for o=1:length(ans2)
                         comma_separated_values = regexp (ans2{o}, ',', 'split');

@@ -31,8 +31,8 @@ function [status, argout] = LoadImgData(strFullPathFile, imgIDX, arrayIndices, v
 % Copyright by A.Tournier, A. Hoppe, D. Heller, L.Gatti
 % ------------------------------------------------------------------------------
 %% Retrieve supplementary arguments (they are exported as reported in the tags.xml file)
-if (nargin<2)
-    varargin(1:2) = {'OUT1'};
+if (nargin<4)
+    varargin(1) = {'OUT1'};
 end
 %% Status initialization
 status = 1;
@@ -67,9 +67,9 @@ reader.close();
 % argout(1...).ref = variable reference;
 % argout(1...).object = undefined;
 % First output variable
-argout(1).description = 'Image stack reduced to specified indeces';
-argout(1).ref = varargin(1);
-argout(1).object = ImgStack;
+%argout(1).description = 'Image stack reduced to specified indeces';
+%argout(1).ref = varargin(1);
+argout = ImgStack;
 %% Status execution update 
 status = 0;
 end
