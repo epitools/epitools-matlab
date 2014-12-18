@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tags>
+   <tag>
+      <uid>PROJECTED_IMAGE</uid>
+      <class>graphics</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$PJIMAGEPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$PJSETTINGS$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+   <tag>
+      <uid>PROJECTED_SURFACE</uid>
+      <class>null</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$PJSURFPATH$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+</tags>

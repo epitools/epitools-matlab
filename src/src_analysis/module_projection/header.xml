@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>PROJECTION</uid>
+    <desc_name>Surface Projection module for selective and adaptive signal projection</desc_name>
+    <exec_priority>0</exec_priority>
+    <dependences>
+        <dependence/>
+    </dependences>
+    <withdrawals>
+        <tags/>
+    </withdrawals>     
+    <commands>
+        <command>
+            <uid>PROJ01</uid>
+            <exec>projection_func.m</exec>
+            <input></input>
+            <output/>
+            <argvs/>
+            <tags>
+                <tag>PROJECTED_IMAGE</tag>
+                <tag>PROJECTED_SURFACE</tag>
+            </tags>
+        </command>
+    </commands>
+</process>
