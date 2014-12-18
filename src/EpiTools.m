@@ -22,15 +22,12 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 27-Nov-2014 12:09:03
+% Last Modified by GUIDE v2.5 18-Dec-2014 16:36:13
 
 % Begin initialization code - DO NOT EDIT
 %
 % Add a splash screen before EpiTools loading
-if ~nargin
-SplashScreen;
-end
-
+if ~nargin;SplashScreen; end
 
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
@@ -89,6 +86,7 @@ setappdata(gcf, 'icy_is_used', 0);
 setappdata(gcf, 'icy_is_loaded', 0);
 setappdata(gcf, 'icy_path', 'none');
 setappdata(gcf, 'settings_objectname', '');
+setappdata(gcf, 'execution_memory', struct());
 setappdata(gcf, 'settings_execution', '');
 setappdata(gcf, 'status_application',stsFunOut);
 setappdata(gcf, 'settings_release',[]);
@@ -190,6 +188,9 @@ if(isappdata(hMainGui,'settings_objectname'))
         % -------------------------------------------------------------------------  
     end 
 end
+
+imshow('./images/backgroundlogo.gif','Parent', handles.axes8);
+
 % Update handles structure
 guidata(hObject, handles);
 % --------------------------------------------------------------------
@@ -199,15 +200,10 @@ function A_Proj_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Projection';
-
+dataindexing_caller;
 [intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
-if(intOut)
-    out = ProjectionGUI(stgObj);
-    uiwait(out);
-end
-
+if(intOut);out = ProjectionGUI(stgObj); uiwait(out);end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
-
 handles_connection(hObject,handles)
 % --------------------------------------------------------------------
 function A_StackReg_Callback(hObject, eventdata, handles)
@@ -216,18 +212,10 @@ function A_StackReg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Stack_Registration';
-
-
+dataindexing_caller;
 [intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
-
-
-if(intOut)
-    out = RegistrationGUI(stgObj);
-    uiwait(out);
-end
-
+if(intOut);out = RegistrationGUI(stgObj);uiwait(out);end
 statusExecution = SaveAnalysisFile(hObject, handles, 1);
-
 handles_connection(hObject,handles)
 % --------------------------------------------------------------------
 function A_CLAHE_Callback(hObject, eventdata, handles)
@@ -444,7 +432,8 @@ if ~isempty(stsFunOut)
     % Execute procedures required by server-client modules
     disconnectPool
     %connectPool('clipro');% DEBUG
-    connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
+    connectPool(strcat(stgObj.analysis_name,'_default'));
+    %connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
     % Status operations
     min = 0; max=100; value=85;
     log2dev('Server connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
@@ -538,8 +527,12 @@ if(strSettingFilePath)
     % Status operations
     min = 0; max=100; value=75;
     log2dev('Pool connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
-    %connectPool('clipro');% DEBUG
-    connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
+%     connectPool('clipro');% DEBUG
+%     connectPool('clipro2');% DEBUG
+%     connectPool('clipro3');% DEBUG
+%     connectPool('clipro4');% DEBUG
+    %connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
+    connectPool(strcat(stgObj.analysis_name,'_default'));
     % Status operations
     min = 0; max=100; value=85;
     log2dev('Server connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
@@ -616,6 +609,35 @@ function F_Exit_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 onMainWindowClose(hObject, eventdata, handles);
+% --------------------------------------------------------------------
+function V_D_SingleMode_Callback(hObject, eventdata, handles)
+% hObject    handle to V_D_SingleMode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if strcmp(get(handles.('V_D_ComparativeMode'),'Checked'),'on')
+    set(handles.('V_D_ComparativeMode'), 'Checked', 'off');
+    set(hObject, 'Checked', 'on');
+else
+    set(hObject, 'Checked', 'on');
+end
+% --------------------------------------------------------------------
+function V_D_ComparativeMode_Callback(hObject, eventdata, handles)
+% hObject    handle to V_D_ComparativeMode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if strcmp(get(handles.('V_D_SingleMode'),'Checked'),'on')
+    set(handles.('V_D_SingleMode'), 'Checked', 'off');
+    set(hObject, 'Checked', 'on'); 
+else
+    set(hObject, 'Checked', 'on');
+end
+% --------------------------------------------------------------------
+function V_D_DefaultInterface_Callback(hObject, eventdata, handles)
+% hObject    handle to V_D_DefaultInterface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.('V_D_SingleMode'), 'Checked', 'off');
+set(handles.('V_D_ComparativeMode'), 'Checked', 'off');
 % --------------------------------------------------------------------
 function MHelp_Callback(hObject, eventdata, handles)
 % hObject    handle to MHelp (see GCBO)
@@ -758,16 +780,20 @@ hMainGui = getappdata(0, 'hMainGui');
 server_instances = getappdata(hMainGui, 'server_instances');
 client_modules = getappdata(hMainGui, 'client_modules');
 pool_instances = getappdata(hMainGui, 'pool_instances');
-
+% Remapping
 server = server_instances(2).ref;
-clients = client_modules(2).ref;
 
-for i = 1:size(pool_instances(2:end),2)
-    if (pool_instances(i+1).ref.active)
-        %server.receiveMessage(clients(1),pool_instances(i+1).ref);
-        server.receiveMessage(clients(4),pool_instances(i+1).ref);
-    end
-end
+% clients = client_modules(2).ref;
+% 
+% for i = 1:size(pool_instances(2:end),2)
+%     if (pool_instances(i+1).ref.active)
+%         %server.receiveMessage(clients(1),pool_instances(i+1).ref);
+%         server.receiveMessage(clients(4),pool_instances(i+1).ref);
+%     end
+% end
+
+% Forcing execution
+server.forceExecutionQueue;
 % --------------------------------------------------------------------
 function uiManagePoolActivation_ClickedCallback(hObject, eventdata,handles)
 hMainGui = getappdata(0, 'hMainGui');
@@ -780,6 +806,59 @@ function uiFlushServerQueue_ClickedCallback(hObject, eventdata, handles)
 % hObject    handle to uiFlushServerQueue (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
+server_instances(2).ref.FlushQueue;
+setappdata(getappdata(0, 'hMainGui'),'server_instances',server_instances);
+
+% --------------------------------------------------------------------
+function uiImageLayersToggle_OffCallback(hObject, eventdata, handles)
+% hObject    handle to uiImageLayersToggle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if  uihandles_exists( 'GraphicHandleCmpDisplay' )
+    uihandles_deletecontrols( 'GraphicHandleCmpDisplay' );
+    log2dev( 'Standard visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
+end
+% --------------------------------------------------------------------
+function uiImageLayersToggle_OnCallback(hObject, eventdata, handles)
+% hObject    handle to uiImageLayersToggle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+inputs(1) = getappdata(0, 'hMainGui');
+uihandles_deletecontrols( 'uiSWslider' );
+uihandles_deletecontrols( 'uiSWImage' );
+uihandles_deletecontrols( 'uiSWFrameNumLabel' );
+uihandles_deletecontrols( 'uiSWFrameNumEdit' );
+uihandles_deletecontrols( 'uiBannerDescription' );
+uihandles_deletecontrols( 'uiBannerContenitor' );
+uihandles_deletecontrols( 'GraphicHandleSingleVDisplay' );
+[status,argout] = dataexplorer_cmpview( inputs );
+if ~status;
+    uihandles_savecontrols( argout(1).description ,argout(1).object );
+    log2dev( 'Comparative visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
+end
+% --------------------------------------------------------------------
+function uiImageSingleToggle_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiImageSingleToggle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% inputs{1} = getappdata(0, 'hMainGui');
+% stgObj = getappdata(inputs{1},'settings_objectname');
+% inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.('Projection').results.projection_path],...
+%     [stgObj.data_analysisindir,'/',stgObj.analysis_modules.('Contrast_Enhancement').results.clahe_path]};
+% inputs{3} = {'Projection','Contrast Enhancement'};
+% uihandles_deletecontrols( 'uiSWslider' );
+% uihandles_deletecontrols( 'uiSWImage' );
+% uihandles_deletecontrols( 'uiSWFrameNumLabel' );
+% uihandles_deletecontrols( 'uiSWFrameNumEdit' );
+% uihandles_deletecontrols( 'uiBannerDescription' );
+% uihandles_deletecontrols( 'uiBannerContenitor' );
+% uihandles_deletecontrols( 'GraphicHandleSingleVDisplay' );
+% [status,argout] = dataexplorer_imageview( inputs );
+% if ~status;
+%     uihandles_savecontrols( argout(1).description ,argout(1).object );
+%     log2dev( 'Slide visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
+% end
 % ====================================================================
 % Support Functions
 % ====================================================================
@@ -878,51 +957,9 @@ log2dev('***********************************************************','INFO');
 if exist(['~/',settings_executionuid], 'file')
     delete(['~/',settings_executionuid]);
 end
+disconnectPool;
 delete(hLogGui);
 delete(hMainGui);
 % --------------------------------------------------------------------
-%                        SERVER-CLIENT INTEGRATION
-% --------------------------------------------------------------------
-function connectServer()
-hMainGui = getappdata(0, 'hMainGui');
-% Retrieve GUI handle from calling environment
-hUIControls = getappdata(hMainGui,'hUIControls');
-%% Initialisation of server
-%  The following code initialise the server daemon which will store client
-%  requests and forward command to queue and ask the workers to run them.
-%  It will retrieve outcomes and it will redirect to dedicated pool.
-server_instance = serverd();
-% Announce to framework
-server_instance.announceToFramework(hMainGui);
-server_instance.buildGUInterface(hUIControls.uipanel_serverqueue);
-% --------------------------------------------------------------------
-function installClients()
-hMainGui = getappdata(0, 'hMainGui');
-%% Client availability checking
-%  The following code will list all the client available in the
-%  src_analysis folder and it will allow the framework to know their status
-client_modules = clients_load();
-% Announce to framework
-client_modules.announceToFramework(hMainGui);
-% --------------------------------------------------------------------
-function disconnectServer()
-% --------------------------------------------------------------------
-function connectPool(poolname)
-hMainGui = getappdata(0, 'hMainGui');
-hUIControls = getappdata(hMainGui,'hUIControls');
-%% Initialisation of pool
-%  The following code will initialize the pool containing exported tags 
-%  from commands executed by server workers.
-pool = poold(poolname);
-pool.loadPool();
-% Announce to framework
-pool.announceToFramework(hMainGui);
-pool_instances = getappdata(hMainGui, 'pool_instances');
-pool.buildGUInterface(hUIControls.uipanel_serverpool, pool_instances);
-% --------------------------------------------------------------------
-function disconnectPool()
-hMainGui = getappdata(0, 'hMainGui');
-setappdata(hMainGui, 'pool_instances',struct());
-%setappdata(hMainGui, 'server_instances',struct());
-%setappdata(hMainGui, 'client_modules',struct());
+function disconnectServer() % to be moved
 % --------------------------------------------------------------------
