@@ -88,6 +88,11 @@ settingsobj.framework.serverconnectionstring.ctl_serverstring.visible = 1;
 settingsobj.framework.serverconnectionstring.ctl_serverstring.desc = 'text';
 settingsobj.framework.serverconnectionstring.ctl_serverstring.values = '';
 
+settingsobj.framework.serverupboundprocesses.ctl_serverupboundprocesses.name = 'Automatic server queue execution after no. processes';
+settingsobj.framework.serverupboundprocesses.ctl_serverupboundprocesses.visible = 1;
+settingsobj.framework.serverupboundprocesses.ctl_serverupboundprocesses.desc = 'text';
+settingsobj.framework.serverupboundprocesses.ctl_serverupboundprocesses.values = 1;
+
 %% Window option section
 
 settingsobj.windows.autocentering.ctl_activate.name = 'Resize activation';
