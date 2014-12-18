@@ -49,7 +49,10 @@
             <exec>np02_test.m</exec>
             <input>matlabroot</input>
             <output/>
-            <argvs/>
+            <argvs>
+                <arg>{'Test01',1}</arg>
+                <arg>{'Test02',2}</arg>
+            </argvs>   
             <tags>
                 <tag>DIALER_CONNECTION_ESTABLISHED</tag>
             </tags>
