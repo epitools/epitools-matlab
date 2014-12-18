@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>INDEXING</uid>
+    <desc_name>Indexing module for image files</desc_name>
+    <exec_priority>0</exec_priority>
+    <dependences>
+        <dependence/>
+    </dependences>
+    <withdrawals>
+        <tags>
+            <tag>IMAGE_INDECES</tag>
+        </tags>
+    </withdrawals>   
+    <commands>
+        <command>
+            <uid>INDEX01</uid>
+            <exec>dataindexing_func.m</exec>
+            <input>getappdata(getappdata(0,'hMainGui'),'settings_objectname')</input>
+            <output/>
+            <argvs/>
+            <tags>
+                <tag>IMAGE_INDECES</tag>
+            </tags>
+        </command>
+    </commands>
+</process>
