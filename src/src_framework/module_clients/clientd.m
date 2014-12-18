@@ -11,6 +11,7 @@ classdef clientd < handle
         filepath
         tagpath
         dependences
+        withdrawals
         commands
         exec_priority
         status
@@ -75,15 +76,35 @@ classdef clientd < handle
         
         end
         % --------------------------------------------------------------------
-        function addArgument(cli,structCommand)  
-            for i = 1:numel(cli.commands)
-                if(strcmp(cli.commands.command(i).uid,structCommand.uid))
-                    cli.commands.command(i).exec
-                    cli.commands.command(i).input
-                    cli.commands.command(i).output
-                    cli.commands.command(i).argv
-                end
+        function addArgv(cli,commanduid,category,construct)  
+            % Switch on argv category
+            switch category
+                case 'exec'
+                case 'input'
+                case 'output'
+                case 'argv'
+                    for i=1:size(construct,1)
+                        if isempty(cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs)
+                            cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs = struct();
+                            tmp(1,:) = construct(i,:);
+                            cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg = tmp;
+                            %cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg{1} = {construct(i,:)};
+                        else
+                            access =  strcmp(cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg(:,1),construct(i,1));
+                            if(sum(access)~=0)
+                                cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg(access,2) = construct(i,2);
+                            else
+                                tmp(1,:) = construct(i,:);
+                                pos = size(cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg,1);
+                                cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg(pos,1) = construct(i,1);
+                                cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg(pos,2) = construct(i,2);
+                            end
+                        end
+                    end
+                otherwise
+                    return;
             end
+
         end
         % --------------------------------------------------------------------
         function announceToFramework(cli, callerID)
