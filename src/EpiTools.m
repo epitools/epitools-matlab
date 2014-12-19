@@ -58,9 +58,7 @@ function EpiTools_OpeningFcn(hObject, eventdata, handles, varargin)
 % -------------------------------------------------------------------------
 % Exec splash screen 
 SplashHandle = findobj('tag','SplashScreenTag');
-if ishandle(SplashHandle)
-   close(SplashHandle);
-end
+if ishandle(SplashHandle);close(SplashHandle);end
 
 % -------------------------------------------------------------------------
 % Choose default command line output for EpiTools
