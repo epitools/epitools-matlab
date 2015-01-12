@@ -75,26 +75,26 @@ if ~stgMain.exec_commandline
     if(stgMain.icy_is_used)
         icy_vidshow(RegIm,'Registered Sequence');
     else
-        if(strcmp(stgMain.data_analysisindir,stgMain.data_analysisoutdir))
-            fig = getappdata(0  , 'hMainGui');
-            handles = guidata(fig);
-            set(handles.('uiBannerDescription'), 'Visible', 'on');
-            % Change banner description
-            log2dev('Currently executing the [Registration] module',...
-            'GUI',...
-             2,...
-            'hMainGui',...
-            'uiBannerDescription');
-            StackView(RegIm,'hMainGui','figureA');
-        else
-            firstrun = load([stgMain.data_analysisindir,'/RegIm']);
-            % The program is being executed in comparative mode
-            StackView(firstrun.RegIm,'hMainGui','figureC1');
-            StackView(RegIm,'hMainGui','figureC2');
-        end
+%         if(strcmp(stgMain.data_analysisindir,stgMain.data_analysisoutdir))
+%             fig = getappdata(0  , 'hMainGui');
+%             handles = guidata(fig);
+%             set(handles.('uiBannerDescription'), 'Visible', 'on');
+%             % Change banner description
+%             log2dev('Currently executing the [Registration] module',...
+%             'GUI',...
+%              2,...
+%             'hMainGui',...
+%             'uiBannerDescription');
+%             StackView(RegIm,'hMainGui','figureA');
+%         else
+%             firstrun = load([stgMain.data_analysisindir,'/RegIm']);
+%             % The program is being executed in comparative mode
+%             StackView(firstrun.RegIm,'hMainGui','figureC1');
+%             StackView(RegIm,'hMainGui','figureC2');
+%         end
    end
 else
-    StackView(RegIm);
+    %StackView(RegIm);
 end
 %saving results
 stgMain.AddResult('Stack_Registration','registration_path','RegIm.mat');
