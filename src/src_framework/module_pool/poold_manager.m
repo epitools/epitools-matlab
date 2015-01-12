@@ -50,10 +50,11 @@ classdef poold_manager
             [~,I] = sort([cmptable{:,2}], 'descend');
             % Check advanced module tags in descending order
             inputs{1} = hMainGui;
-            inputs{2}(1) = cmptable(strcmp({cmptable{:,1}},'PROJECTED_IMAGE'),3);
-            inputs{3}(1) = {'PROJECTED_IMAGE'};
+            inputs{2}(1) = cmptable(find(regexp(cmptable{:,1},'_IMAGE')),3);
+            inputs{3}(1) = cmptable(find(regexp(cmptable{:,1},'_IMAGE')),1);
             latest = cmptable(I(1),1);
-            reference = cmptable(strcmp({cmptable{:,1}},'PROJECTED_IMAGE'),1);
+            %reference = cmptable(strcmp({cmptable{:,1}},'PROJECTED_IMAGE'),1);
+            reference = cmptable(find(regexp(cmptable{:,1},'_IMAGE')),1);
             if ~strcmp(reference,latest)
                 inputs{2}(end+1) = cmptable(I(1),3);
                 inputs{3}(end+1) = cmptable(I(1),1);
