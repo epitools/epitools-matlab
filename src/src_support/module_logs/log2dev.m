@@ -90,7 +90,7 @@ for i=1:numel(intOutputDev)
     switch output_device
         case 0 % Log to GUI device (statusbar)
             try
-                sb = statusbar(pntDevice, '');
+                sb = statusbar(getappdata(0,pntDevice), '');
                 set(sb, 'Visible',true, 'Text', [datestr(now,0),' | [',intLogCode,'] | ',strLogContent]);
                 %set(tmpHandleContenitor.(pntHandle), 'String', strcat(datestr(now,0),' | [',intLogCode,'] | ',strLogContent));
             catch err
