@@ -187,7 +187,10 @@ if(isappdata(hMainGui,'settings_objectname'))
     end 
 end
 
-imshow('./images/backgroundlogo.gif','Parent', handles.axes8);
+I = imread('./images/backgroundlogo.tif');
+h = imshow(I(:,:,1:3), 'Parent', handles.axes8);
+set(h, 'AlphaData', I(:,:,4));
+%imshow('./images/backgroundlogo.gif','Parent', handles.axes8);
 
 % Update handles structure
 guidata(hObject, handles);
