@@ -96,6 +96,7 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         hMainGui = getappdata(0, 'hMainGui');
         stgObj = getappdata(hMainGui,'settings_objectname');
         mdName = getappdata(hMainGui,'module_name');
+        % Check if these lines are still in use
         uihandles_deletecontrols( 'uiSWslider' );
         uihandles_deletecontrols( 'uiSWImage' );
         uihandles_deletecontrols( 'uiSWFrameNumLabel' );
@@ -164,7 +165,8 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         if ~isempty(inputs);[status,argout] = dataexplorer_imageview( inputs , varargin);end
         if ~status;
             uihandles_savecontrols( argout(1).description ,argout(1).object );
-            log2dev( 'Slide visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
+            %log2dev('Preparing display...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
+            %log2dev('Slide visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar',{0,1,1} );
         end
 
     end

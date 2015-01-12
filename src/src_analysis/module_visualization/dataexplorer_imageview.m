@@ -258,7 +258,7 @@ for i=1:size(cmptable,2)
     value = value + 1;
     log2dev('Preparing display...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
 end
-log2dev('Image display ready','INFO',0,'hMainGui', 'statusbar');
+log2dev('Image display ready','INFO',0,'hMainGui', 'statusbar',{0,max,max});
 %% Output formatting
 % Each single output need to be described in order to be used for variable exportation.
 % ARGOUT variable is a structure object
