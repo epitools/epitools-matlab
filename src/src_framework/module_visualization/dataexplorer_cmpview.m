@@ -65,7 +65,13 @@ end
 position = get(input_args(1), 'Position');
 % Panel table preparation
 count = size(cmptable,1)*(size(cmptable,2)-1);
-if ~mod(count,2) == 0; count = count+1; end
+if count == 1; 
+    count = 1; 
+else
+    if ~mod(count,2) == 0; 
+        count = count+1;  
+    end
+end
 % Graphic parameters
 side_x = 0.19*position(3);
 side_y = 0.05*position(4);
