@@ -17,7 +17,7 @@
             <output/>
             <argvs/>
             <tags>
-                <tag>CLAHE</tag>
+                <tag>CLAHE_IMAGE</tag>
             </tags>
         </command>
     </commands>
