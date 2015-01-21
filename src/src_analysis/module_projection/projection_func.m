@@ -39,7 +39,7 @@ function [ status, argout ] = projection_func(input_args,varargin)
 % Copyright by A.Tournier, A. Hoppe, D. Heller, L.Gatti
 % ------------------------------------------------------------------------------
 %% Retrieve supplementary arguments
-if (nargin<2); varargin(1) = {'PJIMAGEPATH'};varargin(2) = {'PJSURFPATH'};varargin(3) = {'PJSETTINGS'};end
+if (nargin<2); varargin(1) = {'PJIMAGEPATH'};varargin(2) = {'PJSURFPATH'};varargin(3) = {'SETTINGS'};end
 %% Procedure initialization
 status = 1;
 %initialize progressbar
@@ -132,8 +132,10 @@ for i=1:numel(stgMain.analysis_modules.Main.indices.I)
     intProcessedFiles = intProcessedFiles+1;
 end
 %% Saving results
+%stgMain.AddResult('Projection','projection_path','ProjIm.tif');
 stgMain.AddResult('Projection','projection_path','ProjIm.mat');
 stgMain.AddResult('Projection','surface_path','Surfaces.mat');
+%exportTiffImages(ProjIm,'filename',[stgMain.data_analysisoutdir,'/ProjIm.tif']);
 save([stgMain.data_analysisoutdir,'/ProjIm'],'ProjIm')
 save([stgMain.data_analysisoutdir,'/Surfaces'],'Surfaces')
 %% Passing settings to calling environment
@@ -161,6 +163,7 @@ log2dev('Finished projection module ', 'INFO');
 % -------------------------------------------------------------------------
 argout(1).description = 'Projected image file path';
 argout(1).ref = varargin(1);
+%argout(1).object = strcat([stgMain.data_analysisoutdir,'/ProjIm.tif']);
 argout(1).object = strcat([stgMain.data_analysisoutdir,'/ProjIm.mat']);
 % -------------------------------------------------------------------------
 argout(2).description = 'Projected surface file path';

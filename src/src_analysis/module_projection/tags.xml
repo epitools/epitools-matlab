@@ -10,7 +10,7 @@
          </attribute>
          <attribute>
             <class>settings</class>
-            <path>$PJSETTINGS$</path>
+            <path>$SETTINGS$</path>
          </attribute>
       </attributes>
       <validity>illimited</validity>
@@ -22,6 +22,10 @@
          <attribute>
             <class>file</class>
             <path>$PJSURFPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
          </attribute>
       </attributes>
       <validity>illimited</validity>
