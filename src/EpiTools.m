@@ -810,7 +810,6 @@ function uiFlushServerQueue_ClickedCallback(hObject, eventdata, handles)
 server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
 server_instances(2).ref.FlushQueue;
 setappdata(getappdata(0, 'hMainGui'),'server_instances',server_instances);
-
 % --------------------------------------------------------------------
 function uiImageLayersToggle_OffCallback(hObject, eventdata, handles)
 % hObject    handle to uiImageLayersToggle (see GCBO)
