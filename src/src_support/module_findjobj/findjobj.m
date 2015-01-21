@@ -88,6 +88,7 @@ function [handles,levels,parentIdx,listing] = findjobj(container,varargin) %#ok<
 %    Please send to Yair Altman (altmany at gmail dot com)
 %
 % Change log:
+%    2015-01-12: Differentiate between overlapping controls (for example in different tabs); fixed case of docked figure
 %    2014-10-20: Additional fixes for R2014a, R2014b
 %    2014-10-13: Fixes for R2014b
 %    2014-01-04: Minor fix for R2014a; check for newer FEX version up to twice a day only
@@ -140,7 +141,7 @@ function [handles,levels,parentIdx,listing] = findjobj(container,varargin) %#ok<
 % referenced and attributed as such. The original author maintains the right to be solely associated with this work.
 
 % Programmed and Copyright by Yair M. Altman: altmany(at)gmail.com
-% $Revision: 1.43 $  $Date: 2014/10/20 04:24:43 $
+% $Revision: 1.46 $  $Date: 2015/01/12 13:54:47 $
 
     % Ensure Java AWT is enabled
     error(javachk('awt'));
@@ -277,10 +278,10 @@ function [handles,levels,parentIdx,listing] = findjobj(container,varargin) %#ok<
 
         % Debug-list all found compponents and their positions
         if paramSupplied(varargin,'debug')
-            for handleIdx = 1 : length(allHandles)
-                thisObj = handles(handleIdx);
-                pos = sprintf('%d,%d %dx%d',[positions(handleIdx,:) getWidth(thisObj) getHeight(thisObj)]);
-                disp([repmat(' ',1,levels(handleIdx)) '[' pos '] ' char(toString(thisObj))]);
+            for origHandleIdx = 1 : length(allHandles)
+                thisObj = handles(origHandleIdx);
+                pos = sprintf('%d,%d %dx%d',[positions(origHandleIdx,:) getWidth(thisObj) getHeight(thisObj)]);
+                disp([repmat(' ',1,levels(origHandleIdx)) '[' pos '] ' char(toString(thisObj))]);
             end
         end
 
@@ -315,6 +316,64 @@ function [handles,levels,parentIdx,listing] = findjobj(container,varargin) %#ok<
                 for listingIdx = 1 : length(listing)
                     disp(listing{listingIdx});
                 end
+            end
+        end
+
+        % If the number of output handles does not match the number of inputs, try to match via tooltips
+        if nargout && numel(handles) ~= numel(origContainer)
+            newHandles = handle([]);
+            switchHandles = false;
+            handlesToCheck = handles;
+            if isempty(handles)
+                handlesToCheck = allHandles;
+            end
+            for origHandleIdx = 1 : numel(origContainer)
+                try
+                    thisContainer = origContainer(origHandleIdx);
+                    if isa(thisContainer,'figure') || isa(thisContainer,'matlab.ui.Figure')
+                        break;
+                    end
+                    try
+                        newHandles(origHandleIdx) = handlesToCheck(origHandleIdx); %#ok<AGROW>
+                    catch
+                        % maybe no corresponding handle in [handles]
+                    end
+
+                    % Assign a new random tooltip to the original (Matlab) handle
+                    oldTooltip = get(thisContainer,'Tooltip');
+                    newTooltip = num2str(rand,99);
+                    set(thisContainer,'Tooltip',newTooltip);
+                    drawnow;  % force the Java handle to sync with the Matlab prop-change
+                    try
+                        % Search for a Java handle that has the newly-generated tooltip
+                        for newHandleIdx = 1 : numel(handlesToCheck)
+                            testTooltip = '';
+                            thisHandle = handlesToCheck(newHandleIdx);
+                            try
+                                testTooltip = char(thisHandle.getToolTipText);
+                            catch
+                                try testTooltip = char(thisHandle.getTooltipText); catch, end
+                            end
+                            if isempty(testTooltip)
+                                % One more attempt - assume it's enclosed by a scroll-pane
+                                try testTooltip = char(thisHandle.getViewport.getView.getToolTipText); catch, end
+                            end
+                            if strcmp(testTooltip, newTooltip)
+                                newHandles(origHandleIdx) = thisHandle;
+                                switchHandles = true;
+                                break;
+                            end
+                        end
+                    catch
+                        % never mind - skip to the next handle
+                    end
+                    set(thisContainer,'Tooltip',oldTooltip);
+                catch
+                    % never mind - skip to the next handle (maybe handle doesn't have a tooltip prop)
+                end
+            end
+            if switchHandles
+                handles = newHandles;
             end
         end
 
