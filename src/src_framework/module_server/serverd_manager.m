@@ -148,7 +148,7 @@ classdef serverd_manager
                                 poolmessage.execvalues = argvar;
                                 poolmessage.argvar = clientProcess;
                                 % Append tags in correspondent pool
-                                pool_instances(idxPool+1).ref.appendTag(poolmessage);
+                                pool_instances(idxPool+1).ref.processTag(poolmessage);
                                 % Store pool reference collector into
                                 % session environment
                                 setappdata(hMainGui, 'pool_instances',pool_instances);
@@ -181,7 +181,7 @@ classdef serverd_manager
                                        poolmessage.execvalues = argvar;
                                        poolmessage.argvar = clientProcess;
                                        % Exporting to pool
-                                       p.appendTag(poolmessage);
+                                       p.processTag(poolmessage);
                                        % Reassing object pool to calling environment
                                        assignin('base', varList(idxVar).name, p);
                                        % Pool was found and used correctly
