@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tags>
+   <tag>
+      <uid>SEGMENTED_IMAGE</uid>
+      <module>Segmentation</module>
+      <class>graphics</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$SEGIMAGEPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+   <tag>
+      <uid>TRACKING_FILE</uid>
+      <module>Segmentation</module>
+      <class>null</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$TRACKINGPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+</tags>

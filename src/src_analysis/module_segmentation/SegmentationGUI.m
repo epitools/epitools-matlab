@@ -84,7 +84,6 @@ for i=1:numel(fieldgd)
     end
 end
 
-setappdata(hMainGui, 'settings_objectname', stgObj);
 updateLegends(handles);
 
 function gathered_data = gatherData(handles)
@@ -161,12 +160,10 @@ module_name = getappdata(hSegGui, 'settings_modulename');
 %Check if the user wants to use the clahe image
 use_clahe = get(handles.use_clahe_chckbx,'value');
 stgObj.AddSetting(module_name,'use_clahe',use_clahe);
-
-%gathered_data.SingleFrame = false;
 stgObj.AddSetting(module_name,'SingleFrame',false);
 stgObj.AddSetting(module_name,'debug',false);
 
-Segmentation(stgObj);
+segmentation_caller(stgObj);
 
 %close segmentation gui after execution
 delete(hSegGui);
@@ -365,7 +362,7 @@ stgObj.AddSetting(module_name,'use_clahe',use_clahe);
 stgObj.AddSetting(module_name,'SingleFrame',true);
 stgObj.AddSetting(module_name,'debug',show_debug);
 
-Segmentation(stgObj);
+segmentation_caller(stgObj);
 
 %close segmentation gui after execution
 delete(hSegGui);
