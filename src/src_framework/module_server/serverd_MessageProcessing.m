@@ -1,9 +1,10 @@
-function [ SERVERINST ] = serverd_MessageProcessing( CLIPROINST, SERVERINST, SESSIONPOOLS)
+function [ SERVERINST ] = serverd_MessageProcessing( CLIPROINST, SERVERINST, SESSIONPOOLS, DEFAULTPOOL)
 %SERVERMESSAGEPROCESSING Summary of this function goes here
 %   Detailed explanation goes here
 %% Remapping structure to avoid explosion nested structure naming
 local.dependences = CLIPROINST.dependences.dependence;
 pools = SESSIONPOOLS;
+defpool = DEFAULTPOOL;
 dependence = {};
 status = [];
 %% Check for withdrawals
@@ -36,8 +37,12 @@ end
 for i = 1:numel(local.dependences) 
     % For each tag in tag list check if present in all the possible pools
     for ntag=1:numel(local.dependences(i).tags)
-        % Check if the current tag is among those in the pool system
+        % Check if the current tag is among those in the pool system or int
+        % he default pool
         if(pools.existsTag(local.dependences(i).tags(ntag).tag));   
+            dependence{end+1} = local.dependences(i).tags(ntag).tag;
+            status(end+1) = true;
+        elseif (defpool.existsTag(local.dependences(i).tags(ntag).tag))
             dependence{end+1} = local.dependences(i).tags(ntag).tag;
             status(end+1) = true;
         else
