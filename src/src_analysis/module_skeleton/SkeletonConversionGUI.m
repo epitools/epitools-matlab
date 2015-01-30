@@ -95,7 +95,7 @@ use_corrected_segmentation = get(handles.use_corrected_segmentation,'value');
 stgObj.AddSetting(strModuleName,'use_polygon_crop',use_polygon_crop);
 stgObj.AddSetting(strModuleName,'use_corrected_segmentation',use_corrected_segmentation);
 
-SkeletonConversion(stgObj);
+skeleton_caller(stgObj);
 
 %Close after completion
 delete(hSkeletonGui);

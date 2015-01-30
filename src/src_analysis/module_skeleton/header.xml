@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>Skeletons</uid>
+    <desc_name>Extract skeletons from segmented images</desc_name>
+    <exec_priority>0</exec_priority>
+    <dependences>
+        <dependence>
+            <uid>PE01</uid>
+            <tags>
+                <tag>IMAGE_INDICES</tag>
+            </tags>
+        </dependence>
+    </dependences>
+    <withdrawals>
+        <tags/>
+    </withdrawals>     
+    <commands>
+        <command>
+            <uid>SKEL01</uid>
+            <exec>resegmentation_func.m</exec>
+            <input></input>
+            <output/>
+            <argvs/>
+            <tags>
+                <tag>SKELETONS_FILEPATH</tag>
+            </tags>
+        </command>
+    </commands>
+</process>

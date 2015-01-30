@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tags>
+   <tag>
+      <uid>SKELETONS_FILEPATH</uid>
+      <module>Skeletons</module>
+      <class>file</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$SKELETONPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+</tags>
