@@ -95,8 +95,7 @@ classdef settings < handle
             obj.exec_sandboxinuse = false;
             
         end      
-        
-        
+        % --------------------------------------------------------------------
         function LoadModule(obj,mdname, sourceobj)
         % LOADMODULE LoadModule tranfers setting/metadata/results fields from % a module to another module.
             
@@ -106,39 +105,32 @@ classdef settings < handle
             obj.analysis_modules.(mdname).results   = sourceobj.analysis_modules.(mdname).results;
         
         end
-        
+        % --------------------------------------------------------------------
         function boolean = hasModule(obj,mdname)
         % HASMODULE hasModule outputs true if mdname module is present
             boolean = logical(sum(strcmp(fields(obj.analysis_modules), mdname)) == 1);
             
         end
-        
-        
+        % --------------------------------------------------------------------
         function CreateModule(obj,mdname)
         % Create a setting module to add to the configuration file
-            
             if (strcmp(mdname, 'Main') == 1)
-               
-                obj.analysis_modules.(mdname) = struct();
-            
+                obj.analysis_modules.(mdname) = struct();          
             else
                 obj.analysis_modules.(mdname) = struct();
                 obj.analysis_modules.(mdname).metadata = struct();
                 obj.analysis_modules.(mdname).settings = struct();
                 obj.analysis_modules.(mdname).results = struct();
-            end
-            
+            end 
         end
-        
-        
+        % --------------------------------------------------------------------
         function DestroyModule(obj,mdname)
         % Destroy a setting module * remove all the parameters, settings, metadata associated
             
             obj.analysis_modules = rmfield(obj.analysis_modules,mdname);
             
         end
-        
-
+        % --------------------------------------------------------------------
         function AddSetting(obj,mdname, arg, value)
         % Add setting parameter to a certain module * the module has to be
         % already initialized.
@@ -152,7 +144,7 @@ classdef settings < handle
                 
             end
         end
-        
+        % --------------------------------------------------------------------
         function RemoveSetting(obj,mdname, arg)
         % Remove setting parameter to a certain module * the module has to be
         % already initialized.
@@ -168,7 +160,7 @@ classdef settings < handle
             end
         
         end
-        
+        % --------------------------------------------------------------------
         function ModifySetting(obj,mdname, arg,value)
         % Modify setting parameter value in a certain module * the module has to be
         % already initialized.
@@ -185,7 +177,7 @@ classdef settings < handle
             
 
         end
-        
+        % --------------------------------------------------------------------
         function AddResult(obj,mdname, arg, value)
         % Add setting parameter to a certain module * the module has to be
         % already initialized.
@@ -194,7 +186,7 @@ classdef settings < handle
                 obj.analysis_modules.(mdname).results.(arg) = value; 
 
         end
-        
+        % --------------------------------------------------------------------
         function RemoveResult(obj,mdname, arg)
         % Remove setting parameter to a certain module * the module has to be
         % already initialized.
@@ -202,7 +194,7 @@ classdef settings < handle
                 obj.analysis_modules.(mdname).results = rmfield(obj.analysis_modules.(mdname).results,arg);
         
         end
-        
+        % --------------------------------------------------------------------
         function ModifyResult(obj,mdname, arg,value)
         % Modify setting parameter value in a certain module * the module has to be
         % already initialized.
@@ -210,7 +202,7 @@ classdef settings < handle
                 obj.analysis_modules.(mdname).results.(arg) = value; 
 
         end
-        
+        % --------------------------------------------------------------------
         function AddMetadata(obj,mdname, arg, value)
         % Add setting parameter to a certain module * the module has to be
         % already initialized.
@@ -219,7 +211,7 @@ classdef settings < handle
                 obj.analysis_modules.(mdname).metadata.(arg) = value; 
 
         end
-        
+        % --------------------------------------------------------------------
         function RemoveMetadata(obj,mdname, arg)
         % Remove setting parameter to a certain module * the module has to be
         % already initialized.
@@ -227,7 +219,7 @@ classdef settings < handle
                 obj.analysis_modules.(mdname).metadata = rmfield(obj.analysis_modules.(mdname).metadata,arg);
         
         end
-        
+        % --------------------------------------------------------------------
         function ModifyMetadata(obj,mdname, arg,value)
         % Modify setting parameter value in a certain module * the module has to be
         % already initialized.
@@ -235,7 +227,220 @@ classdef settings < handle
                 obj.analysis_modules.(mdname).metadata.(arg) = value; 
 
         end
+        % --------------------------------------------------------------------
+        function GenerateXMLFile(obj)
+            % Initialize an empty structure
+            tmp = struct();
+            % Parse the setting object associated with the current session
+            tmp = struct(obj);
+            % Conversion cell arrays to structure objects
+            intNumRows = size(obj.analysis_modules.Main.data,1);
+            fieldsFile = {  'name';
+                            'dim_x';
+                            'dim_y';
+                            'dim_z';
+                            'num_channels';
+                            'num_timepoints';
+                            'pixel_type';
+                            'exec';
+                            'exec_dim_z';
+                            'exec_channels';
+                            'exec_num_timepoints';};
+            tmpFileStruct = struct();
+            for r=1:intNumRows
+                tmpFileStruct.(strcat('file',num2str(r))) =  cell2struct(obj.analysis_modules.Main.data(r,:)',fieldsFile);
+            end
+            % Append to temporary structure
+            tmp.analysis_modules.Main.data = tmpFileStruct;
+            if(sum(strcmp(fields(obj.analysis_modules.Main), 'indices')) == 1)
+                tmp.main.analysis_modules.Main = rmfield(tmp.main.analysis_modules.Main,'indices');
+            end
+            Pref.StructItem = false;
+            xml_write(strcat(obj.data_fullpath,'/',obj.analysis_name,'.',num2str(obj.analysis_version),'.xml'), tmp, 'main', Pref);
+            % Writing to xml file
+            %struct2xml(tmp, strcat(obj.data_fullpath,'/',obj.analysis_name,'.',num2str(obj.analysis_version),'.xml'));
 
+        end
+        % --------------------------------------------------------------------
+        function discardDownstreamModules(obj, mdname)
+            % Get the module names
+            arrayStgFields = fields(obj.analysis_modules);
+            % Find position on the modules array of the current module
+            intIDX = find(strcmp(arrayStgFields, mdname));
+            % Delete all the downstream modules 
+            for i=(intIDX+1):length(arrayStgFields)
+                if (isempty(obj.analysis_modules.(char(arrayStgFields(i))).results));continue;end
+                % Move results into backup folder
+                arrayResults = fields(obj.analysis_modules.(char(arrayStgFields(i))).results);
+                for o=1:numel(arrayResults) 
+                    if(strcmp(arrayResults,'tracking_file_path'));continue;end
+                    % File name
+                    strSourceFileName = obj.analysis_modules.(char(arrayStgFields(i))).results.(char(arrayResults(o)));
+                    % File location 
+                    strSourceFilePath = obj.data_analysisoutdir;
+                    % Check existance backup directory
+                    if(~exist([strSourceFilePath,'/Backups'],'dir')); mkdir([strSourceFilePath,'/Backups']); end
+                    % subdirectories to be reconstructed
+                    if(strcmp(char(arrayStgFields(i)), 'Skeletons'))
+                        if(~exist([strSourceFilePath,'/Backups/skeletons'],'dir'))
+                            mkdir([strSourceFilePath,'/Backups/skeletons']);
+                        end
+                    end
+                    % Copy file  [strSourceFilePath,'/',strSourceFileName]
+                    if(exist([strSourceFilePath,'/',strSourceFileName],'file')==2)
+                        copyfile([strSourceFilePath,'/',strSourceFileName], [strSourceFilePath,'/Backups/',strSourceFileName]);
+                    else
+                        continue;
+                    end
+                    % Remove file
+                    delete([strSourceFilePath,'/',strSourceFileName]);
+                end
+                % Destroy module
+                obj.DestroyModule(arrayStgFields(i));
+            end
+        end
+        % --------------------------------------------------------------------
+        function argout = initialiseModule(obj,mdname)
+            argout = true;
+            %% Sandboxing checking
+            % Set the status of sandboxing (TODO: better patch)
+            % If any module has been called when sandbox is in use or if the 
+            % program has crashed before closing the sandbox, then reset in/out
+            % analysis dir and reset status sandbox
+            if obj.exec_sandboxinuse
+                % -------------------------------------------------------------------------
+                % Log status of previous operations
+                log2dev('Found Sandbox environment OPEN even if the module was not invoked before!', 'WARN');
+                log2dev('Resetting out analysis directory to original path', 'DEBUG');
+                % -------------------------------------------------------------------------
+                obj.data_analysisoutdir = obj.data_analysisindir;
+                obj.exec_sandboxinuse = false;
+            end
+            %% Procedure 
+            % If the module exists already, then sandoxing is required in order to proceed 
+            if(obj.hasModule(mdname))
+                % Workround for multiple executions of tracking module
+                if(strcmp(mdname,'Indexing'));argout = false;return;end
+                if(strcmp(mdname,'Tracking'));return;end
+                %if(strcmp(mdname,'Contrast_Enhancement')); obj.discardDownstreamModules(mdname);return;end
+                % When the module has been already executed during the course of the
+                % current analysis, the program will ask to the user if he wants to
+                % run a comparative analysis. If yes, then it runs everything in a
+                % sandbox where the previous modules are stored until the user
+                % decides if he wants to keep or discard them.
+                out = questdlg(sprintf( 'The analysis module [%s] you are attempting to execute is already present in your analysis.\n\n How do you want to proceed?', mdname),...
+                                        'Control workflow of analysis modules',...
+                                        'Overrite module',...
+                                        'Comparare executions',...
+                                        'Abort operations',...
+                                        'Abort operations');
+                switch out
+                    case 'Overrite module'                  
+                        % -------------------------------------------------------------------------
+                        % Log status of previous operations
+                        log2dev('All further analysis results have been moved into Analysis_Directory_Path\Backups since they are invalid due to re-execution of the module', 'WARN');
+                        % -------------------------------------------------------------------------
+                        %obj.discardDownstreamModules(mdname);
+                    case 'Comparare executions'
+                        % Connect a new pool and deactivate all the others
+                        pool_name       = strcat(obj.analysis_name,'_cmp_',datestr(now(),30));
+                        pool_instances  = getappdata(getappdata(0,'hMainGui'), 'pool_instances');
+                        % Deactivate other active pools
+                        for idxPool = 2:numel(pool_instances); pool_instances(idxPool).ref.deactivatePool; end
+                        % Save into global variables
+                        setappdata(getappdata(0,'hMainGui'), 'pool_instances', pool_instances);
+                        connectPool(pool_name);
+                        % Initilization sandbox for the current module
+                        sdb = sandbox();
+                        % Set the status of sandboxing (TODO: better patch)
+                        obj.exec_sandboxinuse = true; 
+                        % Create the variables for the current module
+                        sdb.setSandBox(mdname,obj);
+                        % Retrieve sandbox variations to settings file and
+                        % rewrite it
+                        sdb.getSandbox()
+                        obj.inheritSettings(sdb.analysis_settings); 
+                        % Settings file will returned with variations to
+                        % calling environment
+                    case 'Abort operations'
+                         return;
+                end
+            else
+                % if no modules match mdname, then create a new one. 
+                obj.CreateModule(mdname);
+            end
+        end
+        % --------------------------------------------------------------------
+        function inheritSettings(obj,source)
+            strFields = fieldnames(source);
+            for i = 1:numel(strFields);obj.(char(strFields(i))) = source.(char(strFields(i)));end
+        end
+        % --------------------------------------------------------------------
+        function importModule(obj,source,mdname)
+            strFields = fieldnames(source.analysis_modules.(mdname));
+            % Legacy compatibility
+            for i = 1:numel(strFields);obj.analysis_modules.(mdname).(char(strFields(i))) = source.analysis_modules.(mdname).(char(strFields(i)));end
+        end
+        % --------------------------------------------------------------------
+        function refreshTree(obj,hfig)
+            uihandles_deletecontrols('uitree');
+            % Load JTREE Class
+            jtree = uitree_control(hfig,obj);
+            % Load Contextual menu on JTREE class
+            uitree_contextualmenu(jtree);
+            if ~uihandles_exists('uipanel_serverqueue')
+                uipanel_serverqueue = uipanel('Parent', hfig,...
+                                              'Position',[0.0 0.02 0.17 0.20],...
+                                              'Units', 'normalized');
+                uihandles_savecontrols( 'uipanel_serverqueue', uipanel_serverqueue );
+            end
+            if ~uihandles_exists('uipanel_serverpool')
+                uipanel_serverpool = uipanel('Parent', hfig,...
+                                              'Position',[0.0 0.22 0.17 0.10],...
+                                              'Units', 'normalized');
+                uihandles_savecontrols('uipanel_serverpool', uipanel_serverpool );
+            end
+            uihandles_savecontrols('uitree', jtree );
+        end
+        % --------------------------------------------------------------------
+        function createPackage(obj)
+            try 
+            % Load pool file
+            listing = dir([obj.data_fullpath,'/pools/']);
+            ind = ~cellfun(@isempty, regexp({listing.name}, '.xml'));                   
+            x = xml_read([obj.data_fullpath,'/pools/',listing(ind).name]);
+            % Get modules
+            modules = fields(obj.analysis_modules);
+            for i = 3:numel(modules)
+                results = fields(obj.analysis_modules.(char(modules(i))).results);
+                for o = 1:numel(results)
+                    try
+                        copyfile(obj.analysis_modules.(char(modules(i))).results.(char(results(o))),...
+                                 obj.data_analysisindir )
+                        a = regexp(obj.analysis_modules.(char(modules(i))).results.(char(results(o))),'/', 'split');
+                        % Change path in pool file
+                        idx_tags = find(strcmp({x.tag.module},char(modules(i))));
+                        for u = 1:numel(idx_tags)
+                            pid = strcmp({x.tag(idx_tags(u)).attributes.attribute.path},...
+                                    obj.analysis_modules.(char(modules(i))).results.(char(results(o))));
+                            x.tag(idx_tags(u)).attributes.attribute(pid).path = [obj.data_analysisindir,'/',a{end}];
+                        end
+                        % Change path in analysis file
+                        obj.analysis_modules.(char(modules(i))).results.(char(results(o))) = [obj.data_analysisindir,'/',a{end}];
+                    catch err
+                    end
+                end
+            end
+            Pref.StructItem = false;
+            % Write to xml pool file
+            xml_write([obj.data_fullpath,'/pools/',listing(ind).name],x,'tags',Pref);
+            % Remove temporary directories
+            listfolders = dir(obj.data_fullpath);
+            ind = find(~cellfun(@isempty, regexp({listfolders.name}, 'tmp_')));  
+            for i = 1:numel(ind); rmdir([obj.data_fullpath,'/',listfolders(ind(i)).name],'s'); end
+            catch err
+            end
+        end
     end
     
 end
