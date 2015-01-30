@@ -78,7 +78,7 @@ end
         
         stgObj.(char(cell2mat(lstDirectory2Check(1,1)))) = getappdata(fig, 'directorypath');
         setappdata(hMainGui,'settings_objectname', stgObj);
-        SaveAnalysisFile([],[],1);
+        SaveAnalysisFile(stgObj,'ForceSave', true);
         delete(fig);
     end
 

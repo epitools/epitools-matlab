@@ -1,5 +1,5 @@
-function argout = SaveAnalysisFile(analysis_struct,varargin)
-%SAVEANALYSISFILE This function check the running status of a program in the 
+function [status,argout] = IntegrityStatusExecution( input_args,varargin )
+%INTEGRITYSTATUSEXECUTION This function check the running status of a program in the 
 % system task lists
 % ------------------------------------------------------------------------------
 % PREAMBLE
@@ -32,26 +32,18 @@ function argout = SaveAnalysisFile(analysis_struct,varargin)
 % ------------------------------------------------------------------------------
 %% Initialization arguments
 p = inputParser;
-% Define function parameters
-addOptional(p,'ForceSave',false,@islogical);
-% Parse function parameters
-parse(p,varargin{:});
-%% Procedure
-if p.Results.ForceSave % case if ForceSave is true
-    % Call method to export analysis to xml file
-    analysis_struct.GenerateXMLFile
-    % Status execution
-    argout = 1;
-else     % case ForceSave is false as default
-    out = questdlg('Would you like to save the current analysis?', 'Save analysis','Yes', 'No','Abort', 'Abort');
-    switch out
-        case 'Yes'
-            % Call method to export analysis to xml file
-            analysis_struct.GenerateXMLFile
-            argout = 0;
-        case 'No'
-            argout = 0;
-        case 'Abort'
-            argout = 1;
-    end
+addRequired(p,'ForceExecution',@islogical);
+%addOptional(p,'description',@ischar);
+parse(p,'ForceExecution',varargin{:});
+
+for i = 1:numel(input_args)
+    
+[status,result] = system('tasklist /FI "imagename eq icy.exe" /fo table /nh')
+% If the searched program is not running,  if ForceExection parameter is passed to the function,
+% then try to place a call to the system.
+if p.Results.ForceExecution && isempty(result)
+   system( input_args{i}
 end
+end
+end
+
