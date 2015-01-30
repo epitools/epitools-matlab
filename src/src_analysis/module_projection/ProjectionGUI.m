@@ -68,7 +68,6 @@ updateAndGather(handles);
 
 function updateAndGather(handles)
 hPrjGui = getappdata(0  , 'hPrjGui');
-hMainGui = getappdata(0  , 'hMainGui');
 stgObj  = getappdata(hPrjGui, 'settings_objectname');
 module_name = getappdata(hPrjGui, 'settings_modulename');
 
@@ -83,10 +82,7 @@ for i=1:numel(fieldgd)
         stgObj.ModifySetting(module_name, char(idx), gathered_data.(char(idx)));
     end
 end
-% Store settings in setting object
-setappdata(hMainGui, 'settings_objectname', stgObj);
 updateLegends(handles);
-
 % Gather slider values set on the controls
 function gathered_data = gatherData(handles)
     gathered_data.SmoothingRadius = get(handles.smoothing_slider,'value');
@@ -106,7 +102,6 @@ module_name = getappdata(hPrjGui, 'settings_modulename');
     set(handles.surface2_label, 'String', caption);
     caption = sprintf('Cutoff distance = %.2f', stgObj.analysis_modules.(char(module_name)).settings.ProjectionDepthThreshold);
     set(handles.depth_label, 'String', caption);
-    
 % --- Outputs from this function are returned to the command line.
 function varargout = ProjectionGUI_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -211,21 +206,15 @@ function start_projection_Callback(hObject, eventdata, handles)
 % hObject    handle to start_projection (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-hMainGui = getappdata(0, 'hMainGui');
-stgObj  = getappdata(hMainGui, 'settings_objectname');
-%params.InspectResults = true;         % show fit or not
+hPrjGui = getappdata(0  , 'hPrjGui');
+stgObj  = getappdata(hPrjGui, 'settings_objectname');
 show_surfaces_fitting = get(handles.show_surface_checkbox,'value');
 stgObj.AddSetting('Projection','InspectResults',show_surfaces_fitting);
-%params.Parallel = true;               % Use parallelisation?
 stgObj.AddSetting('Projection','Parallel',true);
 % Save settings and store them in global variable
 updateAndGather(handles);
-
 projection_caller(stgObj);
-%Projection(stgObj);
-
 %close projection gui after execution
-%hProjGui = getappdata(0,'hPrjGui');
 delete(getappdata(0,'hPrjGui'));
 % --- Executes on button press in show_surface_checkbox.
 function show_surface_checkbox_Callback(hObject, eventdata, handles)

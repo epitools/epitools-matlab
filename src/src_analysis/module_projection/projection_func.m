@@ -77,9 +77,9 @@ if(stgMain.platform_units ~= 1)
 end
 % Per each IMG ID in the IMG ID list generated with PreparingData2Load (where the
 % exec toggle property was set to true)
-for i=1:numel(stgMain.analysis_modules.Main.indices.I)
+for i=1:numel(stgMain.analysis_modules.Indexing.results.indices.I)
     % Retrieve the current IMG ID from the list
-    intCurImgIdx = stgMain.analysis_modules.Main.indices.I(i);
+    intCurImgIdx = stgMain.analysis_modules.Indexing.results.indices.I(i);
     % Retrieve the current IMG absolute path
     strCurFileName = char(stgMain.analysis_modules.Main.data(intCurImgIdx,1));
     strFullPathFile = [stgMain.data_imagepath,'/',strCurFileName];
@@ -93,22 +93,22 @@ for i=1:numel(stgMain.analysis_modules.Main.indices.I)
         % Forced to be of type uint8
         Surfaces = zeros(cell2mat(stgMain.analysis_modules.Main.data(intCurImgIdx,3)),...
             cell2mat(stgMain.analysis_modules.Main.data(intCurImgIdx,2)),...
-            sum(arrayfun(@length,stgMain.analysis_modules.Main.indices.T(intCurImgIdx))),...
+            sum(arrayfun(@length,stgMain.analysis_modules.Indexing.results.indices.T(intCurImgIdx))),...
             'uint8');
         ProjIm = zeros(cell2mat(stgMain.analysis_modules.Main.data(intCurImgIdx,3)),...
             cell2mat(stgMain.analysis_modules.Main.data(intCurImgIdx,2)),...
-            sum(arrayfun(@length,stgMain.analysis_modules.Main.indices.T(intCurImgIdx))),...
+            sum(arrayfun(@length,stgMain.analysis_modules.Indexing.results.indices.T(intCurImgIdx))),...
             char(stgMain.analysis_modules.Main.data(intCurImgIdx,7)));
     end
     %% Load Data considering the specifics passed by stgObj.analysis_modules.Main.indices
     % Warning: the dimensions of ImagesPreStack are given by the number
     % of planes in output from LoadImgData. If channels num is 1, then
     % dim = 4
-    [~,ImagesPreStack] = LoadImgData(strFullPathFile,intCurImgIdx,stgMain.analysis_modules.Main.indices);
+    [~,ImagesPreStack] = LoadImgData(strFullPathFile,intCurImgIdx,stgMain.analysis_modules.Indexing.results.indices);
     %% Project data
-    totalTimeSteps = sum(cellfun(@length,stgMain.analysis_modules.Main.indices.T));
-    for local_time_index = 1:length(stgMain.analysis_modules.Main.indices.T{intCurImgIdx})
-        ImStack = ImagesPreStack(:,:,:,stgMain.analysis_modules.Main.indices.T{intCurImgIdx}(local_time_index));
+    totalTimeSteps = sum(cellfun(@length,stgMain.analysis_modules.Indexing.results.indices.T));
+    for local_time_index = 1:length(stgMain.analysis_modules.Indexing.results.indices.T{intCurImgIdx})
+        ImStack = ImagesPreStack(:,:,:,stgMain.analysis_modules.Indexing.results.indices.T{intCurImgIdx}(local_time_index));
         [im,Surf] = createProjection(ImStack,...
             stgModule.SmoothingRadius,...
             stgModule.ProjectionDepthThreshold,...
@@ -128,13 +128,13 @@ for i=1:numel(stgMain.analysis_modules.Main.indices.I)
         % -------------------------------------------------------------------------
         progressbar(currTimeStep/totalTimeSteps);
     end
-    global_time_index=global_time_index+length(stgMain.analysis_modules.Main.indices.T{intCurImgIdx});
+    global_time_index=global_time_index+length(stgMain.analysis_modules.Indexing.results.indices.T{intCurImgIdx});
     intProcessedFiles = intProcessedFiles+1;
 end
 %% Saving results
 %stgMain.AddResult('Projection','projection_path','ProjIm.tif');
-stgMain.AddResult('Projection','projection_path','ProjIm.mat');
-stgMain.AddResult('Projection','surface_path','Surfaces.mat');
+stgMain.AddResult('Projection','projection_path',[stgMain.data_analysisoutdir,'/ProjIm.mat']);
+stgMain.AddResult('Projection','surface_path',[stgMain.data_analysisoutdir,'/Surfaces.mat']);
 %exportTiffImages(ProjIm,'filename',[stgMain.data_analysisoutdir,'/ProjIm.tif']);
 save([stgMain.data_analysisoutdir,'/ProjIm'],'ProjIm')
 save([stgMain.data_analysisoutdir,'/Surfaces'],'Surfaces')
