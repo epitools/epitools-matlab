@@ -8,9 +8,6 @@
 % fields and sub-fields of the input in an ASCII graphical printout in the
 % command window.  The order of structure fields is preserved.
 % 
-% OUTPUTS:
-% 
-% (none yet!)
 
 function output = structstruct(S)
 
