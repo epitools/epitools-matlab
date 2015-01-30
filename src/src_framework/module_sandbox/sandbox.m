@@ -22,7 +22,6 @@ classdef sandbox < handle
     
     % Copyright by A.Tournier, A. Hoppe, D. Heller, L.Gatti
     % ------------------------------------------------------------------------------
-    
     properties (SetAccess = private)
         sandbox_status = 0;
     end
@@ -39,7 +38,7 @@ classdef sandbox < handle
     end
     
     methods
-        
+        % -------------------------------------------------------------------------
         function sdb = sandbox()
             %  SANDBOX  sandbox initialises the	object sandbox setting its status
             %  to 1 (open)
@@ -65,89 +64,62 @@ classdef sandbox < handle
             
         end
         % -------------------------------------------------------------------------
-        function boolean = CreateSandbox(sdb, mdname, mdsett)
+        function setSandBox(sdb, mdname, mdsett)
             %  CREATESANDBOX CreateSandbox initialises the sandbox object for a
             % 	specific module of the current analysis. The user has to specify
             % 	the following parameters:
             %	mdname =  name of the module the user wants to re-run
             %	mdsett =  struct object containing the specifics of the
             %			  module
-            boolean = true;
-            while boolean
-                if (nargin == 3)
-                    if (sdb.sandbox_status == 0);
-                        boolean=false;
-                        log2dev(sprintf('Your sandbox has not been opened.'), 'WARN');
-                    end
-                    if (isa(mdname, 'char') && isa(mdsett, 'settings'))
-                        sdb.module_name = mdname;
-                        sdb.analysis_settings = mdsett;
-                        
-                        log2dev(sprintf('Sanbox environment | module_name: %s',sdb.module_name), 'VERBOSE');
-                        return;
-                    else
-                        %% trown matlab exception for class parameters not allowed
-                        boolean = false;
-                    end
-                else
-                    %% trown matlab exception for number parameters below expectances
-                    boolean = false;
-                end
-            end
-        end
-        % -------------------------------------------------------------------------
-        function boolean = Run(sdb)
-            %  RUN Run executes the module specified in the public variable
-            %  module_name with settings contained in the public object module_settings
-            boolean = true;
-            while boolean
+            if (nargin == 3)
                 if (sdb.sandbox_status == 0);
-                    boolean=false;
                     log2dev(sprintf('Your sandbox has not been opened.'), 'WARN');
+                    return;
                 end
-                % If a module hame has been specified, then call the executor file
-                if (~isempty(sdb.module_name) && ~isempty(sdb.analysis_settings))
-                    % When a new sandbox is instantiated it will redirect the new results in a
-                    % temporary directory.
-                    if ((sdb.results_validity) && (~sdb.results_overrite))
-                        % Indicate an alternative directory to store the objects computed as
-                        % outputs from the analysis.
-                        sdb.analysis_settings.data_analysisoutdir = [sdb.analysis_settings.data_fullpath,'/', sdb.analysis_tmpdirpath];
-                        log2dev(sprintf('Sanbox environment has set the analysis-dir-out path to: %s',sdb.analysis_settings.data_analysisoutdir), 'VERBOSE');
-                        % Create the temporary directory where the files will be stored
-                        mkdir([sdb.analysis_settings.data_fullpath,'/', sdb.analysis_tmpdirpath]);
-                        log2dev(sprintf('Sanbox environment has created the analysis-dir-out path in: %s',sdb.analysis_settings.data_analysisoutdir), 'VERBOSE');
-                    end
-                    log2dev(sprintf('Sanbox environment is going to execute the module: %s',sdb.module_name), 'VERBOSE');
-                    % Save module
-%                     tmp = struct();
-%                     tmp.main = stgObj.analysis_modules.(char(mdName));
-%                     struct2xml(tmp, strcat(stgObj.data_fullpath,'/',mdName,'.xml'));
-                    switch sdb.module_name
-                        case 'Projection'
-                            out = ProjectionGUI(sdb.analysis_settings);
-                            %waitfor(out);
-                        %case 'Stack_Registration'
-                        %    out = RegistrationGUI(sdb.analysis_settings);
-                            %waitfor(out);
-                        case 'Contrast_Enhancement'
-                            out = ImproveContrastGUI(sdb.analysis_settings);
-                            %waitfor(out);
-                        case 'Segmentation'
-                            out = SegmentationGUI(sdb.analysis_settings);
-                            %waitfor(out);
-                        case 'Tracking'
-                            out = TrackingIntroGUI(sdb.analysis_settings);
-                            %waitfor(out);
-                        otherwise
-                            return;
-                    end
-                    if (out); boolean = true;return;else boolean = false; end
+                if (isa(mdname, 'char') && isa(mdsett, 'settings'))
+                    % Duplicate settings file and initialize a new instance of the module 
+                    % Duplicate setting objects and save content
+                    int = settings();
+                    int.inheritSettings(mdsett);
+                    int.DestroyModule(mdname);
+                    int.initialiseModule(mdname);
+                    sdb.module_name = mdname;
+                    sdb.analysis_settings = int;
+                    log2dev(sprintf('Sanbox environment | module_name: %s',sdb.module_name), 'VERBOSE');
+                    return;
+                else
+                    %% trown matlab exception for class parameters not allowed
+                    return;
                 end
+            else
+                %% trown matlab exception for number parameters below expectances
+                return;
             end
         end
         % -------------------------------------------------------------------------
-        function boolean = DestroySandbox(sdb)
+        function getSandbox(sdb)
+            if (sdb.sandbox_status == 0);
+                log2dev(sprintf('Your sandbox has not been opened.'), 'WARN');
+                return;
+            end
+            % If a module hame has been specified, then call the executor file
+            if (~isempty(sdb.module_name) && ~isempty(sdb.analysis_settings))
+                % When a new sandbox is instantiated it will redirect the new results in a
+                % temporary directory.
+                if ((sdb.results_validity) && (~sdb.results_overrite))
+                    % Indicate an alternative directory to store the objects computed as
+                    % outputs from the analysis.
+                    sdb.analysis_settings.data_analysisoutdir = [sdb.analysis_settings.data_fullpath,'/', sdb.analysis_tmpdirpath];
+                    log2dev(sprintf('Sanbox environment has set the analysis-dir-out path to: %s',sdb.analysis_settings.data_analysisoutdir), 'VERBOSE');
+                    % Create the temporary directory where the files will be stored
+                    mkdir([sdb.analysis_settings.data_fullpath,'/', sdb.analysis_tmpdirpath]);
+                    log2dev(sprintf('Sanbox environment has created the analysis-dir-out path in: %s',sdb.analysis_settings.data_analysisoutdir), 'VERBOSE');
+                end
+                log2dev(sprintf('Sanbox environment is going to execute the module: %s',sdb.module_name), 'VERBOSE');
+            end
+        end
+        % -------------------------------------------------------------------------
+        function destroySandbox(sdb)
             boolean = true;
             % Evaluate boolean specifics in order to save/destroy/redirect files & directories.
             % -------------------------------------------------------------------------
@@ -212,6 +184,11 @@ classdef sandbox < handle
             end
             
         end
-        
+        % -------------------------------------------------------------------------
+        function createBackups(sdb)
+        end
+        % -------------------------------------------------------------------------
+        function getAccessPaths(sdb)
+        end
     end
 end
