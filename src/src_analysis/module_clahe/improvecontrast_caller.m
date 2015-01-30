@@ -37,9 +37,9 @@ for i = 1:size(pool_instances(2:end),2)
     if (pool_instances(i+1).ref.active)
         % Add variable memory handles to exe command
         var = {'ExecutionSettingsHandle',handles{1}};
-        clients(strcmp({clients.uid},'CLAHE')).addArgv('CLAHE01','argv',var);
-        server.receiveMessage(clients(strcmp({clients.uid},'CLAHE')),...
-                              pool_instances(i+1).ref);
+        clients(strcmp({clients.uid},'Contrast_Enhancement')).addArgv('CLAHE01','argv',var);
+        server.receiveMessage(clients(strcmp({clients.uid},'Contrast_Enhancement')),...
+                              pool_instances(i+1).ref,pool_instances(2).ref);
     end
 end
 end

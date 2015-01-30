@@ -69,7 +69,6 @@ updateAndGather(handles);
 
 function updateAndGather(handles)
 hICoGui = getappdata(0  , 'hICoGui');
-hMainGui = getappdata(0  , 'hMainGui');
 stgObj  = getappdata(hICoGui, 'settings_objectname');
 module_name = getappdata(hICoGui, 'settings_modulename');
 
@@ -85,7 +84,7 @@ for i=1:numel(fieldgd)
     end
 end
 
-setappdata(hMainGui, 'settings_objectname', stgObj);
+setappdata(hICoGui, 'settings_objectname', stgObj);
 updateLegends(handles);
 % 
 % function updateAndGather(handles)

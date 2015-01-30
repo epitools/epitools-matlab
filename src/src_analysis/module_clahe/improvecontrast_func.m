@@ -38,7 +38,7 @@ function [status,argout] = improvecontrast_func(input_args,varargin)
 % Copyright by A.Tournier, A. Hoppe, D. Heller, L.Gatti
 % ------------------------------------------------------------------------------
 %% Retrieve supplementary arguments
-if (nargin<2); varargin(1) = {'CLAHEIMAGEPATH'};varargin(2) = {'CLAHESETTINGS'};end
+if (nargin<2); varargin(1) = {'CLAHEIMAGEPATH'};varargin(2) = {'SETTINGS'};end
 %% Procedure initialization
 status = 1;
 % Tracking time of the computation
@@ -96,7 +96,7 @@ end
 elapsedTime = toc;
 % Storing Results
 RegIm = RegIm_clahe;
-stgMain.AddResult('Contrast_Enhancement','clahe_path','RegIm_wClahe.mat');
+stgMain.AddResult('Contrast_Enhancement','clahe_path',[stgMain.data_analysisoutdir,'/RegIm_wClahe.mat']);
 save([stgMain.data_analysisoutdir,'/RegIm_wClahe'],'RegIm');
 % -------------------------------------------------------------------------
 % Log status of current application status
