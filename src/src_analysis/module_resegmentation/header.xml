@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>ReSegmentation</uid>
+    <desc_name>Segmentation module for edge detection </desc_name>
+    <exec_priority>0</exec_priority>
+    <dependences>
+        <dependence>
+            <uid>PE01</uid>
+            <tags>
+                <tag>IMAGE_INDICES</tag>
+            </tags>
+        </dependence>
+        <dependence>
+            <uid>PE01</uid>
+            <tags>
+                <tag>ADJTRACKING_FILE</tag>
+            </tags>
+            <exceptions>
+                <exception>
+                    <uid>TRK01</uid>
+                    <desc>Tracking file can also come from automatically generated methods</desc>
+                    <tags>
+                        <tag>
+                            <id>ADJTRACKING_FILE</id>
+                            <rep>TRACKING_FILE</rep>
+                        </tag>
+                    </tags>
+                </exception>
+            </exceptions>
+        </dependence>
+    </dependences>
+    <withdrawals>
+        <tags/>
+    </withdrawals>     
+    <commands>
+        <command>
+            <uid>RSEG01</uid>
+            <exec>resegmentation_func.m</exec>
+            <input></input>
+            <output/>
+            <argvs/>
+            <tags>
+                <tag>RESEGMENTED_IMAGE</tag>
+            </tags>
+        </command>
+    </commands>
+</process>
