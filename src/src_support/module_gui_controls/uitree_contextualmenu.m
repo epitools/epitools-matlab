@@ -1,7 +1,6 @@
 function uitree_contextualmenu( jtree )
 %JTREE_CONTEXTUALMENU
 %
-
 % Prepare the context menu (note the use of HTML labels)
 menuItem1 = javax.swing.JMenuItem('<html> Open module settings </html>', javax.swing.ImageIcon('./images/icons/magnifier.png'));
 menuItem2 = javax.swing.JMenuItem('<html> Open results in finder </html>', javax.swing.ImageIcon('./images/icons/computer.png'));
@@ -9,16 +8,15 @@ menuItem3 = javax.swing.JMenuItem('<html> Export module as .xml file </html>',ja
 menuItem4 = javax.swing.JMenuItem('<html> Export results as .zip file </html>',javax.swing.ImageIcon('./images/icons/compress.png'));
 menuItem5 = javax.swing.JMenuItem('<html> Delete module </html>',javax.swing.ImageIcon('./images/icons/bin_closed.png'));
 menuItem6 = javax.swing.JMenuItem('<html> Visualize results </html>', javax.swing.ImageIcon('./images/icons/slides_stack.png'));
-
-
+menuItem7 = javax.swing.JMenuItem('<html> Export results as .tiff file </html>',javax.swing.ImageIcon('./images/icons/images.png'));
+% Retrieve Matlab Handles from Java objects
 hmenuItem1 = handle(menuItem1, 'CallbackProperties');
 hmenuItem2 = handle(menuItem2, 'CallbackProperties');
 hmenuItem3 = handle(menuItem3, 'CallbackProperties');
 hmenuItem4 = handle(menuItem4, 'CallbackProperties');
 hmenuItem5 = handle(menuItem5, 'CallbackProperties');
 hmenuItem6 = handle(menuItem6, 'CallbackProperties');
-
-
+hmenuItem7 = handle(menuItem7, 'CallbackProperties');
 % Set the menu items' callbacks
 set(menuItem1,'ActionPerformedCallback',@openModuleSettings);
 set(menuItem2,'ActionPerformedCallback',@openModuleinFinder);
@@ -26,6 +24,7 @@ set(menuItem3,'ActionPerformedCallback',@exportModuleasXML);
 set(menuItem4,'ActionPerformedCallback',@exportResultsasZIP);
 set(menuItem5,'ActionPerformedCallback',@deleteModuleSettings);
 set(menuItem6,'ActionPerformedCallback',@openModuleResultsinMainView);
+set(menuItem7,'ActionPerformedCallback',@exportModuleasTiff);
 
 % Add all menu items to the context menu (with internal separator)
 jmenu = javax.swing.JPopupMenu;
@@ -33,11 +32,11 @@ jmenu.add(menuItem6);
 jmenu.add(menuItem1);
 jmenu.add(menuItem2);
 jmenu.addSeparator;
+jmenu.add(menuItem7);
 jmenu.add(menuItem3);
 jmenu.add(menuItem4);
 jmenu.addSeparator;
 jmenu.add(menuItem5);
-
 % Set the tree mouse-click callback
 % Note: MousePressedCallback is better than MouseClickedCallback
 %       since it fires immediately when mouse button is pressed,
@@ -108,13 +107,13 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         switch mdName
             case 'Projection'
                 SandboxGUIRedesign(0);
-                data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.projection_path]);
+                data = load(stgObj.analysis_modules.(char(mdName)).results.projection_path);
                 
                 if(stgObj.icy_is_used)
                     icy_vidshow(data.ProjIm,'Projected Sequence');
                 else
                     inputs{1} = hMainGui;
-                    inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.projection_path]};
+                    inputs{2} = {stgObj.analysis_modules.(char(mdName)).results.projection_path};
                     inputs{3} = {mdName};
                     %varargin = {'Comparative',1};
                     %StackView(data.ProjIm,'hMainGui','figureA');
@@ -122,39 +121,39 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
                 
             case 'Stack_Registration'
                 SandboxGUIRedesign(0);
-                data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.registration_path]);
+                data = load(stgObj.analysis_modules.(char(mdName)).results.registration_path);
                 
                 if(stgObj.icy_is_used)
                     icy_vidshow(data.RegIm,'Registered Sequence');
                 else
                     %StackView(data.RegIm,'hMainGui','figureA');
                     inputs{1} = hMainGui;
-                    inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.registration_path]};
+                    inputs{2} = {stgObj.analysis_modules.(char(mdName)).results.registration_path};
                     inputs{3} = {mdName};
                 end
                 
             case 'Contrast_Enhancement'
                 SandboxGUIRedesign(0);
-                data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.clahe_path]);
+                data = load(stgObj.analysis_modules.(char(mdName)).results.clahe_path);
                 
                 if(stgObj.icy_is_used)
                     icy_vidshow(data.RegIm,'CLAHE Sequence');
                 else
                     %StackView(data.RegIm,'hMainGui','figureA');
                     inputs{1} = hMainGui;
-                    inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.clahe_path]};
+                    inputs{2} = {stgObj.analysis_modules.(char(mdName)).results.clahe_path};
                     inputs{3} = {mdName};
                 end
                 
             case 'Segmentation'
                 SandboxGUIRedesign(0);
-                data = load([stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.segmentation_path]);
+                data = load(stgObj.analysis_modules.(char(mdName)).results.segmentation_path);
                 if(stgObj.icy_is_used)
                     icy_vid3show(data.ColIms,'Segmented Sequence');
                 else
                     %StackView(data.ColIms,'hMainGui','figureA');
                     inputs{1} = hMainGui;
-                    inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.segmentation_path]};
+                    inputs{2} = {stgObj.analysis_modules.(char(mdName)).results.segmentation_path};
                     inputs{3} = {mdName};
                 end
 
@@ -256,10 +255,49 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
             case 'Yes'
                 stgObj.DestroyModule(mdName);
                 setappdata(hMainGui,'settings_objectname',stgObj);
-                SaveAnalysisFile(hMainGui, hMainGui_handles, 1);
+                SaveAnalysisFile(stgObj,'ForceSave', true);
                 LoadControls(hMainGui,stgObj);
                 
         end
+    end
+
+    function exportModuleasTiff(hObject, eventData)
+        hMainGui = getappdata(0, 'hMainGui');
+        mdName = getappdata(hMainGui,'module_name');
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        if(strcmp(mdName,'Main')) || (strcmp(mdName,'Indices'))
+            h = msgbox('The function has not been implemented for the current module. ', 'Exception handler - DEV');
+        else
+            fieldsResults = fields(stgObj.analysis_modules.(char(mdName)).results);
+            min = 0; max=numel(fieldsResults); value=0;
+            log2dev(sprintf('Exporting %s module as tiff files...',mdName),'INFO',0,'hMainGui', 'statusbar',{min,max,value});
+            for i = 1:numel(fieldsResults)
+                matfile = load(stgObj.analysis_modules.(char(mdName)).results.(char(fieldsResults{i})));
+                imgfields = fields(matfile);
+                image2export = [];
+                filename = [stgObj.data_analysisoutdir,'/',mdName,'.',fieldsResults{i}];
+                for o = 1:numel(imgfields)
+                    % Special case for segmentation
+                    if ~isempty(imgfields{o}) && numel(imgfields)>1 
+                        if strcmp(imgfields{o},'CLabels')
+                            image2export = matfile.CLabels; 
+                            filename = [filename,'_CLabels']; 
+                        elseif strcmp(imgfields{o},'ILabels')
+                            image2export = matfile.ILabels; 
+                            filename = [filename,'_ILabels']; 
+                        else
+                            continue;
+                        end
+                    else
+                        image2export = matfile.(char(imgfields(1)));
+                    end
+                    if isa(image2export,'uint8') || isa(image2export,'uint16')
+                        exportTiffImages(image2export,'filename',[filename,'.tiff']);
+                        log2dev(sprintf('Exported %s file as tiff in %s',[filename,'.tiff'],stgObj.data_analysisoutdir),'INFO',0,'hMainGui', 'statusbar',{min,max,i});
+                    end
+                end
+            end
+        end 
     end
 end
 

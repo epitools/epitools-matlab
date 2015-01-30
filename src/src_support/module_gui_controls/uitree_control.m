@@ -74,7 +74,18 @@ for i=1:numel(children_FL_Names)
                                 for intElement=1:numel(varValue)
                                     strVal = [strVal,sprintf('[%s] %s ;',num2str(intElement), num2str(varValue{intElement}))];
                                 end
-                                varValue = strVal;                        
+                                varValue = strVal;
+                            case 'struct'
+                                strVal = '';
+                                structfields = fieldnames(varValue);
+                                for intElement = 1:numel(structfields)
+                                    if isa(varValue.(char(structfields(intElement))),'cell')
+                                        strVal = [strVal,sprintf('[%s] %s ;',structfields{intElement}, num2str(varValue.(char(structfields(intElement))){:}))];
+                                    else
+                                        strVal = [strVal,sprintf('[%s] %s ;',structfields{intElement}, num2str(varValue.(char(structfields(intElement)))))];
+                                    end
+                                end
+                                varValue = strVal;
                         end
                         
                         % Add subnode
