@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <tags>
    <tag>
-      <uid>IMAGE_INDECES</uid>
+      <uid>IMAGE_INDICES</uid>
+      <module>Indexing</module>
       <class>public</class>
       <attributes>
          <attribute>
             <class>variable</class>
             <path>$Indices_Structure$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
          </attribute>
       </attributes>
       <validity>illimited</validity>

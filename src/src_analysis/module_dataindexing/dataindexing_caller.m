@@ -1,4 +1,4 @@
-function dataindexing_caller
+function dataindexing_caller(varargin)
 %DATAINDEXING_CALLER Indexing function caller
 % ------------------------------------------------------------------------------
 % PREAMBLE
@@ -20,6 +20,8 @@ function dataindexing_caller
 % 
 % Copyright by A.Tournier, A. Hoppe, D. Heller, L.Gatti
 % ------------------------------------------------------------------------------
+%% Initialization
+if nargin < 1 ; varargin = {} ; end
 %% Elaboration
 hMainGui = getappdata(0, 'hMainGui');
 server_instances = getappdata(hMainGui, 'server_instances');
@@ -28,11 +30,16 @@ pool_instances = getappdata(hMainGui, 'pool_instances');
 % Remapping
 server = server_instances(2).ref;
 clients = client_modules(2).ref;
+% Storing execution variables into memory
+for i=numel(varargin);handles{i} = addVariable2Memory(varargin{i});end
 % Send message to all the active pools
 for i = 1:size(pool_instances(2:end),2)
     if (pool_instances(i+1).ref.active)
-        server.receiveMessage(clients(strcmp({clients.uid},'INDEXING')),...
-                              pool_instances(i+1).ref);
+        % Add variable memory handles to exe command
+        var = {'ExecutionSettingsHandle',handles{1}};
+        clients(strcmp({clients.uid},'Indexing')).addArgv('INDEX01','argv',var);
+        server.receiveMessage(clients(strcmp({clients.uid},'Indexing')),...
+                              pool_instances(i+1).ref, pool_instances(2).ref);
     end
 end
 end
