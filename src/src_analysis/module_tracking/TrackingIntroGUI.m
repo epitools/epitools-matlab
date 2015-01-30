@@ -59,8 +59,6 @@ setappdata(0  , 'hTrackGui', gcf);
 setappdata(gcf, 'settings_objectname', varargin{1});
 setappdata(gcf, 'settings_modulename', 'Tracking');
 
-
-
 % Update handles structure
 guidata(hObject, handles);
 
@@ -71,7 +69,6 @@ updateAndGather(handles);
 
 function updateAndGather(handles)
 hTrackGui = getappdata(0  , 'hTrackGui');
-hMainGui = getappdata(0  , 'hMainGui');
 stgObj  = getappdata(hTrackGui, 'settings_objectname');
 module_name = getappdata(hTrackGui, 'settings_modulename');
 
@@ -87,10 +84,7 @@ for i=1:numel(fieldgd)
     end
 end
 
-setappdata(hMainGui, 'settings_objectname', stgObj);
 updateLegends(handles);
-
-
 
 function gathered_data = gatherData(handles)
 
@@ -122,12 +116,7 @@ function run_trackingGUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 updateAndGather(handles);
-
-hMainGui = getappdata(0, 'hMainGui');
-stgObj  = getappdata(hMainGui, 'settings_objectname');
-
-
-TrackingLauncher(stgObj);
+tracking_caller(getappdata(getappdata(0,'hTrackGui'), 'settings_objectname'));
 
 
 % --- Executes on slider movement.

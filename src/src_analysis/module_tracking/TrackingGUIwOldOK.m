@@ -1,7 +1,6 @@
-function fig = TrackingGUIwOldOK(ImageSeries,Ilabel,Clabel,ColLabels,Ilabelsout,params, oldOKs, FramesToRegrow_old)
+function fig = TrackingGUIwOldOK(ImageSeries,Ilabel,Clabel,ColLabels,Ilabelsout,params, oldOKs, FramesToRegrow_old,curResultArray)
 
 %% Reconversion input parameters
-
 Ilabel = uint8(Ilabel);
 Clabel = uint16(Clabel);                                                   %unit16 because more than 256 labels possible!
 
@@ -93,7 +92,6 @@ set(fig,...
 
 setappdata(0,'hTrackingGUI',fig);
 movegui(fig,'center');
-
 % In case the input is a 3D image
 if ~SingleFrame
     slider = uicontrol( fig ...
@@ -390,7 +388,6 @@ RecalculateCellBoundaries();
 log2dev('update figure', 'DEBUG');
 
 tracksnum_total = sum(unique(Itracks) ~= 0);
-
 
 img = Update();
 
@@ -1123,31 +1120,26 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 Retrack();
                 img = Update();
             case {'s'}
-                %fprintf('Saving ... ');
                 ILabels = Ilabel;
                 FramesToRegrow = union(FramesToRegrow,FramesToRegrow_old);
-                
                 save(Ilabelsout,'ILabels','FramesToRegrow','oktrajs','Itracks','tracklength','trackstartX','trackstartY','trackstarts');
                 % -------------------------------------------------------------------------
                 log2dev(sprintf('Saving trackign file as %s', Ilabelsout), 'INFO');
                 log2dev('Tracking module is over!', 'INFO');
                 % -------------------------------------------------------------------------
-                %fprintf('done\n');
-                hMainGui = getappdata(0, 'hMainGui');
-                stgObj = getappdata(hMainGui, 'settings_objectname');
-
-                arrayResults = fields(stgObj.analysis_modules.Tracking.results);
-                
+                arrayResults = fields(curResultArray);
                 arrayPathSegments = regexp(Ilabelsout,'/','split');
                 filename = arrayPathSegments{length(arrayPathSegments)};
-                
-                stgObj.AddResult('Tracking',strcat('tracking_file_',num2str((length(arrayResults)+1))),[filename,'.mat']);
-
-                if isfield(stgObj.analysis_modules.Tracking.metadata, 'click_counts')
-                    stgObj.ModifyMetadata('Tracking','click_counts', stgObj.analysis_modules.Tracking.metadata.click_counts + NClicks);
-                else
-                    stgObj.AddMetadata('Tracking','click_counts', NClicks);
-                end
+                argout{1} = {strcat('tracking_file_',num2str((length(arrayResults)+1))),[filename,'.mat']};
+                argout{2} = NClicks;
+                xml_write('tmp/trackingmeta.xml',argout);
+%                 %stgObj.AddResult('Tracking',strcat('tracking_file_',num2str((length(arrayResults)+1))),[filename,'.mat']);
+% 
+%                 if isfield(stgObj.analysis_modules.Tracking.metadata, 'click_counts')
+%                     stgObj.ModifyMetadata('Tracking','click_counts', stgObj.analysis_modules.Tracking.metadata.click_counts + NClicks);
+%                 else
+%                     stgObj.AddMetadata('Tracking','click_counts', NClicks);
+%                 end   
                 close(gcf);
             case {'o'}
                 okeydown = true;

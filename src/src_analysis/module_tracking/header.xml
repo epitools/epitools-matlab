@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>Tracking</uid>
+    <desc_name>Seed tracking module for automatically segmented images</desc_name>
+    <exec_priority>0</exec_priority>
+    <dependences>
+        <dependence>
+            <uid>PE01</uid>
+            <tags>
+                <tag>IMAGE_INDICES</tag>
+            </tags>
+            <exceptions>
+            </exceptions>
+        </dependence>
+                <dependence>
+            <uid>PE02</uid>
+            <tags>
+                <tag>SEGMENTED_IMAGE</tag>
+            </tags>
+            <exceptions>
+            </exceptions>
+        </dependence>
+        <dependence>
+            <uid>PE03</uid>
+            <tags>
+                <tag>TRACKING_FILE</tag>
+            </tags>
+            <exceptions>
+                    <uid>TRK01</uid>
+                    <desc>Tracking file can also come from non automatically generated methods</desc>
+                    <tags>
+                        <tag>
+                            <id>TRACKING_FILE</id>
+                            <rep>ADJTRACKING_FILE</rep>
+                        </tag>
+                    </tags>
+            </exceptions>
+        </dependence>
+    </dependences>
+    <withdrawals>
+        <tags/>
+    </withdrawals>     
+    <commands>
+        <command>
+            <uid>STR01</uid>
+            <exec>tracking_func.m</exec>
+            <input></input>
+            <output/>
+            <argvs/>
+            <tags>
+                <tag>ADJTRACKING_FILE</tag>
+            </tags>
+        </command>
+    </commands>
+</process>

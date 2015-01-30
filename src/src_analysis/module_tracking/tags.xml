@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tags>
+   <tag>
+      <uid>ADJTRACKING_FILE</uid>
+      <module>Tracking</module>
+      <class>null</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$ADJTRACKINGPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+</tags>
