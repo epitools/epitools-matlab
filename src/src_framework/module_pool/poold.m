@@ -16,6 +16,7 @@ classdef poold < handle
     
     events
         AddedTag
+        AddedModule
         RemovedTag
         PoolModified
         PoolInstance
@@ -41,8 +42,7 @@ classdef poold < handle
             notify(pool,'PoolInstance');
         end
         % ====================================================================
-        % Tag functions
-        function appendTag(pool,clientProcess)
+        function processTag(pool,clientProcess)
             %% Load tag file associated with the process id
             % clientProcess.uid = client process code
             % clientProcess.path = client relative location path
@@ -97,11 +97,7 @@ classdef poold < handle
                     end %for
                 end %for
                 %% Purge unused tags from template
-                if ~isempty(find(~id))
-                    for i = find(~id)
-                        tag_template.tag(i) = [];
-                    end
-                end
+                if ~isempty(find(~id)); for i = find(~id);tag_template.tag(i) = []; end; end
                 %% Append structure to xml definition file  (pool.file)
                 % Write back to file
                 if(exist(['tmp/',pool.file],'file'))
@@ -113,6 +109,7 @@ classdef poold < handle
                     for i = 1:numel(current_pool.tag)
                         if ~isempty(tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})))
                             current_pool.tag(i).class = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).class;
+                            current_pool.tag(i).module = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).module;
                             current_pool.tag(i).uid = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).uid;
                             current_pool.tag(i).attributes = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).attributes;
                             current_pool.tag(i).timestamp = now();
@@ -125,6 +122,7 @@ classdef poold < handle
                         for i = find(~id)
                             nextid = numel(current_pool.tag) + 1;
                             current_pool.tag(nextid).class       =   tag_template.tag(i).class;
+                            current_pool.tag(nextid).module      =   tag_template.tag(i).module;
                             current_pool.tag(nextid).uid         =   tag_template.tag(i).uid;
                             current_pool.tag(nextid).attributes  =   tag_template.tag(i).attributes;
                             current_pool.tag(nextid).timestamp   =   now();
@@ -136,6 +134,10 @@ classdef poold < handle
                     % Write to xml pool file
                     xml_write(['tmp/',pool.file], current_pool, 'tags', Pref);
                 else
+                    % Update timestamp
+                    for idxTag =  1:numel(tag_template.tag)
+                        tag_template.tag(idxTag).timestamp = now(); 
+                    end
                     % Set preferences for xml_write procedure
                     Pref.StructItem = false;
                     % Write to xml pool file
@@ -143,28 +145,108 @@ classdef poold < handle
                 end   
             end %if
             %% Send notification for added tag and modified pool
-            notify(pool, 'PoolModified');
-            notify(pool, 'AddedTag');
+            if ~isempty(regexpi(pool.name,'default')); 
+                notify(pool, 'AddedModule', poold_eventdata(clientProcess.uid)); 
+            end
+            notify(pool, 'PoolModified',poold_eventdata_graphics({clientProcess.tagstruct.tag}));
+            %notify(pool, 'PoolModified', poold_eventdata_graphics());
         end
         % --------------------------------------------------------------------
         function removeTag(pool,tagcode)
-        
-            % Remove structure from xml definition file  (pool.file)    
+            % Remove tagcode from index
+            pool.tags(strcmp(pool.tags, tagcode)) = [];
+            % Remove tagcode from xml file
+            if(exist(['tmp/',pool.file],'file'))
+                current_pool = xml_read(['tmp/',pool.file]);
+                id = find(strcmp({current_pool.tag.uid},tagcode));
+                current_pool.tag(id) = [];
+            end
+            % Save new xml file with variations
+            Pref.StructItem = false;
+            % Write to xml pool file
+            xml_write(['tmp/',pool.file], current_pool, 'tags', Pref);
             % Delete pointer from pool list (pool.tags)
-            notify(pool, 'RemovedTag');
-            notify(pool, 'PoolModified');
+            %notify(pool, 'RemovedTag');
+            notify(pool, 'PoolModified',poold_eventdata_graphics({}));
         end
         % --------------------------------------------------------------------
-        % Check if a certain tag is present in the avail tag list
+        function addTag(pool, tag_template)
+            %% Write new tag to xml file
+            if(exist(['tmp/',pool.file],'file'))
+                current_pool = xml_read(['tmp/',pool.file]);
+%                 tag_template.tag = tag_template;
+                id = false(1,numel(tag_template.tag));
+                % Loop along the current_pool.tags and check for any correspondences with the local tag.
+                % In case the tag to append is already present in the current structure, then
+                % overwrite it, otherwise append it. 
+                for i = 1:numel(current_pool.tag)
+                    if ~isempty(tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})))
+                        current_pool.tag(i).class = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).class;
+                        current_pool.tag(i).uid = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).uid;
+                        current_pool.tag(i).attributes = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).attributes;
+                        current_pool.tag(i).timestamp = now();
+                        current_pool.tag(i).validity = tag_template.tag(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})).validity;
+                        id(strcmp(current_pool.tag(i).uid,{tag_template.tag.uid})) = true;
+                    end
+                end
+                % Check if there are any tag to append 
+                if sum(~id)>0
+                    for i = find(~id)
+                        nextid = numel(current_pool.tag) + 1;
+                        current_pool.tag(nextid).class       =   tag_template.tag(i).class;
+                        current_pool.tag(nextid).uid         =   tag_template.tag(i).uid;
+                        current_pool.tag(nextid).attributes  =   tag_template.tag(i).attributes;
+                        current_pool.tag(nextid).timestamp   =   now();
+                        current_pool.tag(nextid).validity    =   tag_template.tag(i).validity;
+                        notify(pool, 'AddedTag' , TagCode(current_pool.tag(nextid).uid));
+                    end
+                end
+                % Set preferences for xml_write procedure
+                Pref.StructItem = false;
+                % Write to xml pool file
+                xml_write(['tmp/',pool.file], current_pool, 'tags', Pref);
+            else
+                % Update timestamp
+                for idxTag =  1:numel(tag_template.tag); tag_template.tag(idxTag).timestamp = now(); end
+                % Set preferences for xml_write procedure
+                Pref.StructItem = false;
+                % Write to xml pool file
+                xml_write(['tmp/',pool.file], tag_template, 'tags', Pref);
+            end 
+            %% Send notification for added tag and modified pool
+            if ~isempty(regexpi(pool.name,'default')); 
+                notify(pool, 'AddedModule', poold_eventdata(tag_template.tag.module)); 
+            end
+            notify(pool, 'PoolModified',poold_eventdata_graphics({}));
+        end
+        % --------------------------------------------------------------------
+        function moveTag(pool,nameTag,newPoolName)
+            % Discard action if the receiving pool is the same as the
+            % sender
+            if strcmp(pool.name, newPoolName); return; end
+            % Retrieve all the pools actived on the current server platform
+            pool_instances = getappdata(getappdata(0,'hMainGui'), 'pool_instances');
+            % Get pools names
+            for i = 2:numel(pool_instances); names{i} = pool_instances(i).ref.name; end
+            % Move tag from current pool to another pool
+            % Get tag structure from xml file
+            retrievedTag.tag = pool.getTag(nameTag);
+            % Move to new pool 
+            pool_instances(strcmp(names,newPoolName)).ref.addTag(retrievedTag);
+            % Delete tag from current pool
+            pool.removeTag(nameTag);
+        end
+        % --------------------------------------------------------------------
         function boolean = existsTag(pool,tagcode)
+        % Check if a certain tag is present in the avail tag list
             boolean = false;
             if(sum(strcmp(pool.tags, tagcode)>=1));
                 boolean = true;
             end
         end
         % --------------------------------------------------------------------      
-        % Retrieve tag association between tag and pool file
         function out = getTag(pool,tagcode,varargin)
+        % Retrieve tag association between tag and pool file
             if nargin < 3
                 varargin = {};
             end
@@ -189,13 +271,12 @@ classdef poold < handle
 
         end
         % --------------------------------------------------------------------
-        % Print all tag in the pool
         function getTagList(pool)
-        
+        % Print all tag in the pool
         end
         % --------------------------------------------------------------------
-        % This function loads tags stored in xml pool file
         function loadPool(pool)
+        % This function loads tags stored in xml pool file
             if exist(['tmp/',pool.file], 'file');
                 tags = xml_read(['tmp/',pool.file]);
                 for i=1:numel(tags.tag)
@@ -203,14 +284,14 @@ classdef poold < handle
                 end
             end
         end
-        % --------------------------------------------------------------------
-         % This function save in a xml files tags stored in pool object
+        % -------------------------------------------------------------------- 
         function savePool(pool)
-            xml_write(['tmp/',pool.file], pool);
+        % This function save in a xml files tags stored in pool object
+            %xml_write(['tmp/',pool.file], pool);
         end
         % --------------------------------------------------------------------
-        % Save reference in session available resources.
         function announceToFramework(pool, callerID)
+        % Save reference in session available resources.
             pool_instances = getappdata(callerID, 'pool_instances');
             if isempty(pool_instances)
                pool_instances(1).ref = pool;
@@ -239,12 +320,12 @@ classdef poold < handle
         % --------------------------------------------------------------------
         function activatePool(pool)
             pool.active = true;
-            notify(pool,'PoolModified');
+            notify(pool,'PoolInstance');
         end
         % --------------------------------------------------------------------
         function deactivatePool(pool)
             pool.active = false;
-            notify(pool,'PoolModified');
+            notify(pool,'PoolInstance');
         end
         % --------------------------------------------------------------------
     end
