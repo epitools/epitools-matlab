@@ -23,8 +23,9 @@ function [ status, argout ] = registration_func(input_args,varargin)
 %           Davide Martin Heller (davide.heller@imls.uzh.ch)
 %           Lorenzo Gatti (lorenzo.gatti@alumni.ethz.ch)
 %
-% DATE:     2.09.14 V0.1 for EpiTools 0.1 beta
-%           5.12.14 V0.2 for EpiTools 2.0 beta
+% DATE:     02.09.14 V0.1 for EpiTools 0.1 beta
+%           05.12.14 V0.2 for EpiTools 2.0 beta
+%           27.01.15 V0.3 for EpiTools 2.0 beta
 %
 % LICENCE:
 % License to use and modify this code is granted freely without warranty to all, as long as the
@@ -34,7 +35,7 @@ function [ status, argout ] = registration_func(input_args,varargin)
 % Copyright by A.Tournier, A. Hoppe, D. Heller, L.Gatti
 % ------------------------------------------------------------------------------
 %% Retrieve supplementary arguments
-if (nargin<2); varargin(1) = {'REGIMAGEPATH'};varargin(2) = {'REGSETTINGS'};end
+if (nargin<2); varargin(1) = {'REGIMAGEPATH'};varargin(2) = {'SETTINGS'};end
 %% Procedure initialization
 status = 1;
 %% Retrieve parameter data
@@ -74,30 +75,10 @@ end
 if ~stgMain.exec_commandline
     if(stgMain.icy_is_used)
         icy_vidshow(RegIm,'Registered Sequence');
-    else
-%         if(strcmp(stgMain.data_analysisindir,stgMain.data_analysisoutdir))
-%             fig = getappdata(0  , 'hMainGui');
-%             handles = guidata(fig);
-%             set(handles.('uiBannerDescription'), 'Visible', 'on');
-%             % Change banner description
-%             log2dev('Currently executing the [Registration] module',...
-%             'GUI',...
-%              2,...
-%             'hMainGui',...
-%             'uiBannerDescription');
-%             StackView(RegIm,'hMainGui','figureA');
-%         else
-%             firstrun = load([stgMain.data_analysisindir,'/RegIm']);
-%             % The program is being executed in comparative mode
-%             StackView(firstrun.RegIm,'hMainGui','figureC1');
-%             StackView(RegIm,'hMainGui','figureC2');
-%         end
-   end
-else
-    %StackView(RegIm);
+    end
 end
 %saving results
-stgMain.AddResult('Stack_Registration','registration_path','RegIm.mat');
+stgMain.AddResult('Stack_Registration','registration_path',[stgMain.data_analysisoutdir,'/RegIm.mat']);
 save([stgMain.data_analysisoutdir,'/RegIm'],'RegIm');
 %% Output formatting
 % Each single output need to be described in order to be used for variable exportation.

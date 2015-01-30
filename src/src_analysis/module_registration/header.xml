@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process>
-    <uid>REGISTRATION</uid>
+    <uid>Stack_Registration</uid>
     <desc_name>Registration of Time Series Module</desc_name>
     <exec_priority>0</exec_priority>
     <dependences>

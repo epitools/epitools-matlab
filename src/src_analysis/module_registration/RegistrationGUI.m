@@ -69,7 +69,6 @@ updateAndGather(handles);
 
 function updateAndGather(handles)
 hRegGui = getappdata(0  , 'hRegGui');
-hMainGui = getappdata(0  , 'hMainGui');
 stgObj  = getappdata(hRegGui, 'settings_objectname');
 module_name = getappdata(hRegGui, 'settings_modulename');
 
@@ -85,7 +84,6 @@ for i=1:numel(fieldgd)
     end
 end
 
-setappdata(hMainGui, 'settings_objectname', stgObj);
 updateLegends(handles);
 
 % Gather slider values set on the controls

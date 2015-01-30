@@ -2,6 +2,7 @@
 <tags>
    <tag>
       <uid>REGISTERED_IMAGE</uid>
+      <module>Stack_Registration</module>
       <class>graphics</class>
       <attributes>
          <attribute>
@@ -10,7 +11,7 @@
          </attribute>
          <attribute>
             <class>settings</class>
-            <path>$REGSETTINGS$</path>
+            <path>$SETTINGS$</path>
          </attribute>
       </attributes>
       <validity>illimited</validity>

@@ -12,6 +12,7 @@ function registration_caller(varargin)
 % AUTHOR:   Lorenzo Gatti (lorenzo.gatti@alumni.ethz.ch)
 %
 % DATE:     17.12.14 V0.1 for EpiTools 2.0 beta
+%           27.01.15 V0.2 for EpiTools 2.0 beta
 % 
 % LICENCE:
 % License to use and modify this code is granted freely without warranty to all, as long as the 
@@ -37,9 +38,9 @@ for i = 1:size(pool_instances(2:end),2)
     if (pool_instances(i+1).ref.active)
         % Add variable memory handles to exe command
         var = {'ExecutionSettingsHandle',handles{1}};
-        clients(strcmp({clients.uid},'REGISTRATION')).addArgv('REG01','argv',var);
-        server.receiveMessage(clients(strcmp({clients.uid},'REGISTRATION')),...
-                              pool_instances(i+1).ref);
+        clients(strcmp({clients.uid},'Stack_Registration')).addArgv('REG01','argv',var);
+        server.receiveMessage(clients(strcmp({clients.uid},'Stack_Registration')),...
+                              pool_instances(i+1).ref, pool_instances(2).ref);
     end
 end
 end
