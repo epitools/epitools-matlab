@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>Polygon_Masking</uid>
+    <desc_name>Generate a polygon and crops the image</desc_name>
+    <exec_priority>0</exec_priority>
+    <dependences>
+        <dependence>
+            <uid>PE01</uid>
+            <tags>
+                <tag>IMAGE_INDICES</tag>
+            </tags>
+            <exceptions>
+                <exception>
+                </exception>
+            </exceptions>
+        </dependence>
+    </dependences>
+    <withdrawals>
+        <tags/>
+    </withdrawals>     
+    <commands>
+        <command>
+            <uid>POLY01</uid>
+            <exec>polygoncrop_func.m</exec>
+            <input></input>
+            <output/>
+            <argvs/>
+            <tags>
+                <tag>CROPPED_IMAGE</tag>
+                <tag>POLYMASK_FILE</tag>
+            </tags>
+        </command>
+    </commands>
+</process>

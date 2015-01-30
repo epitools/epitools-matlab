@@ -76,21 +76,8 @@ function create_polygon_mask_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 hMaskGui = getappdata(0  , 'hMaskGui');
 stgObj  = getappdata(hMaskGui, 'settings_objectname');
-strModuleName = getappdata(hMaskGui, 'settings_modulename');
-% Load data structures needed for mask generation
-tmpSegObj = load([stgObj.data_analysisindir,'/SegResults']);
-tmpRegObj = load([stgObj.data_analysisindir,'/RegIm']);
-% Generate the mask and the cropped label image
-[polygonal_mask, cropped_CellLabelIm] = PolygonCrop(tmpRegObj.RegIm, tmpSegObj.CLabels);
-% Save results
-save([stgObj.data_analysisoutdir,'/PoligonalMask'],'polygonal_mask');
-save([stgObj.data_analysisoutdir,'/CroppedCellLabels'],'cropped_CellLabelIm');
-% Update settings module
-stgObj.AddResult(strModuleName,'polygonal_mask_path','PoligonalMask.mat');
-stgObj.AddResult(strModuleName,'cropped_cell_labels','CroppedCellLabels.mat');
-% Visualize in main gui
-StackView(cropped_CellLabelIm,'hMainGui','figureA');
-waitfor(polygonal_mask);
+
+polygoncrop_caller(stgObj);
 % close polygon crop gui after execution
 delete(hMaskGui);
 

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tags>
+   <tag>
+      <uid>CROPPED_IMAGE</uid>
+      <module>Polygon_Masking</module>
+      <class>graphics</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$CROPPEDIMAGEPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+   <tag>
+      <uid>POLYMASK_FILE</uid>
+      <module>Polygon_Masking</module>
+      <class>file</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$POLYMASKIMAGEPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+</tags>
