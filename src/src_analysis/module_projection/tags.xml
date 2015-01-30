@@ -2,6 +2,7 @@
 <tags>
    <tag>
       <uid>PROJECTED_IMAGE</uid>
+      <module>Projection</module>
       <class>graphics</class>
       <attributes>
          <attribute>
@@ -17,6 +18,7 @@
    </tag>
    <tag>
       <uid>PROJECTED_SURFACE</uid>
+      <module>Projection</module>
       <class>null</class>
       <attributes>
          <attribute>

@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process>
-    <uid>PROJECTION</uid>
+    <uid>Projection</uid>
     <desc_name>Surface Projection module for selective and adaptive signal projection</desc_name>
     <exec_priority>0</exec_priority>
     <dependences>
-        <dependence/>
+        <dependence>
+            <uid>PE01</uid>
+            <tags>
+                <tag>IMAGE_INDICES</tag>
+            </tags>
+            <exceptions>
+                <exception/>
+            </exceptions>
+        </dependence>
     </dependences>
     <withdrawals>
         <tags/>
