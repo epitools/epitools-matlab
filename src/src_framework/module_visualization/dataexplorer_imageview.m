@@ -35,7 +35,7 @@ function [status,argout] = dataexplorer_imageview( input_args,varargin )
 % Copyright by A.Tournier, A. Hoppe, D. Heller, L.Gatti
 % ------------------------------------------------------------------------------
 %% Retrieve supplementary arguments
-if (nargin<2); varargin(1) = {'OUT1'};else graphic_pars=varargin{1}; end
+if (nargin<2); varargin(1) = {'OUT1'}; graphic_pars = '';else graphic_pars=varargin{1}; end
 %% Procedure initialization
 status = 1;
 %% Retrieve all the pool and graphics tags
@@ -92,107 +92,114 @@ for i=1:rows % tag categories
             'position' ,[0.00 0.0 1 0.025]);
         % ---------------------------------------------
         % ---------------------------------------------
-        ghandle(idxpanels).screeshot = uicontrol(ghandle(idxpanels).top,...
-            'Style','pushbutton',...
-            'units'    ,'normalized', ...
-            'position' ,[0.0 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).screeshot);
-        myIcon = fullfile('images/gif/monitor.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
-        
-        ghandle(idxpanels).zoomin = uicontrol(ghandle(idxpanels).top,...
-            'Style','pushbutton',...
-            'units'    ,'normalized', ...
-            'position' ,[0.05 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).zoomin);
-        myIcon = fullfile('images/gif/zoom_in.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
-        
-        ghandle(idxpanels).zoomout = uicontrol(ghandle(idxpanels).top,...
-            'Style','pushbutton',...
-            'units'    ,'normalized', ...
-            'position' ,[0.1 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).zoomout);
-        myIcon = fullfile('images/gif/zoom_out.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
-        
-        ghandle(idxpanels).hand = uicontrol(ghandle(idxpanels).top,...
-            'Style','pushbutton',...
-            'units'    ,'normalized', ...
-            'position' ,[0.15 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).hand);
-        myIcon = fullfile('images/gif/hand_point.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
-        
-        ghandle(idxpanels).info = uicontrol(ghandle(idxpanels).top,...
-            'Style','pushbutton',...
-            'units'    ,'normalized', ...
-            'position' ,[0.20 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).info);
-        myIcon = fullfile('images/gif/information.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         ghandle(idxpanels).screeshot = uicontrol(ghandle(idxpanels).top,...
+%             'Style','pushbutton',...
+%             'units'    ,'normalized', ...
+%             'position' ,[0.0 0 0.05 1]);
+%         jButton = findjobj(ghandle(idxpanels).screeshot);
+%         myIcon = fullfile('images/gif/monitor.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         
+%         ghandle(idxpanels).zoomin = uicontrol(ghandle(idxpanels).top,...
+%             'Style','pushbutton',...
+%             'units'    ,'normalized', ...
+%             'position' ,[0.05 0 0.05 1]);
+%         jButton = findjobj(ghandle(idxpanels).zoomin);
+%         myIcon = fullfile('images/gif/zoom_in.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         
+%         ghandle(idxpanels).zoomout = uicontrol(ghandle(idxpanels).top,...
+%             'Style','pushbutton',...
+%             'units'    ,'normalized', ...
+%             'position' ,[0.1 0 0.05 1]);
+%         jButton = findjobj(ghandle(idxpanels).zoomout);
+%         myIcon = fullfile('images/gif/zoom_out.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         
+%         ghandle(idxpanels).hand = uicontrol(ghandle(idxpanels).top,...
+%             'Style','pushbutton',...
+%             'units'    ,'normalized', ...
+%             'position' ,[0.15 0 0.05 1]);
+%         jButton = findjobj(ghandle(idxpanels).hand);
+%         myIcon = fullfile('images/gif/hand_point.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         
+%         ghandle(idxpanels).info = uicontrol(ghandle(idxpanels).top,...
+%             'Style','pushbutton',...
+%             'units'    ,'normalized', ...
+%             'position' ,[0.20 0 0.05 1]);
+%         jButton = findjobj(ghandle(idxpanels).info);
+%         myIcon = fullfile('images/gif/information.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
         
         ghandle(idxpanels).quit = uicontrol(ghandle(idxpanels).top,...
             'Style','pushbutton',...
             'units'    ,'normalized', ...
+            'String', 'X',...
             'position' ,[0.95 0 0.05 1],...
             'Callback', @(src,evt)  uihandles_deletecontrols( 'GraphicHandleSingleVDisplay' ));
-        jButton = findjobj(ghandle(idxpanels).quit);
-        myIcon = fullfile('images/gif/cross_octagon.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
+        %jButton = findjobj(ghandle(idxpanels).quit);
+        %myIcon = fullfile('images/gif/cross_octagon.gif');
+        %jButton.setIcon(javax.swing.ImageIcon(myIcon));
         % ---------------------------------------------
         ghandle(idxpanels).start = uicontrol(ghandle(idxpanels).controls,...
             'Style','pushbutton',...
+            'String','<<|',...
             'units'    ,'normalized', ...
             'position' ,[0.0 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).start);
-        myIcon = fullfile('images/gif/control_start_blue.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         jButton = findjobj(ghandle(idxpanels).start);
+%         myIcon = fullfile('images/gif/control_start_blue.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
         set(ghandle(idxpanels).start,'Callback',{@CallBack_Start,idxpanels});
         
         ghandle(idxpanels).rewind = uicontrol(ghandle(idxpanels).controls,...
             'Style','pushbutton',...
+            'String','<<',...
             'units'    ,'normalized', ...
             'position' ,[0.05 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).rewind);
-        myIcon = fullfile('images/gif/control_rewind_blue.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         jButton = findjobj(ghandle(idxpanels).rewind);
+%         myIcon = fullfile('images/gif/control_rewind_blue.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
         set(ghandle(idxpanels).rewind,'Callback',{@CallBack_Rewind,idxpanels});
         
         ghandle(idxpanels).stop = uicontrol(ghandle(idxpanels).controls,...
             'Style','pushbutton',...
+            'String','#',...
             'units'    ,'normalized', ...
             'position' ,[0.1 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).stop);
-        myIcon = fullfile('images/gif/control_stop_blue.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         jButton = findjobj(ghandle(idxpanels).stop);
+%         myIcon = fullfile('images/gif/control_stop_blue.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
         set(ghandle(idxpanels).stop,'Callback',{@CallBack_Stop,idxpanels});
         
         ghandle(idxpanels).play = uicontrol(ghandle(idxpanels).controls,...
             'Style','pushbutton',...
+            'String','>',...
             'units'    ,'normalized', ...
             'position' ,[0.15 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).play);
-        myIcon = fullfile('images/gif/control_play_blue.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         jButton = findjobj(ghandle(idxpanels).play);
+%         myIcon = fullfile('images/gif/control_play_blue.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
         set(ghandle(idxpanels).play,'Callback',{@CallBack_Play,idxpanels});
         
         ghandle(idxpanels).fastforward = uicontrol(ghandle(idxpanels).controls,...
             'Style','pushbutton',...
+            'String','>>',...
             'units'    ,'normalized', ...
             'position' ,[0.20 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).fastforward);
-        myIcon = fullfile('images/gif/control_fastforward_blue.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         jButton = findjobj(ghandle(idxpanels).fastforward);
+%         myIcon = fullfile('images/gif/control_fastforward_blue.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
         set(ghandle(idxpanels).fastforward,'Callback',{@CallBack_FastForward,idxpanels});
         
         ghandle(idxpanels).end = uicontrol(ghandle(idxpanels).controls,...
             'Style','pushbutton',...
+            'String','|>>',...
             'units'    ,'normalized', ...
             'position' ,[0.25 0 0.05 1]);
-        jButton = findjobj(ghandle(idxpanels).end);
-        myIcon = fullfile('images/gif/control_end_blue.gif');
-        jButton.setIcon(javax.swing.ImageIcon(myIcon));
+%         jButton = findjobj(ghandle(idxpanels).end);
+%         myIcon = fullfile('images/gif/control_end_blue.gif');
+%         jButton.setIcon(javax.swing.ImageIcon(myIcon));
         set(ghandle(idxpanels).end,'Callback',{@CallBack_End,idxpanels});
         
         ghandle(idxpanels).slider = uicontrol(ghandle(idxpanels).controls,...
@@ -306,7 +313,11 @@ status = 0;
     end
     function fillImgPanel(framenum,idpanel)
         try
-            img = load(cmptable{idpanel});obj = fieldnames(img);Is=img.(char(obj));
+            img = load(cmptable{idpanel});
+            obj = fieldnames(img);
+            % Workaround for segmentation structured outputs (Clabels is
+            % shown).
+            if numel(obj)>1;Is=img.(char(obj{2})); else Is=img.(char(obj)); end
             switch numel(size(Is))
                 case 2 % Single frame
                     im = Is(:,:);
@@ -344,7 +355,18 @@ status = 0;
                     set(ghandle(idpanel).slider, 'SliderStep', [1 1]);
                 case 4 %Multichannel
                     if size(Is,3) == 3
-                        imshow(squeeze(Is(:,:,:,1)),[],'Parent', ghandle(idpanel).axes);
+                        imshow(squeeze(Is(:,:,:,framenum)),[],'Parent', ghandle(idpanel).axes);
+                        % Set Frame informations
+                        set(ghandle(idpanel).frameinfo,'String',sprintf('Frame %u of %u',framenum,size(Is,4)));
+                        % Set Plane informations
+                        set(ghandle(idpanel).planeinfo,'String',sprintf('%ux%u, %s',size(Is,1),size(Is,2),class(Is)));
+                        % Set Category informations
+                        set(ghandle(idpanel).categoryinfo,'String',categories{idpanel});
+                        % Set slider
+                        set(ghandle(idpanel).slider,'max', size(Is,4));
+                        set(ghandle(idpanel).slider,'min', 1);
+                        set(ghandle(idpanel).slider,'Value', framenum);
+                        set(ghandle(idpanel).slider, 'SliderStep', [1 1]);
                     else
                         %image might have 3 color channels on another dimension
                         if size(Is,4) == 3
