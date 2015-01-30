@@ -40,9 +40,21 @@ status = 1;
 % Initialize logging
 loci.common.DebugTools.enableLogging('INFO');
 % Proallocating variables
-Z = cell2mat(arrayIndices.Z(imgIDX)) - 1 ;
-C = cell2mat(arrayIndices.C(imgIDX)) - 1 ;
-T = cell2mat(arrayIndices.T(imgIDX)) - 1 ;
+if isa(arrayIndices.Z(imgIDX),'cell')   
+    Z = cell2mat(arrayIndices.Z(imgIDX)) - 1 ;
+else
+    Z = arrayIndices.Z(imgIDX) - 1;
+end
+if isa(arrayIndices.C(imgIDX),'cell')   
+    C = cell2mat(arrayIndices.C(imgIDX)) - 1 ;
+else
+    C = arrayIndices.C(imgIDX) - 1;
+end
+if isa(arrayIndices.T(imgIDX),'cell') 
+    T = cell2mat(arrayIndices.T(imgIDX)) - 1 ;
+else
+    T = arrayIndices.T(imgIDX) -1;
+end
 % Check if the the image stack contains multiple channel indeces
 if(size(C)>1); C = 0; end
 % Invoke the reader for an image file data
