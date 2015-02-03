@@ -74,12 +74,12 @@ if ~GotStartingSeeds
     
     % Find the initial cell seeds (parameters: sigma1, threshold)
     DoInitialSeeding();
-    if show  figure('Name','First seeding'); imshow(CellSeeds(:,:)); input('press <enter> to continue','s');  end
+    if show  figure('Name','First seeding'); imshow(CellSeeds(:,:),[]);  end
 
     % Remove initial cell regions which touch & whose boundary is insufficient
     % (parameters: params.MergeCriteria)
     MergeSeedsFromLabels() 
-    if show  figure('Name','Seeding after merging'); imshow(CellSeeds(:,:),[]); input('press <enter> to continue','s');  end
+    if show  figure('Name','Seeding after merging'); imshow(CellSeeds(:,:),[]); end
 end
 
 
@@ -87,18 +87,14 @@ end
 GrowCellsInFrame()
 if show CreateColorBoundaries(); figure('Name','First cell boundaries'); imshow(ColIm,[]);  end
 
-% [2] Eliminate labelling from background
-DelabelFlatBackground()
-% if show CreateColorBoundaries(); figure('Name','Boundaries after background substraction'); imshow(ColIm,[]);  end
-
-% [3] Eliminate labels from seeds which have poor boundary intensity
+% [2] Eliminate labels from seeds which have poor boundary intensity
 UnlabelPoorSeedsInFrame()
 if show CreateColorBoundaries(); figure('Name','Boundaries after poor cell removal'); imshow(ColIm,[]);  end
 
-% [4] Seeds whose label has been eliminated are converted to NeutralSeeds (value=253)
+% [3] Seeds whose label has been eliminated are converted to NeutralSeeds (value=253)
 NeutralisePtsNotUnderLabelInFrame();
 
-% [5] Generate final colored image (RGB) to represent the segmentation results
+% [4] Generate final colored image (RGB) to represent the segmentation results
 CreateColorBoundaries()
 %if show  figure('Name','Final cell boundaries'); imshow(ColIm,[]);  end
 
@@ -157,9 +153,9 @@ CreateColorBoundaries()
         % Generate CellLabels from InitalLabelling
         CellLabels(:,:) = uint16(InitialLabelling);
         
-        % deal with background *no idea of what these functions do! 
+        % eliminate very large areas
         DelabelVeryLargeAreas();
-        DelabelFlatBackground();
+        % DelabelFlatBackground()
         
         % Use true centre of cells as labels
         centroids = round(calculateCellPositions(SmoothedIm,CellLabels(:,:), false));
@@ -172,6 +168,17 @@ CreateColorBoundaries()
         CellSeeds(:,:) = uint8(SmoothedIm);
         
     end
+
+
+%     % Initial specification was encoding background pixels as zero values in cell images.
+%     % DelabelFlatBackground() removes such background pixels from the cell label image,
+%     % i.e. it is applying a mask.     
+%     function DelabelFlatBackground()                                       
+%         L = CellLabels;
+%         D = Im(:,:);
+%         L(D==0) = 0;
+%         CellLabels = L;
+%     end
 
     function GrowCellsInFrame()
         
@@ -237,13 +244,17 @@ CreateColorBoundaries()
             %1. IBoundMax, gives the Lower bound to the mean intensity
             %   1.b condition upon that the cell seed has less than 20% intensity difference to the mean
             %   => If the cell boundary is low and not very different from the seed, cancel the region
+            first_condition = (IBound < IBoundMax && IBound/ICentre < 1.2);
             %2. W/o (1.b) the lower bound is reduced by ~17% (1 - 0.833) to be decisive
+            second_condition = (IBound < IBoundMax *25./30.);
             %3. If the minimum retrieved in the boundary mask is 0 (dangerous!)
+            third_condition = (min(boundaryIntensities)==0);
             %4. If the amount of low intensity signal (i.e. < 20) is more than 10% 
-            if ( IBound < IBoundMax && IBound/ICentre < 1.2 ) ...
-                    || IBound < IBoundMax *25./30. ...
-                    || min(boundaryIntensities)==0 ...
-                    || sum(H<20)/length(H) > 0.1
+            fourth_condition = (sum(H<20)/length(H) > 0.1);
+            if  first_condition...
+                    || second_condition ...
+                    || third_condition...
+                    || fourth_condition
                 
                 %The label is cancelled (inverted mask multiplication.)
                 CellLabels = CellLabels.*uint16(mask==0);
@@ -293,13 +304,6 @@ CreateColorBoundaries()
                'DEBUG');
         % -------------------------------------------------------------------------
 
-        CellLabels = L;
-    end
-
-    function DelabelFlatBackground()                                       %todo: check this is still useful!
-        L = CellLabels;
-        D = Im(:,:);
-        L(D==0) = 0;
         CellLabels = L;
     end
 

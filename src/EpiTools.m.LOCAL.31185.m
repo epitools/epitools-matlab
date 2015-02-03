@@ -758,31 +758,36 @@ function uiIcyVisualizationToggle_OffCallback(hObject, eventdata, handles)
 % hObject    handle to uiIcyVisualizationToggle (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-use_icy_checkbox_Callback(0);
-
+use_icy_checkbox_Callback(hObject, eventdata, handles, 0);
 % --------------------------------------------------------------------
 function uiIcyVisualizationToggle_OnCallback(hObject, eventdata, handles)
 % hObject    handle to uiIcyVisualizationToggle (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-activation_succeeded = use_icy_checkbox_Callback(1);
-if(~activation_succeeded)
-    set(hObject,'State','off');
-end
-
+use_icy_checkbox_Callback(hObject, eventdata, handles, 1);
+% --------------------------------------------------------------------
+function use_icy_checkbox_Callback(hObject, eventdata, handles, ToggleValue)
 % --- Executes on button press in use_icy_checkbox.
-function icy_is_used = use_icy_checkbox_Callback(ToggleValue)
-% hObject    handle to use_icy_checkbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
 settingsobj = getappdata(hMainGui, 'settings_execution');
 
 if ToggleValue
     
+    %only enter when tick is activated
+    
+    %get app data
+    if(strcmp(settingsobj.output.icy.ctl_enableicyconnection.values(find(settingsobj.output.icy.ctl_enableicyconnection.actived)),'on'))
+        icy_is_used = 1;
+    else 
+        icy_is_used = 0;
+    end
+    
     icy_path = settingsobj.output.icy.ctl_connectionstring.values;
+
+    %icy_path    =   getappdata(hMainGui,'icy_path');
+    %icy_is_used =   getappdata(hMainGui,'icy_is_used');
     icy_is_loaded = getappdata(hMainGui,'icy_is_loaded');
+    
     
     %Check if icy's path was specified
     if(strcmp(icy_path,'none'))
@@ -804,12 +809,16 @@ if ToggleValue
             icy_is_loaded = 1;
         else
             icy_path = 'none';
-            icy_is_used = 0;
-            errordlg('ICY could not be detected at specified path, please rexecute!');
             log2dev(sprintf('Current icy path is not valid: %s\n',icy_path),'WARN');
         end
     else
         icy_is_used = 1;
+    end
+    
+    %Check if icy is used
+    if(icy_is_used ~= 1)
+        %do not check if icy_path was not set
+        set(handles.uiIcyVisualizationToggle,'State','off');
     end
     
     %set app data
@@ -821,10 +830,13 @@ if ToggleValue
     settingsobj.output.icy.ctl_enableicyconnection.actived = mtx;
     settingsobj.output.icy.ctl_connectionstring.values = icy_path;
     
+    
+    
 else
     %checkbox is deselected
+    set(handles.uiIcyVisualizationToggle,'State','off');
     setappdata(hMainGui,'icy_is_used',0);
-    icy_is_used = 0;
+    
 end
 
 setappdata(hMainGui, 'settings_execution',settingsobj);

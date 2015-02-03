@@ -22,12 +22,15 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 18-Dec-2014 16:36:13
+% Last Modified by GUIDE v2.5 24-Sep-2014 14:08:19
 
 % Begin initialization code - DO NOT EDIT
 %
 % Add a splash screen before EpiTools loading
-if ~nargin;SplashScreen; end
+if ~nargin
+SplashScreen;
+end
+
 
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
@@ -47,6 +50,7 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
+
 % --- Executes just before EpiTools is made visible.
 function EpiTools_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -58,7 +62,9 @@ function EpiTools_OpeningFcn(hObject, eventdata, handles, varargin)
 % -------------------------------------------------------------------------
 % Exec splash screen 
 SplashHandle = findobj('tag','SplashScreenTag');
-if ishandle(SplashHandle);close(SplashHandle);end
+if ishandle(SplashHandle)
+   close(SplashHandle);
+end
 
 % -------------------------------------------------------------------------
 % Choose default command line output for EpiTools
@@ -84,14 +90,10 @@ setappdata(gcf, 'icy_is_used', 0);
 setappdata(gcf, 'icy_is_loaded', 0);
 setappdata(gcf, 'icy_path', 'none');
 setappdata(gcf, 'settings_objectname', '');
-setappdata(gcf, 'execution_memory', struct());
 setappdata(gcf, 'settings_execution', '');
 setappdata(gcf, 'status_application',stsFunOut);
 setappdata(gcf, 'settings_release',[]);
 setappdata(gcf, 'settings_licence',[]);
-setappdata(gcf, 'server_instances',struct());
-setappdata(gcf, 'client_modules',struct());
-setappdata(gcf, 'pool_instances',struct());
 setappdata(gcf, 'settings_executionuid',...
                 ['epitools-',...
                 getenv('USER'),...
@@ -137,8 +139,9 @@ set(hMainGui, 'CloseRequestFcn', {@onMainWindowClose});
 set(hMainGui,'Position',[0 0 400 100]);
 movegui(hMainGui,'center');
 
-% Installing Clients
-installClients();
+
+%hLogGui = getappdata(0, 'hLogGui');
+
 
 % Display discaimer
 if(strcmp(settingsobj.licence.NDA.ctl_activate.values(find(settingsobj.licence.NDA.ctl_activate.actived)),'on'))
@@ -146,10 +149,13 @@ if(strcmp(settingsobj.licence.NDA.ctl_activate.values(find(settingsobj.licence.N
     waitfor(out);
         if strcmp(out,'Exit')
             onMainWindowClose(hObject, eventdata, handles);
-            return;
+        else
+            handles_connection(hObject,handles);
         end
+else
+    handles_connection(hObject,handles);
 end
-handles_connection(hObject,handles);
+
 % --- Outputs from this function are returned to the command line.
 function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -160,256 +166,220 @@ function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
 diary off;
 % Get default command line output from handles structure
 %varargout{1} = handles.output;
+
 % --------------------------------------------------------------------
 function handles_connection(hObject,handles)
 % If the metricdata field is present and the reset flag is false, it means
 % we are we are just re-initializing a GUI by calling it from the cmd line
 % while it is up. So, bail out as we dont want to reset the data.
 hMainGui = getappdata(0, 'hMainGui');
+
 % -------------------------------------------------------------------------
 % Log status of previous operations on GUI
 % set(handles.statusbar, 'String',getappdata(hMainGui, 'status_application') );
-log2dev( getappdata(hMainGui, 'status_application'), 'INFO', 0, hMainGui, 'statusbar' );
+log2dev( getappdata(hMainGui, 'status_application'), 'INFO', 0, 'hMainGui', 'statusbar' );
 % -------------------------------------------------------------------------
+
 if(isappdata(hMainGui,'settings_objectname'))
+    
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
         stgObj = getappdata(hMainGui,'settings_objectname');
+        
+        set(handles.mainTextBoxImagePath,'string',stgObj.data_imagepath);
+        set(handles.mainTextBoxSettingPath,'string',stgObj.data_fullpath);
         set(handles.figure1, 'Name', ['EpiTools | ', num2str(stgObj.analysis_code), ' - ' , stgObj.analysis_name])
-        %LoadControls(hMainGui, stgObj);
-        stgObj.refreshTree(hMainGui);
+        
+        LoadControls(hMainGui, stgObj);
+        
         % -------------------------------------------------------------------------
         % Log status of previous operations on GUI
-        log2dev(sprintf('A setting file %s%s%s has been correctly loaded in the framework',...
-                        stgObj.analysis_name,...
-                        num2str(stgObj.analysis_version),...
-                        stgObj.data_extensionmask),...
-                'INFO', 0, hMainGui, 'statusbar' );
-        % -------------------------------------------------------------------------  
-    end 
+        log2dev( sprintf('A setting file %s%s%s has been correctly loaded in the framework', stgObj.analysis_name, num2str(stgObj.analysis_version),stgObj.data_extensionmask),...
+                'INFO', 0, 'hMainGui', 'statusbar' );
+        % -------------------------------------------------------------------------
+        
+    end
+    
+    
+    
 end
-
-I = imread('./images/backgroundlogo.tif');
-h = imshow(I(:,:,1:3), 'Parent', handles.axes8);
-set(h, 'AlphaData', I(:,:,4));
-%imshow('./images/backgroundlogo.gif','Parent', handles.axes8);
 
 % Update handles structure
 guidata(hObject, handles);
+
 % --------------------------------------------------------------------
 function A_Proj_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Proj (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
-% [2]
+hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Projection';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(ProjectionGUI(int));
+
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
+if(intOut)
+    out = ProjectionGUI(stgObj);
+    uiwait(out);
+end
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
 handles_connection(hObject,handles)
+
 % --------------------------------------------------------------------
 function A_StackReg_Callback(hObject, eventdata, handles)
 % hObject    handle to A_StackReg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%hMainGui = getappdata(0, 'hMainGui');
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end 
-% [2]
+hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Stack_Registration';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(RegistrationGUI(int));
+
+
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
+
+
+if(intOut)
+    out = RegistrationGUI(stgObj);
+    uiwait(out);
+end
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
 handles_connection(hObject,handles)
+
 % --------------------------------------------------------------------
 function A_CLAHE_Callback(hObject, eventdata, handles)
 % hObject    handle to A_CLAHE (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
-% [2]
+hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Contrast_Enhancement';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(ImproveContrastGUI(int));
+
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
+
+
+if(intOut)
+    out = ImproveContrastGUI(stgObj);
+    uiwait(out);
+end
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
 handles_connection(hObject,handles)
+
 % --------------------------------------------------------------------
 function A_Segmentation_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Segmentation (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
-% [2]
+hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Segmentation';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(SegmentationGUI(int));
-%SaveAnalysisFile(obj,'ForceSave', true);
-handles_connection(hObject,handles)
+
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
+
+if(intOut)
+    out = SegmentationGUI(stgObj);
+    uiwait(out);
+end
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
+handles_connection(hObject,handles);
+
 % --------------------------------------------------------------------
 function A_Tracking_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Tracking (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
-% [2]
+hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Tracking';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(TrackingIntroGUI(int));
-%SaveAnalysisFile(obj,'ForceSave', true);
+
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
+
+
+if(intOut)
+    out = TrackingIntroGUI(stgObj);
+    uiwait(out);
+end
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
 handles_connection(hObject,handles)
+
 % --------------------------------------------------------------------
 function A_Skeletons_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Skeletons (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
-% [2]
+hMainGui = getappdata(0, 'hMainGui');
 strModuleName = 'Skeletons';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(SkeletonConversionGUI(int));
-%SaveAnalysisFile(obj,'ForceSave', true);
-handles_connection(hObject,handles)
+
+[intOut,stgObj] = SaveAnalysisModule(hObject, handles, strModuleName);
+
+
+if(intOut)
+    out = SkeletonConversionGUI(stgObj);
+    waitfor(out);
+end
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
+handles_connection(hObject,handles);
+
 % --------------------------------------------------------------------
 function A_Polycrop_Callback(hObject, eventdata, handles)
 % hObject    handle to A_Polycrop (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
-% [2]
+hMainGui = getappdata(0, 'hMainGui');
+stgObj = getappdata(hMainGui,'settings_objectname');
+
 strModuleName = 'Polygon_Masking';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(PolygonMaskingGUI(int));
-%SaveAnalysisFile(obj,'ForceSave', true);
+
+intOut = SaveAnalysisModule(hObject, handles, strModuleName);
+
+if(intOut)
+    out = PolygonMaskingGUI(stgObj);
+    waitfor(out);
+end 
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
 handles_connection(hObject,handles)
+
 % --------------------------------------------------------------------
 function A_ReSegmentation_Callback(hObject, eventdata, handles)
 % hObject    handle to A_ReSegmentation (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
-% [2]
+
+hMainGui = getappdata(0, 'hMainGui');
+stgObj = getappdata(hMainGui,'settings_objectname');
+
 strModuleName = 'ReSegmentation';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(ReSegmentationGUI(int));
-%SaveAnalysisFile(obj,'ForceSave', true);
+
+intOut = SaveAnalysisModule(hObject, handles, strModuleName);
+
+if(intOut)
+    out = ReSegmentationGUI(stgObj);
+    waitfor(out);
+end 
+
+statusExecution = SaveAnalysisFile(hObject, handles, 1);
+
 handles_connection(hObject,handles)
+
 % --------------------------------------------------------------------
 function E_Undo_Callback(hObject, eventdata, handles)
+% hObject    handle to E_Undo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
 % --------------------------------------------------------------------
 function E_Redo_Callback(hObject, eventdata, handles)
+% hObject    handle to E_Redo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
 % --------------------------------------------------------------------
 function E_Preferences_Callback(hObject, eventdata, handles)
 % hObject    handle to E_Preferences (see GCBO)
@@ -417,30 +387,40 @@ function E_Preferences_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 UserSettingsGUI();
+
+
 % --------------------------------------------------------------------
 function F_New_Callback(hObject, eventdata, handles)
 % hObject    handle to F_New (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
-% Graphics
 uihandles_deletecontrols('all');
-% Execute procedures required by server-client modules
-disconnectPool
 SandboxGUIRedesign(0);
+set(handles.('figureA'), 'Visible', 'off')
+a3 = get(handles.('figureA'), 'Children');
+set(a3,'Visible', 'off');
 stsFunOut = [];
 % Check if there is setting file loaded in the application
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
         % Ask if you want to save it before generate a new one
-        interrupt =  SaveAnalysisFile(getappdata(hMainGui,'settings_objectname'));
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        if (interrupt == 1);return; else stgObj.createPackage; end
+        interrupt = SaveAnalysisFile(hObject, handles);
+        
+        if (interrupt == 1)
+            return;
+        end
+        
+        
     end
 end
+
 % Ask to the user to specify the image directory and the fullpath where the
 % analysis file will be stored
+
 strPathAnalysisFile = uigetdir('~','Select the directory where your analysis file will be stored');
+
 if(strPathAnalysisFile)
     % Initialize a new setting file and call the form FilePropertiesGUI
     stgObj = settings();
@@ -453,6 +433,7 @@ else
 end
 while(isempty(stsFunOut)==1)
     strPathImages = uigetdir('~','Select the directory containing your images');
+
     if(strPathImages)
         stgObj.data_imagepath = strPathImages;
         stsFunOut = CreateMetadata(stgObj);
@@ -460,19 +441,21 @@ while(isempty(stsFunOut)==1)
         break;
     end
 end
+
 % Continue execution only if the previous passages has been completed
 % correctly.
+
 if ~isempty(stsFunOut)
     out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
     uiwait(out);
-    SaveAnalysisFile(stgObj,'ForceSave', true);
+    SaveAnalysisFile(hObject, handles, 1);
+    
     stgObj = getappdata(hMainGui,'settings_objectname');
-    % Logging on external device
+
+    % logging on external device
     diary([stgObj.data_fullpath,'/out-',datestr(now,30),'.log']);
     diary on;
-    % Status operations
-    min = 0; max=100; value=10;
-    log2dev('Parallel computing toolbox availability check...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
+
     % Parallel
     installed_toolboxes=ver;
     if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
@@ -480,30 +463,12 @@ if ~isempty(stsFunOut)
             parpool('local',stgObj.platform_units);
         end
     end
-    % Status operations
-    min = 0; max=100; value=45;
-    log2dev('Storing temporary variables...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
+
     %Check if icy is in use
     stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
-    % Status operations
-    min = 0; max=100; value=65;
-    log2dev('Graphics initialization...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
+
     % Update handles structure
     handles_connection(hObject, handles)
-    % Status operations
-    min = 0; max=100; value=75;
-    log2dev('Pool connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
-    %connectPool('clipro');% DEBUG
-    connectPool(strcat(stgObj.analysis_name,'_default'));
-    %connectPool(strcat(stgObj.analysis_name,'_',num2str(randi(100000000))));
-    % Status operations
-    min = 0; max=100; value=85;
-    log2dev('Server connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
-    % Connect to server instance
-    connectServer();
-    % Status operations
-    min = 0; max=100; value=100;
-    log2dev(sprintf('File loading completed for analysis %s generated by %s on %s', stgObj.analysis_name, stgObj.user_name, stgObj.platform_id),'INFO',0,'hMainGui', 'statusbar',{min,max,value});
 end
 % --------------------------------------------------------------------
 function F_Open_Callback(hObject, eventdata, handles)
@@ -511,55 +476,63 @@ function F_Open_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0, 'hMainGui');
-% Graphics
 uihandles_deletecontrols('all');
-% Execute procedures required by server-client modules
-disconnectPool();
 SandboxGUIRedesign(0);
+set(handles.('figureA'), 'Visible', 'off')
+a3 = get(handles.('figureA'), 'Children');
+set(a3,'Visible', 'off');
+
 % Check if there is setting file loaded in the application
 if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))  
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
         % Ask if you want to save it before generate a new one
-        interrupt = SaveAnalysisFile(getappdata(hMainGui,'settings_objectname'));
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        if (interrupt == 1);return; else stgObj.createPackage; end
+        interrupt = SaveAnalysisFile(hObject, handles);
+        
+        if (interrupt == 1)
+            return;
+        end
+        
+        
     end
 end
+
 [strSettingFileName,strSettingFilePath,~] = uigetfile('~/*.xml','Select analysis file');
+
 % If the user select a file to open
 if(strSettingFilePath)
+    
     stgObj = xml_read([strSettingFilePath,strSettingFileName]);
-    % Check for validity
-    fieldsettings = fields(stgObj);
-    if sum(strcmp(fieldsettings,'analysis_code')) == 0
-       log2dev(sprintf('EPITOOLS:hMainGui:FOpenCallBack | %s','The selected file is not compatible with this version of EpiTools'),'WARN');
-       return;
-    end
-    % Status operations
-    min = 0; max=100; value=1;
-    log2dev('Loading file...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
-    % Status operations
-    min = 0; max=100; value=5;
-    log2dev('File integrity check running...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
-    % Storing as setting object
     stgObj = settings(stgObj);
+    
     arrayFiles = fields(stgObj.analysis_modules.Main.data);
     tmpFileStruct = {};
     for i=1:numel(arrayFiles)
         idx = arrayFiles(i);
+        
         stgObj.analysis_modules.Main.data.(char(idx)).exec = logical(stgObj.analysis_modules.Main.data.(char(idx)).exec);
         tmpFileStruct(i,:) = struct2cell(stgObj.analysis_modules.Main.data.(char(idx)))';
+        
     end
+    
+    
     stgObj.analysis_modules.Main.data = tmpFileStruct;
+    
     %load([strSettingFilePath,strSettingFileName], '-mat');
     setappdata(hMainGui, 'settings_objectname', stgObj);
+    
     % Global integrity check
     if(DataIntegrityCheck(hObject, handles, strSettingFilePath))
         stgObj = getappdata(hMainGui, 'settings_objectname');
     end
-    % Status operations
-    min = 0; max=100; value=25;
-    log2dev('Folder integrity check running...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
+    
+    % Print a message in case of success
+    h = msgbox(sprintf('Name: %s  \nVersion: %s \nAuthor: %s \n\ncompleted with success!',...
+        stgObj.analysis_name,...
+        stgObj.analysis_version,...
+        stgObj.user_name ),...
+        'Operation succesfully completed','help');
+    
     % Parallel
     installed_toolboxes=ver;
     if(any(strcmp('Parallel Computing Toolbox', {installed_toolboxes.Name})))
@@ -567,56 +540,16 @@ if(strSettingFilePath)
             matlabpool('local',stgObj.platform_units);
         end
     end
-    % Status operations
-    min = 0; max=100; value=35;
-    log2dev('Parallel computing toolbox availability check...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
+    
     %Check if icy is in use
     stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
     settings_executionuid = getappdata(hMainGui,'settings_executionuid');
     diary([stgObj.data_fullpath,'/',settings_executionuid]);
     diary on;
-    % Status operations
-    min = 0; max=100; value=45;
-    log2dev('Storing temporary variables...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
-    % Activate controls and refresh main window
+    
     handles_connection(hObject, handles)
-    % Status operations
-    min = 0; max=100; value=65;
-    log2dev('Graphics initialization...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
-    % Execute procedures required by server-client modules
-    % disconnectPool();
-    % Status operations
-    min = 0; max=100; value=75;
-    log2dev('Pool connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
-    if exist([stgObj.data_fullpath,'/pools'],'dir');
-        files = dir( [stgObj.data_fullpath,'/pools']);
-        if ~isempty(files)
-            for idxFile = 1:numel(files)
-                if(~files(idxFile).isdir) 
-                    a = regexpi(files(idxFile).name,'(?<=pool_)(.*)(?=.xml)', 'match');
-                    if ~isempty(a)
-                        copyfile([stgObj.data_fullpath,'/pools/',files(idxFile).name], ['tmp/',files(idxFile).name])
-                        connectPool(a{1});
-                    end
-                end
-            end
-        else
-            connectPool(strcat(stgObj.analysis_name,'_default'));
-        end
-        %mkdir([settings_obj.data_fullpath,'/pools']); 
-        %connectPool(strcat(stgObj.analysis_name,'_default'));
-    else
-        connectPool(strcat(stgObj.analysis_name,'_default'));
-    end
-    % Status operations
-    min = 0; max=100; value=85;
-    log2dev('Server connection establishing...','INFO',0,'hMainGui', 'statusbar',{min,max,value});
-    connectServer();
-    min = 0; max=100; value=100;
-    log2dev(sprintf('File loading completed for analysis %s generated by %s on %s', stgObj.analysis_name, stgObj.user_name, stgObj.platform_id),'INFO',0,'hMainGui', 'statusbar',{min,max,value});
-else
-    log2dev( getappdata(hMainGui, 'status_application'), 'INFO', 0, hMainGui, 'statusbar' );
 end
+
 % --------------------------------------------------------------------
 function F_ImportSettings_Callback(hObject, eventdata, handles)
 % hObject    handle to F_ImportSettings (see GCBO)
@@ -653,76 +586,48 @@ if(strSettingFilePath ~= 0)
 end
 
 handles_connection(hObject, handles)
+
 % --------------------------------------------------------------------
 function F_Save_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Save (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-SaveAnalysisFile(getappdata(getappdata(0, 'hMainGui'), 'settings_objectname'));
+
+SaveAnalysisFile(hObject, handles);
+
 % --------------------------------------------------------------------
 function F_Properties_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Properties (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
 hMainGui = getappdata(0, 'hMainGui');
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
+
 if(getappdata(hMainGui,'settings_objectname') ~= 0)
-    out = FilePropertiesGUI(obj);
-    % [1]
-    % Call indexing module
-    strModuleName = 'Indexing';
-    % Duplicate setting objects and save content
-    int = settings();
-    int.inheritSettings(obj);
-    % Calling complementary indexing function
-    proceed = int.initialiseModule(strModuleName);
-    if proceed;dataindexing_caller(int);end
+    
+    out = FilePropertiesGUI(getappdata(hMainGui,'settings_objectname'));
+    %uiwait(out);
 else
     msgbox('No analysis file loaded!');
 end
+
 % Update handles structure
 handles_connection(hObject, handles)
+
 % --------------------------------------------------------------------
 function F_Exit_Callback(hObject, eventdata, handles)
 % hObject    handle to F_Exit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 onMainWindowClose(hObject, eventdata, handles);
-% --------------------------------------------------------------------
-function V_D_SingleMode_Callback(hObject, eventdata, handles)
-% hObject    handle to V_D_SingleMode (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-if strcmp(get(handles.('V_D_ComparativeMode'),'Checked'),'on')
-    set(handles.('V_D_ComparativeMode'), 'Checked', 'off');
-    set(hObject, 'Checked', 'on');
-else
-    set(hObject, 'Checked', 'on');
-end
-% --------------------------------------------------------------------
-function V_D_ComparativeMode_Callback(hObject, eventdata, handles)
-% hObject    handle to V_D_ComparativeMode (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-if strcmp(get(handles.('V_D_SingleMode'),'Checked'),'on')
-    set(handles.('V_D_SingleMode'), 'Checked', 'off');
-    set(hObject, 'Checked', 'on'); 
-else
-    set(hObject, 'Checked', 'on');
-end
-% --------------------------------------------------------------------
-function V_D_DefaultInterface_Callback(hObject, eventdata, handles)
-% hObject    handle to V_D_DefaultInterface (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-set(handles.('V_D_SingleMode'), 'Checked', 'off');
-set(handles.('V_D_ComparativeMode'), 'Checked', 'off');
+
 % --------------------------------------------------------------------
 function MHelp_Callback(hObject, eventdata, handles)
 % hObject    handle to MHelp (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 web('http://imls-bg-arthemis.uzh.ch/epitools/');
+
 % --------------------------------------------------------------------
 function MCredits_Callback(hObject, eventdata, handles)
 % hObject    handle to MCredits (see GCBO)
@@ -730,204 +635,8 @@ function MCredits_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 frmInfoSplash();
 % --------------------------------------------------------------------
-function uiNewAnalysisPush_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to uiNewAnalysisPush (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-F_New_Callback(hObject, eventdata, handles);
-% --------------------------------------------------------------------
-function uiOpenAnalysisPush_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to uiOpenAnalysisPush (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-F_Open_Callback(hObject, eventdata, handles)
-% --------------------------------------------------------------------
-function uiSaveAnalysisPush_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to uiSaveAnalysisPush (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-F_Save_Callback(hObject, eventdata, handles)
-% --------------------------------------------------------------------
-function uiImportAnalysisPush_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to uiImportAnalysisPush (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-F_ImportSettings_Callback(hObject, eventdata, handles)
-% --------------------------------------------------------------------
-function uiIcyVisualizationToggle_OffCallback(hObject, eventdata, handles)
-% hObject    handle to uiIcyVisualizationToggle (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-use_icy_checkbox_Callback(0);
-
-% --------------------------------------------------------------------
-function uiIcyVisualizationToggle_OnCallback(hObject, eventdata, handles)
-% hObject    handle to uiIcyVisualizationToggle (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-activation_succeeded = use_icy_checkbox_Callback(1);
-if(~activation_succeeded)
-    set(hObject,'State','off');
-end
-
-% --- Executes on button press in use_icy_checkbox.
-function icy_is_used = use_icy_checkbox_Callback(ToggleValue)
-% hObject    handle to use_icy_checkbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-hMainGui = getappdata(0, 'hMainGui');
-settingsobj = getappdata(hMainGui, 'settings_execution');
-
-if ToggleValue
-    
-    icy_path = settingsobj.output.icy.ctl_connectionstring.values;
-    icy_is_loaded = getappdata(hMainGui,'icy_is_loaded');
-    
-    %Check if icy's path was specified
-    if(strcmp(icy_path,'none'))
-        %user specification if none defined
-        icy_path = uigetdir('~/','Please locate /path/to/Icy/plugins/ylemontag/matlabcommunicator');
-        if(icy_path == 0) %user cancel
-            icy_path = 'none';
-        end
-    end
-    
-    %Check if icy functions are already loaded
-    if(~icy_is_loaded)
-        if(exist([icy_path,'/icy_init.m'],'file'))
-            
-            log2dev(sprintf('Successfully detected ICY at:%s\n',icy_path),'INFO');
-            addpath(icy_path);
-            icy_init();
-            icy_is_used = 1;
-            icy_is_loaded = 1;
-        else
-            icy_path = 'none';
-            icy_is_used = 0;
-            errordlg('ICY could not be detected at specified path, please rexecute!');
-            log2dev(sprintf('Current icy path is not valid: %s\n',icy_path),'WARN');
-        end
-    else
-        icy_is_used = 1;
-    end
-    
-    %set app data
-    %setappdata(hMainGui,'icy_path',icy_path);
-    setappdata(hMainGui,'icy_is_loaded',icy_is_loaded);
-    setappdata(hMainGui,'icy_is_used',icy_is_used);
-    
-    if(icy_is_used);mtx = [1 0];else mtx = [0 1];end
-    settingsobj.output.icy.ctl_enableicyconnection.actived = mtx;
-    settingsobj.output.icy.ctl_connectionstring.values = icy_path;
-    
-else
-    %checkbox is deselected
-    setappdata(hMainGui,'icy_is_used',0);
-    icy_is_used = 0;
-end
-
-setappdata(hMainGui, 'settings_execution',settingsobj);
-
-%set preference in settings object if one exists
-if(isappdata(hMainGui,'settings_objectname'))
-    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
-    end
-end
-
-xml_write('usersettings.xml', settingsobj);
-% --------------------------------------------------------------------
-function uiExecuteServerQueue_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to uiExecuteServerQueue (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-hMainGui = getappdata(0, 'hMainGui');
-server_instances = getappdata(hMainGui, 'server_instances');
-client_modules = getappdata(hMainGui, 'client_modules');
-pool_instances = getappdata(hMainGui, 'pool_instances');
-% Remapping
-server = server_instances(2).ref;
-
-% clients = client_modules(2).ref;
-% 
-% for i = 1:size(pool_instances(2:end),2)
-%     if (pool_instances(i+1).ref.active)
-%         %server.receiveMessage(clients(1),pool_instances(i+1).ref);
-%         server.receiveMessage(clients(4),pool_instances(i+1).ref);
-%     end
-% end
-
-% Forcing execution
-server.forceExecutionQueue;
-% --------------------------------------------------------------------
-function uiManagePoolActivation_ClickedCallback(hObject, eventdata,handles)
-hMainGui = getappdata(0, 'hMainGui');
-pool_instances = getappdata(hMainGui, 'pool_instances');
-if(numel(pool_instances) >=2)
-    poold_PoolActivationManagerGUI;
-end
-% --------------------------------------------------------------------
-function uiFlushServerQueue_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to uiFlushServerQueue (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
-server_instances(2).ref.FlushQueue;
-setappdata(getappdata(0, 'hMainGui'),'server_instances',server_instances);
-% --------------------------------------------------------------------
-function uiImageLayersToggle_OffCallback(hObject, eventdata, handles)
-% hObject    handle to uiImageLayersToggle (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-if  uihandles_exists( 'GraphicHandleCmpDisplay' )
-    uihandles_deletecontrols( 'GraphicHandleCmpDisplay' );
-    log2dev( 'Standard visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
-end
-% --------------------------------------------------------------------
-function uiImageLayersToggle_OnCallback(hObject, eventdata, handles)
-% hObject    handle to uiImageLayersToggle (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-inputs(1) = getappdata(0, 'hMainGui');
-uihandles_deletecontrols( 'uiSWslider' );
-uihandles_deletecontrols( 'uiSWImage' );
-uihandles_deletecontrols( 'uiSWFrameNumLabel' );
-uihandles_deletecontrols( 'uiSWFrameNumEdit' );
-uihandles_deletecontrols( 'uiBannerDescription' );
-uihandles_deletecontrols( 'uiBannerContenitor' );
-uihandles_deletecontrols( 'GraphicHandleSingleVDisplay' );
-[status,argout] = dataexplorer_cmpview( inputs );
-if ~status;
-    uihandles_savecontrols( argout(1).description ,argout(1).object );
-    log2dev( 'Comparative visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
-end
-% --------------------------------------------------------------------
-function uiImageSingleToggle_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to uiImageSingleToggle (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% inputs{1} = getappdata(0, 'hMainGui');
-% stgObj = getappdata(inputs{1},'settings_objectname');
-% inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.('Projection').results.projection_path],...
-%     [stgObj.data_analysisindir,'/',stgObj.analysis_modules.('Contrast_Enhancement').results.clahe_path]};
-% inputs{3} = {'Projection','Contrast Enhancement'};
-% uihandles_deletecontrols( 'uiSWslider' );
-% uihandles_deletecontrols( 'uiSWImage' );
-% uihandles_deletecontrols( 'uiSWFrameNumLabel' );
-% uihandles_deletecontrols( 'uiSWFrameNumEdit' );
-% uihandles_deletecontrols( 'uiBannerDescription' );
-% uihandles_deletecontrols( 'uiBannerContenitor' );
-% uihandles_deletecontrols( 'GraphicHandleSingleVDisplay' );
-% [status,argout] = dataexplorer_imageview( inputs );
-% if ~status;
-%     uihandles_savecontrols( argout(1).description ,argout(1).object );
-%     log2dev( 'Slide visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
-% end
-% ====================================================================
 % Support Functions
-% ====================================================================
+% --------------------------------------------------------------------
 function SplashScreenHandle = SplashScreen
 % Splash screen before EpiTools loading
 addpath('./src_support/module_xml');
@@ -982,7 +691,7 @@ text = uicontrol('Parent', SplashScreenHandle,...
             
 
 drawnow;
-% --------------------------------------------------------------------
+
 function onMainWindowClose(hObject, eventdata, handles)
 % On Main Windows Close function    
 hMainGui = getappdata(0, 'hMainGui');
@@ -990,28 +699,163 @@ hLogGui = getappdata(0, 'hLogGui');
 % Since the current function is invoked without passing handles, then
 % recover them with
 handles = guidata(hMainGui);
+
 % Check if there is setting file loaded in the application
 if(isappdata(hMainGui,'settings_objectname'))
     if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        
         % Ask if you want to save it before closing the application
-        output = SaveAnalysisFile(getappdata(hMainGui,'settings_objectname'));
+        output = SaveAnalysisFile(hObject, handles);
         %waitfor(output);
+        
+        if (output == 1)
+            return
+        end
+        
         stgObj = getappdata(hMainGui, 'settings_objectname');
-        if (output == 1);return; else stgObj.createPackage; end
+        
         %matlabpool is unrecognized on platforms without the Paralell Computing toolbox
-        if(stgObj.platform_units ~= 1) if (matlabpool('size') > 0); matlabpool close; end ; end    
+        if(stgObj.platform_units ~= 1)
+            if (matlabpool('size') > 0); matlabpool close; end
+        end
+        
     end
 end
+
+
 settings_executionuid = getappdata(hMainGui, 'settings_executionuid');
+
 log2dev('***********************************************************','INFO');
 log2dev(sprintf('* End session %s * ',settings_executionuid),'INFO');
 log2dev('***********************************************************','INFO');
+
 if exist(['~/',settings_executionuid], 'file')
     delete(['~/',settings_executionuid]);
 end
-disconnectPool;
 delete(hLogGui);
 delete(hMainGui);
+
 % --------------------------------------------------------------------
-function disconnectServer() % to be moved
+function uiNewAnalysisPush_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiNewAnalysisPush (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+F_New_Callback(hObject, eventdata, handles);
 % --------------------------------------------------------------------
+function uiOpenAnalysisPush_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiOpenAnalysisPush (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+F_Open_Callback(hObject, eventdata, handles)
+% --------------------------------------------------------------------
+function uiSaveAnalysisPush_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiSaveAnalysisPush (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+F_Save_Callback(hObject, eventdata, handles)
+% --------------------------------------------------------------------
+function uiImportAnalysisPush_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to uiImportAnalysisPush (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+F_ImportSettings_Callback(hObject, eventdata, handles)
+% --------------------------------------------------------------------
+function uiIcyVisualizationToggle_OffCallback(hObject, eventdata, handles)
+% hObject    handle to uiIcyVisualizationToggle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+use_icy_checkbox_Callback(hObject, eventdata, handles, 0);
+% --------------------------------------------------------------------
+function uiIcyVisualizationToggle_OnCallback(hObject, eventdata, handles)
+% hObject    handle to uiIcyVisualizationToggle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+use_icy_checkbox_Callback(hObject, eventdata, handles, 1);
+
+% --- Executes on button press in use_icy_checkbox.
+function use_icy_checkbox_Callback(hObject, eventdata, handles, ToggleValue)
+% hObject    handle to use_icy_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+hMainGui = getappdata(0, 'hMainGui');
+settingsobj = getappdata(hMainGui, 'settings_execution');
+
+if ToggleValue
+    
+    %only enter when tick is activated
+    
+    %get app data
+    if(strcmp(settingsobj.output.icy.ctl_enableicyconnection.values(find(settingsobj.output.icy.ctl_enableicyconnection.actived)),'on'))
+        icy_is_used = 1;
+    else 
+        icy_is_used = 0;
+    end
+    
+    icy_path = settingsobj.output.icy.ctl_connectionstring.values;
+
+    %icy_path    =   getappdata(hMainGui,'icy_path');
+    %icy_is_used =   getappdata(hMainGui,'icy_is_used');
+    icy_is_loaded = getappdata(hMainGui,'icy_is_loaded');
+    
+    
+    %Check if icy's path was specified
+    if(strcmp(icy_path,'none'))
+        %user specification if none defined
+        icy_path = uigetdir('~/','Please locate /path/to/Icy/plugins/ylemontag/matlabcommunicator');
+        if(icy_path == 0) %user cancel
+            icy_path = 'none';
+        end
+    end
+    
+    %Check if icy functions are already loaded
+    if(~icy_is_loaded)
+        if(exist([icy_path,'/icy_init.m'],'file'))
+            
+            log2dev(sprintf('Successfully detected ICY at:%s\n',icy_path),'INFO');
+            addpath(icy_path);
+            icy_init();
+            icy_is_used = 1;
+            icy_is_loaded = 1;
+        else
+            icy_path = 'none';
+            log2dev(sprintf('Current icy path is not valid: %s\n',icy_path),'WARN');
+        end
+    else
+        icy_is_used = 1;
+    end
+    
+    %Check if icy is used
+    if(icy_is_used ~= 1)
+        %do not check if icy_path was not set
+        set(handles.uiIcyVisualizationToggle,'State','off');
+    end
+    
+    %set app data
+    %setappdata(hMainGui,'icy_path',icy_path);
+    setappdata(hMainGui,'icy_is_loaded',icy_is_loaded);
+    setappdata(hMainGui,'icy_is_used',icy_is_used);
+    
+    if(icy_is_used);mtx = [1 0];else mtx = [0 1];end
+    settingsobj.output.icy.ctl_enableicyconnection.actived = mtx;
+    settingsobj.output.icy.ctl_connectionstring.values = icy_path;
+    
+    
+    
+else
+    %checkbox is deselected
+    set(handles.uiIcyVisualizationToggle,'State','off');
+    setappdata(hMainGui,'icy_is_used',0);
+    
+end
+
+setappdata(hMainGui, 'settings_execution',settingsobj);
+
+%set preference in settings object if one exists
+if(isappdata(hMainGui,'settings_objectname'))
+    if(isa(getappdata(hMainGui,'settings_objectname'),'settings'))
+        stgObj = getappdata(hMainGui,'settings_objectname');
+        stgObj.icy_is_used = getappdata(hMainGui,'icy_is_used');
+    end
+end
+
+xml_write('usersettings.xml', settingsobj);
