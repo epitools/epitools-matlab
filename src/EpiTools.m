@@ -759,7 +759,6 @@ function uiIcyVisualizationToggle_OffCallback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 use_icy_checkbox_Callback(0);
-
 % --------------------------------------------------------------------
 function uiIcyVisualizationToggle_OnCallback(hObject, eventdata, handles)
 % hObject    handle to uiIcyVisualizationToggle (see GCBO)
@@ -770,7 +769,6 @@ activation_succeeded = use_icy_checkbox_Callback(1);
 if(~activation_succeeded)
     set(hObject,'State','off');
 end
-
 % --- Executes on button press in use_icy_checkbox.
 function icy_is_used = use_icy_checkbox_Callback(ToggleValue)
 % hObject    handle to use_icy_checkbox (see GCBO)

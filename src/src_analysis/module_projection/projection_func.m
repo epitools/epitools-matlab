@@ -104,6 +104,7 @@ for i=1:numel(stgMain.analysis_modules.Indexing.results.indices.I)
     % Warning: the dimensions of ImagesPreStack are given by the number
     % of planes in output from LoadImgData. If channels num is 1, then
     % dim = 4
+    % RetrieveData2Load('TagID', 'Generic_Image')
     [~,ImagesPreStack] = LoadImgData(strFullPathFile,intCurImgIdx,stgMain.analysis_modules.Indexing.results.indices);
     %% Project data
     totalTimeSteps = sum(cellfun(@length,stgMain.analysis_modules.Indexing.results.indices.T));
