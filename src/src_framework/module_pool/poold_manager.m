@@ -119,14 +119,14 @@ classdef poold_manager
                             tag = pool.getTag(evnt.TagArray{:}{idxDisp});
                             poolname = sprintf('%s - %s',evnt.TagArray{:}{idxDisp},datestr(tag.timestamp,31));
                             icy_vidshow(image2display,poolname);
-                            status = true;
+                            status_exec = true;
                         end
                     else
-                        [status,argout] = dataexplorer_imageview( inputs );
+                        [status_exec,argout] = dataexplorer_imageview( inputs );
                     end
                 end
             end
-            if ~status;
+            if ~status_exec;
                 uihandles_savecontrols( argout(1).description ,argout(1).object );
                 log2dev( 'Slide visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
             end
