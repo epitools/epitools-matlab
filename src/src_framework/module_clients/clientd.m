@@ -96,8 +96,8 @@ classdef clientd < handle
                             else
                                 tmp(1,:) = construct(i,:);
                                 pos = size(cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg,1);
-                                cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg(pos,1) = construct(i,1);
-                                cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg(pos,2) = construct(i,2);
+                                cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg(pos+1,1) = construct(i,1);
+                                cli.commands(strcmp(cli.commands.command.uid,commanduid)).command.argvs.arg(pos+1,2) = construct(i,2);
                             end
                         end
                     end
