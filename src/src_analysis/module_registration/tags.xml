@@ -16,4 +16,16 @@
       </attributes>
       <validity>illimited</validity>
    </tag>
+   <tag>
+      <uid>Generic_Image_TSerie</uid>
+      <module>Stack_Registration</module>
+      <class>data</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$REGIMAGEPATH$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
 </tags>
