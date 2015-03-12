@@ -25,6 +25,10 @@
             <class>file</class>
             <path>$REGIMAGEPATH$</path>
          </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
+         </attribute>
       </attributes>
       <validity>illimited</validity>
    </tag>

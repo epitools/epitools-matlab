@@ -19,10 +19,20 @@
                 <tag>Generic_Image_TSerie</tag>
             </tags>
             <exceptions>
-                <exception/>
+                <exception>
+                    <tags>
+                        <tag>
+                            <id>Generic_Image_TSerie</id>
+                            <rep>PROJECTED_IMAGE</rep>
+                        </tag>
+                    </tags>
+                </exception>
             </exceptions>
         </dependence>
     </dependences>
+    <withdrawals>
+        <tags/>
+    </withdrawals>  
     <commands>
         <command>
             <uid>REG01</uid>
