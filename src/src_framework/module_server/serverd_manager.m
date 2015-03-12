@@ -48,18 +48,21 @@ classdef serverd_manager
             %  Execution is invoked for each message in the queue.
             %  Evaluation of priority is required since messages are
             %  prioritized according to their content. 
-            while ~isempty(sd.queue)
+            while ~isempty(fields(sd.queue))
                 if (isempty(sd.queue));return;end
                 nomatlab = false; nosystem = false;
-                %i = numel(sd.queue);
                 i = 1;
                 procMeta = struct();
                 %% Display execution status 
                 log2dev(sprintf('Processing message at position [%s] with code %s',sd.queue(i).idx,sd.queue(i).code ),'INFO');
                 % Direct messages on predefined machine if not specified
-                % otherwise in user preferences. 
-                procMeta.machine_exec    = 'localhost';
-                procMeta.execution_start = now();
+                % otherwise in user preferences and set its current status
+                % in server structure
+                procMeta.machine_exec       = 'localhost';
+                procMeta.execution_start    = now();
+                procMeta.execution_end      = [];
+                procMeta.status             = 'executing';
+                sd.setMessageStatus(i,procMeta);
                 %% Evaluate command in message
                 % Send the command line to the auxiliary execution of matlab if allowed in
                 % the setting properties of EpiTools. In case an auxiliary execution is not
