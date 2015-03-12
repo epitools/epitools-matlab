@@ -41,14 +41,16 @@ function [status,argout] = improvecontrast_func(input_args,varargin)
 if (nargin<2); varargin(1) = {'CLAHEIMAGEPATH'};varargin(2) = {'SETTINGS'};end
 %% Procedure initialization
 status = 1;
-% Tracking time of the computation
-tic
+argout = struct();
+export_extratag = false;
 %% Retrieve parameter data
 handleSettings = input_args{strcmp(input_args(:,1),'ExecutionSettingsHandle'),2};
+execMessageUID = input_args{strcmp(input_args(:,1),'ExecutionMessageUID'),2};
 tmp = getappdata(getappdata(0,'hMainGui'),'execution_memory');
 % Remapping
 stgMain = tmp.(char(handleSettings));
 stgModule = stgMain.analysis_modules.Contrast_Enhancement.settings;
+%% Load data
 tmpRegObj = load([stgMain.data_analysisindir,'/RegIm']);
 % Display informations about the current module        
 % -------------------------------------------------------------------------
@@ -64,14 +66,22 @@ progressbar('Enhancing contrast...(please wait)');
 % Assuming that images are either 8 or 16bit in input
 if ~isa(tmpRegObj.RegIm, 'uint16') && ~isa(tmpRegObj.RegIm, 'uint8')
     log2dev('Images should have either 8 bit or 16 bit pixel depth','ERR');
-    argout = struct();
     return;
 end
+if numel(size(tmpRegObj.RegIm)<3)
+    dim = 1;
+elseif numel(size(tmpRegObj.RegIm)==3)
+    dim = size(tmpRegObj.RegIm,3);
+    export_extratag = true;
+else numel(size(tmpRegObj.RegIm)==4)
+    log2dev('This module does not support 4D images! Abort analysis','ERR');
+    return;
+end
+%% Apply CLAHE
+% Tracking time of the computation
+tic
 % Pre-allocate output
 RegIm_clahe = zeros(size(tmpRegObj.RegIm), class(tmpRegObj.RegIm));
-%% Apply CLAHE
-% Allow for 2D images
-if (numel(size(tmpRegObj.RegIm)<3)); dim = 1; else dim = size(tmpRegObj.RegIm,3); end
 % Loop along the time frames
 for i=1:dim
     % Extract single frame
@@ -94,14 +104,23 @@ for i=1:dim
     % -------------------------------------------------------------------------
 end
 elapsedTime = toc;
-% Storing Results
+%% Storing Results
 RegIm = RegIm_clahe;
 stgMain.AddResult('Contrast_Enhancement','clahe_path',[stgMain.data_analysisoutdir,'/RegIm_wClahe.mat']);
+stgMain.AddMetadata('Projection','handle_settings', handleSettings);
+stgMain.AddMetadata('Projection','exec_message', execMessageUID);
+stgMain.AddMetadata('Projection','exec_elapsed_time_seconds', elapsedTime);
 save([stgMain.data_analysisoutdir,'/RegIm_wClahe'],'RegIm');
 % -------------------------------------------------------------------------
 % Log status of current application status
 log2dev(sprintf('Finished after %.2f', elapsedTime), 'DEBUG');
 progressbar(1);
+%% Exporting extra Tags according to input data
+server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
+server = server_instances(2).ref;
+if export_extratag
+        server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image_TSerie');
+end
 % -------------------------------------------------------------------------
 %% Output formatting
 % Each single output need to be described in order to be used for variable exportation.

@@ -41,13 +41,24 @@ status = 1;
 %% Retrieve parameter data
 % it is more convenient to recall the setting file with as shorter variable
 % name: stgModule
-% TODO: input_args{strcmp(input_args(:,1),'SmoothingRadius'),2}
+% retrieve server handle
+server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
+server = server_instances(2).ref;
+% retrive execution parameters
 handleSettings = input_args{strcmp(input_args(:,1),'ExecutionSettingsHandle'),2};
+execMessageUID = input_args{strcmp(input_args(:,1),'ExecutionMessageUID'),2};
+% retrieve settings handle from memory
 tmp = getappdata(getappdata(0,'hMainGui'),'execution_memory');
+%% Open Connection to Server 
+server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
+server = server_instances(2).ref;
 % Remapping
 stgMain = tmp.(char(handleSettings));
 stgModule = stgMain.analysis_modules.Stack_Registration.settings;
-tmpObj = load([stgMain.data_analysisindir,'/ProjIm']);
+%% Load data
+execTDep = server.getMessageParameter(execMessageUID,'status','dependences');
+data = RetrieveData2Load(execTDep);
+%tmpObj = load([stgMain.data_analysisindir,'/ProjIm']);
 % -------------------------------------------------------------------------
 % Log current application status
 log2dev('******************* REGISTRATION MODULE *******************','INFO');
@@ -71,15 +82,21 @@ else
     RegIm = RegisterStack(tmpObj.ProjIm,stgModule);
     progressbar(1);
 end
-% inspect results
+% inspect results [Deprecated!]
 if ~stgMain.exec_commandline
     if(stgMain.icy_is_used)
         icy_vidshow(RegIm,'Registered Sequence');
     end
 end
-%saving results
+%% Saving results
 stgMain.AddResult('Stack_Registration','registration_path',[stgMain.data_analysisoutdir,'/RegIm.mat']);
+stgMain.AddMetadata('Projection','handle_settings', handleSettings);
+stgMain.AddMetadata('Projection','exec_message', execMessageUID);
 save([stgMain.data_analysisoutdir,'/RegIm'],'RegIm');
+%% Exporting extra Tags according to input data
+if numel(size(RegIm)) == 3
+    server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image_TSerie');
+end
 %% Output formatting
 % Each single output need to be described in order to be used for variable exportation.
 % ARGOUT variable is a structure object
