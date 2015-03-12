@@ -44,11 +44,15 @@ status = 1;
 % name: stgModule
 % TODO: input_args{strcmp(input_args(:,1),'SmoothingRadius'),2}
 handleSettings = input_args{strcmp(input_args(:,1),'ExecutionSettingsHandle'),2};
+execMessageUID = input_args{strcmp(input_args(:,1),'ExecutionMessageUID'),2};
+%% Open Connection to Server 
+server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
+server = server_instances(2).ref;
 %% Remapping
 % it is more convenient to recall the setting file with a shorter variable
 % name: stgModule 
 stgMain = getVariable4Memory(handleSettings);
-tmpStgObj = stgMain.analysis_modules.Segmentation.settings;
+StgObj = stgMain.analysis_modules.Segmentation.settings;
 tic
 % -------------------------------------------------------------------------
 % Log status of current application status
@@ -59,26 +63,29 @@ log2dev('***********************************************************','INFO');
 log2dev('Started segmentation analysis module', 'INFO');
 % -------------------------------------------------------------------------        
 use_clahe_flag = 0;
-if(isfield(tmpStgObj,'use_clahe')) %backwards compatability
+if(isfield(StgObj,'use_clahe')) %backwards compatability
     if(stgMain.hasModule('Contrast_Enhancement'))
-        if tmpStgObj.use_clahe; use_clahe_flag = 1; end
+        if StgObj.use_clahe; use_clahe_flag = 1; end
     else
         log2dev('CLAHE option is not available if CLAHE module has not been executed beforehand','INFO');
     end
 end
 if use_clahe_flag
-    tmpRegObj = load([stgMain.data_analysisindir,'/RegIm_wClahe']);
+    %tmpRegObj = load([stgMain.data_analysisindir,'/RegIm_wClahe']);
+    execTDep = 'CLAHE_IMAGE';
+    [~,data] = RetrieveData2Load(execTDep);
 else
-    tmpRegObj = load([stgMain.data_analysisindir,'/RegIm']);
+    execTDep = server.getMessageParameter(execMessageUID,'queue','dependences');
+    [~,data] = RetrieveData2Load(execTDep);
+    %data = load([stgMain.data_analysisindir,'/RegIm']);
 end
-if tmpStgObj.SingleFrame
+data = squeeze(data);
+if StgObj.SingleFrame
     %todo: SegmentStack should be able to handle single frames
-    im = tmpRegObj.RegIm(:,:,1);
-    [ILabels,CLabels,ColIms] = SegmentIm(im,tmpStgObj);
-    %figure;
-    %imshow(ColIms,[]);
+    im = data(:,:,1);
+    [ILabels,CLabels,ColIms] = SegmentIm(im,StgObj);
     RegIm = im;
-    save([stgMain.data_analysisoutdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','tmpStgObj','-v7.3')
+    save([stgMain.data_analysisoutdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','StgObj','-v7.3')
     stgMain.AddResult('Segmentation','segmentation_path',[stgMain.data_analysisoutdir,'/SegResults.mat']);
     % -------------------------------------------------------------------------
     % Log status of current application status
@@ -86,25 +93,30 @@ if tmpStgObj.SingleFrame
     % -------------------------------------------------------------------------   
 else
     %Check current parallel options 
-    if(stgMain.platform_units ~= 1); tmpStgObj.Parallel = true; else tmpStgObj.Parallel = false; end
+    if(stgMain.platform_units ~= 1); StgObj.Parallel = true; else StgObj.Parallel = false; end
     % Calling segmentation function with parameters set previously
-    [ILabels,CLabels,ColIms] = SegmentStack(tmpRegObj.RegIm,tmpStgObj);
-    NX      = size(tmpRegObj.RegIm,1);
-    NY      = size(tmpRegObj.RegIm,2);
-    NT      = size(tmpRegObj.RegIm,3);
-    RegIm   = tmpRegObj.RegIm;
+    [ILabels,CLabels,ColIms] = SegmentStack(data,StgObj);
+    NX      = size(data,1);
+    NY      = size(data,2);
+    NT      = size(data,3);
+    RegIm   = data;
     %save dummy tracking information
     FramesToRegrow = []; oktrajs = [];
-    save([stgMain.data_analysisoutdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','tmpStgObj','NX','NY','NT','-v7.3')
+    save([stgMain.data_analysisoutdir,'/SegResults'], 'RegIm', 'ILabels', 'CLabels' ,'ColIms','StgObj','NX','NY','NT','-v7.3')
     save([stgMain.data_analysisoutdir,'/TrackingStart'],'ILabels','FramesToRegrow','oktrajs')
     stgMain.AddResult('Segmentation','segmentation_path',[stgMain.data_analysisoutdir,'/SegResults.mat']);
     stgMain.AddResult('Segmentation','tracking_path',[stgMain.data_analysisoutdir,'/TrackingStart.mat']);
+
     % -------------------------------------------------------------------------
     % Log status of current application status
     log2dev(sprintf('Saving segmentation results as %s | %s',[stgMain.data_analysisoutdir,'/SegResults'],[stgMain.data_analysisoutdir,'/TrackingStart']), 'DEBUG');
     % -------------------------------------------------------------------------
 end
 elapsedTime = toc;
+stgMain.AddMetadata('Segmentation','handle_settings', handleSettings);
+stgMain.AddMetadata('Segmentation','exec_message', execMessageUID);
+stgMain.AddMetadata('Segmentation','exec_dependences', execTDep);
+stgMain.AddMetadata('Segmentation','exec_elapsed_time_seconds', elapsedTime);
 % -------------------------------------------------------------------------
 % Log status of current application status
 log2dev(sprintf('Finished after %.2f', elapsedTime), 'DEBUG');

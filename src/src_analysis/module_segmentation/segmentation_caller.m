@@ -38,6 +38,8 @@ for i = 1:size(pool_instances(2:end),2)
         % Add variable memory handles to exe command
         var = {'ExecutionSettingsHandle',handles{1}};
         clients(strcmp({clients.uid},'Segmentation')).addArgv('SEG01','argv',var);
+        var = {'ExecutionMessageUID', server.getNextQueuePosition()};
+        clients(strcmp({clients.uid},'Segmentation')).addArgv('SEG01','argv',var);
         server.receiveMessage(clients(strcmp({clients.uid},'Segmentation')),...
                               pool_instances(i+1).ref, pool_instances(2).ref);
     end

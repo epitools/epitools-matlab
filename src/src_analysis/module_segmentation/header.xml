@@ -13,6 +13,22 @@
                 <exception/>
             </exceptions>
         </dependence>
+        <dependence>
+            <uid>PE02</uid>
+            <tags>
+                <tag>Generic_Image</tag>
+            </tags>
+            <exceptions>
+            <exception>
+                <tags>
+                    <tag>
+                        <id>Generic_Image</id>
+                        <rep>PROJECTED_IMAGE</rep>
+                    </tag>
+                </tags>
+            </exception>
+            </exceptions>
+        </dependence>
     </dependences>
     <withdrawals>
         <tags/>
