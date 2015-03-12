@@ -86,7 +86,7 @@ release = getappdata(hMainGui, 'settings_release');
 set(handles.text4, 'String', release.programm_name);
 set(handles.text12, 'String', release.programm_desc);
 set(handles.text13, 'String', release.programm_authors);
-set(handles.text14, 'String', sprintf('%s (internal V%uR%u build %s on %s )',release.date_version,release.version,release.release,release.build, release.date_build));
+set(handles.text14, 'String', sprintf('%s (internal V%uR%u build %s on %s )',release.date_version,release.version,release.release*100,release.build, release.date_build));
 set(handles.text15, 'String', release.date_release);
 
 
