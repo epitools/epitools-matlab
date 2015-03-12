@@ -98,8 +98,16 @@ for idxFiles=1:numel(Indices.I)
     if(intProcessedFiles == 0)
         x = cell2mat(SourceData(intCurImgIdx,3));
         y = cell2mat(SourceData(intCurImgIdx,2));
-        z = max(arrayfun(@max,Indices.Z));
-        t = sum(arrayfun(@length,Indices.T));
+        %if isa(Indices.Z,'cell')
+        z = max(cellfun(@max,Indices.Z));
+        %else
+            %z = max(arrayfun(@max,Indices.Z));
+        %end
+        %if isa(Indices.T,'cell')
+        t = sum(cellfun(@numel,Indices.T));
+        %else
+            %t = sum(arrayfun(@numel,Indices.T));
+        %end
         intclass = char(SourceData(intCurImgIdx,7));
         Data = zeros(x,y,z,t,intclass);
     end
