@@ -607,18 +607,18 @@ hMainGui = getappdata(0, 'hMainGui');
 obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
 if(getappdata(hMainGui,'settings_objectname') ~= 0)
     out = FilePropertiesGUI(obj);
-    % [1]
-    % Call indexing module
-    strModuleName = 'Indexing';
-    % Duplicate setting objects and save content
-    int = settings();
-    int.inheritSettings(obj);
-    % Calling complementary indexing function
-    proceed = int.initialiseModule(strModuleName);
-    if proceed;dataindexing_caller(int);end
+    waitfor(out);
+    out = questdlg('EpiTools will overwrite the current indices. Please DO NOT continue with this operation if you want to preserve the orginal indices and image configurations. ', 'Indices overwriting','Continue','Abort', 'Abort');
+    switch out
+        case 'Continue'
+            prepareModule('bypass-withdrawals');
+        case 'Abort'
+            return;
+    end
 else
     msgbox('No analysis file loaded!');
 end
+
 % Update handles structure
 handles_connection(hObject, handles)
 % --------------------------------------------------------------------
@@ -905,7 +905,7 @@ text = uicontrol('Parent', SplashScreenHandle,...
                 'String',sprintf('%s V%uR%uB%s licensed to %s %s (%s) for %u days',...
                                 release.programm_name,...
                                 release.version,...
-                                release.release,...
+                                release.release*100,...
                                 release.build,...
                                 licence.customer.name,...
                                 licence.customer.lastname,...
@@ -915,8 +915,6 @@ text = uicontrol('Parent', SplashScreenHandle,...
                 'Position', [0 0 1 0.05],...
                 'BackgroundColor', [0 0 0],...
                 'ForegroundColor', [1 1 1]);
- 
-            
 
 drawnow;
 % --------------------------------------------------------------------
@@ -950,7 +948,8 @@ disconnectPool;
 delete(hLogGui);
 delete(hMainGui);
 % --------------------------------------------------------------------
-function prepareModule() 
+function prepareModule(options) 
+if nargin < 1; options = ''; end
 obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
 server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
 server = server_instances(2).ref;
@@ -966,14 +965,15 @@ int.inheritSettings(obj);
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,2});
 % Calling complementary indexing function
 proceed = int.initialiseModule(strModuleName);
+if (~isempty(options) && strcmp(options,'bypass-withdrawals')>0); proceed = true; end
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,3});
-if proceed;dataindexing_caller(int);end
+if proceed;dataindexing_caller(options,int);end
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,4});
 server.forceExecutionQueue;
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,5});
 % ----------------------------------------------
 % [2] Call loader module
-if proceed;loader_caller(obj);end
+if proceed;loader_caller(options,obj);end
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,6});
 server.forceExecutionQueue;
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,7});

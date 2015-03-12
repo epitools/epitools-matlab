@@ -1,4 +1,4 @@
-function [ SERVERINST ] = serverd_MessageProcessing( CLIPROINST, SERVERINST, SESSIONPOOLS, DEFAULTPOOL)
+function [ SERVERINST ] = serverd_MessageProcessing( CLIPROINST, SERVERINST, SESSIONPOOLS, DEFAULTPOOL, OPTIONS)
 %SERVERMESSAGEPROCESSING Summary of this function goes here
 %   Detailed explanation goes here
 %% Remapping structure to avoid explosion nested structure naming
@@ -8,16 +8,18 @@ defpool = DEFAULTPOOL;
 dependence = {};
 status = [];
 %% Check for withdrawals
-if(~isempty(CLIPROINST.withdrawals.tags))
-    for i = 1:numel(CLIPROINST.withdrawals.tags.tag)
-        if pools.existsTag(CLIPROINST.withdrawals.tags.tag(i));
-            message = sprintf('-----------------------------------------------------------------------');
-            log2dev(message,'INFO');
-            log2dev(sprintf('The process named %s will not be submitted since it has been already computed in the current pool',...
-                CLIPROINST.uid),'INFO');
-            message = sprintf('-----------------------------------------------------------------------');
-            log2dev(message,'INFO');
-            return;
+if ~(~isempty(OPTIONS) && strcmp(OPTIONS,'bypass-withdrawals')>0)
+    if(~isempty(CLIPROINST.withdrawals.tags))
+        for i = 1:numel(CLIPROINST.withdrawals.tags.tag)
+            if pools.existsTag(CLIPROINST.withdrawals.tags.tag(i));
+                message = sprintf('-----------------------------------------------------------------------');
+                log2dev(message,'INFO');
+                log2dev(sprintf('The process named %s will not be submitted since it has been already computed in the current pool',...
+                    CLIPROINST.uid),'INFO');
+                message = sprintf('-----------------------------------------------------------------------');
+                log2dev(message,'INFO');
+                return;
+            end
         end
     end
 end

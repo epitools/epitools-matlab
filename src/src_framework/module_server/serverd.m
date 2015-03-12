@@ -317,8 +317,9 @@ classdef serverd < handle
         % =================================================================
         % Server Functions: external
         % =================================================================
-        function receiveMessage(sd, clientprocess, pool, defaultpool)
-            sd = serverd_MessageProcessing( clientprocess, sd, pool, defaultpool);
+        function receiveMessage(sd, clientprocess, pool, defaultpool, options)
+            if nargin == 4; options = ''; end
+            sd = serverd_MessageProcessing(clientprocess, sd, pool, defaultpool, options);
         end
         % Initialize GUI interface for server process
         function buildGUInterface(sd, GraphicHandle)          
