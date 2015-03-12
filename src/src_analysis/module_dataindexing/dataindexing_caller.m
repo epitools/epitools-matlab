@@ -1,4 +1,4 @@
-function dataindexing_caller(varargin)
+function dataindexing_caller(options, varargin)
 %DATAINDEXING_CALLER Indexing function caller
 % ------------------------------------------------------------------------------
 % PREAMBLE
@@ -39,7 +39,7 @@ for i = 1:size(pool_instances(2:end),2)
         var = {'ExecutionSettingsHandle',handles{1}};
         clients(strcmp({clients.uid},'Indexing')).addArgv('INDEX01','argv',var);
         server.receiveMessage(clients(strcmp({clients.uid},'Indexing')),...
-                              pool_instances(i+1).ref, pool_instances(2).ref);
+                              pool_instances(i+1).ref, pool_instances(2).ref,options);
     end
 end
 end
