@@ -38,12 +38,13 @@ function [ status, argout ] = projection_func(input_args,varargin)
 %
 % Copyright by A.Tournier, A. Hoppe, D. Heller, L.Gatti
 % ------------------------------------------------------------------------------
+
 %% Retrieve supplementary arguments
 if (nargin<2); varargin(1) = {'PJIMAGEPATH'};varargin(2) = {'PJSURFPATH'};varargin(3) = {'SETTINGS'};end
 %% Procedure initialization
 status = 1;
 %initialize progressbar
-progressbar('Projecting images...');
+%progressbar('Projecting images...');
 % Initialize global time variable
 global_time_index = 0;
 % Variable indicating the number of processed files
@@ -53,20 +54,24 @@ intProcessedFiles = 0;
 % name: stgModule
 % TODO: input_args{strcmp(input_args(:,1),'SmoothingRadius'),2}
 handleSettings = input_args{strcmp(input_args(:,1),'ExecutionSettingsHandle'),2};
+execMessageUID = input_args{strcmp(input_args(:,1),'ExecutionMessageUID'),2};
 tmp = getappdata(getappdata(0,'hMainGui'),'execution_memory');
-% Remapping
+%% Open Connection to Server 
+server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
+server = server_instances(2).ref;
+%% Variable Remapping
 stgMain = tmp.(char(handleSettings));
 stgModule = stgMain.analysis_modules.Projection.settings;
+%% Load Data
 % -------------------------------------------------------------------------
 % Log status of current application status
 log2dev('******************** PROJECTION MODULE ********************','INFO');
 log2dev('* Authors: A.Tournier, A. Hoppe, D. Heller, L.Gatti       * ','INFO');
-log2dev('* Revision: 0.2.1-Dec14 $ Date: 2014/09/02 11:37:00       *','INFO');
+log2dev('* Revision: 0.2.2-Mar15 $ Date: 2015/03/11 15:46:12       *','INFO');
 log2dev('***********************************************************','INFO');
 log2dev('Started projection analysis module', 'INFO');
 % -------------------------------------------------------------------------
-% Preparing specifics for all the images in the analysis
-%stgObj.analysis_modules.Main.indices = PreparingData2Load(stgObj);
+%% Apply Projection
 % Activate Matlabpools for parallel execution if set in stgObj
 if(stgMain.platform_units ~= 1)
     parpoolobj = parpool('local',stgMain.platform_units);
@@ -77,68 +82,36 @@ if(stgMain.platform_units ~= 1)
 end
 % Per each IMG ID in the IMG ID list generated with PreparingData2Load (where the
 % exec toggle property was set to true)
-for i=1:numel(stgMain.analysis_modules.Indexing.results.indices.I)
-    % Retrieve the current IMG ID from the list
-    intCurImgIdx = stgMain.analysis_modules.Indexing.results.indices.I(i);
-    % Retrieve the current IMG absolute path
-    strCurFileName = char(stgMain.analysis_modules.Main.data(intCurImgIdx,1));
-    strFullPathFile = [stgMain.data_imagepath,'/',strCurFileName];
-    % -------------------------------------------------------------------------
-    % Log status of current application status
-    log2dev(sprintf('Currently processing %s',strCurFileName), 'INFO');
-    % -------------------------------------------------------------------------
-    % If the first file is being processed, then initialize variables
-    % Surface, ProjIm
-    if(intProcessedFiles == 0)
-        % Forced to be of type uint8
-        Surfaces = zeros(cell2mat(stgMain.analysis_modules.Main.data(intCurImgIdx,3)),...
-            cell2mat(stgMain.analysis_modules.Main.data(intCurImgIdx,2)),...
-            sum(arrayfun(@length,stgMain.analysis_modules.Indexing.results.indices.T(intCurImgIdx))),...
-            'uint8');
-        ProjIm = zeros(cell2mat(stgMain.analysis_modules.Main.data(intCurImgIdx,3)),...
-            cell2mat(stgMain.analysis_modules.Main.data(intCurImgIdx,2)),...
-            sum(arrayfun(@length,stgMain.analysis_modules.Indexing.results.indices.T(intCurImgIdx))),...
-            char(stgMain.analysis_modules.Main.data(intCurImgIdx,7)));
-    end
-    %% Load Data considering the specifics passed by stgObj.analysis_modules.Main.indices
-    % Warning: the dimensions of ImagesPreStack are given by the number
-    % of planes in output from LoadImgData. If channels num is 1, then
-    % dim = 4
-    % RetrieveData2Load('TagID', 'Generic_Image')
-    [~,ImagesPreStack] = LoadImgData(strFullPathFile,intCurImgIdx,stgMain.analysis_modules.Indexing.results.indices);
-    %% Project data
-    totalTimeSteps = sum(cellfun(@length,stgMain.analysis_modules.Indexing.results.indices.T));
-    for local_time_index = 1:length(stgMain.analysis_modules.Indexing.results.indices.T{intCurImgIdx})
-        ImStack = ImagesPreStack(:,:,:,stgMain.analysis_modules.Indexing.results.indices.T{intCurImgIdx}(local_time_index));
-        [im,Surf] = createProjection(ImStack,...
-            stgModule.SmoothingRadius,...
-            stgModule.ProjectionDepthThreshold,...
-            stgModule.SurfSmoothness1,...
-            stgModule.SurfSmoothness2,...
-            stgModule.InspectResults);
-        ProjIm(:,:,local_time_index+global_time_index) = im;
-        Surfaces(:,:,local_time_index+global_time_index) = Surf;
-        currTimeStep = global_time_index + local_time_index;
-        % -------------------------------------------------------------------------
-        % Log status of current application status
-        log2dev(sprintf('Local time point: %u | Global time point: %u | Progression: %0.2f',...
-            local_time_index,...
-            currTimeStep,...
-            (currTimeStep/totalTimeSteps)),...
-            'DEBUG');
-        % -------------------------------------------------------------------------
-        progressbar(currTimeStep/totalTimeSteps);
-    end
-    global_time_index=global_time_index+length(stgMain.analysis_modules.Indexing.results.indices.T{intCurImgIdx});
-    intProcessedFiles = intProcessedFiles+1;
+execTDep = server.getMessageParameter(execMessageUID,'queue','dependences');
+data = RetrieveData2Load(execTDep);
+% initialize data structures
+Surfaces = zeros(size(data,1), size(data,2), size(data,4) ,'uint8');
+ProjIm   = zeros(size(data,1), size(data,2), size(data,4), char(stgMain.analysis_modules.Main.data(intCurImgIdx,7)));
+for i=1:size(data,4)
+    log2dev(sprintf('Processing time frame %u of %u ',i, size(data,4)), 'DEBUG');
+    [im,Surf] = createProjection(data(:,:,:,i),...
+        stgModule.SmoothingRadius,...
+        stgModule.ProjectionDepthThreshold,...
+        stgModule.SurfSmoothness1,...
+        stgModule.SurfSmoothness2,...
+        stgModule.InspectResults);
+    ProjIm(:,:,i)   = im;
+    Surfaces(:,:,i) = Surf;
 end
 %% Saving results
 %stgMain.AddResult('Projection','projection_path','ProjIm.tif');
+%exportTiffImages(ProjIm,'filename',[stgMain.data_analysisoutdir,'/ProjIm.tif']);
 stgMain.AddResult('Projection','projection_path',[stgMain.data_analysisoutdir,'/ProjIm.mat']);
 stgMain.AddResult('Projection','surface_path',[stgMain.data_analysisoutdir,'/Surfaces.mat']);
-%exportTiffImages(ProjIm,'filename',[stgMain.data_analysisoutdir,'/ProjIm.tif']);
+stgMain.AddMetadata('Projection','handle_settings', handleSettings);
+stgMain.AddMetadata('Projection','exec_message', execMessageUID);
+stgMain.AddMetadata('Projection','exec_dependences', execTDep);
 save([stgMain.data_analysisoutdir,'/ProjIm'],'ProjIm')
 save([stgMain.data_analysisoutdir,'/Surfaces'],'Surfaces')
+%% Exporting extra Tags according to input data
+if size(data,4) ~= 1
+    server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image_TSerie');
+end
 %% Passing settings to calling environment
 tmp = getappdata(getappdata(0,'hMainGui'),'settings_execution');
 tmp.(char(handleSettings)) = stgMain;
