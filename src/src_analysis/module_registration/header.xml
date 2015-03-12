@@ -4,7 +4,24 @@
     <desc_name>Registration of Time Series Module</desc_name>
     <exec_priority>0</exec_priority>
     <dependences>
-        <dependence/>
+        <dependence>
+            <uid>PE01</uid>
+            <tags>
+                <tag>IMAGE_INDICES</tag>
+            </tags>
+            <exceptions>
+                <exception/>
+            </exceptions>
+        </dependence>
+        <dependence>
+            <uid>PE02</uid>
+            <tags>
+                <tag>Generic_Image_TSerie</tag>
+            </tags>
+            <exceptions>
+                <exception/>
+            </exceptions>
+        </dependence>
     </dependences>
     <commands>
         <command>
@@ -15,6 +32,7 @@
             <argvs/>
             <tags>
                 <tag>REGISTERED_IMAGE</tag>
+                <tag>Generic_Image_TSerie</tag>
             </tags>
         </command>
     </commands>
