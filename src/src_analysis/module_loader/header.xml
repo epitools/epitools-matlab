@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<process>
+    <uid>Loader</uid>
+    <desc_name>Loader module for image files</desc_name>
+    <exec_priority>0</exec_priority>
+    <dependences>
+        <dependence/>
+    </dependences>
+    <withdrawals>
+        <tags>
+            <tag>Generic_Image</tag>
+            <tag>Generic_Image_TSerie</tag>
+            <tag>Generic_Image_ZSerie</tag>
+        </tags>
+    </withdrawals>
+    <commands>
+        <command>
+            <uid>LOADER01</uid>
+            <exec>loader_func.m</exec>
+            <input></input>
+            <output/>
+            <argvs/>
+            <tags>
+                <tag/>
+            </tags>
+        </command>
+    </commands>
+</process>

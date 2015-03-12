@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tags>
+   <tag>
+      <uid>Generic_Image</uid>
+      <module>Loader</module>
+      <class>data</class>
+      <attributes>
+         <attribute>
+            <class>variable</class>
+            <path>$LOADERVARIABLE$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+   <tag>
+      <uid>Generic_Image_TSerie</uid>
+      <module>Loader</module>
+      <class>data</class>
+      <attributes>
+         <attribute>
+            <class>variable</class>
+            <path>$LOADERVARIABLE$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+   <tag>
+      <uid>Generic_Image_ZSerie</uid>
+      <module>Loader</module>
+      <class>data</class>
+      <attributes>
+         <attribute>
+            <class>variable</class>
+            <path>$LOADERVARIABLE$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
+</tags>
