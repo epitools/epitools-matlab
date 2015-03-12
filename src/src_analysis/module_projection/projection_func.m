@@ -55,12 +55,11 @@ intProcessedFiles = 0;
 % TODO: input_args{strcmp(input_args(:,1),'SmoothingRadius'),2}
 handleSettings = input_args{strcmp(input_args(:,1),'ExecutionSettingsHandle'),2};
 execMessageUID = input_args{strcmp(input_args(:,1),'ExecutionMessageUID'),2};
-tmp = getappdata(getappdata(0,'hMainGui'),'execution_memory');
 %% Open Connection to Server 
 server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
 server = server_instances(2).ref;
 %% Variable Remapping
-stgMain = tmp.(char(handleSettings));
+stgMain = getVariable4Memory(handleSettings);
 stgModule = stgMain.analysis_modules.Projection.settings;
 %% Load Data
 % -------------------------------------------------------------------------
