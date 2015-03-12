@@ -1,4 +1,4 @@
-function loader_caller(varargin)
+function loader_caller(options, varargin)
 %LOADER_CALLER Image loader function caller
 % ------------------------------------------------------------------------------
 % PREAMBLE
@@ -41,7 +41,7 @@ for i = 1:size(pool_instances(2:end),2)
         var = {'ExecutionMessageUID', server.getNextQueuePosition()};
         clients(strcmp({clients.uid},'Loader')).addArgv('LOADER01','argv',var);
         server.receiveMessage(clients(strcmp({clients.uid},'Loader')),...
-                              pool_instances(i+1).ref, pool_instances(2).ref);
+                              pool_instances(i+1).ref, pool_instances(2).ref,options);
     end
 end
 end

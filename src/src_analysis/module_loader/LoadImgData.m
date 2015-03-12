@@ -64,12 +64,14 @@ for z=1:numel(Z)
     for c=1:numel(C)
         for t=1:numel(T)
             intPlaneIdx = reader.getIndex(Z(z),C(c),T(t));
-            ImgStack(:,:,Z(z)+1,C(c)+1,T(t)+1) = bfGetPlane(reader, intPlaneIdx+1);
+            %ImgStack(:,:,Z(z)+1,C(c)+1,T(t)+1) = bfGetPlane(reader, intPlaneIdx+1);
+            %ImgStack(:,:,z,c,t) = bfGetPlane(reader, intPlaneIdx+1);
+            ImgStack(:,:,z,t) = bfGetPlane(reader, intPlaneIdx+1);
         end
     end
 end
 % Get rid of empty planes
-ImgStack = squeeze(ImgStack);
+%ImgStack = squeeze(ImgStack);
 % Close the reader
 reader.close();
 %% Output formatting

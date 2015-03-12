@@ -50,21 +50,21 @@ for idxTag = 1:numel(varargin{:})
         % if the tag is of class data or graphic, then explore the inner
         % structure
         if (strcmp(o.class,'data') || strcmp(o.class,'graphics'))
-            switch o.attributes.attribute.class
-                case 'variable'
+            if sum(strcmp({o.attributes.attribute.class},'variable'))
                     argout = makeStack();
-                case 'file'
+                    return;
+            elseif sum(strcmp({o.attributes.attribute.class},'file'))
                 % If mat, then check content and select for integer matrix
-                if regexp(o.attributes.attribute.path, '.mat')>0
-                    s = load(o.attributes.attribute.path);
+                if regexp(o.attributes.attribute(strcmp({o.attributes.attribute.class},'file')).path, '.mat')>0
+                    s = load(o.attributes.attribute(strcmp({o.attributes.attribute.class},'file')).path);
                     s_fields = fieldnames(s);
                     for idxFields = 1:numel(s_fields)
                         argout = s.(char(s_fields(idxFields))); 
+                        return;
                     end
                 end
             end
         end
-        
     end
 end
 status = 1;
@@ -99,7 +99,7 @@ for idxFiles=1:numel(Indices.I)
         x = cell2mat(SourceData(intCurImgIdx,3));
         y = cell2mat(SourceData(intCurImgIdx,2));
         %if isa(Indices.Z,'cell')
-        z = max(cellfun(@max,Indices.Z));
+        z = max(cellfun(@numel,Indices.Z));
         %else
             %z = max(arrayfun(@max,Indices.Z));
         %end
@@ -118,7 +118,8 @@ for idxFiles=1:numel(Indices.I)
     [~,rawdata] = LoadImgData(strFullPathFile,intCurImgIdx,Indices);
     % Project data
     for local_time_index = 1:length(Indices.T{intCurImgIdx})
-        ImStack = rawdata(:,:,:,Indices.T{intCurImgIdx}(local_time_index));
+        ImStack = rawdata(:,:,:,local_time_index);
+        %ImStack = rawdata(:,:,:,Indices.T{intCurImgIdx}(local_time_index));
         Data(:,:,:,local_time_index+global_time_index) = ImStack;
     end
     global_time_index=global_time_index+length(Indices.T{intCurImgIdx});
