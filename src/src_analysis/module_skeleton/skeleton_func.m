@@ -1,4 +1,4 @@
-function [argout] = SkeletonConversion(stgObj)
+function [status, argout] = skeleton_func(input_args, varargin)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 %% Retrieve supplementary arguments
