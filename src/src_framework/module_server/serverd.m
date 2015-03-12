@@ -86,15 +86,22 @@ classdef serverd < handle
                 log2dev(sprintf('EPITOOLS:serverd:FlushQueue:GenericErrorInFlushingServerQueue | %s',err.message),'ERR');
             end
         end
+        % -----------------------------------------------------------------
+        function setMessageStatus(sd, idxMessage, metadata)
+            sd.status(idxMessage).machineid         = metadata.machine_exec;
+            sd.status(idxMessage).execution_start   = metadata.execution_start;
+            sd.status(idxMessage).execution_end     = metadata.execution_end;
+            sd.status(idxMessage).desc              = metadata.status;
+            % Notify event to manager
+            notify(sd,'QueueModified');
+        end
+        % -----------------------------------------------------------------
         function FlushMessage(sd, idxMessage, metadata)
         % Remove all messages in queue after flushing them and report
         % their status to session history
             try
-                % Move into session history            
-                sd.status(idxMessage).machineid         = metadata.machine_exec;
-                sd.status(idxMessage).execution_start   = metadata.execution_start;
-                sd.status(idxMessage).execution_end     = metadata.execution_end;
-                sd.status(idxMessage).desc              = metadata.status;      
+                % Update status message    
+                sd.setMessageStatus(idxMessage, metadata)
                 % Create substructure merging execution informations with process informations
                 merged = struct('idx', {sd.queue(idxMessage).idx},...
                         'code', {sd.queue(idxMessage).code}, ...
@@ -131,16 +138,9 @@ classdef serverd < handle
             % * DATE_SUBMIT                 * EXECUTION_END
             % * EXPORT_TAG                  * DESC
             % * ETC
-            %
-            if(isempty(fieldnames(sd.queue)))
-                idx = 1;
-            elseif( length(sd.queue) == 1 && ~isempty(fieldnames(sd.queue)) )
-                idx = 2;
-            else
-                idx = length(sd.queue) +1;
-            end
+            % -------------------------------------------------------------
             % Count messages sent to history structure
-            structMessage.idx =  strcat('Q',num2str(idx + length(sd.history)));
+            structMessage.idx = sd.getNextQueuePosition();
             status.code = structMessage.code;
             status.machineid = '';
             status.execution_start = '';
@@ -246,6 +246,74 @@ classdef serverd < handle
         function forceExecutionQueue(sd)
             notify(sd,'ForceQueueExecution');
         end
+        % -----------------------------------------------------------------
+        function newcode = getNextQueuePosition(sd)
+            if(isempty(fieldnames(sd.queue)))
+                idx = 1;
+            elseif(length(sd.queue) == 1 && ~isempty(fieldnames(sd.queue)))
+                idx = 2;
+            else
+                idx = length(sd.queue) +1;
+            end
+            newcode = strcat('Q',num2str(idx + length(sd.history)));
+        end
+        % -----------------------------------------------------------------
+        function argout = getMessageParameter(sd,uid_message,level,parameter)
+            argout = '';
+            % Try to open server structure and retrive message parameter
+            % according to the level requested
+            try
+                tmp = sd.(char(level));
+                argout = tmp(strcmp({sd.(char(level)).idx},uid_message)).(char(parameter));
+            catch err
+                log2dev('EPITOOLS:SERVERDAEMON:RequestedLevelOrParameterOnMessageNotFound | The level/parameter requested for this message cannot be found', 'ERR');
+            end
+        end
+        % -----------------------------------------------------------------
+        % setMessageParameter allows to modify the internal structure of a
+        % certain message dynamically -- even when the message is being 
+        % processed
+        function setMessageParameter(sd, uid_message, varargin)
+            %% Initialization arguments
+            p = inputParser;
+            % Define function parameters
+            addParameter(p,'Level','',@ischar);
+            addParameter(p,'Value','');
+            addParameter(p,'Action','',@validatationFcn);
+            addOptional(p,'Argvar','');
+            % Parse function parameters
+            parse(p,varargin{:});
+            %% Execute actions
+            switch p.Results.Action
+                case 'add'
+                    switch p.Results.Level
+                        case 'tags'
+                            sd.queue(strcmp({sd.queue.idx},uid_message)).export_tag.tag{end+1} = p.Results.Argvar;
+                        otherwise 
+                            log2dev('EPITOOLS:SERVERDAEMON:RequestedLevelOnMessageNotFound | The level requested for this message cannot be found', 'ERR');
+                    end
+                case 'delete'
+                    switch p.Results.Level
+                        case 'tags'
+                            if isempty(sd.queue(strcmp({sd.queue.idx},uid_message)).export_tag.tag(strcmp(sd.queue(strcmp({sd.queue.idx},uid_message)).export_tag.tag,p.Results.Value)))
+                               log2dev('EPITOOLS:SERVERDAEMON:RequestedValueOnMessageNotFound | The level value requested for this message cannot be found', 'ERR');
+                            else
+                               sd.queue(strcmp({sd.queue.idx},uid_message)).export_tag.tag(strcmp(sd.queue(strcmp({sd.queue.idx},uid_message)).export_tag.tag,p.Results.Value)) = [];
+                            end
+                    end
+                case 'modify'
+                    switch p.Results.Level
+                        case 'tags'
+                            if isempty(sd.queue(strcmp({sd.queue.idx},uid_message)).export_tag.tag(strcmp(sd.queue(strcmp({sd.queue.idx},uid_message)).export_tag.tag,p.Results.Value)))
+                               log2dev('EPITOOLS:SERVERDAEMON:RequestedValueOnMessageNotFound | The level value requested for this message cannot be found', 'ERR');
+                            else
+                               sd.queue(strcmp({sd.queue.idx},uid_message)).export_tag.tag{strcmp(sd.queue(strcmp({sd.queue.idx},uid_message)).export_tag.tag,p.Results.Value)} = p.Results.Argvar;
+                            end
+                    end
+                otherwise
+                    log2dev('EPITOOLS:SERVERDAEMON:RequestedActionOnMessageNotFound | The action requested for this message cannot be found since it is not implemented', 'ERR');
+            end
+        end
         % =================================================================
         % Server Functions: external
         % =================================================================
@@ -266,5 +334,14 @@ classdef serverd < handle
                 out(2) = length(sd.history);
         end
     end
+end
+
+%% Embedded functions (namespace within serverd)
+function argout = validatationFcn(x) 
+argout = true;
+if(sum(strcmp({'delete','modify','add'},x)) == 0)
+    log2dev('EPITOOLS:SERVERDAEMON:RequestedActionOnMessageNotFound | Value must be either add, delete or modify', 'ERR');
+    argout = false;
+end
 end
 
