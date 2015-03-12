@@ -17,7 +17,7 @@
     <commands>
         <command>
             <uid>SKEL01</uid>
-            <exec>resegmentation_func.m</exec>
+            <exec>skeleton_func.m</exec>
             <input></input>
             <output/>
             <argvs/>
