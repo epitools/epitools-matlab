@@ -201,16 +201,9 @@ function A_Proj_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
-% [2]
+% Prepare module to execution (calling indexing and loader if needed)
+prepareModule()
+% [3]
 strModuleName = 'Projection';
 % Duplicate setting objects and save content
 int = settings();
@@ -227,15 +220,8 @@ function A_StackReg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 %hMainGui = getappdata(0, 'hMainGui');
 obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end 
+% Prepare module to execution (calling indexing and loader if needed)
+prepareModule()
 % [2]
 strModuleName = 'Stack_Registration';
 % Duplicate setting objects and save content
@@ -252,15 +238,8 @@ function A_CLAHE_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
+% Prepare module to execution (calling indexing and loader if needed)
+prepareModule()
 % [2]
 strModuleName = 'Contrast_Enhancement';
 % Duplicate setting objects and save content
@@ -277,16 +256,8 @@ function A_Segmentation_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
+% Prepare module to execution (calling indexing and loader if needed)
+prepareModule()
 % [2]
 strModuleName = 'Segmentation';
 % Duplicate setting objects and save content
@@ -304,16 +275,8 @@ function A_Tracking_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
+% Prepare module to execution (calling indexing and loader if needed)
+prepareModule()
 % [2]
 strModuleName = 'Tracking';
 % Duplicate setting objects and save content
@@ -331,16 +294,8 @@ function A_Skeletons_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
+% Prepare module to execution (calling indexing and loader if needed)
+prepareModule()
 % [2]
 strModuleName = 'Skeletons';
 % Duplicate setting objects and save content
@@ -358,16 +313,8 @@ function A_Polycrop_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
+% Prepare module to execution (calling indexing and loader if needed)
+prepareModule()
 % [2]
 strModuleName = 'Polygon_Masking';
 % Duplicate setting objects and save content
@@ -385,16 +332,8 @@ function A_ReSegmentation_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% [1]
-% Call indexing module
-strModuleName = 'Indexing';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling complementary indexing function
-proceed = int.initialiseModule(strModuleName);
-if proceed;dataindexing_caller(int);end
+% Prepare module to execution (calling indexing and loader if needed)
+prepareModule()
 % [2]
 strModuleName = 'ReSegmentation';
 % Duplicate setting objects and save content
@@ -1011,5 +950,31 @@ disconnectPool;
 delete(hLogGui);
 delete(hMainGui);
 % --------------------------------------------------------------------
-function disconnectServer() % to be moved
+function prepareModule() 
+obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
+server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
+server = server_instances(2).ref;
+% Status operations
+minv = 0; maxv=7;
+log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,1});
+% ----------------------------------------------
+% [1] Call indexing module
+strModuleName = 'Indexing';
+% Duplicate setting objects and save content
+int = settings();
+int.inheritSettings(obj);
+log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,2});
+% Calling complementary indexing function
+proceed = int.initialiseModule(strModuleName);
+log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,3});
+if proceed;dataindexing_caller(int);end
+log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,4});
+server.forceExecutionQueue;
+log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,5});
+% ----------------------------------------------
+% [2] Call loader module
+if proceed;loader_caller(obj);end
+log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,6});
+server.forceExecutionQueue;
+log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,7});
 % --------------------------------------------------------------------
