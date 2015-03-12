@@ -23,10 +23,9 @@ function improvecontrast_caller(varargin)
 %% Initialization
 if nargin < 1 ; varargin = {} ; end
 %% Elaboration
-hMainGui = getappdata(0, 'hMainGui');
-server_instances = getappdata(hMainGui, 'server_instances');
-client_modules = getappdata(hMainGui, 'client_modules');
-pool_instances = getappdata(hMainGui, 'pool_instances');
+server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
+client_modules = getappdata(getappdata(0, 'hMainGui'), 'client_modules');
+pool_instances = getappdata(getappdata(0, 'hMainGui'), 'pool_instances');
 % Remapping
 server = server_instances(2).ref;
 clients = client_modules(2).ref;
@@ -38,6 +37,8 @@ for i = 1:size(pool_instances(2:end),2)
         % Add variable memory handles to exe command
         var = {'ExecutionSettingsHandle',handles{1}};
         clients(strcmp({clients.uid},'Contrast_Enhancement')).addArgv('CLAHE01','argv',var);
+        var = {'ExecutionMessageUID', server.getNextQueuePosition()};
+        clients(strcmp({clients.uid},'Projection')).addArgv('CLAHE01','argv',var);
         server.receiveMessage(clients(strcmp({clients.uid},'Contrast_Enhancement')),...
                               pool_instances(i+1).ref,pool_instances(2).ref);
     end
