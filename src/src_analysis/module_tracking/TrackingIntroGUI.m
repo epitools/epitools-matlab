@@ -115,8 +115,11 @@ function run_trackingGUI_Callback(hObject, eventdata, handles)
 % hObject    handle to run_trackingGUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
+server = server_instances(2).ref;
 updateAndGather(handles);
 tracking_caller(getappdata(getappdata(0,'hTrackGui'), 'settings_objectname'));
+server.forceExecutionQueue;
 
 
 % --- Executes on slider movement.
