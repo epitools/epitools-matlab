@@ -83,12 +83,15 @@ end
 % Per each IMG ID in the IMG ID list generated with PreparingData2Load (where the
 % exec toggle property was set to true)
 execTDep = server.getMessageParameter(execMessageUID,'queue','dependences');
-data = RetrieveData2Load(execTDep);
+[~,data] = RetrieveData2Load(execTDep);
 % initialize data structures
 Surfaces = zeros(size(data,1), size(data,2), size(data,4) ,'uint8');
-ProjIm   = zeros(size(data,1), size(data,2), size(data,4), char(stgMain.analysis_modules.Main.data(intCurImgIdx,7)));
+ProjIm   = zeros(size(data,1), size(data,2), size(data,4), char(class(data)));
+minv = 0; maxv=size(data,4);
+log2dev('Processing time frame...plase wait','INFO',0,'hMainGui', 'statusbar',{minv,maxv,0});
 for i=1:size(data,4)
     log2dev(sprintf('Processing time frame %u of %u ',i, size(data,4)), 'DEBUG');
+    log2dev(sprintf('Processing time frame: %u/%u',i,size(data,4)),'INFO',0,'hMainGui', 'statusbar',{minv,maxv,i});
     [im,Surf] = createProjection(data(:,:,:,i),...
         stgModule.SmoothingRadius,...
         stgModule.ProjectionDepthThreshold,...
@@ -98,6 +101,7 @@ for i=1:size(data,4)
     ProjIm(:,:,i)   = im;
     Surfaces(:,:,i) = Surf;
 end
+log2dev('Projection completed...saving data structures','INFO',0,'hMainGui', 'statusbar');
 %% Saving results
 %stgMain.AddResult('Projection','projection_path','ProjIm.tif');
 %exportTiffImages(ProjIm,'filename',[stgMain.data_analysisoutdir,'/ProjIm.tif']);

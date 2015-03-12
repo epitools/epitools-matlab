@@ -41,6 +41,10 @@
             <class>file</class>
             <path>$PJIMAGEPATH$</path>
          </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
+         </attribute>
       </attributes>
       <validity>illimited</validity>
    </tag>
@@ -52,6 +56,10 @@
          <attribute>
             <class>file</class>
             <path>$PJIMAGEPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
          </attribute>
       </attributes>
       <validity>illimited</validity>
