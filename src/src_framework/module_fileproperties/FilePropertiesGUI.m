@@ -229,8 +229,6 @@ if (isempty(stgObj.data_analysisindir) == 0)
     
     end
 end
-    
-    
 
 setappdata(hMainGui, 'settings_objectname', stgObj);
 initialize_gui(hObject,handles)
