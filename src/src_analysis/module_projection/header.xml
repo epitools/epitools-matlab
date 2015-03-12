@@ -13,6 +13,15 @@
                 <exception/>
             </exceptions>
         </dependence>
+        <dependence>
+            <uid>PE02</uid>
+            <tags>
+                <tag>Generic_Image_ZSerie</tag>
+            </tags>
+            <exceptions>
+                <exception/>
+            </exceptions>
+        </dependence>
     </dependences>
     <withdrawals>
         <tags/>
@@ -27,6 +36,7 @@
             <tags>
                 <tag>PROJECTED_IMAGE</tag>
                 <tag>PROJECTED_SURFACE</tag>
+                <tag>Generic_Image</tag>
             </tags>
         </command>
     </commands>
