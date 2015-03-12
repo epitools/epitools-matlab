@@ -1,11 +1,10 @@
 function log2dev(strLogContent, intLogCode, intOutputDev, pntDevice, pntHandle, argvar)
 %LOG2DEV This function stores log directives printed by the program.
-%   The advantage of using this function instead of @disp or @cprintf is given by
-%   its obiquitous outputs and automatic redirection.
-%   Examples
-%
-%   log2dev( getappdata(hMainGui, 'status_application'), 'hMainGui', 'statusbar', 0 );
-%   log2dev( getappdata(hMainGui, 'status_application'),'INFO',0,'hMainGui', 'statusbar',{min,max,value});
+% The advantage of using this function instead of @disp or @cprintf is 
+% given by its obiquitous outputs and automatic redirection.
+%   Examples:
+%   log2dev('string-to-parse', 'hMainGui', 'statusbar', 0 );
+%   log2dev('string-to-parse', 'INFO',0,'hMainGui', 'statusbar',{min,max,value});
 %
 if nargin < 3 
     intOutputDev = [];
@@ -15,7 +14,6 @@ if nargin < 3
 elseif nargin == 5
     argvar = {};
 end
-    
 W = evalin('base','whos'); %or 'base'
 doesAexist = sum(strcmp({W(:).name},'log_settings'));
 % In case of no-gui execution
@@ -23,45 +21,27 @@ if(~doesAexist)
     %% Check where the user has selected to store the log statements
     % Recall setting object
     hMainGui = getappdata(0, 'hMainGui');
-    
     if(isappdata(hMainGui,'settings_execution'))
         SettingsExecution = getappdata(hMainGui,'settings_execution');
-        
         % Log devices
         if (isfield(SettingsExecution.logs.devices.ctl_outdevices, 'actived'))
-            
             if isempty(intOutputDev)
                 intOutputDev = find(SettingsExecution.logs.devices.ctl_outdevices.actived);
             end
         end
-        
         % Log levels to print
         if (isfield(SettingsExecution.logs.levels.ctl_levelsvalue, 'values'))
             listLevels = SettingsExecution.logs.levels.ctl_levelsvalue.values(find(SettingsExecution.logs.levels.ctl_levelsvalue.actived));
         end
-        
         % Retrieve log file name
-        
         settings_executionuid = getappdata(hMainGui,'settings_executionuid');
         stgObj = getappdata(hMainGui,'settings_objectname');
-        if(isempty(stgObj))
-                
-            fullpath = '~/';
-                
+        if(isempty(stgObj))    
+            fullpath = '~/';     
         else
             settings_executionuid = getappdata(hMainGui,'settings_executionuid');
-            
-            %if(exists(['~/',settings_executionuid])) 
-                % if initial log file exist, then copy lines in the new one
-                % and remove it. 
-                
-                
-                % remove file
-            %end
             fullpath = stgObj.data_fullpath;
         end
-        
-        
         logfilepath = [fullpath,'/',settings_executionuid];
     end
 else
@@ -81,9 +61,7 @@ else
 end
 % If the log level is not specified in the current execution settings, then
 % suppress it from printing.
-if (~strcmp(intLogCode, listLevels))
-    return;
-end
+if (~strcmp(intLogCode, listLevels)); return; end
 %% Execute according the directives
 for i=1:numel(intOutputDev)
     output_device = intOutputDev(i);
@@ -133,8 +111,7 @@ for i=1:numel(intOutputDev)
         case 4 % Log to LOG GUI DEVICE device
             log_guidevice([datestr(now,0),sprintf(' : %s\t:  %s ',intLogCode,strLogContent)])
         otherwise
-            return;
-            
+            return;    
     end % case 
 end % for
 end % function
