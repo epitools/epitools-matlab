@@ -8,16 +8,16 @@ defpool = DEFAULTPOOL;
 dependence = {};
 status = [];
 %% Check for withdrawals
-if(~isempty(CLIPROINST.withdrawals))
-    for i = 1:numel(CLIPROINST.withdrawals.tags)
-        if pools.existsTag(CLIPROINST.withdrawals.tags(i).tag);
+if(~isempty(CLIPROINST.withdrawals.tags))
+    for i = 1:numel(CLIPROINST.withdrawals.tags.tag)
+        if pools.existsTag(CLIPROINST.withdrawals.tags.tag(i));
             message = sprintf('-----------------------------------------------------------------------');
             log2dev(message,'INFO');
             log2dev(sprintf('The process named %s will not be submitted since it has been already computed in the current pool',...
-                            CLIPROINST.uid),'INFO');
+                CLIPROINST.uid),'INFO');
             message = sprintf('-----------------------------------------------------------------------');
             log2dev(message,'INFO');
-            return; 
+            return;
         end
     end
 end
@@ -34,12 +34,12 @@ end
 %                                   neeeded to complete the process execution
 % ===========================================================================
 % For each dependence in the dependences structure
-for i = 1:numel(local.dependences) 
+for i = 1:numel(local.dependences)
     % For each tag in tag list check if present in all the possible pools
     for ntag=1:numel(local.dependences(i).tags)
-        % Check if the current tag is among those in the pool system or int
-        % he default pool
-        if(pools.existsTag(local.dependences(i).tags(ntag).tag));   
+        % Check if the current tag is among those in the pool system or in
+        % the default pool
+        if(pools.existsTag(local.dependences(i).tags(ntag).tag));
             dependence{end+1} = local.dependences(i).tags(ntag).tag;
             status(end+1) = true;
         elseif (defpool.existsTag(local.dependences(i).tags(ntag).tag))
@@ -67,7 +67,7 @@ for i = 1:numel(local.dependences)
                 message = sprintf('-----------------------------------------------------------------------');
                 log2dev(message,'INFO');
                 log2dev(sprintf('%i dependences not satisfied after exception checking.',...
-                                (length(status)-sum(status))),'INFO');
+                    (length(status)-sum(status))),'INFO');
                 log2dev(sprintf('client process with properties:'),'INFO');
                 log2dev('','INFO');
                 for idx_clpr=1:numel(clientproperties)
@@ -98,10 +98,14 @@ for i = 1:numel(local.dependences)
         end % end else condition
     end % next dependence in the list
 end
-%% Split commands in CLIPROINST in order to be sented singoularly
+%% Append resolved dependences to message queue
+if ~isempty(dependence(status==1)); messagestruct.dependences = dependence(status==1);else  messagestruct.dependences = {}; end
+%% Split commands in CLIPROINST in order to be sent singoularly
 for idxCom = 1:length(CLIPROINST.commands.command)
     argvs = '{';
     input = '';
+    % Get next available position on server queue
+    newUID = SERVERINST.getNextQueuePosition();
     % CODE
     messagestruct.code = CLIPROINST.commands.command(idxCom).uid;
     % COMMAND
@@ -114,13 +118,13 @@ for idxCom = 1:length(CLIPROINST.commands.command)
             input = '';
             %input = '(';
             if(~isa(CLIPROINST.commands.command(idxCom).input,'char'))
-            for idxInput = 1:numel(CLIPROINST.commands.command(idxCom).input)
-                if(idxInput == numel(CLIPROINST.commands.command(idxCom).input))
-                    input = [input,CLIPROINST.commands.command(idxCom).input{idxInput}];
-                else
-                    input = [input,CLIPROINST.commands.command(idxCom).input{idxInput},','];
+                for idxInput = 1:numel(CLIPROINST.commands.command(idxCom).input)
+                    if(idxInput == numel(CLIPROINST.commands.command(idxCom).input))
+                        input = [input,CLIPROINST.commands.command(idxCom).input{idxInput}];
+                    else
+                        input = [input,CLIPROINST.commands.command(idxCom).input{idxInput},','];
+                    end
                 end
-            end
             else
                 input = [input,CLIPROINST.commands.command(idxCom).input];
             end
@@ -142,7 +146,7 @@ for idxCom = 1:length(CLIPROINST.commands.command)
             else
                 output = [output,CLIPROINST.commands.command(idxCom).output];
             end
-            output = [output, ']']; 
+            output = [output, ']'];
         end
         % Extra variables splitting and reassembly
         if(~isempty(CLIPROINST.commands.command(idxCom).argvs));
@@ -153,9 +157,9 @@ for idxCom = 1:length(CLIPROINST.commands.command)
                     str = ['''',CLIPROINST.commands.command(idxCom).argvs.arg{idxArg,1},''',',CLIPROINST.commands.command(idxCom).argvs.arg{idxArg,2},';'];
                 end
                 argvs = [argvs, str];
-%                     sprintf('%s ',...
-%                     CLIPROINST.commands.command(idxCom).argvs(idxArg).arg{1:end-1},...
-%                     CLIPROINST.commands.command(idxCom).argvs(idxArg).arg{end})];
+                %                     sprintf('%s ',...
+                %                     CLIPROINST.commands.command(idxCom).argvs(idxArg).arg{1:end-1},...
+                %                     CLIPROINST.commands.command(idxCom).argvs(idxArg).arg{end})];
             end
         end
         argvs = [argvs, '}'];
@@ -190,9 +194,9 @@ for idxCom = 1:length(CLIPROINST.commands.command)
         else
             output = '--output ';
             if(~isa(CLIPROINST.commands.command(idxCom).output,'char'))
-            for idxOutput = 1:numel(CLIPROINST.commands.command(idxCom).output)
-                output = [output, ' ' ,CLIPROINST.commands.command(idxCom).output(idxOutput)];
-            end
+                for idxOutput = 1:numel(CLIPROINST.commands.command(idxCom).output)
+                    output = [output, ' ' ,CLIPROINST.commands.command(idxCom).output(idxOutput)];
+                end
             else
                 output = [output, ' ' ,CLIPROINST.commands.command(idxCom).output];
             end
@@ -217,23 +221,24 @@ for idxCom = 1:length(CLIPROINST.commands.command)
     messagestruct.refpool           = pools.name;
     messagestruct.refclientprocess  = CLIPROINST.path;
     
-    % Submit message to server process
+    % Submit message to server process (retain uid)
     SERVERINST.AppendMessage(messagestruct);
 end
 %% Submit to server queue
 checklist = struct();
 checklist.dependence = dependence;
 checklist.status = status;
+% -------------------------------------------------------------------------
 %% Subfunctions
-function lookup_rep = generateLookupTable()
-lookup_rep = {};
-for idxExc=1:numel(local.dependences(i).exceptions.exception)
-    for idxTags=1:numel(local.dependences(i).exceptions.exception(idxExc).tags.tag)
-        internaltag = local.dependences(i).exceptions.exception(idxExc).tags.tag(idxTags).id;
-        if(strcmp(local.dependences(i).tags(ntag).tag, internaltag))
-            lookup_rep{end+1} = local.dependences(i).exceptions.exception(idxExc).tags.tag(idxTags).rep;
+    function lookup_rep = generateLookupTable()
+        lookup_rep = {};
+        for idxExc=1:numel(local.dependences(i).exceptions.exception)
+            for idxTags=1:numel(local.dependences(i).exceptions.exception(idxExc).tags.tag)
+                internaltag = local.dependences(i).exceptions.exception(idxExc).tags.tag(idxTags).id;
+                if(strcmp(local.dependences(i).tags(ntag).tag, internaltag))
+                    lookup_rep{end+1} = local.dependences(i).exceptions.exception(idxExc).tags.tag(idxTags).rep;
+                end
+            end
         end
     end
-end
-end
 end
