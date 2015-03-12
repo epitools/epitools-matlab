@@ -18,6 +18,7 @@
             <argvs/>
             <tags>
                 <tag>CLAHE_IMAGE</tag>
+                <tag>Generic_Image</tag>
             </tags>
         </command>
     </commands>
