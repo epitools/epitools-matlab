@@ -3,8 +3,32 @@
     <uid>Contrast_Enhancement</uid>
     <desc_name>Contrast limited adaptive histogram equalisation module</desc_name>
     <exec_priority>0</exec_priority>
-        <dependences>
-        <dependence/>
+    <dependences>
+        <dependence>
+            <uid>PE01</uid>
+            <tags>
+                <tag>IMAGE_INDICES</tag>
+            </tags>
+            <exceptions>
+                <exception/>
+            </exceptions>
+        </dependence>
+        <dependence>
+            <uid>PE02</uid>
+            <tags>
+                <tag>Generic_Image</tag>
+            </tags>
+            <exceptions>
+                <exception>
+                    <tags>
+                        <tag>
+                            <id>Generic_Image</id>
+                            <rep>PROJECTED_IMAGE</rep>
+                        </tag>
+                    </tags>
+                </exception>
+            </exceptions>
+        </dependence>
     </dependences>
     <withdrawals>
         <tags/>
@@ -18,7 +42,6 @@
             <argvs/>
             <tags>
                 <tag>CLAHE_IMAGE</tag>
-                <tag>Generic_Image</tag>
             </tags>
         </command>
     </commands>

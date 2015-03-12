@@ -25,6 +25,10 @@
             <class>file</class>
             <path>$CLAHEIMAGEPATH$</path>
          </attribute>
+         <attribute>
+              <class>settings</class>
+              <path>$SETTINGS$</path>
+        </attribute>
       </attributes>
       <validity>illimited</validity>
    </tag>
@@ -37,6 +41,10 @@
             <class>file</class>
             <path>$CLAHEIMAGEPATH$</path>
          </attribute>
+         <attribute>
+              <class>settings</class>
+              <path>$SETTINGS$</path>
+         </attribute>
       </attributes>
       <validity>illimited</validity>
    </tag>
@@ -48,6 +56,10 @@
          <attribute>
             <class>file</class>
             <path>$CLAHEIMAGEPATH$</path>
+         </attribute>
+         <attribute>
+              <class>settings</class>
+              <path>$SETTINGS$</path>
          </attribute>
       </attributes>
       <validity>illimited</validity>

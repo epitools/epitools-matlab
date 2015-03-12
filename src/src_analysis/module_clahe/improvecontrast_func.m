@@ -50,8 +50,16 @@ tmp = getappdata(getappdata(0,'hMainGui'),'execution_memory');
 % Remapping
 stgMain = tmp.(char(handleSettings));
 stgModule = stgMain.analysis_modules.Contrast_Enhancement.settings;
+%% Open Connection to Server 
+server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
+server = server_instances(2).ref;
+minv = 0; maxv=1;
+log2dev('CLAHE is initializing...plase wait','INFO',0,'hMainGui', 'statusbar',{minv,maxv,0});
 %% Load data
-tmpRegObj = load([stgMain.data_analysisindir,'/RegIm']);
+execTDep = server.getMessageParameter(execMessageUID,'queue','dependences');
+[~,data] = RetrieveData2Load(execTDep);
+data = squeeze(data);
+%tmpRegObj = load([stgMain.data_analysisindir,'/RegIm']);
 % Display informations about the current module        
 % -------------------------------------------------------------------------
 log2dev('*********************** CLAHE MODULE **********************','INFO');
@@ -61,34 +69,35 @@ log2dev('***********************************************************','INFO');
 log2dev('Started clahe analysis module', 'INFO');
 % -------------------------------------------------------------------------        
 % Display informations about the elaborations      
-progressbar('Enhancing contrast...(please wait)');
 %% Check for correct formats
 % Assuming that images are either 8 or 16bit in input
-if ~isa(tmpRegObj.RegIm, 'uint16') && ~isa(tmpRegObj.RegIm, 'uint8')
+if ~isa(data, 'uint16') && ~isa(data, 'uint8')
     log2dev('Images should have either 8 bit or 16 bit pixel depth','ERR');
     return;
 end
-if numel(size(tmpRegObj.RegIm)<3)
+if numel(size(data)<3)
     dim = 1;
-elseif numel(size(tmpRegObj.RegIm)==3)
-    dim = size(tmpRegObj.RegIm,3);
+elseif numel(size(data)==3)
+    dim = size(data,3);
     export_extratag = true;
-else numel(size(tmpRegObj.RegIm)==4)
+else numel(size(data)==4)
     log2dev('This module does not support 4D images! Abort analysis','ERR');
     return;
 end
+log2dev('CLAHE is initializing...data loading completed!','INFO',0,'hMainGui', 'statusbar',{minv,maxv,1});
 %% Apply CLAHE
 % Tracking time of the computation
 tic
 % Pre-allocate output
-RegIm_clahe = zeros(size(tmpRegObj.RegIm), class(tmpRegObj.RegIm));
+RegIm_clahe = zeros(size(data), class(data));
 % Loop along the time frames
 for i=1:dim
+    log2dev(sprintf('CLAHE is processing frame %u of %u',i,dim),'INFO',0,'hMainGui', 'statusbar',{minv,dim,i});
     % Extract single frame
-    if dim == 1; RegIm_uint = tmpRegObj.RegIm(:,:); else RegIm_uint = tmpRegObj.RegIm(:,:,i); end
+    if dim == 1; RegIm_uint = data(:,:); else RegIm_uint = data(:,:,i); end
     % Retrieve image dimensions
-    sizeX = size(tmpRegObj.RegIm,1);
-    sizeY = size(tmpRegObj.RegIm,2);
+    sizeX = size(data,1);
+    sizeY = size(data,2);
     % Compute tiles number
     numTilesX = round(sizeX / stgModule.enhancement_width);
     numTilesY = round(sizeY / stgModule.enhancement_width);
@@ -100,10 +109,10 @@ for i=1:dim
     % -------------------------------------------------------------------------
     % Log status of current application status
     log2dev(sprintf('Local time point: %u | Progression: %0.2f',i,(i/dim)), 'DEBUG');
-    progressbar(i/dim);
     % -------------------------------------------------------------------------
 end
 elapsedTime = toc;
+log2dev('CLAHE is completed...storing data structures','INFO',0,'hMainGui', 'statusbar',{minv,dim,dim});
 %% Storing Results
 RegIm = RegIm_clahe;
 stgMain.AddResult('Contrast_Enhancement','clahe_path',[stgMain.data_analysisoutdir,'/RegIm_wClahe.mat']);
@@ -114,13 +123,6 @@ save([stgMain.data_analysisoutdir,'/RegIm_wClahe'],'RegIm');
 % -------------------------------------------------------------------------
 % Log status of current application status
 log2dev(sprintf('Finished after %.2f', elapsedTime), 'DEBUG');
-progressbar(1);
-%% Exporting extra Tags according to input data
-server_instances = getappdata(getappdata(0, 'hMainGui'), 'server_instances');
-server = server_instances(2).ref;
-if export_extratag
-        server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image_TSerie');
-end
 % -------------------------------------------------------------------------
 %% Output formatting
 % Each single output need to be described in order to be used for variable exportation.

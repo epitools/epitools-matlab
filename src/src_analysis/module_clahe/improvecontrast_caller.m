@@ -38,7 +38,7 @@ for i = 1:size(pool_instances(2:end),2)
         var = {'ExecutionSettingsHandle',handles{1}};
         clients(strcmp({clients.uid},'Contrast_Enhancement')).addArgv('CLAHE01','argv',var);
         var = {'ExecutionMessageUID', server.getNextQueuePosition()};
-        clients(strcmp({clients.uid},'Projection')).addArgv('CLAHE01','argv',var);
+        clients(strcmp({clients.uid},'Contrast_Enhancement')).addArgv('CLAHE01','argv',var);
         server.receiveMessage(clients(strcmp({clients.uid},'Contrast_Enhancement')),...
                               pool_instances(i+1).ref,pool_instances(2).ref);
     end
