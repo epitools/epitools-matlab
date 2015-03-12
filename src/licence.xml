@@ -9,11 +9,11 @@
    <bind>0:0:0:0:0</bind>
    </key>
    <customer>
-   	<uid>000</uid>
-   	<username>unknown.user</username>
-   	<name>unknown.user</name>
+   	<uid>001</uid>
+   	<username>lorenzo.gatti</username>
+   	<name>Lorenzo Gatti</name>
    	<lastname></lastname>
-   	<email>email@test.com</email>
+   	<email>lorenzo.gatti@uzh.ch</email>
    </customer>
    <products>
    <product>
