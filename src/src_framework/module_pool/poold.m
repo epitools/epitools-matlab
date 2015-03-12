@@ -97,7 +97,7 @@ classdef poold < handle
                     end %for
                 end %for
                 %% Purge unused tags from template
-                if ~isempty(find(~id)); for i = find(~id);tag_template.tag(i) = []; end; end
+                if sum(id) ~= length(id); tag_template.tag(~id) = []; end
                 %% Append structure to xml definition file  (pool.file)
                 % Write back to file
                 if(exist(['tmp/',pool.file],'file'))
