@@ -49,8 +49,8 @@ classdef poold_manager
                 idxsettings   = find(idxsettings);
                 idxsettings   = idxsettings(1);
                 tmp = getVariable4Memory(poolstructure.tag(idxmodule).attributes.attribute(idxsettings).path);
+                curr_settings.importModule(tmp,mdname); 
             end
-            curr_settings.importModule(tmp,mdname);
             curr_settings.discardDownstreamModules(mdname);
             curr_settings.refreshTree(getappdata(0,'hMainGui'));
         end 
@@ -102,6 +102,7 @@ classdef poold_manager
             %             inputs{3} = {description}
             %             varargin{1} = {'Comparative', 1} %for each
             %
+            status_exec = true;
             if ~isempty(inputs);
                 if (~stgObj.exec_commandline)
                     if(stgObj.icy_is_used)
