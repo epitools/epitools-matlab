@@ -116,9 +116,9 @@ log2dev('CLAHE is completed...storing data structures','INFO',0,'hMainGui', 'sta
 %% Storing Results
 RegIm = RegIm_clahe;
 stgMain.AddResult('Contrast_Enhancement','clahe_path',[stgMain.data_analysisoutdir,'/RegIm_wClahe.mat']);
-stgMain.AddMetadata('Projection','handle_settings', handleSettings);
-stgMain.AddMetadata('Projection','exec_message', execMessageUID);
-stgMain.AddMetadata('Projection','exec_elapsed_time_seconds', elapsedTime);
+stgMain.AddMetadata('Contrast_Enhancement','handle_settings', handleSettings);
+stgMain.AddMetadata('Contrast_Enhancement','exec_message', execMessageUID);
+stgMain.AddMetadata('Contrast_Enhancement','exec_elapsed_time_seconds', elapsedTime);
 save([stgMain.data_analysisoutdir,'/RegIm_wClahe'],'RegIm');
 % -------------------------------------------------------------------------
 % Log status of current application status

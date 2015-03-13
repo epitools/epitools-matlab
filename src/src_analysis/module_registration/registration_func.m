@@ -89,8 +89,8 @@ if ~stgMain.exec_commandline
 end
 %% Saving results
 stgMain.AddResult('Stack_Registration','registration_path',[stgMain.data_analysisoutdir,'/RegIm.mat']);
-stgMain.AddMetadata('Projection','handle_settings', handleSettings);
-stgMain.AddMetadata('Projection','exec_message', execMessageUID);
+stgMain.AddMetadata('Stack_Registration','handle_settings', handleSettings);
+stgMain.AddMetadata('Stack_Registration','exec_message', execMessageUID);
 save([stgMain.data_analysisoutdir,'/RegIm'],'RegIm');
 %% Output formatting
 % Each single output need to be described in order to be used for variable exportation.

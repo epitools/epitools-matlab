@@ -100,6 +100,7 @@ NT = size(RegIm,3);
 % Storage results
 save([stgObj.data_analysisoutdir,'/SegResultsCorrected'], 'RegIm','ILabels', 'CLabels' ,'ColIms','tmpStgObj','NX','NY','NT','IL','-v7.3' );
 stgObj.AddResult('ReSegmentation','ReSegmentation_path',[stgObj.data_analysisoutdir,'/SegResultsCorrected.mat']);   
+stgObj.AddMetadata('ReSegmentation','handle_settings', handleSettings);
 % -------------------------------------------------------------------------
 % Log status of current application status
 elapsedTime = toc;
