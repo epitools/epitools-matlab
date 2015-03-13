@@ -1,10 +1,7 @@
-src/usersettings.xml
 Tests/8bitDataset/Analysis/*
 Tests/16bitDataset/Analysis/*
 .DS_Store
 *.m~
-
-
 pool_clipro.xml
 epitool_metadata.xml
 src/tmp/pool_Untitled_cmp_20150116T135544.xml
