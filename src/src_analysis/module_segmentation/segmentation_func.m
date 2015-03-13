@@ -72,7 +72,7 @@ if(isfield(StgObj,'use_clahe')) %backwards compatability
 end
 if use_clahe_flag
     %tmpRegObj = load([stgMain.data_analysisindir,'/RegIm_wClahe']);
-    execTDep = 'CLAHE_IMAGE';
+    execTDep = {'CLAHE_IMAGE'};
     [~,data] = RetrieveData2Load(execTDep);
 else
     execTDep = server.getMessageParameter(execMessageUID,'queue','dependences');
