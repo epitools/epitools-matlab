@@ -6,6 +6,8 @@ classdef clientd < handle
     
     properties
         uid
+        menu_uid
+        desc_menu
         desc_name
         path
         filepath
@@ -16,6 +18,7 @@ classdef clientd < handle
         exec_priority
         status
         tags
+        guilauncher
     end
     
     methods
@@ -24,6 +27,7 @@ classdef clientd < handle
         % This function instanziate the clientd object which wraps the contents stored 
         % in the header.xml file in the correspondent folder.
             cli.uid = [];
+            cli.desc_menu = [];
             cli.desc_name = [];
             cli.path = [];
             cli.filepath = [];
@@ -33,6 +37,7 @@ classdef clientd < handle
             cli.exec_priority = [];
             cli.status = [];
             cli.tags = [];
+            cli.guilauncher = [];
         end
         % --------------------------------------------------------------------
         function cli = addClient(cli, clientfile, status)
