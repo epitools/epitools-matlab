@@ -22,7 +22,7 @@ function varargout = EpiTools(varargin)
 
 % Edit the above text to modify the response to help EpiTools
 
-% Last Modified by GUIDE v2.5 18-Dec-2014 16:36:13
+% Last Modified by GUIDE v2.5 29-Mar-2015 19:09:42
 
 % Begin initialization code - DO NOT EDIT
 %
@@ -54,28 +54,22 @@ function EpiTools_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to EpiTools (see VARARGIN)
-
 % -------------------------------------------------------------------------
 % Exec splash screen 
 SplashHandle = findobj('tag','SplashScreenTag');
 if ishandle(SplashHandle);close(SplashHandle);end
-
 % -------------------------------------------------------------------------
 % Choose default command line output for EpiTools
 handles.output = hObject;
-
 % -------------------------------------------------------------------------
 % Update handles structure
 guidata(hObject, handles);
-
 % -------------------------------------------------------------------------
 % Disable warnings for structOnObject (occours when struct is saved in xml)
 warning off MATLAB:structOnObject
-
 % -------------------------------------------------------------------------
 % Load libraries
 stsFunOut = LoadEpiTools();
-
 % -------------------------------------------------------------------------
 %set up app-data
 setappdata(0  , 'hMainGui'    , gcf);
@@ -100,46 +94,37 @@ setappdata(gcf, 'settings_executionuid',...
                 '-',...
                 datestr(now,29),...
                 '.log']);
-
 % Load release and licence files in EpiTools
 if(exist('release.xml','file')==2); release = xml_read('release.xml'); setappdata(gcf, 'settings_release',release);end
 if(exist('licence.xml','file')==2); licence = xml_read('licence.xml'); setappdata(gcf, 'settings_licence',licence);end
-
 % -------------------------------------------------------------------------
 % Prepare struct containing handles for UI
 hUIControls = struct();
 setappdata(gcf, 'hUIControls', hUIControls);
-
 % -------------------------------------------------------------------------
 %obtain absolute location on system
 current_script_path = mfilename('fullpath');
 [file_path,~,~] = fileparts(current_script_path);
 setappdata(gcf, 'settings_rootpath', file_path);
-
 % -------------------------------------------------------------------------
 % Set log settings *device and level*
 if(~exist('usersettings.xml', 'file'));generate_empty_settingsfile();end
-    
 settingsobj = xml_read('usersettings.xml');
 setappdata(gcf, 'settings_execution', settingsobj);
-
-
 % Open log window
 log2dev('***********************************************************','INFO');
 log2dev('*      EPITOOLS - IMAGE PROCESSING TOOL FOR EPITHELIA     * ','INFO');
 log2dev('***********************************************************','INFO');
-
 % -------------------------------------------------------------------------
 % Add special procedure when the main windows is closed
 hMainGui = getappdata(0,'hMainGui');
 set(hMainGui, 'CloseRequestFcn', {@onMainWindowClose});
-
 set(hMainGui,'Position',[0 0 400 100]);
 movegui(hMainGui,'center');
-
+% -------------------------------------------------------------------------
 % Installing Clients
 installClients();
-
+% -------------------------------------------------------------------------
 % Display discaimer
 if(strcmp(settingsobj.licence.NDA.ctl_activate.values(find(settingsobj.licence.NDA.ctl_activate.actived)),'on'))
     out = disclaimerGUI();
@@ -149,6 +134,11 @@ if(strcmp(settingsobj.licence.NDA.ctl_activate.values(find(settingsobj.licence.N
             return;
         end
 end
+% -------------------------------------------------------------------------
+% Create menu dinamically
+createMenu(hObject,eventdata,handles);
+% -------------------------------------------------------------------------
+%Update references
 handles_connection(hObject,handles);
 % --- Outputs from this function are returned to the command line.
 function varargout = EpiTools_OutputFcn(hObject, eventdata, handles)
@@ -187,165 +177,67 @@ if(isappdata(hMainGui,'settings_objectname'))
         % -------------------------------------------------------------------------  
     end 
 end
-
 I = imread('./images/backgroundlogo.tif');
 h = imshow(I(:,:,1:3), 'Parent', handles.axes8);
 set(h, 'AlphaData', I(:,:,4));
-%imshow('./images/backgroundlogo.gif','Parent', handles.axes8);
-
 % Update handles structure
 guidata(hObject, handles);
 % --------------------------------------------------------------------
-function A_Proj_Callback(hObject, eventdata, handles)
-% hObject    handle to A_Proj (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% Prepare module to execution (calling indexing and loader if needed)
-prepareModule()
-% [3]
-strModuleName = 'Projection';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(ProjectionGUI(int));
-handles_connection(hObject,handles)
+%% Create menu dinamically 
+% Action menu is compiled parsing loaded clients with desc_menu field
+% valorised.
+function createMenu(hObject,eventdata,handles)
+% Menu item
+mFile = uimenu(hObject,'Label','File'); 
+mEdit = uimenu(hObject,'Label','Edit');
+mActions = uimenu(hObject,'Label','Actions');
+mView = uimenu(hObject,'Label','View');
+mDevelopers= uimenu(hObject,'Label','Developers');
+mHelp = uimenu(hObject,'Label','Help','Callback', {@MHelp_Callback,handles});
+mCredits = uimenu(hObject,'Label','Credits','Callback', {@MCredits_Callback,handles});
+% Subitems (FILE)
+frh = uimenu(mFile,'Label','New analysis', 'Callback', {@F_New_Callback,handles});
+frh = uimenu(mFile,'Label','Open analysis', 'Callback', {@F_Open_Callback,handles});
+frh = uimenu(mFile,'Label','Import settings', 'Separator','on', 'Callback', {@F_ImportSettings_Callback,handles});
+frh = uimenu(mFile,'Label','Save analysis', 'Separator','on', 'Callback', {@F_Save_Callback,handles});
+frh = uimenu(mFile,'Label','Analysis properties', 'Separator','on', 'Callback', {@F_Properties_Callback,handles});
+frh = uimenu(mFile,'Label','Exit', 'Separator','on', 'Callback', {@F_Exit_Callback,handles});
+% Subitems (EDIT)
+frh = uimenu(mEdit,'Label','Undo', 'Enable', 'off', 'Callback', {@E_Undo_Callback,handles});
+frh = uimenu(mEdit,'Label','Redo', 'Enable', 'off', 'Callback', {@E_Redo_Callback,handles});
+frh = uimenu(mEdit,'Label','Preferences', 'Separator','on','Callback', {@E_Preferences_Callback,handles});
+% Subitems (ACTIONS)
+% Get all the installed clients 
+% (client installation process must have been performed before this step)
+client_modules = getappdata(getappdata(0, 'hMainGui'), 'client_modules');
+clients = client_modules(2).ref;
+a = {clients.menu_uid};
+a(cellfun(@isempty,a)) = {NaN};
+[~, sortidx] = sort([a{:}]);
+for i = sortidx
+    if isnan(i); continue; end
+    curClient = clients(i);
+    if isempty(curClient.desc_menu); continue; end
+    frh = uimenu(mActions,'Label',curClient.desc_menu, 'Separator','on','Position',curClient.menu_uid, 'Callback', {@callModule,handles,curClient.uid});
+    log2dev(sprintf('Module %s has been correctly loaded...',curClient.desc_menu),'INFO');
+end
+% frh = uimenu(mActions,'Label','Undo');
+% Subitems (VIEW)
+frh = uimenu(mView,'Label','Desktop layout');
+% Subsubitems (VIEW)
+uimenu(frh,'Label','Single mode','Callback', {@V_D_SingleMode_Callback,handles});
+uimenu(frh,'Label','Comparative mode','Callback', {@V_D_ComparativeMode_Callback,handles});
+uimenu(frh,'Label','Default mode','Callback', {@V_D_DefaultInterface_Callback,handles});
+frh = uimenu(mView,'Label','Define working space','Enable', 'off');
+% Subitems (DEVELOPERS)
+frh = uimenu(mDevelopers,'Label','Install plugin', 'Enable', 'off');
+frh = uimenu(mDevelopers,'Label','Remove plugin', 'Enable', 'off');
+frh = uimenu(mDevelopers,'Label','Manage plugins', 'Enable', 'off', 'Separator','on');
+frh = uimenu(mDevelopers,'Label','Server manager', 'Enable', 'off', 'Separator','on');
+frh = uimenu(mDevelopers,'Label','Pool manager', 'Enable', 'off', 'Separator','on');
+frh = uimenu(mDevelopers,'Label','Clients manager', 'Enable', 'off', 'Separator','on');
 % --------------------------------------------------------------------
-function A_StackReg_Callback(hObject, eventdata, handles)
-% hObject    handle to A_StackReg (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-%hMainGui = getappdata(0, 'hMainGui');
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% Prepare module to execution (calling indexing and loader if needed)
-prepareModule()
-% [2]
-strModuleName = 'Stack_Registration';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(RegistrationGUI(int));
-handles_connection(hObject,handles)
-% --------------------------------------------------------------------
-function A_CLAHE_Callback(hObject, eventdata, handles)
-% hObject    handle to A_CLAHE (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% Prepare module to execution (calling indexing and loader if needed)
-prepareModule()
-% [2]
-strModuleName = 'Contrast_Enhancement';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(ImproveContrastGUI(int));
-handles_connection(hObject,handles)
-% --------------------------------------------------------------------
-function A_Segmentation_Callback(hObject, eventdata, handles)
-% hObject    handle to A_Segmentation (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% Prepare module to execution (calling indexing and loader if needed)
-prepareModule()
-% [2]
-strModuleName = 'Segmentation';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(SegmentationGUI(int));
-%SaveAnalysisFile(obj,'ForceSave', true);
-handles_connection(hObject,handles)
-% --------------------------------------------------------------------
-function A_Tracking_Callback(hObject, eventdata, handles)
-% hObject    handle to A_Tracking (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% Prepare module to execution (calling indexing and loader if needed)
-prepareModule()
-% [2]
-strModuleName = 'Tracking';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(TrackingIntroGUI(int));
-%SaveAnalysisFile(obj,'ForceSave', true);
-handles_connection(hObject,handles)
-% --------------------------------------------------------------------
-function A_Skeletons_Callback(hObject, eventdata, handles)
-% hObject    handle to A_Skeletons (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% Prepare module to execution (calling indexing and loader if needed)
-prepareModule()
-% [2]
-strModuleName = 'Skeletons';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(SkeletonConversionGUI(int));
-%SaveAnalysisFile(obj,'ForceSave', true);
-handles_connection(hObject,handles)
-% --------------------------------------------------------------------
-function A_Polycrop_Callback(hObject, eventdata, handles)
-% hObject    handle to A_Polycrop (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% Prepare module to execution (calling indexing and loader if needed)
-prepareModule()
-% [2]
-strModuleName = 'Polygon_Masking';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(PolygonMaskingGUI(int));
-%SaveAnalysisFile(obj,'ForceSave', true);
-handles_connection(hObject,handles)
-% --------------------------------------------------------------------
-function A_ReSegmentation_Callback(hObject, eventdata, handles)
-% hObject    handle to A_ReSegmentation (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-% Prepare module to execution (calling indexing and loader if needed)
-prepareModule()
-% [2]
-strModuleName = 'ReSegmentation';
-% Duplicate setting objects and save content
-int = settings();
-int.inheritSettings(obj);
-int.initialiseModule(strModuleName);
-% Calling main function
-initialisePoolPath(int);
-uiwait(ReSegmentationGUI(int));
-%SaveAnalysisFile(obj,'ForceSave', true);
-handles_connection(hObject,handles)
-% --------------------------------------------------------------------
+%% Menu Callbacks 
 function E_Undo_Callback(hObject, eventdata, handles)
 % --------------------------------------------------------------------
 function E_Redo_Callback(hObject, eventdata, handles)
@@ -669,6 +561,7 @@ function MCredits_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 frmInfoSplash();
 % --------------------------------------------------------------------
+%% Toolbar callbacks
 function uiNewAnalysisPush_ClickedCallback(hObject, eventdata, handles)
 % hObject    handle to uiNewAnalysisPush (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -841,30 +734,7 @@ if ~status;
     log2dev( 'Comparative visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
 end
 % --------------------------------------------------------------------
-function uiImageSingleToggle_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to uiImageSingleToggle (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% inputs{1} = getappdata(0, 'hMainGui');
-% stgObj = getappdata(inputs{1},'settings_objectname');
-% inputs{2} = {[stgObj.data_analysisindir,'/',stgObj.analysis_modules.('Projection').results.projection_path],...
-%     [stgObj.data_analysisindir,'/',stgObj.analysis_modules.('Contrast_Enhancement').results.clahe_path]};
-% inputs{3} = {'Projection','Contrast Enhancement'};
-% uihandles_deletecontrols( 'uiSWslider' );
-% uihandles_deletecontrols( 'uiSWImage' );
-% uihandles_deletecontrols( 'uiSWFrameNumLabel' );
-% uihandles_deletecontrols( 'uiSWFrameNumEdit' );
-% uihandles_deletecontrols( 'uiBannerDescription' );
-% uihandles_deletecontrols( 'uiBannerContenitor' );
-% uihandles_deletecontrols( 'GraphicHandleSingleVDisplay' );
-% [status,argout] = dataexplorer_imageview( inputs );
-% if ~status;
-%     uihandles_savecontrols( argout(1).description ,argout(1).object );
-%     log2dev( 'Slide visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
-% end
-% ====================================================================
-% Support Functions
-% ====================================================================
+%% Support Functions
 function SplashScreenHandle = SplashScreen
 % Splash screen before EpiTools loading
 addpath('./src_support/module_xml');
@@ -965,16 +835,34 @@ int.inheritSettings(obj);
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,2});
 % Calling complementary indexing function
 proceed = int.initialiseModule(strModuleName);
-if (~isempty(options) && strcmp(options,'bypass-withdrawals')>0); proceed = true; end
+if (~isempty(options) || strcmp(options,'bypass-withdrawals')>0); proceed = true; end
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,3});
-if proceed;dataindexing_caller(options,int);end
+%if proceed;dataindexing_caller(options,int);end
+dataindexing_caller(options,int);
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,4});
 server.forceExecutionQueue;
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,5});
 % ----------------------------------------------
 % [2] Call loader module
-if proceed;loader_caller(options,obj);end
+%if proceed;loader_caller(options,obj);end
+loader_caller(options,obj)
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,6});
 server.forceExecutionQueue;
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,7});
 % --------------------------------------------------------------------
+function callModule(hObject,eventdata,handles,strModuleName)
+obj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
+client_modules = getappdata(getappdata(0, 'hMainGui'), 'client_modules');
+clients = client_modules(2).ref;
+% [2]
+% Duplicate setting objects and save content
+int = settings();
+int.inheritSettings(obj);
+proceed = int.initialiseModule(strModuleName);
+if ~proceed; return; end
+% Calling main function
+initialisePoolPath(int);
+% Prepare module to execution (calling indexing and loader if needed)
+prepareModule();
+uiwait(eval(clients(strcmp({clients.uid},strModuleName)).guilauncher));
+handles_connection(hObject,handles)
