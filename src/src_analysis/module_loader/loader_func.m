@@ -53,13 +53,25 @@ indices = stgMain.analysis_modules.Indexing.results.indices;
 if ~isempty(indices.I)
     server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image');
     % Export Generic_Image_ZSerie if more than a Z plane is found
-    if sum(cellfun(@length,indices.Z)) > 1
-        server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image_ZSerie');
+    if isa(indices.Z, 'cell')
+        if sum(cellfun(@length,indices.Z)) > 1
+            server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image_ZSerie');
+        end
+    else
+        if sum(arrayfun(@length,indices.Z)) > 1
+            server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image_ZSerie');
+        end
     end
     % Export Generic_Image_TSerie if more than a T step is found
-    if sum(cellfun(@length,indices.T)) > 1
-        server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image_TSerie');
-    end
+    if isa(indices.T, 'cell')
+        if sum(cellfun(@length,indices.T)) > 1
+            server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image_TSerie');
+        end
+    else
+        if sum(arrayfun(@length,indices.T)) > 1
+            server.setMessageParameter(execMessageUID, 'Level','tags','Action','add','Argvar','Generic_Image_TSerie');
+        end
+    end   
 end
 %% Output formatting
 % Each single output need to be described in order to be used for variable exportation.
