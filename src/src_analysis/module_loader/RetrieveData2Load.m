@@ -98,16 +98,16 @@ for idxFiles=1:numel(Indices.I)
     if(intProcessedFiles == 0)
         x = cell2mat(SourceData(intCurImgIdx,3));
         y = cell2mat(SourceData(intCurImgIdx,2));
-        %if isa(Indices.Z,'cell')
+        if isa(Indices.Z,'cell')
         z = max(cellfun(@numel,Indices.Z));
-        %else
-            %z = max(arrayfun(@max,Indices.Z));
-        %end
-        %if isa(Indices.T,'cell')
+        else
+            z = max(arrayfun(@max,Indices.Z));
+        end
+        if isa(Indices.T,'cell')
         t = sum(cellfun(@numel,Indices.T));
-        %else
-            %t = sum(arrayfun(@numel,Indices.T));
-        %end
+        else
+            t = sum(arrayfun(@numel,Indices.T));
+        end
         intclass = char(SourceData(intCurImgIdx,7));
         Data = zeros(x,y,z,t,intclass);
     end
@@ -117,10 +117,15 @@ for idxFiles=1:numel(Indices.I)
     % dim = 4
     [~,rawdata] = LoadImgData(strFullPathFile,intCurImgIdx,Indices);
     % Project data
+    if isa(Indices.T,'double'); a = Indices.T(1); Indices.T = {}; Indices.T{1} = a;end
     for local_time_index = 1:length(Indices.T{intCurImgIdx})
         ImStack = rawdata(:,:,:,local_time_index);
         %ImStack = rawdata(:,:,:,Indices.T{intCurImgIdx}(local_time_index));
-        Data(:,:,:,local_time_index+global_time_index) = ImStack;
+        if numel(size(ImStack)) == 2
+            Data(:,:,1,local_time_index+global_time_index) = ImStack;
+        else
+            Data(:,:,:,local_time_index+global_time_index) = ImStack;
+        end
     end
     global_time_index=global_time_index+length(Indices.T{intCurImgIdx});
     intProcessedFiles = intProcessedFiles+1;
