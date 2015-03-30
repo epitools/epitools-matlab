@@ -321,6 +321,7 @@ classdef settings < handle
             if(obj.hasModule(mdname))
                 % Workround for multiple executions of tracking module
                 if(strcmp(mdname,'Indexing'));argout = false;return;end
+                % Workround for multiple executions of tracking module
                 if(strcmp(mdname,'Tracking'));return;end
                 %if(strcmp(mdname,'Contrast_Enhancement')); obj.discardDownstreamModules(mdname);return;end
                 % When the module has been already executed during the course of the
@@ -345,11 +346,22 @@ classdef settings < handle
                         % Connect a new pool and deactivate all the others
                         pool_name       = strcat(obj.analysis_name,'_cmp_',datestr(now(),30));
                         pool_instances  = getappdata(getappdata(0,'hMainGui'), 'pool_instances');
+                        client_modules  = getappdata(getappdata(0,'hMainGui'), 'client_modules');
+                        clients         = client_modules(2).ref;
                         % Deactivate other active pools
                         for idxPool = 2:numel(pool_instances); pool_instances(idxPool).ref.deactivatePool; end
                         % Save into global variables
                         setappdata(getappdata(0,'hMainGui'), 'pool_instances', pool_instances);
                         connectPool(pool_name);
+                        % copy module dependency tags into new pool (from
+                        % default pool to new pool)
+                        curClient = clients(strcmp({clients.uid},mdname));
+                        defPool = pool_instances(2).ref;
+                        [ dependences, status, ~ ] = serverd_checkdependenceslist(curClient,defPool,defPool);
+                        availableDependences = dependences(status.*1:numel(dependences));
+                        for i = 1:numel(availableDependences)
+                            defPool.copyTag(availableDependences(i),pool_name, 'ClassFrom', 'graphics', 'ClassTo', 'data');
+                        end
                         % Initilization sandbox for the current module
                         sdb = sandbox();
                         % Set the status of sandboxing (TODO: better patch)
@@ -363,7 +375,8 @@ classdef settings < handle
                         % Settings file will returned with variations to
                         % calling environment
                     case 'Abort operations'
-                         return;
+                        argout = false;
+                        return;
                 end
             else
                 % if no modules match mdname, then create a new one. 
@@ -386,21 +399,28 @@ classdef settings < handle
             uihandles_deletecontrols('uitree');
             % Load JTREE Class
             jtree = uitree_control(hfig,obj);
+            uihandles_savecontrols('uitree', jtree );
             % Load Contextual menu on JTREE class
             uitree_contextualmenu(jtree);
+            % Create server/pool container panel 
+            if ~uihandles_exists('uisidebarpanel')
+                uisidebarpanel = uipanel('Parent', getappdata(0,'hMainGui'),...
+                        'Position',[0.0 0.00 0.17 0.325],...
+                        'Units', 'normalized');
+                uihandles_savecontrols( 'uisidebarpanel', uisidebarpanel);
+            end
             if ~uihandles_exists('uipanel_serverqueue')
-                uipanel_serverqueue = uipanel('Parent', hfig,...
-                                              'Position',[0.0 0.02 0.17 0.20],...
+                uipanel_serverqueue = uipanel('Parent', uisidebarpanel,...
+                                              'Position',[0.0 0.0 1 0.40],...
                                               'Units', 'normalized');
                 uihandles_savecontrols( 'uipanel_serverqueue', uipanel_serverqueue );
             end
             if ~uihandles_exists('uipanel_serverpool')
-                uipanel_serverpool = uipanel('Parent', hfig,...
-                                              'Position',[0.0 0.22 0.17 0.10],...
+                uipanel_serverpool = uipanel('Parent', uisidebarpanel,...
+                                              'Position',[0.0 0.40 1 0.59],...
                                               'Units', 'normalized');
                 uihandles_savecontrols('uipanel_serverpool', uipanel_serverpool );
             end
-            uihandles_savecontrols('uitree', jtree );
         end
         % --------------------------------------------------------------------
         function createPackage(obj)
