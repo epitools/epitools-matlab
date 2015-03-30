@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process>
     <uid>Projection</uid>
+    <menu_uid>1</menu_uid>
+    <desc_menu>Adaptive projection</desc_menu>
     <desc_name>Surface Projection module for selective and adaptive signal projection</desc_name>
     <exec_priority>0</exec_priority>
     <dependences>
@@ -40,4 +42,5 @@
             </tags>
         </command>
     </commands>
+    <guilauncher>ProjectionGUI(int)</guilauncher>
 </process>

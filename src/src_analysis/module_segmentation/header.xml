@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process>
     <uid>Segmentation</uid>
+    <menu_uid>4</menu_uid>
+    <desc_menu>Cell segmentation</desc_menu>
     <desc_name>Segmentation module for edge detection </desc_name>
     <exec_priority>0</exec_priority>
     <dependences>
@@ -16,14 +18,14 @@
         <dependence>
             <uid>PE02</uid>
             <tags>
-                <tag>Generic_Image</tag>
+                <tag>PROJECTED_IMAGE</tag>
             </tags>
             <exceptions>
             <exception>
                 <tags>
                     <tag>
-                        <id>Generic_Image</id>
-                        <rep>PROJECTED_IMAGE</rep>
+                        <id>PROJECTED_IMAGE</id>
+                        <rep>Generic_Image</rep>
                     </tag>
                 </tags>
             </exception>
@@ -46,4 +48,5 @@
             </tags>
         </command>
     </commands>
+    <guilauncher>SegmentationGUI(int)</guilauncher>
 </process>

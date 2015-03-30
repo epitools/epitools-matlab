@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process>
     <uid>Polygon_Masking</uid>
+    <menu_uid>5</menu_uid>
+    <desc_menu>Polygon mask (ROI)</desc_menu>
     <desc_name>Generate a polygon and crops the image</desc_name>
     <exec_priority>0</exec_priority>
     <dependences>
@@ -31,4 +33,5 @@
             </tags>
         </command>
     </commands>
+    <guilauncher>PolygonMaskingGUI(int)</guilauncher>
 </process>

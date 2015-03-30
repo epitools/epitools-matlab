@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process>
     <uid>Skeletons</uid>
+    <menu_uid>8</menu_uid>
+    <desc_menu>Generate skeletons</desc_menu>
     <desc_name>Extract skeletons from segmented images</desc_name>
     <exec_priority>0</exec_priority>
     <dependences>
@@ -26,4 +28,5 @@
             </tags>
         </command>
     </commands>
+    <guilauncher>SkeletonConversionGUI(int)</guilauncher>
 </process>

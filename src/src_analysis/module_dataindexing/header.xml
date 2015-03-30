@@ -8,7 +8,7 @@
     </dependences>
     <withdrawals>
         <tags>
-            <tag>IMAGE_INDECES</tag>
+            <tag>IMAGE_INDICES</tag>
         </tags>
     </withdrawals>   
     <commands>

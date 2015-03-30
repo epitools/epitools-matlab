@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process>
     <uid>ReSegmentation</uid>
+    <menu_uid>7</menu_uid>
+    <desc_menu>Re-segmentation</desc_menu>
     <desc_name>Segmentation module for edge detection </desc_name>
     <exec_priority>0</exec_priority>
     <dependences>
@@ -44,4 +46,5 @@
             </tags>
         </command>
     </commands>
+    <guilauncher>ReSegmentationGUI(int)</guilauncher>
 </process>

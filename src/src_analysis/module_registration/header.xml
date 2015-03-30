@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process>
     <uid>Stack_Registration</uid>
+    <menu_uid>2</menu_uid>
+    <desc_menu>Time-Lapse registration</desc_menu>
     <desc_name>Registration of Time Series Module</desc_name>
     <exec_priority>0</exec_priority>
     <dependences>
@@ -16,14 +18,14 @@
         <dependence>
             <uid>PE02</uid>
             <tags>
-                <tag>Generic_Image_TSerie</tag>
+                <tag>PROJECTED_IMAGE</tag>
             </tags>
             <exceptions>
                 <exception>
                     <tags>
                         <tag>
-                            <id>Generic_Image_TSerie</id>
-                            <rep>PROJECTED_IMAGE</rep>
+                            <id>PROJECTED_IMAGE</id>
+                            <rep>Generic_Image_TSerie</rep>
                         </tag>
                     </tags>
                 </exception>
@@ -46,4 +48,6 @@
             </tags>
         </command>
     </commands>
+    <guilauncher>RegistrationGUI(int)</guilauncher>
+
 </process>

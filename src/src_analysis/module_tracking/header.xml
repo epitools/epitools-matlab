@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process>
     <uid>Tracking</uid>
+    <menu_uid>6</menu_uid>
+    <desc_menu>Automatic seed tracking</desc_menu> 
     <desc_name>Seed tracking module for automatically segmented images</desc_name>
     <exec_priority>0</exec_priority>
     <dependences>
@@ -52,4 +54,5 @@
             </tags>
         </command>
     </commands>
+    <guilauncher>TrackingIntroGUI(int)</guilauncher>
 </process>
