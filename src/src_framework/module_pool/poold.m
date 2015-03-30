@@ -198,7 +198,7 @@ classdef poold < handle
                         current_pool.tag(nextid).attributes  =   tag_template.tag(i).attributes;
                         current_pool.tag(nextid).timestamp   =   now();
                         current_pool.tag(nextid).validity    =   tag_template.tag(i).validity;
-                        notify(pool, 'AddedTag' , TagCode(current_pool.tag(nextid).uid));
+                        notify(pool, 'AddedTag' , poold_eventdata(current_pool.tag(nextid).uid));
                     end
                 end
                 % Set preferences for xml_write procedure
@@ -235,6 +235,31 @@ classdef poold < handle
             pool_instances(strcmp(names,newPoolName)).ref.addTag(retrievedTag);
             % Delete tag from current pool
             pool.removeTag(nameTag);
+        end
+        % --------------------------------------------------------------------
+        function copyTag(pool,nameTag,newPoolName,varargin)
+            %% Initialization arguments
+            p = inputParser;
+            % Define function parameters
+            addParameter(p,'ClassFrom','',@ischar);
+            addParameter(p,'ClassTo','',@ischar);
+            % Parse function parameters
+            parse(p,varargin{:});
+            % Discard action if the receiving pool is the same as the
+            % sender
+            if strcmp(pool.name, newPoolName); return; end
+            % Retrieve all the pools actived on the current server platform
+            pool_instances = getappdata(getappdata(0,'hMainGui'), 'pool_instances');
+            % Get pools names
+            for i = 2:numel(pool_instances); names{i} = pool_instances(i).ref.name; end
+            % Move tag from current pool to another pool
+            % Get tag structure from xml file
+            retrievedTag.tag = pool.getTag(nameTag);
+            if ~isempty(p.Results.ClassFrom) && ~isempty(p.Results.ClassTo) && strcmp(retrievedTag.tag.class,p.Results.ClassFrom)
+                retrievedTag.tag.class = p.Results.ClassTo; 
+            end
+            % Move to new pool 
+            pool_instances(strcmp(names,newPoolName)).ref.addTag(retrievedTag);
         end
         % --------------------------------------------------------------------
         function boolean = existsTag(pool,tagcode)
