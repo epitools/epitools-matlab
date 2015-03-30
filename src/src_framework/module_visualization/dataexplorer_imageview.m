@@ -337,22 +337,30 @@ status = 0;
                     set(ghandle(idpanel).slider,'Value', 1);
                     set(ghandle(idpanel).slider, 'SliderStep', [1 1]);
                 case 3 % TimeLapse
-                    im = Is(:,:,framenum);
-                    q = quantile(single(im(:)),[.001 .999]);
-                    im(im<q(1)) = q(1);
-                    im(im>q(2)) = q(2);
-                    imshow(im,[],'Parent', ghandle(idpanel).axes);
-                    % Set Frame informations
-                    set(ghandle(idpanel).frameinfo,'String',sprintf('Frame %u of %u',framenum,size(Is,3)));
-                    % Set Plane informations
-                    set(ghandle(idpanel).planeinfo,'String',sprintf('%ux%u, %s',size(Is,1),size(Is,2),class(Is)));
-                    % Set Category informations
-                    set(ghandle(idpanel).categoryinfo,'String',categories{idpanel});
-                    % Set slider
-                    set(ghandle(idpanel).slider,'max', size(Is,3));
-                    set(ghandle(idpanel).slider,'min', 1);
-                    set(ghandle(idpanel).slider,'Value', framenum);
-                    set(ghandle(idpanel).slider, 'SliderStep', [1 1]);
+                    if size(Is,3) == 3 && size(Is,4) == 1
+                        im = Is(:,:,:,1);
+                        imshow(im,[],'Parent', ghandle(idpanel).axes);
+                        % Set Frame informations
+                        set(ghandle(idpanel).frameinfo,'String',sprintf('Frame %u of %u',framenum,size(Is,4)));
+                        set(ghandle(idpanel).slider,'max', size(Is,4));
+                    else
+                        im = Is(:,:,framenum);
+                        q = quantile(single(im(:)),[.001 .999]);
+                        im(im<q(1)) = q(1);
+                        im(im>q(2)) = q(2);
+                        imshow(im,[],'Parent', ghandle(idpanel).axes);
+                        % Set Frame informations
+                        set(ghandle(idpanel).frameinfo,'String',sprintf('Frame %u of %u',framenum,size(Is,3)));
+                        % Set slider
+                        set(ghandle(idpanel).slider,'max', size(Is,3));
+                    end
+                        % Set Plane informations
+                        set(ghandle(idpanel).planeinfo,'String',sprintf('%ux%u, %s',size(Is,1),size(Is,2),class(Is)));
+                        % Set Category informations
+                        set(ghandle(idpanel).categoryinfo,'String',categories{idpanel});
+                        set(ghandle(idpanel).slider,'min', 1);
+                        set(ghandle(idpanel).slider,'Value', framenum);
+                        set(ghandle(idpanel).slider, 'SliderStep', [1 1]);
                 case 4 %Multichannel
                     if size(Is,3) == 3
                         imshow(squeeze(Is(:,:,:,framenum)),[],'Parent', ghandle(idpanel).axes);
