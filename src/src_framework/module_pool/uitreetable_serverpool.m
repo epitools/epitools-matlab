@@ -1,26 +1,30 @@
 function jtable = uitreetable_serverpool(obj, globalHandle)
 %Uitreetable_serverqueue Summary of this function goes here
-headers = {'Pool','Label', 'Active'};
+headers = {'Pool','Label', 'Class', 'Active'};
 rawdata = {};
 %% Data preparation
 % for each pool in the ref pool obj
 for i = 1:size(globalHandle(2:end),2)
     name = globalHandle(i+1).ref.file;
+    tagname = '';
+    class = '';
     status = globalHandle(i+1).ref.active;
     if ~isempty(globalHandle(i+1).ref.tags)
         for o = 1:numel(globalHandle(i+1).ref.tags)
-           rawdata(end+1,:) = {name, globalHandle(i+1).ref.tags{o}, status};
+            tagname = globalHandle(i+1).ref.tags{o};
+            %class = globalHandle(i+1).ref.getTag(globalHandle(i+1).ref.tags{o}).class;
+            rawdata(end+1,:) = {name,tagname,class,status};
         end
     else
-        rawdata(end+1,:) = {name, [], status};
+        rawdata(end+1,:) = {name, tagname, class, status};
     end
-
+    
 end
 if(size(rawdata,2) == 0); rawdata = cell(1,2); end
 %% Generate treetable
 % selector = {'One','Two','Many'};
-colTypes = {'label','label','label'};
-colEditable = {false, false, true};
+colTypes = {'label','label','label','label'};
+colEditable = {false, false, true, true};
 icons = {fullfile('./images/icons/bookmark.png'), ...
          fullfile('./images/icons/book_open.png'), ...
          fullfile('./images/icons/book.png'), ...
