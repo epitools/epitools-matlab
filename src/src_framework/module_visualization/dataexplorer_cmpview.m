@@ -185,13 +185,16 @@ try
                                                    'Label','<html>Select this result as reference </html>',...
                                                    'Callback', {@SelectionRefCallback,numel(ghandle)-idxcount, idxRow, idxCol});
                                     item6 = uimenu(hcmenu,...
+                                                   'Label','<html>Compare with original image</html>',...
+                                                   'Callback', {@compareSelectionWithOriginal,cmptable{idxRow,1},idxPD,numel(ghandle)-idxcount, idxRow, idxCol});
+                                    item7 = uimenu(hcmenu,...
                                                    'Label','<html><b>Panel information</b></html>',...
                                                    'Separator','on',...
                                                    'Enable','off');
-                                    item7 = uimenu(hcmenu,...
+                                    item8 = uimenu(hcmenu,...
                                                    'Label','<html>Inspect analysis metadata</html>',...
                                                    'Callback', {@SelectionAnalysisMetadataCallback,numel(ghandle)-idxcount, idxRow, idxCol});
-                                    item8 = uimenu(hcmenu,...
+                                    item9 = uimenu(hcmenu,...
                                                    'Label',sprintf('Panel: %i',numel(ghandle)-idxcount),...
                                                    'Enable','off');
                                     set(ghandle(numel(ghandle)-idxcount).panel,'uicontextmenu',hcmenu)
@@ -320,6 +323,28 @@ status = 0;
                 return
             otherwise
                 return;
+        end
+    end
+    function idPanel = compareSelectionWithOriginal(src, eventdata, nameTag,destPoolId,idpanel,row,column)
+        if uihandles_exists( 'GraphicHandleCmpDisplay' )
+            uihandles_deletecontrols( 'GraphicHandleCmpDisplay' );
+        end
+        curtag = pool_instances(reftable{row,column}).ref.getTag(nameTag);
+        deftag = pool_instances(2).ref.getTag('Generic_Image');
+        %[~,data] = RetrieveData2Load('Generic_Image');
+        inputs = {};
+        inputs{1}    = getappdata(0,'hMainGui');
+        
+        inputs{2}{2} = curtag.attributes.attribute(strcmp({curtag.attributes.attribute.class},'file')).path;
+        inputs{3}{2} = sprintf('%s-%s',curtag.uid,datestr(curtag.timestamp,31));
+
+        inputs{2}{1} = deftag.attributes.attribute(strcmp({deftag.attributes.attribute.class},'file')).path;
+        inputs{3}{1} = sprintf('%s-%s',deftag.uid,datestr(deftag.timestamp,31));
+        
+        [status_exec,dispargout] = dataexplorer_imageview( inputs );
+        if ~status_exec;
+            uihandles_savecontrols( dispargout(1).description ,dispargout(1).object );
+            log2dev( 'Slide visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
         end
     end
     % --------------------------------------------------------------------
