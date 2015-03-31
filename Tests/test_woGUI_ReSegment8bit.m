@@ -7,7 +7,7 @@
 % before launching the gui. 
 
 file_path = pwd;
-cd([file_path,'/../SourceCode']);
+cd([file_path,'/../src']);
 LoadEpiTools();
 
 cd(file_path);
