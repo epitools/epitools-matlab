@@ -350,12 +350,6 @@ function pushbutton9_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton9 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-hMainGui = getappdata(0, 'hMainGui');
-stgObj = getappdata(hMainGui,'settings_objectname');
-
-delete(stgObj);
-setappdata(hMainGui, 'settings_objectname', '');
-
 close(handles.figure1);
 
 
