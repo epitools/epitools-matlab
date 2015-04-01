@@ -217,7 +217,7 @@ try
                     infoIMG.Width, ...
                     infoIMG.Height,...
                     infoIMG.BitDepth));  
-                tag = pool_instances(idxCol).ref.getTag(cmptable(idxRow,1));
+                tag = pool_instances(reftable{idxRow,idxCol}).ref.getTag(cmptable(idxRow,1));
                 poolname = sprintf('%s - %s',cmptable{idxRow,1},datestr(tag.timestamp,31));
                 set(ghandle(numel(ghandle)-idxcount).header, 'String', poolname);            
             else
