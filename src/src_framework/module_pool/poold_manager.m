@@ -61,7 +61,8 @@ classdef poold_manager
             % Tags have to be sorted from the active pool by time of appending
             hMainGui = getappdata(0, 'hMainGui');
             stgObj = getappdata(getappdata(0, 'hMainGui'), 'settings_objectname');
-            pool_instances = getappdata(getappdata(0,'hMainGui'), 'pool_instances');           
+            pool_instances = getappdata(getappdata(0,'hMainGui'), 'pool_instances');
+            defpool = pool_instances(2).ref;
             uihandles_deletecontrols( 'uiSWslider' );
             uihandles_deletecontrols( 'uiSWImage' );
             uihandles_deletecontrols( 'uiSWFrameNumLabel' );
@@ -74,6 +75,23 @@ classdef poold_manager
             intDisplays = 1;
             for i=1:numel(evnt.TagArray{:})
                 if strcmp(pool.getTag(evnt.TagArray{:}{i}).class,'graphics')
+                    % Select output device
+                    inputs{1}              = hMainGui;
+                    % Check if the current tag that is about to be
+                    % displaied does have a correspondent in the default
+                    % pool. If so, append to the display array
+                    if isempty(regexp(pool.name,'default', 'once'))
+                        if defpool.existsTag(evnt.TagArray{:}{i})
+                            attributes = defpool.getTag(evnt.TagArray{:}{i}).attributes.attribute;
+                            %attributes = pool.getTag(evnt.TagArray{:}{i}).attributes.attribute;
+                            inputs{2}{intDisplays} = attributes(strcmp({attributes.class},'file')).path;
+                            inputs{3}{intDisplays} = sprintf('%s-%s (REFERENCE)',...
+                                                        defpool.getTag(evnt.TagArray{:}{i}).uid,...
+                                                        datestr(defpool.getTag(evnt.TagArray{:}{i}).timestamp,31));
+                            % Increment display number
+                            intDisplays = intDisplays +1;
+                        end
+                    end
                     attributes = pool.getTag(evnt.TagArray{:}{i}).attributes.attribute;
                     inputs{1}              = hMainGui;
                     inputs{2}{intDisplays} = attributes(strcmp({attributes.class},'file')).path;
@@ -82,14 +100,29 @@ classdef poold_manager
                                                     datestr(pool.getTag(evnt.TagArray{:}{i}).timestamp,31));
                     intDisplays = intDisplays+1;
                 elseif strcmp(pool.getTag(evnt.TagArray{:}{i}).class,'complex')
+                    % Select output device
                     inputs{1}              = hMainGui;
+                    % Check if the current tag that is about to be
+                    % displaied does have a correspondent in the default
+                    % pool. If so, append to the display array
+                    if isempty(regexp(pool.name,'default', 'once'))
+                        if defpool.existsTag(evnt.TagArray{:}{i})
+                            attributes = defpool.getTag(evnt.TagArray{:}{i}).attributes.attribute;
+                            %attributes = pool.getTag(evnt.TagArray{:}{i}).attributes.attribute;
+                            inputs{2}{intDisplays} = attributes(strcmp({attributes.class},'file')).path;
+                            inputs{3}{intDisplays} = sprintf('%s-%s (REFERENCE)',...
+                                                        defpool.getTag(evnt.TagArray{:}{i}).uid,...
+                                                        datestr(defpool.getTag(evnt.TagArray{:}{i}).timestamp,31));
+                            % Increment display number
+                            intDisplays = intDisplays +1;
+                        end
+                    end
                     inputs{2}{intDisplays} = attributes(strcmp({attributes.class},'file')).path;
                     inputs{3}{intDisplays} = sprintf('%s-%s',...
                                                     pool.getTag(evnt.TagArray{:}{i}).uid,...
                                                     datestr(pool.getTag(evnt.TagArray{:}{i}).timestamp,31));
                     intDisplays = intDisplays+1;
-                
-                end
+                end  
             end
             %% Call display functions
             % function should call dataexplorer_imageview.m with the following
