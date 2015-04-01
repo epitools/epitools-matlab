@@ -1,4 +1,4 @@
-function [status, argout] = RetrieveData2Load(varargin)
+function [status, argout] = RetrieveData2Load(listtag,varargin)
 %RETRIEVEDATA2LOAD Retrieve data to be passed to the calling function
 % ------------------------------------------------------------------------------
 % PREAMBLE
@@ -30,23 +30,39 @@ function [status, argout] = RetrieveData2Load(varargin)
 % 
 % Copyright by A. Tournier, A. Hoppe, D. Heller, L. Gatti
 % ------------------------------------------------------------------------------
+%% Initialization arguments
+p = inputParser;
+% Define function parameters
+addParameter(p,'SearchIn','',@ischar);
+% Parse function parameters
+parse(p,varargin{:});
 %% Procedure
 status = 0;
 argout = [];
+
 % Get pool reference and open active pool on graphic tag passed on module dependence
 % Get pool handles
 pool_instances = getappdata(getappdata(0, 'hMainGui'), 'pool_instances');
 % Elaboration
 % Storing execution variables into memory and retrieve tag from pool
-for idxTag = 1:numel(varargin{:})
+for idxTag = 1:numel(listtag{:})
+    found = false;
     for idxPool = 2:size(pool_instances,2)
+        % If a specific pool is requested, the do not bother to know if it
+        % is active. Set found = true
+        if ~isempty(p.Results.SearchIn)
+            if(regexp(pool_instances(idxPool).ref.name,p.Results.SearchIn)>0)
+                found = true; 
+            end
         % if pool is not active, skip it and move to the next
-        if (~pool_instances(idxPool).ref.active); continue; end
+        elseif (~pool_instances(idxPool).ref.active)
+            continue; 
+        end
         % Check if the parsed tag is found in the pool, otherwise skip to
         % the next one
-        if ~pool_instances(idxPool).ref.existsTag(varargin{:}{idxTag}); break; end
+        if ~pool_instances(idxPool).ref.existsTag(listtag{idxTag}); break; end
         % Retrieve tag description from pool
-        o = pool_instances(idxPool).ref.getTag(varargin{:}{idxTag});
+        o = pool_instances(idxPool).ref.getTag(listtag{idxTag});
         % if the tag is of class data or graphic, then explore the inner
         % structure
         if (strcmp(o.class,'data') || strcmp(o.class,'graphics'))
@@ -65,6 +81,9 @@ for idxTag = 1:numel(varargin{:})
                 end
             end
         end
+        % if pool has been found, then break cycle and continue with next
+        % tag.
+        if found; break; end
     end
 end
 status = 1;
@@ -121,7 +140,7 @@ for idxFiles=1:numel(Indices.I)
     for local_time_index = 1:length(Indices.T{intCurImgIdx})
         ImStack = rawdata(:,:,:,local_time_index);
         %ImStack = rawdata(:,:,:,Indices.T{intCurImgIdx}(local_time_index));
-        if numel(size(ImStack)) == 2
+        if numel(size(ImStack)) == 2 %% for single plane, single time frame images
             Data(:,:,1,local_time_index+global_time_index) = ImStack;
         else
             Data(:,:,:,local_time_index+global_time_index) = ImStack;
