@@ -817,6 +817,7 @@ end
 disconnectPool;
 delete(hLogGui);
 delete(hMainGui);
+close all;
 % --------------------------------------------------------------------
 function prepareModule(options) 
 if nargin < 1; options = ''; end
