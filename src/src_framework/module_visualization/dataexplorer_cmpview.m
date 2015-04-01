@@ -326,13 +326,17 @@ status = 0;
         end
     end
     function idPanel = compareSelectionWithOriginal(src, eventdata, nameTag,destPoolId,idpanel,row,column)
+        % Clear workspace from comparative mode
         if uihandles_exists( 'GraphicHandleCmpDisplay' )
             uihandles_deletecontrols( 'GraphicHandleCmpDisplay' );
         end
+        % Retrieve selected tag from current pool
         curtag = pool_instances(reftable{row,column}).ref.getTag(nameTag);
-        deftag = pool_instances(2).ref.getTag('Generic_Image');
+        % 
+        deftag = pool_instances(reftable{row,column}).ref.getTag('Generic_Image');
+        [status, argout] = RetrieveData2Load({'Generic_Image'}, 'SearchIn', 'default');
         %[~,data] = RetrieveData2Load('Generic_Image');
-        inputs = {};
+        inputs       = {};
         inputs{1}    = getappdata(0,'hMainGui');
         
         inputs{2}{2} = curtag.attributes.attribute(strcmp({curtag.attributes.attribute.class},'file')).path;
