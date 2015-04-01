@@ -2,6 +2,7 @@ function connectServer()
 hMainGui = getappdata(0, 'hMainGui');
 % Retrieve GUI handle from calling environment
 hUIControls = getappdata(hMainGui,'hUIControls');
+setappdata(gcf, 'server_instances',struct());
 settingsobj = getappdata(hMainGui,'settings_execution');
 %% Initialisation of server
 %  The following code initialise the server daemon which will store client
