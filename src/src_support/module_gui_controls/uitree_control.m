@@ -62,7 +62,9 @@ for i=1:numel(children_FL_Names)
                                 structfields = fieldnames(varValue);
                                 for intElement = 1:numel(structfields)
                                     if isa(varValue.(char(structfields(intElement))),'cell')
-                                        strVal = [strVal,sprintf('[%s] %s ;',structfields{intElement}, num2str(varValue.(char(structfields(intElement))){:}))];
+                                        
+                                        %strVal = [strVal,sprintf('[%s] %s ;',structfields{intElement}, num2str(varValue.(char(structfields(intElement))){:}))];
+                                        
                                     else
                                         strVal = [strVal,sprintf('[%s] %s ;',structfields{intElement}, num2str(varValue.(char(structfields(intElement)))))];
                                     end
