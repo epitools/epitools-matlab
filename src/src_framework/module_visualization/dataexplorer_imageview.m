@@ -338,7 +338,11 @@ status = 0;
                     set(ghandle(idpanel).slider,'Value', 1);
                     set(ghandle(idpanel).slider, 'SliderStep', [1 1]);
                 case 3 % TimeLapse
-                    if size(Is,3) == 3 && size(Is,4) == 1
+                    %Check if it is a single frame segmentation output
+                    image_title = cell2mat(input_args{3});
+                    is_segmentation = ~isempty(strfind(lower(image_title),'segment'));
+                    
+                    if size(Is,3) == 3 && is_segmentation
                         im = Is(:,:,:,1);
                         imshow(im,[],'Parent', ghandle(idpanel).axes);
                         % Set Frame informations
