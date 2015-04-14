@@ -110,14 +110,16 @@ if ~SingleFrame
 end
 
 % Control panel
-uiControlPanel = uipanel(fig, ...
-    'units'    ,'normalized', ...
-    'position' ,[0.00 0.00 1 0.05], ...
-    'title', 'Image controls',...
-    'FontName','Tahoma',...
-    'FontUnits','normalized',...
-    'FontSize',0.2,...
-    'BackgroundColor',[0.6000    0.6000    0.6000]);
+if verLessThan('matlab','8.4.0') %only for <2014a
+    uiControlPanel = uipanel(fig, ...
+        'units'    ,'normalized', ...
+        'position' ,[0.00 0.00 1 0.05], ...
+        'title', 'Image controls',...
+        'FontName','Tahoma',...
+        'FontUnits','normalized',...
+        'FontSize',0.2,...
+        'BackgroundColor',[0.6000    0.6000    0.6000]);
+end
 
 framenum = uicontrol(fig, ...
     'style'    ,'edit', ...
@@ -764,27 +766,31 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
             'Parent',axes1);
        
         colormap(axes1,'Jet');
-        hPatches = get(hDataSeries,'Children');
-        try hPatches = cell2mat(hPatches); catch, end  % no need in case of single patch
-        yData = get(hPatches(1),'YData');
-        yPos = yData(end,:) - 0.40;
-        xData = get(hPatches,'XData');
-        try xData = cell2mat(xData); catch, end
-        barXs = xData(2:4:end,:);
-        barValues = diff([zeros(1,size(barXs,2)); barXs]);
-        barValues(bsxfun(@minus,barValues,sum(barValues))==0) = 0;  % no sub-total for bars having only a single sub-total
-        xPos = xData(1:4:end,:) + barValues/3;
-        yPos = yPos(ones(1,size(xPos,1)),:);
         
-        yPos(barValues==0)      = [];  % remove entries for empty bars patches
-        xPos(barValues==0)      = [];  % remove entries for empty bars patches
-        barValues(barValues==0) = [];  % remove entries for empty bars patches
-        barValues = barValues * 100;
-        cutoffpercentage = 2.5;
-        labels = strcat(' ', arrayfun(@(x) num2str(x,'%0.1f'),barValues(:),'uniform',false), '%');
-        hText = text(xPos(find(barValues>=cutoffpercentage)), yPos(find(barValues>=cutoffpercentage)), labels(find(barValues>=cutoffpercentage)), 'Parent', axes1);
-        set(hText, 'FontSize',9, 'Color', [0.40 0.40 0.40], 'FontName', 'Tahoma');
-        title(axes1, 'Trajectories length distribution', 'FontName', 'Tahoma', 'FontSize',9,'Color', [0.50 0.50 0.50] );
+        if verLessThan('matlab','8.4.0') %only for <2014a
+            hPatches = get(hDataSeries,'Children');
+            try hPatches = cell2mat(hPatches); catch, end  % no need in case of single patch
+            yData = get(hPatches(1),'YData');
+            yPos = yData(end,:) - 0.40;
+            xData = get(hPatches,'XData');
+            try xData = cell2mat(xData); catch, end
+            barXs = xData(2:4:end,:);
+            barValues = diff([zeros(1,size(barXs,2)); barXs]);
+            barValues(bsxfun(@minus,barValues,sum(barValues))==0) = 0;  % no sub-total for bars having only a single sub-total
+            xPos = xData(1:4:end,:) + barValues/3;
+            yPos = yPos(ones(1,size(xPos,1)),:);
+
+            yPos(barValues==0)      = [];  % remove entries for empty bars patches
+            xPos(barValues==0)      = [];  % remove entries for empty bars patches
+            barValues(barValues==0) = [];  % remove entries for empty bars patches
+            barValues = barValues * 100;
+            cutoffpercentage = 2.5;
+            labels = strcat(' ', arrayfun(@(x) num2str(x,'%0.1f'),barValues(:),'uniform',false), '%');
+            hText = text(xPos(find(barValues>=cutoffpercentage)), yPos(find(barValues>=cutoffpercentage)), labels(find(barValues>=cutoffpercentage)), 'Parent', axes1);
+            set(hText, 'FontSize',9, 'Color', [0.40 0.40 0.40], 'FontName', 'Tahoma');
+            title(axes1, 'Trajectories length distribution', 'FontName', 'Tahoma', 'FontSize',9,'Color', [0.50 0.50 0.50] );
+        end
+        
         myCell = arrayfun(@(x) num2str(x,'%0.1f'), binEdges ,'uniform',false);
         
         if legend
