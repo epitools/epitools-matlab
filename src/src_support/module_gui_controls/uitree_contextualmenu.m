@@ -235,8 +235,8 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
         
         for i=1:numel(rstFields)
             
-            arrayFiles2Zip{i} = strcat(stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.(char(rstFields(i))));
-            
+            %arrayFiles2Zip{i} = strcat(stgObj.data_analysisindir,'/',stgObj.analysis_modules.(char(mdName)).results.(char(rstFields(i))));
+            arrayFiles2Zip{i} = stgObj.analysis_modules.(char(mdName)).results.(char(rstFields(i)));
         end
         
         zip(strcat(stgObj.data_analysisindir,'/',mdName,'.zip'),arrayFiles2Zip);
@@ -246,18 +246,15 @@ set(jtree, 'MousePressedCallback', {@mousePressedCallback,jmenu});
     function deleteModuleSettings(hObject, eventData)
         hMainGui = getappdata(0, 'hMainGui');
         mdName = getappdata(hMainGui,'module_name');
-        stgObj = getappdata(hMainGui,'settings_objectname');
-        hMainGui_handles = guidata(hMainGui);
-        
+        stgObj = getappdata(hMainGui,'settings_objectname'); 
         strUserSel = questdlg(sprintf('You are about to delete this module from your analysis.\n\n Do you really want to continue?'),'Delete analysis module - User confirm','Yes','No','No');
-        
         switch strUserSel
             case 'Yes'
                 stgObj.DestroyModule(mdName);
                 setappdata(hMainGui,'settings_objectname',stgObj);
                 SaveAnalysisFile(stgObj,'ForceSave', true);
-                LoadControls(hMainGui,stgObj);
-                
+                stgObj.refreshTree(hMainGui);
+                %LoadControls(hMainGui,stgObj); 
         end
     end
 
