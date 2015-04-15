@@ -10,3 +10,9 @@ src/tmp/pool_Untitled_cmp_20150116T135745.xml
 src/tmp/pool_Untitled_cmp_20150121T103128.xml
 src/tmp/pool_Untitled_default.xml
 test_set.xml
+Tests/CheckInputType.m
+Tests/Test_ALL.m
+Tests/test_woGUI_16bit.m
+Tests/test_woGUI_8bit.m
+Tests/test_woGUI_ReSegment16bit.m
+Tests/test_woGUI_ReSegment8bit.m

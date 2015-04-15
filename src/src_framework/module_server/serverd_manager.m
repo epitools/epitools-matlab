@@ -14,6 +14,8 @@ classdef serverd_manager
                 @(src, evnt)serverd_manager.updateQueue(src));
             addlistener(sd, 'ForceQueueExecution', ...
                 @(src, evnt)serverd_manager.forceExecution(src)); 
+            addlistener(sd, 'FlushSingleMessage', ...
+                @(src, evnt)serverd_manager.flushSingleMessage(src,evnt));  
         end
         
         %% Dispatchers
@@ -31,7 +33,11 @@ classdef serverd_manager
         end %flushedQueue
         % Dispatcher for flushedQueue events
         function forceExecution(sd)
-            serverd_manager.executeQueue(sd,'force')
+            serverd_manager.executeQueue(sd,'force',[])
+        end %forceExecution
+        % Dispatcher for FlushSingleMessage events
+        function flushSingleMessage(sd,evnt)
+            serverd_manager.executeQueue(sd,'single',evnt.MessageUID)
         end %forceExecution
         %% Standalone functions (GUI Related)
         function updateQueue(sd)
@@ -39,10 +45,11 @@ classdef serverd_manager
         end
         %% Service functions for dispatchers
         % Display server queue in JTableTree Swing Object
-        function executeQueue(sd,strInput)
+        function executeQueue(sd,strInput,strUIDMessage)
             if nargin<2; strInput = 'noforce'; end
             % If queue lenght is below the execution threshold, then
-            % do not proceed with execution. However, listen for [force event]
+            % do not proceed with execution. However, listen for [force
+            % event] or [single] events
             if (length(sd.queue) <  sd.execProcessThreshold) && strcmp(strInput, 'noforce');return;end
             %% Executing messages stored in queue from top to bottom
             %  Execution is invoked for each message in the queue.
@@ -51,7 +58,15 @@ classdef serverd_manager
             while ~isempty(fields(sd.queue))
                 if (isempty(sd.queue));return;end
                 nomatlab = false; nosystem = false;
-                i = 1;
+                if strcmp(strInput, 'single')
+                    if ~isempty(find(strcmp({sd.queue.idx},strUIDMessage)))
+                        i = find(strcmp({sd.queue.idx},strUIDMessage));
+                    else
+                        return;
+                    end
+                else
+                    i = 1;
+                end
                 procMeta = struct();
                 %% Display execution status 
                 log2dev(sprintf('Processing message at position [%s] with code %s',sd.queue(i).idx,sd.queue(i).code ),'INFO');
@@ -206,9 +221,9 @@ classdef serverd_manager
                  end % if
                 %% Flush message from queue    
                 % Update message queue> status and pass it to history
-                sd.FlushMessage(i, procMeta);               
+                sd.FlushMessage(i, procMeta);
+                if strcmp(strInput, 'single');break;end
             end % /while
-             
         end %executeQueue
          % ---------------------------------------------------------------------------
     end

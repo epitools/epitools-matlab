@@ -841,14 +841,14 @@ log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui
 %if proceed;dataindexing_caller(options,int);end
 dataindexing_caller(options,int);
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,4});
-server.forceExecutionQueue;
+%server.forceExecutionQueue;
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,5});
 % ----------------------------------------------
 % [2] Call loader module
 %if proceed;loader_caller(options,obj);end
 loader_caller(options,obj)
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,6});
-server.forceExecutionQueue;
+%server.forceExecutionQueue;
 log2dev('Preparing analysis module execution. Please wait...','INFO',0,'hMainGui', 'statusbar',{minv,maxv,7});
 % --------------------------------------------------------------------
 function callModule(hObject,eventdata,handles,strModuleName)

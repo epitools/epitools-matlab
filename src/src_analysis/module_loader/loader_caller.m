@@ -38,10 +38,12 @@ for i = 1:size(pool_instances(2:end),2)
         % Add variable memory handles to exe command
         var = {'ExecutionSettingsHandle',handles{1}};
         clients(strcmp({clients.uid},'Loader')).addArgv('LOADER01','argv',var);
-        var = {'ExecutionMessageUID', server.getNextQueuePosition()};
+        nextPosition = server.getNextQueuePosition();
+        var = {'ExecutionMessageUID', nextPosition};
         clients(strcmp({clients.uid},'Loader')).addArgv('LOADER01','argv',var);
         server.receiveMessage(clients(strcmp({clients.uid},'Loader')),...
                               pool_instances(i+1).ref, pool_instances(2).ref,options);
+        server.runExecutionOfMessage(nextPosition);
     end
 end
 end

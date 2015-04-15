@@ -22,6 +22,7 @@ classdef serverd < handle
         QueueEmpty
         ServerInstance
         ForceQueueExecution
+        FlushSingleMessage
     end
     
     methods   
@@ -43,6 +44,10 @@ classdef serverd < handle
         end
         % =================================================================
         % Queue functions
+        function runExecutionOfMessage(sd,idxMessage)
+            notify(sd,'FlushSingleMessage',serverd_eventdata(idxMessage));
+        end
+        % -----------------------------------------------------------------
         function FlushQueue(sd)
             % Remove all messages in queue after flushing them and report
             % their status to session history
@@ -158,7 +163,8 @@ classdef serverd < handle
             % Notify event if everything above was executed correctly
             notify(sd,'MessageAdded');
             notify(sd,'QueueModified');
-        end   
+        end
+        % -----------------------------------------------------------------
         % Remove Message from server daemon queue
         function RemoveMessage(sd, position_numbers)
             % Remove message at the end of the queue given position number.
@@ -186,6 +192,7 @@ classdef serverd < handle
             notify(sd,'MessageRemoved');
             notify(sd,'QueueModified');
         end
+        % -----------------------------------------------------------------
         % Display Server Health status
         function [outQueue, outHistory] = PrintQueue(sd)
             outHistory = [];
@@ -228,8 +235,9 @@ classdef serverd < handle
             end
             
             
-        end     
-        % Announce to Framework 
+        end
+        % -----------------------------------------------------------------
+        % Announce to Framework
         function announceToFramework(sd, callerID)
             server_instances = getappdata(callerID, 'server_instances');
             if isempty(server_instances)
@@ -239,9 +247,11 @@ classdef serverd < handle
             end
             setappdata(callerID, 'server_instances', server_instances);
         end
+        % -----------------------------------------------------------------
         function setFlushQueueBound(sd,value)
             sd.execProcessThreshold = value;
         end
+        % -----------------------------------------------------------------
         % Force Execution Queue
         function forceExecutionQueue(sd)
             notify(sd,'ForceQueueExecution');
@@ -321,6 +331,7 @@ classdef serverd < handle
             if nargin == 4; options = ''; end
             sd = serverd_MessageProcessing(clientprocess, sd, pool, defaultpool, options);
         end
+        % -----------------------------------------------------------------
         % Initialize GUI interface for server process
         function buildGUInterface(sd, GraphicHandle)          
             if nargin == 2
@@ -328,6 +339,7 @@ classdef serverd < handle
             end  
             sd.handleJTreeTable = uitreetable_serverqueue(sd.handleGraphics,sd);
         end
+        % -----------------------------------------------------------------
         % Initialize GUI interface for server process
         function out = getQueueStatistics(sd)
 

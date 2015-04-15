@@ -38,8 +38,10 @@ for i = 1:size(pool_instances(2:end),2)
         % Add variable memory handles to exe command
         var = {'ExecutionSettingsHandle',handles{1}};
         clients(strcmp({clients.uid},'Indexing')).addArgv('INDEX01','argv',var);
+        nextPosition = server.getNextQueuePosition();
         server.receiveMessage(clients(strcmp({clients.uid},'Indexing')),...
                               pool_instances(i+1).ref, pool_instances(2).ref,options);
+        server.runExecutionOfMessage(nextPosition);
     end
 end
 end
