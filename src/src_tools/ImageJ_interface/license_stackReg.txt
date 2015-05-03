@@ -1,0 +1,13 @@
+You'll be free to use this software for research purposes, but you must not transmit and distribute it without our consent. In addition, you undertake to include a citation or acknowledgment whenever you present or publish results that are based on it. EPFL makes no warranties of any kind on this software and shall in no event be liable for damages of any kind in connection with the use and exploitation of this technology.
+
+This set of Java classes is based on the following paper: 
+P. Thévenaz, U.E. Ruttimann, M. Unser, "A Pyramid Approach to Subpixel Registration Based on Intensity," IEEE Transactions on Image Processing, vol. 7, no. 1, pp. 27-41, January 1998. Other relevant on-line publications are available at http://bigwww.epfl.ch/publications/. 
+
+The permission to redistribute StackReg as part of EpiTools was granted by the authors with the following email:
+
+Date: 28. April 2015 11:45
+From:Philippe Thévenaz <philippe.thevenaz@epfl.ch>  
+To: Davide Heller <davide.heller@imls.uzh.ch>Re: StackReg redistributionDear Davide Heller,> we would like to ask for your permission to redistribute the software within ours.Go ahead! You have my permission.
+Sincerely Yours, 
+P. Thévenaz.
+===P. ThévenazEPFL/STI/IMT-LS/LIB/BM.4.137Station 17CH-1015 Lausanne VD
