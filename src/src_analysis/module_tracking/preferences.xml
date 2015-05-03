@@ -1,0 +1,15 @@
+<preferences>
+    <Tracking>
+        <ctl_deleteseedtrack>
+            <name>Delete track control behaviour</name>
+            <extended>Specify how tracking module will delete complete seed tracks and how it will handle the remaining seeds </extended> 
+            <visible>1</visible>
+            <desc>single</desc>
+            <values>
+                <item>Delete entire track and correspondent seeds</item>
+                <item>Disconnect seeds (retain orphan seeds)</item>
+            </values>
+            <actived>[1 0]</actived>
+        </ctl_deleteseedtrack>
+    </Tracking>
+</preferences>

@@ -3,15 +3,11 @@ function execution_status = generate_empty_settingsfile(outpath)
 %program.
 
 %% In case of no arg are passed to the function
-if nargin < 1
-    outpath = 'usersettings.xml';
-end
-
+if nargin < 1; outpath = 'usersettings.xml'; end
 %% Initialisation of structures
 settingsobj = struct();
 
 %% Log section
-
 settingsobj.logs.levels.ctl_levelsvalue.name = 'Select logging levels';
 settingsobj.logs.levels.ctl_levelsvalue.visible = 1;
 settingsobj.logs.levels.ctl_levelsvalue.desc = 'multiple';
@@ -39,13 +35,11 @@ settingsobj.input.formats.ctl_inputformat.values = {'.czi', '.zvi', '.cxd', '.om
 settingsobj.input.formats.ctl_inputformat.actived = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1];
 
 %% Output format section
-
 settingsobj.output.formats.ctl_outputsformat.name = 'Select output file format';
 settingsobj.output.formats.ctl_outputsformat.visible = 0;
 settingsobj.output.formats.ctl_outputsformat.desc = 'multiple';
 settingsobj.output.formats.ctl_outputsformat.values = {'INFO', 'DEBUG', 'PROC', 'GUI', 'WARN', 'ERR', 'VERBOSE'};
 settingsobj.output.formats.ctl_outputsformat.actived = [1 1 1 1 1 1 1];
-
 
 settingsobj.output.icy.ctl_enableicyconnection.name = 'Enable connection to ICY';
 settingsobj.output.icy.ctl_enableicyconnection.visible = 1;
@@ -58,9 +52,29 @@ settingsobj.output.icy.ctl_connectionstring.visible = 1;
 settingsobj.output.icy.ctl_connectionstring.desc = 'text';
 settingsobj.output.icy.ctl_connectionstring.values = 'none';
 
+%% Check if  any of the installed modules carries a preference panel
+% Explode src_analysis folder
+dir_input = './src_analysis/';
+contents = dir(dir_input);
+for i=1:numel(contents)
+    % Avoid considering file in the current directory
+    if (contents(i).isdir ~= 1);continue;end
+    if (strfind(contents(i).name,'module_'))
+        % Check if exist a file named> header.xml in each module_ prefixed
+        % folders contained in src_analysis.
+        if(exist([dir_input,contents(i).name,'/preferences.xml'],'file'))
+            filename = [dir_input,contents(i).name,'/preferences.xml'];
+            a = xml_read(filename);
+            settingsobj.analysis_modules.(char(fields(a))) = a.(char(fields(a)));
+            %inst_client = inst_client.addClient(filename, 'active');
+            %inst_client = inst_client.addClient(filename, 'active');
+        end
+    end
+end
+
+
 
 %% Framework option section
-
 settingsobj.framework.memory.ctl_memoryvalue.name = 'Memory value';
 settingsobj.framework.memory.ctl_memoryvalue.visible = 1;
 settingsobj.framework.memory.ctl_memoryvalue.desc = 'text';
@@ -94,17 +108,13 @@ settingsobj.framework.serverupboundprocesses.ctl_serverupboundprocesses.desc = '
 settingsobj.framework.serverupboundprocesses.ctl_serverupboundprocesses.values = 1;
 
 %% Window option section
-
 settingsobj.windows.autocentering.ctl_activate.name = 'Resize activation';
 settingsobj.windows.autocentering.ctl_activate.visible = 1;
 settingsobj.windows.autocentering.ctl_activate.desc = 'single';
 settingsobj.windows.autocentering.ctl_activate.values = {'on', 'off'};
 settingsobj.windows.autocentering.ctl_activate.actived = [1 0];
 
-
-
 %% Licence
-
 settingsobj.licence.NDA.ctl_activate.name = 'Non Disclosing Agreement (NDA)';
 settingsobj.licence.NDA.ctl_activate.visible = 1;
 settingsobj.licence.NDA.ctl_activate.desc = 'single';
@@ -113,6 +123,5 @@ settingsobj.licence.NDA.ctl_activate.actived = [1 0];
 
 %% Save settings
 xml_write( outpath, settingsobj);
-
 end
 
