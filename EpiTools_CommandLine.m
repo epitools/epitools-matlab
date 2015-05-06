@@ -10,7 +10,7 @@
 % please make sure to remove the ds-settings data structure from the Workspace 
 % before launching the gui. 
 
-%% Function loading (Current directory should be the script location)
+%% Function loading (Current directory should be the epitools home directory)
 
 file_path = pwd;
 cd([file_path,'/src']);
