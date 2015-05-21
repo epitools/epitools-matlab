@@ -18,13 +18,13 @@
         <dependence>
             <uid>PE02</uid>
             <tags>
-                <tag>PROJECTED_IMAGE</tag>
+                <tag>REGISTERED_IMAGE</tag>
             </tags>
             <exceptions>
                 <exception>
                     <tags>
                         <tag>
-                            <id>PROJECTED_IMAGE</id>
+                            <id>REGISTERED_IMAGE</id>
                             <rep>Generic_Image</rep>
                         </tag>
                     </tags>

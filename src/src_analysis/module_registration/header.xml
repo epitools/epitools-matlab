@@ -44,6 +44,7 @@
             <argvs/>
             <tags>
                 <tag>REGISTERED_IMAGE</tag>
+                <tag>Generic_Image</tag>
                 <tag>Generic_Image_TSerie</tag>
             </tags>
         </command>
