@@ -414,6 +414,13 @@ pth2 = uipushtool(th,'CData',gif2cdata('images/gif/disk.gif'),...
     'Separator', 'on',...
     'ClickedCallback', {@keyPrsFcn,'s'});
 
+% Export button for CSV Tracking files
+pth3 = uipushtool(th,'CData',gif2cdata('images/gif/drive_go.gif'),...
+    'TooltipString','Export tracking as CellGraph compatible CSV files',...
+    'HandleVisibility','off',...
+    'Separator', 'on',...
+    'ClickedCallback', {@keyPrsFcn,'e'});
+
 % Wipe toogle
 tth4 = uipushtool(th,'CData',gif2cdata('images/gif/bomb.gif'),'Separator','on',...
     'TooltipString','Wipe orphan seeds',...
@@ -1237,6 +1244,35 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
                 %                     stgObj.AddMetadata('Tracking','click_counts', NClicks);
                 %                 end
                 close(gcf);
+            case {'e'}
+                
+                % Export csv file containing tracking information for CellGraph
+                % id, x, y, border (false)
+                parts = regexp(Ilabelsout,'/','split');
+                export_folder = [sprintf('%s/',parts{1:end-1}),'csv_tracking_export'];
+                if(~exist(export_folder,'file'))
+                    mkdir(export_folder)    
+                end
+                
+                % -------------------------------------------------------------------------
+                log2dev(sprintf('Exporting tracking as CSV files in %s', export_folder), 'INFO');
+                % -------------------------------------------------------------------------
+                
+                for frame_no=1:size(Ilabel,3)
+                    exportTrackingSeeds(export_folder,frame_no)
+                end
+                
+                %create empty division & elimination file
+                fclose(fopen([export_folder,'/divisions.csv'],'w'));
+                fclose(fopen([export_folder,'/eliminations.csv'],'w'));
+                
+                helpdlg(['Tracking was successfully exported to ',export_folder],...
+                        'CSV tracking export');
+       
+                % -------------------------------------------------------------------------
+                log2dev(sprintf('Completed CSV export'), 'INFO');
+                % -------------------------------------------------------------------------
+
             case {'o'}
                 okeydown = true;
             case {'d'}
@@ -1471,5 +1507,36 @@ set(fig,'KeyPressFcn',@keyPrsFcn)
         % Return
         x2=rows(y1(1));
         y2=columns(x1(1));
-    end       
+    end
+
+    function [] = exportTrackingSeeds(export_folder,frame_no)
+        %EXPORTTRACKINGSEEDS Exports all the tracking seed of the frame in CSV format
+        %   Helper function to export the tracking to CellGraph
+        %
+        %   author: Davide Heller
+        %   date:   30/05/2015
+
+        %get all the labelled cells
+        current_tracking_file = sprintf('%s/tracking_t%03d.csv',export_folder,frame_no-1);
+        fileID = fopen(current_tracking_file,'w');
+        
+        [cpy,cpx]=find(Ilabel(:,:,frame_no) > 251);
+        for n =1:length(cpy)
+
+            x = cpx(n);
+            y = cpy(n); 
+
+            CelN = Itracks(y,x,frame_no);
+
+            if CelN == 0
+                fprintf(fileID,'-1,%d,%d,false\n',x,y);
+            else
+                fprintf(fileID,'%d,%d,%d,false\n',CelN,x,y);
+            end
+
+
+        end
+
+        fclose(fileID);
+    end
 end
