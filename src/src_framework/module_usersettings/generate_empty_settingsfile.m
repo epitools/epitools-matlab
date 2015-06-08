@@ -119,7 +119,7 @@ settingsobj.licence.NDA.ctl_activate.name = 'Non Disclosing Agreement (NDA)';
 settingsobj.licence.NDA.ctl_activate.visible = 1;
 settingsobj.licence.NDA.ctl_activate.desc = 'single';
 settingsobj.licence.NDA.ctl_activate.values = {'on', 'off'};
-settingsobj.licence.NDA.ctl_activate.actived = [1 0];
+settingsobj.licence.NDA.ctl_activate.actived = [0 1];
 
 %% Save settings
 xml_write( outpath, settingsobj);

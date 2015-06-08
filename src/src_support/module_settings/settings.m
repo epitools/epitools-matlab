@@ -362,6 +362,12 @@ classdef settings < handle
                         for i = 1:numel(availableDependences)
                             defPool.copyTag(availableDependences(i),pool_name, 'ClassFrom', 'graphics', 'ClassTo', 'data');
                         end
+                        % Copy extra tags for specific modules
+                        if strcmp(mdname,'Segmentation')
+                            if defPool.existsTag('CLAHE_IMAGE')
+                                defPool.copyTag('CLAHE_IMAGE', pool_name);
+                            end
+                        end
                         % Initilization sandbox for the current module
                         sdb = sandbox();
                         % Set the status of sandboxing (TODO: better patch)
