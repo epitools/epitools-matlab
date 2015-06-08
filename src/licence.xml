@@ -10,10 +10,10 @@
    </key>
    <customer>
    	<uid>001</uid>
-   	<username>lorenzo.gatti</username>
-   	<name>Lorenzo Gatti</name>
+   	<username>generic.user</username>
+   	<name>EpiTools User</name>
    	<lastname></lastname>
-   	<email>lorenzo.gatti@uzh.ch</email>
+   	<email>epitools@imls.uzh.ch</email>
    </customer>
    <products>
    <product>
