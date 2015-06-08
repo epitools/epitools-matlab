@@ -1,6 +1,3 @@
-![EpiTools logo by Lorenzo Gatti](http://imls-bg-arthemis.uzh.ch/epitools-wiki/site/Images/logo.png)
-
-
 # Welcome to Epitools
 ---
 
