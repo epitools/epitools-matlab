@@ -40,7 +40,7 @@ function [ status, argout ] = projection_func(input_args,varargin)
 % ------------------------------------------------------------------------------
 
 %% Retrieve supplementary arguments
-if (nargin<2); varargin(1) = {'PJIMAGEPATH'};varargin(2) = {'PJSURFPATH'};varargin(3) = {'SETTINGS'};end
+if (nargin<2); varargin(1) = {'PJIMAGEPATH'};varargin(2) = {'PJSURFPATH'};varargin(3) = {'SETTINGS'};varargin(4) = {'VTKPATH'};end
 %% Procedure initialization
 status = 1;
 %initialize progressbar
@@ -91,8 +91,9 @@ log2dev('Processing time frame...plase wait','INFO',0,'hMainGui', 'statusbar',{m
 progressbar('Projecting images... (please wait)');
 
 %initialize directory for VTK polydata files (1 vtk surface file per frame)
-vtk_path = [stgMain.data_analysisoutdir,'/vtk'];
-mkdir(vtk_path);
+%vtk_path = [stgMain.data_analysisoutdir,'/vtk'];
+%mkdir(vtk_path);
+mkdir([stgMain.data_analysisoutdir,'/vtk']);
 
 for i=1:size(data,4)
     log2dev(sprintf('Processing time frame %u of %u ',i, size(data,4)), 'DEBUG');
@@ -110,15 +111,16 @@ for i=1:size(data,4)
     triangulation = delaunay(xg2,yg2);
 
     %output vtk file
-    output_path = '/skeletons/';
-    output_file_name = strcat('frame_',time_point_str,'.png');
+    output_path = '/vtk/';
+    output_file_name = sprintf('gridfit_frame_%03d.vtk',i);
     output_fullpath = strcat(output_path,output_file_name);
-
-    frame_file = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
-    vtkwrite(frame_file,'polydata','triangle',xg2,yg2,zg2,triangulation);
+        
+    %frame_file = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
+    vtkwrite([stgMain.data_analysisoutdir,output_fullpath],'polydata','triangle',xg2,yg2,zg2,triangulation);
+    log2dev(sprintf('Exporting VTK frame %u of %u ',i, size(data,4)), 'DEBUG');
 
     %% Saving VTK results
-    stgObj.AddResult('Projection',strcat('skeletons_path_',num2str(i)),strcat('skeletons/',output_file_name));
+    stgMain.AddResult('Projection',strcat('vtk_path_',num2str(i)),strcat('vtk/',output_file_name));
 
     progressbar(i/size(data,4));
     
@@ -178,6 +180,10 @@ argout(2).object = strcat([stgMain.data_analysisoutdir,'/Surfaces.mat']);
 argout(3).description = 'Settings associated module instance execution';
 argout(3).ref = varargin(3);
 argout(3).object = input_args{strcmp(input_args(:,1),'ExecutionSettingsHandle'),2};
+% -------------------------------------------------------------------------
+argout(4).description = 'VTK file path';
+argout(4).ref = varargin(4);
+argout(4).object = strcat([stgMain.data_analysisoutdir, output_path]);
 % -------------------------------------------------------------------------
 %% Status execution update
 status = 0;

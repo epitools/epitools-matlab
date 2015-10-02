@@ -64,4 +64,20 @@
       </attributes>
       <validity>illimited</validity>
    </tag>
+      <tag>
+      <uid>VTK_FILEPATH</uid>
+      <module>Projection</module>
+      <class>file</class>
+      <attributes>
+         <attribute>
+            <class>file</class>
+            <path>$VTKPATH$</path>
+         </attribute>
+         <attribute>
+            <class>settings</class>
+            <path>$SETTINGS$</path>
+         </attribute>
+      </attributes>
+      <validity>illimited</validity>
+   </tag>
 </tags>
