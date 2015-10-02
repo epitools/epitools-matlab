@@ -2,7 +2,7 @@
 
 
 # Discover all the Matlab Installations
-installation_directories=($(ls /usr/local/matlab/ | grep 'R'))
+installation_directories=$(ls /usr/local/matlab/ | grep 'R')
 tLen=${#installation_directories[@]}
 
 # Pick the last one
