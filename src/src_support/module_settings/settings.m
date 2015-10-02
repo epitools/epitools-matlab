@@ -431,42 +431,47 @@ classdef settings < handle
         % --------------------------------------------------------------------
         function createPackage(obj)
             try 
-            % Load pool file
-            listing = dir([obj.data_fullpath,'/pools/']);
-            ind = ~cellfun(@isempty, regexp({listing.name}, '.xml'));                   
-            x = xml_read([obj.data_fullpath,'/pools/',listing(ind).name]);
-            % Get modules
-            modules = fields(obj.analysis_modules);
-            for i = 3:numel(modules)
-                results = fields(obj.analysis_modules.(char(modules(i))).results);
-                for o = 1:numel(results)
-                    try
-                        copyfile(obj.analysis_modules.(char(modules(i))).results.(char(results(o))),...
-                                 obj.data_analysisindir )
-                        a = regexp(obj.analysis_modules.(char(modules(i))).results.(char(results(o))),'/', 'split');
-                        % Change path in pool file
-                        idx_tags = find(strcmp({x.tag.module},char(modules(i))));
-                        for u = 1:numel(idx_tags)
-                            pid = strcmp({x.tag(idx_tags(u)).attributes.attribute.path},...
-                                    obj.analysis_modules.(char(modules(i))).results.(char(results(o))));
-                            x.tag(idx_tags(u)).attributes.attribute(pid).path = [obj.data_analysisindir,'/',a{end}];
+                % Load pool file
+                listing = dir([obj.data_fullpath,'/pools/']);
+                ind = ~cellfun(@isempty, regexp({listing.name}, '.xml'));                   
+                x = xml_read([obj.data_fullpath,'/pools/',listing(ind).name]);
+                % Get modules
+                modules = fields(obj.analysis_modules);
+                for i = 3:numel(modules)
+                    results = fields(obj.analysis_modules.(char(modules(i))).results);
+                    for o = 1:numel(results)
+                        try
+                            copyfile(obj.analysis_modules.(char(modules(i))).results.(char(results(o))),...
+                                     obj.data_analysisindir )
+                            a = regexp(obj.analysis_modules.(char(modules(i))).results.(char(results(o))),'/', 'split');
+                            % Change path in pool file
+                            idx_tags = find(strcmp({x.tag.module},char(modules(i))));
+                            for u = 1:numel(idx_tags)
+                                pid = strcmp({x.tag(idx_tags(u)).attributes.attribute.path},...
+                                        obj.analysis_modules.(char(modules(i))).results.(char(results(o))));
+                                if sum(pid) == 0; continue; end
+                                x.tag(idx_tags(u)).attributes.attribute(pid).path = [obj.data_analysisindir,'/',a{end}];
+                            end
+                            % Change path in analysis file
+                            obj.analysis_modules.(char(modules(i))).results.(char(results(o))) = [obj.data_analysisindir,'/',a{end}];
+                        catch err
+                           log2dev(sprintf('EPITOOLS:SettingsClass:createPackage:Traverse | %s',err.message),'WARN');
                         end
-                        % Change path in analysis file
-                        obj.analysis_modules.(char(modules(i))).results.(char(results(o))) = [obj.data_analysisindir,'/',a{end}];
-                    catch err
                     end
                 end
-            end
-            Pref.StructItem = false;
-            % Write to xml pool file
-            xml_write([obj.data_fullpath,'/pools/',listing(ind).name],x,'tags',Pref);
-            % Remove temporary directories
-            listfolders = dir(obj.data_fullpath);
-            ind = find(~cellfun(@isempty, regexp({listfolders.name}, 'tmp_')));  
-            for i = 1:numel(ind); rmdir([obj.data_fullpath,'/',listfolders(ind(i)).name],'s'); end
+                Pref.StructItem = false;
+                % Write to xml pool file
+                xml_write([obj.data_fullpath,'/pools/',listing(ind).name],x,'tags',Pref);
+                % Remove temporary directories
+                listfolders = dir(obj.data_fullpath);
+                ind = find(~cellfun(@isempty, regexp({listfolders.name}, 'tmp_')));  
+                for i = 1:numel(ind); rmdir([obj.data_fullpath,'/',listfolders(ind(i)).name],'s'); end
+            
             catch err
+                log2dev(sprintf('EPITOOLS:SettingsClass:createPackage:generic | %s',err.message),'WARN');
             end
         end
+        % --------------------------------------------------------------------
     end
     
 end
