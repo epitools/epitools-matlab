@@ -318,7 +318,17 @@ status = 0;
                     uihandles_deletecontrols( 'GraphicHandleCmpDisplay' );
                     log2dev( 'Standard visualisation mode actived', 'INFO', 0, 'hMainGui', 'statusbar' );
                 end
-                pool_instances(reftable{row,column}).ref.moveTag(nameTag,arrPoolNames{destPoolId});
+                % Get module name associated to the tag to export
+                moduleName = pool_instances(reftable{row,column}).ref.getTag(nameTag).module;
+                % Move all the tags stored in the current pool assocated
+                % with the module name
+                for iterTag = pool_instances(reftable{row,column}).ref.tags
+                    if strcmp(pool_instances(reftable{row,column}).ref.getTag(iterTag{1}).module,moduleName)
+                        pool_instances(reftable{row,column}).ref.moveTag(iterTag{1},arrPoolNames{destPoolId});
+                    end
+                end
+                
+                %pool_instances(reftable{row,column}).ref.moveTag(nameTag,arrPoolNames{destPoolId});
             case 'No'
                 return
             otherwise
