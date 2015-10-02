@@ -108,9 +108,18 @@ for i=1:size(data,4)
     
     %save 2nd surface estimation by gridfit in VTK polydata
     triangulation = delaunay(xg2,yg2);
+
+    %output vtk file
+    output_path = '/skeletons/';
+    output_file_name = strcat('frame_',time_point_str,'.png');
+    output_fullpath = strcat(output_path,output_file_name);
+
     frame_file = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
     vtkwrite(frame_file,'polydata','triangle',xg2,yg2,zg2,triangulation);
-    
+
+    %% Saving VTK results
+    stgObj.AddResult('Projection',strcat('skeletons_path_',num2str(i)),strcat('skeletons/',output_file_name));
+
     progressbar(i/size(data,4));
     
 end
@@ -122,7 +131,7 @@ log2dev('Projection completed...saving data structures','INFO',0,'hMainGui', 'st
 %exportTiffImages(ProjIm,'filename',[stgMain.data_analysisoutdir,'/ProjIm.tif']);
 stgMain.AddResult('Projection','projection_path',[stgMain.data_analysisoutdir,'/ProjIm.mat']);
 stgMain.AddResult('Projection','surface_path',[stgMain.data_analysisoutdir,'/Surfaces.mat']);
-stgMain.AddResult('Projection','vtk_path',vtk_path);
+%stgMain.AddResult('Projection','vtk_path',vtk_path);
 
 stgMain.AddMetadata('Projection','handle_settings', handleSettings);
 stgMain.AddMetadata('Projection','exec_message', execMessageUID);
