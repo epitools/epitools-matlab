@@ -88,10 +88,16 @@ Surfaces = zeros(size(data,1), size(data,2), size(data,4) ,'uint8');
 ProjIm   = zeros(size(data,1), size(data,2), size(data,4), char(class(data)));
 minv = 0; maxv=size(data,4);
 log2dev('Processing time frame...plase wait','INFO',0,'hMainGui', 'statusbar',{minv,maxv,0});
+progressbar('Projecting images... (please wait)');
+
+%initialize directory for VTK polydata files (1 vtk surface file per frame)
+vtk_path = [stgMain.data_analysisoutdir,'/vtk'];
+mkdir(vtk_path);
+
 for i=1:size(data,4)
     log2dev(sprintf('Processing time frame %u of %u ',i, size(data,4)), 'DEBUG');
     log2dev(sprintf('Processing time frame: %u/%u',i,size(data,4)),'INFO',0,'hMainGui', 'statusbar',{minv,maxv,i});
-    [im,Surf] = createProjection(data(:,:,:,i),...
+    [im,Surf,xg2,yg2,zg2] = createProjection(data(:,:,:,i),...
         stgModule.SmoothingRadius,...
         stgModule.ProjectionDepthThreshold,...
         stgModule.SurfSmoothness1,...
@@ -99,16 +105,29 @@ for i=1:size(data,4)
         stgModule.InspectResults);
     ProjIm(:,:,i)   = im;
     Surfaces(:,:,i) = Surf;
+    
+    %save 2nd surface estimation by gridfit in VTK polydata
+    triangulation = delaunay(xg2,yg2);
+    frame_file = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
+    vtkwrite(frame_file,'polydata','triangle',xg2,yg2,zg2,triangulation);
+    
+    progressbar(i/size(data,4));
+    
 end
+progressbar(1);
+
 log2dev('Projection completed...saving data structures','INFO',0,'hMainGui', 'statusbar');
 %% Saving results
 %stgMain.AddResult('Projection','projection_path','ProjIm.tif');
 %exportTiffImages(ProjIm,'filename',[stgMain.data_analysisoutdir,'/ProjIm.tif']);
 stgMain.AddResult('Projection','projection_path',[stgMain.data_analysisoutdir,'/ProjIm.mat']);
 stgMain.AddResult('Projection','surface_path',[stgMain.data_analysisoutdir,'/Surfaces.mat']);
+stgMain.AddResult('Projection','vtk_path',vtk_path);
+
 stgMain.AddMetadata('Projection','handle_settings', handleSettings);
 stgMain.AddMetadata('Projection','exec_message', execMessageUID);
 stgMain.AddMetadata('Projection','exec_dependences', execTDep);
+
 save([stgMain.data_analysisoutdir,'/ProjIm'],'ProjIm')
 save([stgMain.data_analysisoutdir,'/Surfaces'],'Surfaces')
 %% Exporting extra Tags according to input data
