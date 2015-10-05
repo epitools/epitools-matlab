@@ -111,16 +111,16 @@ for i=1:size(data,4)
     triangulation = delaunay(xg2,yg2);
 
     %output vtk file
-    output_path = '/vtk/';
+    output_path = [stgMain.data_analysisoutdir,'/vtk/'];
     output_file_name = sprintf('gridfit_frame_%03d.vtk',i);
     output_fullpath = strcat(output_path,output_file_name);
         
     %frame_file = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
-    vtkwrite([stgMain.data_analysisoutdir,output_fullpath],'polydata','triangle',xg2,yg2,zg2,triangulation);
+    vtkwrite(output_fullpath,'polydata','triangle',xg2,yg2,zg2,triangulation);
     log2dev(sprintf('Exporting VTK frame %u of %u ',i, size(data,4)), 'DEBUG');
 
     %% Saving VTK results
-    stgMain.AddResult('Projection',strcat('vtk_path_',num2str(i)),strcat('vtk/',output_file_name));
+    stgMain.AddResult('Projection',strcat('vtk_path_',num2str(i)),strcat(output_path,output_file_name));
 
     progressbar(i/size(data,4));
     
@@ -183,7 +183,7 @@ argout(3).object = input_args{strcmp(input_args(:,1),'ExecutionSettingsHandle'),
 % -------------------------------------------------------------------------
 argout(4).description = 'VTK file path';
 argout(4).ref = varargin(4);
-argout(4).object = strcat([stgMain.data_analysisoutdir, output_path]);
+argout(4).object = output_path;
 % -------------------------------------------------------------------------
 %% Status execution update
 status = 0;
