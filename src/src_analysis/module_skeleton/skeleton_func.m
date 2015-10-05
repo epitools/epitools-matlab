@@ -76,12 +76,12 @@ for i = 1:frame_no
     %time point suffix with 3 digits (e.g. 001)
     time_point_str = num2str(i,'%03.f');
     %output skeleton as png image
-    output_path = '/skeletons/';
+    output_path = [stgObj.data_analysisoutdir,'/skeletons/'];
     output_file_name = strcat('frame_',time_point_str,'.png');
     output_fullpath = strcat(output_path,output_file_name);
-    imwrite(cell_outlines,[stgObj.data_analysisoutdir,output_fullpath]);
+    imwrite(cell_outlines,output_fullpath);
     %% Saving results
-    stgObj.AddResult('Skeletons',strcat('skeletons_path_',num2str(i)),strcat('skeletons/',output_file_name));
+    stgObj.AddResult('Skeletons',strcat('skeletons_path_',num2str(i)),output_fullpath);
     progressbar(i/frame_no);
 end
 progressbar(1);
@@ -96,7 +96,7 @@ progressbar(1);
 % -------------------------------------------------------------------------
 argout(1).description = 'Skeletons file path';
 argout(1).ref = varargin(1);
-argout(1).object = strcat([stgObj.data_analysisoutdir,'/',output_path]);
+argout(1).object = output_path;
 % -------------------------------------------------------------------------
 argout(2).description = 'Settings associated module instance execution';
 argout(2).ref = varargin(2);
