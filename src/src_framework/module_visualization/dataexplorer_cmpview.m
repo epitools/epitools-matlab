@@ -323,10 +323,10 @@ status = 0;
                 % Move all the tags stored in the current pool assocated
                 % with the module name
                 minv = 0; maxv=numel(pool_instances(reftable{row,column}).ref.tags);
-                log2dev('Moving tags...plase wait','INFO',0,'hMainGui', 'statusbar',{minv,maxv,0});
+                log2dev('Moving tags...please wait','INFO',0,'hMainGui', 'statusbar',{minv,maxv,0});
                 num = 1;
                 for iterTag = pool_instances(reftable{row,column}).ref.tags
-                    log2dev('Moving tags...plase wait','INFO',0,'hMainGui', 'statusbar',{minv,maxv,num});
+                    log2dev('Moving tags...please wait','INFO',0,'hMainGui', 'statusbar',{minv,maxv,num});
                     if strcmp(pool_instances(reftable{row,column}).ref.getTag(iterTag{1}).module,moduleName)
                         pool_instances(reftable{row,column}).ref.moveTag(iterTag{1},arrPoolNames{destPoolId});
                     end

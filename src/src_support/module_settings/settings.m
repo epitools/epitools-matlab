@@ -439,34 +439,149 @@ classdef settings < handle
                 modules = fields(obj.analysis_modules);
                 for i = 3:numel(modules)
                     results = fields(obj.analysis_modules.(char(modules(i))).results);
+                    minv = 0; maxv=numel(results);
+                    log2dev('Creating analysis package...please wait','INFO',0,'hMainGui', 'statusbar',{minv,maxv,0});
                     for o = 1:numel(results)
                         try
-                            copyfile(obj.analysis_modules.(char(modules(i))).results.(char(results(o))),...
-                                     obj.data_analysisindir )
+                            log2dev('Creating analysis package...please wait','INFO',0,'hMainGui', 'statusbar',{minv,maxv,o});
+                            % Move physical files to the Analysis
+                            % directory and its subdirectories
                             a = regexp(obj.analysis_modules.(char(modules(i))).results.(char(results(o))),'/', 'split');
-                            % Change path in pool file
-                            idx_tags = find(strcmp({x.tag.module},char(modules(i))));
-                            for u = 1:numel(idx_tags)
-                                pid = strcmp({x.tag(idx_tags(u)).attributes.attribute.path},...
-                                        obj.analysis_modules.(char(modules(i))).results.(char(results(o))));
-                                if sum(pid) == 0; continue; end
-                                x.tag(idx_tags(u)).attributes.attribute(pid).path = [obj.data_analysisindir,'/',a{end}];
+                            
+                            % If the folder of origin is tmp or Analysis,
+                            % then move everything to Analysis folder, else move to a subdirectory under Analysis 
+                            if ~isempty(regexp(a{end-1},'tmp_','ONCE')) || ~isempty(regexp(a{end-1},'Analysis', 'ONCE'))
+                                
+                                file.original_path = obj.analysis_modules.(char(modules(i))).results.(char(results(o)));
+                                file.new_path = obj.data_analysisindir;
+                                
+                                copyfile(file.original_path,file.new_path);
+                                
+                            else
+                                
+                                file.original_path = obj.analysis_modules.(char(modules(i))).results.(char(results(o)));
+                                file.new_path = [obj.data_analysisindir,'/',a{end-1},'/'];
+                                
+                                copyfile(file.original_path,file.new_path);
+
                             end
-                            % Change path in analysis file
-                            obj.analysis_modules.(char(modules(i))).results.(char(results(o))) = [obj.data_analysisindir,'/',a{end}];
+
+                            log2dev(sprintf('EPITOOLS:SettingsClass:createPackage:CopyFile | moved %s --> %s',...
+                            file.original_path,...
+                            file.new_path),...
+                            'DEBUG');
+                            
+                            % Change path in pool file:
+                            % Find all tags associated with the current module 
+                            idx_tags = find(strcmp({x.tag.module},char(modules(i))));
+                            for u = idx_tags                      
+                               
+                                % Check for special (as skeleton/vtk) folders [FIRST CASE is for not-nested folders]
+                                if ~isempty(regexp(a{end-1},'tmp_','ONCE')) || ~isempty(regexp(a{end-1},'Analysis', 'ONCE'))
+                                   
+                                    % Select the tag associated with the result matching the path stored in
+                                    % both tag attribute and setting result field.
+                                    
+                                    items_pool = regexp({x.tag(u).attributes.attribute.path},'/','split');
+                                    items_settings = regexp(obj.analysis_modules.(char(modules(i))).results.(char(results(o))),'/','split');
+                                    
+                                    status = 0;
+                                    for id = 1:numel(items_pool) 
+                                        
+                                        singleton = items_pool(id);
+                                        check = sum(strcmp(singleton{end}, items_settings{end}));
+                                       
+                                        if check > 0
+                                            pid = id;
+                                            status = status + check;
+                                            
+                                        end
+                                    end
+                                    
+                                    %pid = strcmp(items_pool{end},items_settings{end});
+                                    % if the pid does not find a match, then move to the next tag
+                                    if status > 0
+                                    
+                                        % Change path in pool file
+                                        tag.original_path = x.tag(u).attributes.attribute(pid).path;
+                                        tag.new_path = [obj.data_analysisindir,'/',a{end}];
+
+                                        x.tag(u).attributes.attribute(pid).path = tag.new_path;
+
+                                        % Change path in analysis file
+                                        settings.original_path = obj.analysis_modules.(char(modules(i))).results.(char(results(o)));
+                                        settings.new_path = [obj.data_analysisindir,'/',a{end}];
+
+                                        obj.analysis_modules.(char(modules(i))).results.(char(results(o))) = settings.new_path;
+                                    else
+                                        continue;
+                                    end
+                                    
+                                else % [SECOND CASE is for nested folders]
+                                                                       
+                                    status = 0;
+                                    items = regexp({x.tag(u).attributes.attribute.path},'/','split');
+                                    for id = 1:numel(items) 
+                                        
+                                        singleton = items(id);
+                                        check = sum(~cellfun(@isempty, regexp(singleton{:}, a{end-1},'match')));
+                                        
+                                        if check > 0
+                                            pid = id;
+                                            status = status + check;
+                                            
+                                        end
+                                    end
+                                    
+                                    if(status>0)
+                                       
+                                        % Change path in pool file
+                                        tag.original_path = x.tag(u).attributes.attribute(pid).path;
+                                        tag.new_path = [obj.data_analysisindir,'/',a{end-1},'/'];
+
+                                        x.tag(u).attributes.attribute(pid).path = tag.new_path;
+
+                                        % Change path in analysis file
+                                        settings.original_path =  obj.analysis_modules.(char(modules(i))).results.(char(results(o)));
+                                        settings.new_path = [obj.data_analysisindir,'/',a{end-1},'/',a{end}];
+
+                                        obj.analysis_modules.(char(modules(i))).results.(char(results(o))) = settings.new_path;
+                                    else 
+                                        continue;
+                                    end
+                                end
+                                
+                                log2dev(sprintf('EPITOOLS:SettingsClass:createPackage:PoolTagUpdate | update %s --> %s',...
+                                tag.original_path,...
+                                tag.new_path),...
+                                'DEBUG');
+                                log2dev(sprintf('EPITOOLS:SettingsClass:createPackage:SettingsUpdate | update %s --> %s',...
+                                settings.original_path,...
+                                settings.new_path),...
+                                'DEBUG');
+
+                            end
+                            
                         catch err
                            log2dev(sprintf('EPITOOLS:SettingsClass:createPackage:Traverse | %s',err.message),'WARN');
                         end
                     end
                 end
-                Pref.StructItem = false;
+                % If everything went ok, then remove temporary folders and save data
+                % structures (settings, pool xml file)
+                
                 % Write to xml pool file
+                Pref.StructItem = false;
                 xml_write([obj.data_fullpath,'/pools/',listing(ind).name],x,'tags',Pref);
+                
                 % Remove temporary directories
                 listfolders = dir(obj.data_fullpath);
                 ind = find(~cellfun(@isempty, regexp({listfolders.name}, 'tmp_')));  
                 for i = 1:numel(ind); rmdir([obj.data_fullpath,'/',listfolders(ind(i)).name],'s'); end
-            
+                
+                % Save settings file
+                obj.GenerateXMLFile()
+                
             catch err
                 log2dev(sprintf('EPITOOLS:SettingsClass:createPackage:generic | %s',err.message),'WARN');
             end
