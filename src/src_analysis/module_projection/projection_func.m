@@ -108,7 +108,7 @@ for i=1:size(data,4)
     Surfaces(:,:,i) = Surf;
     
     %save 2nd surface estimation by gridfit in VTK polydata
-    triangulation = delaunay(xg2,yg2);
+    %triangulation = delaunay(xg2,yg2);
 
     %output vtk file
     output_path = [stgMain.data_analysisoutdir,'/vtk/'];
@@ -116,7 +116,10 @@ for i=1:size(data,4)
     output_fullpath = strcat(output_path,output_file_name);
         
     %frame_file = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
-    vtkwrite(output_fullpath,'polydata','triangle',xg2,yg2,zg2,triangulation);
+    %vtkwrite(output_fullpath,'polydata','triangle',xg2,yg2,zg2,triangulation);
+    vtkwrite(output_fullpath,'structured_grid',...
+        xg2,yg2,zg2,'scalars','intensity',im)
+    
     log2dev(sprintf('Exporting VTK frame %u of %u ',i, size(data,4)), 'DEBUG');
 
     %% Saving VTK results
