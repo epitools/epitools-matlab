@@ -91,9 +91,8 @@ log2dev('Processing time frame...plase wait','INFO',0,'hMainGui', 'statusbar',{m
 progressbar('Projecting images... (please wait)');
 
 %initialize directory for VTK polydata files (1 vtk surface file per frame)
-%vtk_path = [stgMain.data_analysisoutdir,'/vtk'];
-%mkdir(vtk_path);
-mkdir([stgMain.data_analysisoutdir,'/vtk']);
+vtk_path = [stgMain.data_analysisoutdir,'/vtk'];
+mkdir(vtk_path);
 
 for i=1:size(data,4)
     log2dev(sprintf('Processing time frame %u of %u ',i, size(data,4)), 'DEBUG');
@@ -111,19 +110,20 @@ for i=1:size(data,4)
     %triangulation = delaunay(xg2,yg2);
 
     %output vtk file
-    output_path = [stgMain.data_analysisoutdir,'/vtk/'];
-    output_file_name = sprintf('gridfit_frame_%03d.vtk',i);
-    output_fullpath = strcat(output_path,output_file_name);
-        
-    %frame_file = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
-    %vtkwrite(output_fullpath,'polydata','triangle',xg2,yg2,zg2,triangulation);
-    vtkwrite(output_fullpath,'structured_grid',...
+    vtk_frame_file = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
+    
+    %method 1: Polydata with triangulation (big!)
+%     vtkwrite(output_fullpath,'polydata','triangle',...
+%         xg2,yg2,zg2,triangulation);
+    
+    %method 2: Structured_Grid with Image Data
+    vtkwrite(vtk_frame_file,'structured_grid',...
         xg2,yg2,zg2,'scalars','intensity',im)
     
     log2dev(sprintf('Exporting VTK frame %u of %u ',i, size(data,4)), 'DEBUG');
 
     %% Saving VTK results
-    stgMain.AddResult('Projection',strcat('vtk_path_',num2str(i)),strcat(output_path,output_file_name));
+    stgMain.AddResult('Projection',strcat('vtk_path_',num2str(i)),vtk_frame_file);
 
     progressbar(i/size(data,4));
     
@@ -186,7 +186,7 @@ argout(3).object = input_args{strcmp(input_args(:,1),'ExecutionSettingsHandle'),
 % -------------------------------------------------------------------------
 argout(4).description = 'VTK file path';
 argout(4).ref = varargin(4);
-argout(4).object = output_path;
+argout(4).object = vtk_output_path;
 % -------------------------------------------------------------------------
 %% Status execution update
 status = 0;
