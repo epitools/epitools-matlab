@@ -107,23 +107,28 @@ for i=1:size(data,4)
     Surfaces(:,:,i) = Surf;
     
     %save 2nd surface estimation by gridfit in VTK polydata
-    %triangulation = delaunay(xg2,yg2);
 
     %output vtk file
-    vtk_frame_file = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
+    vtk_frame_path = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
     
-    %method 1: Polydata with triangulation (big!)
-%     vtkwrite(output_fullpath,'polydata','triangle',...
+    %method 1: Polydata with triangulation (large file size!)
+%     triangulation = delaunay(xg2,yg2);
+%     vtkwrite(vtk_frame_path,'polydata','triangle',...
 %         xg2,yg2,zg2,triangulation);
     
-    %method 2: Structured_Grid with Image Data
-    vtkwrite(vtk_frame_file,'structured_grid',...
-        xg2,yg2,zg2,'scalars','intensity',im)
-    
+    %method 2: Structured_Grid with Image Data (intermediate)
+%     vtkwrite(vtk_frame_path,'structured_grid',...
+%         xg2,yg2,zg2,'scalars','intensity',im)
+
+    %method 3: XYZ coordinate file (small)
+    vtk_frame_file = fopen(vtk_frame_path, 'w');
+    fprintf(vtk_frame_file,'%d %d %f\n',[xg2(:),yg2(:),zg2(:)]');
+    fclose(vtk_frame_file);
+
     log2dev(sprintf('Exporting VTK frame %u of %u ',i, size(data,4)), 'DEBUG');
 
     %% Saving VTK results
-    stgMain.AddResult('Projection',strcat('vtk_path_',num2str(i)),vtk_frame_file);
+    stgMain.AddResult('Projection',strcat('vtk_path_',num2str(i)),vtk_frame_path);
 
     progressbar(i/size(data,4));
     
