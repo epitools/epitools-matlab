@@ -38,6 +38,7 @@
             <tags>
                 <tag>PROJECTED_IMAGE</tag>
                 <tag>PROJECTED_SURFACE</tag>
+                <tag>VTK_FILEPATH</tag>
                 <tag>Generic_Image</tag>
             </tags>
         </command>

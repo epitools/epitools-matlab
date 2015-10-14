@@ -1,4 +1,4 @@
-function [ProjIm,DepthMap] = createProjection(ImStack, SmoothingRadius, depthThreshold,SurfSmoothness1,SurfSmoothness2,ShowProcess)
+function [ProjIm,DepthMap,xg2,yg2,zg2] = createProjection(ImStack, SmoothingRadius, depthThreshold,SurfSmoothness1,SurfSmoothness2,ShowProcess)
 %CREATEPROJECTION Discover the surface of the highest intensity signal in the image
 %                 stack and selectively project the signal lying on that surface
 % ------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ tilesize = max(s(1),s(2));
 if ShowProcess
     figure('Name','1st Surface Estimation');
     surf(xg1,yg1,zg1) 
-    zlim([0,max(zg1(:))]);
+    zlim([0,s(3)]);
     shading interp
     colormap(jet(256))
     camlight right
@@ -131,10 +131,11 @@ ynodes = 1:s(1);
     'smoothness',SurfSmoothness2,...
     'interp','bilinear','regularizer','springs');
 
+
 if ShowProcess
     figure('Name','2nd Surface Estimation');
     surf(xg2,yg2,zg2)
-    zlim([0,max(zg2(:))]);
+    zlim([0,s(3)]);
     shading interp
     colormap(jet(256))
     camlight right
