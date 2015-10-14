@@ -191,7 +191,7 @@ argout(3).object = input_args{strcmp(input_args(:,1),'ExecutionSettingsHandle'),
 % -------------------------------------------------------------------------
 argout(4).description = 'VTK file path';
 argout(4).ref = varargin(4);
-argout(4).object = vtk_output_path;
+argout(4).object = vtk_path;
 % -------------------------------------------------------------------------
 %% Status execution update
 status = 0;
