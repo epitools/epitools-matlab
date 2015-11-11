@@ -40,7 +40,7 @@ function [ status, argout ] = projection_func(input_args,varargin)
 % ------------------------------------------------------------------------------
 
 %% Retrieve supplementary arguments
-if (nargin<2); varargin(1) = {'PJIMAGEPATH'};varargin(2) = {'PJSURFPATH'};varargin(3) = {'SETTINGS'};end
+if (nargin<2); varargin(1) = {'PJIMAGEPATH'};varargin(2) = {'PJSURFPATH'};varargin(3) = {'SETTINGS'};varargin(4) = {'VTKPATH'};end
 %% Procedure initialization
 status = 1;
 %initialize progressbar
@@ -88,10 +88,16 @@ Surfaces = zeros(size(data,1), size(data,2), size(data,4) ,'uint8');
 ProjIm   = zeros(size(data,1), size(data,2), size(data,4), char(class(data)));
 minv = 0; maxv=size(data,4);
 log2dev('Processing time frame...plase wait','INFO',0,'hMainGui', 'statusbar',{minv,maxv,0});
+progressbar('Projecting images... (please wait)');
+
+%initialize directory for VTK polydata files (1 vtk surface file per frame)
+vtk_path = [stgMain.data_analysisoutdir,'/vtk'];
+mkdir(vtk_path);
+
 for i=1:size(data,4)
     log2dev(sprintf('Processing time frame %u of %u ',i, size(data,4)), 'DEBUG');
     log2dev(sprintf('Processing time frame: %u/%u',i,size(data,4)),'INFO',0,'hMainGui', 'statusbar',{minv,maxv,i});
-    [im,Surf] = createProjection(data(:,:,:,i),...
+    [im,Surf,xg2,yg2,zg2] = createProjection(data(:,:,:,i),...
         stgModule.SmoothingRadius,...
         stgModule.ProjectionDepthThreshold,...
         stgModule.SurfSmoothness1,...
@@ -99,16 +105,48 @@ for i=1:size(data,4)
         stgModule.InspectResults);
     ProjIm(:,:,i)   = im;
     Surfaces(:,:,i) = Surf;
+    
+    %save 2nd surface estimation by gridfit in VTK polydata
+
+    %output vtk file
+    vtk_frame_path = sprintf('%s/gridfit_frame_%03d.vtk',vtk_path,i);
+    
+    %method 1: Polydata with triangulation (large file size!)
+%     triangulation = delaunay(xg2,yg2);
+%     vtkwrite(vtk_frame_path,'polydata','triangle',...
+%         xg2,yg2,zg2,triangulation);
+    
+    %method 2: Structured_Grid with Image Data (intermediate)
+%     vtkwrite(vtk_frame_path,'structured_grid',...
+%         xg2,yg2,zg2,'scalars','intensity',im)
+
+    %method 3: XYZ coordinate file (small)
+    vtk_frame_file = fopen(vtk_frame_path, 'w');
+    fprintf(vtk_frame_file,'%d %d %f\n',[xg2(:),yg2(:),zg2(:)]');
+    fclose(vtk_frame_file);
+
+    log2dev(sprintf('Exporting VTK frame %u of %u ',i, size(data,4)), 'DEBUG');
+
+    %% Saving VTK results
+    stgMain.AddResult('Projection',strcat('vtk_path_',num2str(i)),vtk_frame_path);
+
+    progressbar(i/size(data,4));
+    
 end
+progressbar(1);
+
 log2dev('Projection completed...saving data structures','INFO',0,'hMainGui', 'statusbar');
 %% Saving results
 %stgMain.AddResult('Projection','projection_path','ProjIm.tif');
 %exportTiffImages(ProjIm,'filename',[stgMain.data_analysisoutdir,'/ProjIm.tif']);
 stgMain.AddResult('Projection','projection_path',[stgMain.data_analysisoutdir,'/ProjIm.mat']);
 stgMain.AddResult('Projection','surface_path',[stgMain.data_analysisoutdir,'/Surfaces.mat']);
+%stgMain.AddResult('Projection','vtk_path',vtk_path);
+
 stgMain.AddMetadata('Projection','handle_settings', handleSettings);
 stgMain.AddMetadata('Projection','exec_message', execMessageUID);
 stgMain.AddMetadata('Projection','exec_dependences', execTDep);
+
 save([stgMain.data_analysisoutdir,'/ProjIm'],'ProjIm')
 save([stgMain.data_analysisoutdir,'/Surfaces'],'Surfaces')
 %% Exporting extra Tags according to input data
@@ -150,6 +188,10 @@ argout(2).object = strcat([stgMain.data_analysisoutdir,'/Surfaces.mat']);
 argout(3).description = 'Settings associated module instance execution';
 argout(3).ref = varargin(3);
 argout(3).object = input_args{strcmp(input_args(:,1),'ExecutionSettingsHandle'),2};
+% -------------------------------------------------------------------------
+argout(4).description = 'VTK file path';
+argout(4).ref = varargin(4);
+argout(4).object = vtk_path;
 % -------------------------------------------------------------------------
 %% Status execution update
 status = 0;
