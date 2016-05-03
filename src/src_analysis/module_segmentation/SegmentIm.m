@@ -136,10 +136,14 @@ CreateColorBoundaries()
         % -------------------------------------------------------------------------
  
         % Create gaussian filter
-        f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma1);
+        if sigma1 > 0.01
+            f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma1);
          
-        % Gaussian smoothing for the segmentation of individual cells
-        SmoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+            % Gaussian smoothing for the segmentation of individual cells
+            SmoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        else
+            SmoothedIm = double(Im(:,:));
+        end
         %if show figure; imshow(SmoothedIm(:,:,1),[]); input('press <enter> to continue','s');  end
         
         SmoothedIm = SmoothedIm/max(max(SmoothedIm))*252.;
@@ -187,9 +191,15 @@ CreateColorBoundaries()
         log2dev(sprintf('Growing in-frame-cells in current frame'), 'INFO');
         % -------------------------------------------------------------------------
 
-        f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
         bw=double(CellSeeds(:,:) > 252); % find labels
-        SmoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        
+        if sigma3 > 0.01
+            f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
+            SmoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        else
+            SmoothedIm = double(Im(:,:));
+        end
+        
         ImWithSeeds = double(SmoothedIm).*(1-bw)+255*bw; % mark labels on image
         CellLabels = uint16(growcellsfromseeds3(ImWithSeeds,253));
     
@@ -203,8 +213,14 @@ CreateColorBoundaries()
         % -------------------------------------------------------------------------
         
         L = CellLabels;
-        f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
-        smoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        
+        if sigma3 > 0.01
+            f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
+            smoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        else
+            smoothedIm = double(Im(:,:));
+        end
+        
         labelList = unique(L); %i.e. every cell is marked by one unique integer label 
         labelList = labelList(labelList~=0);
         IBounds = zeros(length(labelList),1);
@@ -309,8 +325,12 @@ CreateColorBoundaries()
 
     function MergeSeedsFromLabels()
         % smoothing
-        f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
-        smoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        if sigma3 > 0.01
+            f1=fspecial( 'gaussian', [ImSize(1) ImSize(2)], sigma3);
+            smoothedIm = real(fftshift(ifft2(fft2(Im(:,:)).*fft2(f1))));
+        else
+            smoothedIm = double(Im(:,:));
+        end
         
         labelList = unique(CellLabels);
         labelList = labelList(labelList~=0);
