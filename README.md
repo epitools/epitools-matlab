@@ -3,9 +3,11 @@
 
 Here we present an open source image analysis toolkit for quantifying epithelial growth dynamics. To know more about the project please visit our project website or code repositories:
 
-* EpiTools homepage: [https://epitools.github.io](https://epitools.github.io) (*we have moved!*)
-* Matlab App repository: [https://bitbucket.org/davideheller/epitools](https://bitbucket.org/davideheller/epitools)
-* Icy Plugin repository: [https://bitbucket.org/davideheller/cellgraph](https://bitbucket.org/davideheller/cellgraph)
+**Please notice the updated links, we have moved the EpiTools project to GitHub!**
+
+* EpiTools homepage: [https://epitools.github.io](https://epitools.github.io) 
+* Matlab App repository: [https://github.com/epitools/epitools-matlab](https://github.com/epitools/epitools-matlab)
+* Icy Plugin repository: [https://github.com/epitools/epitools-icy](https://github.com/epitools/epitools-icy)
 
 
 ## Who built EpiTools? 
@@ -35,6 +37,6 @@ Here we present an open source image analysis toolkit for quantifying epithelial
 ## Support
 
 * In case of bugs or improvement suggestions feel free to:
-* File an issue from the project homepage clicking on the lower right corner *[Create a new issue]* .
+* File an issue in the github repositories .
 * Write to [Davide Heller](mailto:davide.heller@imls.uzh.ch?Subject=EpiTools)
 * Write to [Lorenzo Gatti](mailto:lorenzo.gatti@uzh.ch?Subject=EpiTools)
