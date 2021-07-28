@@ -26,6 +26,7 @@ If applicable, add screenshots to help explain your problem.
 **Desktop (please complete the following information):**
  - OS: [e.g. Windows 10, macOS Mojave]
  - Matlab version: [e.g. R2015a]
+ - Project version: ['Main' is the regular one; 'EditProjection' is an adapted version] 
 
 **Additional context**
 Add any other context about the problem here.
