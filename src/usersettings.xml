@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settingsobj>
+   <logs>
+      <levels>
+         <ctl_levelsvalue>
+            <name>Select logging levels</name>
+            <visible>1</visible>
+            <desc>multiple</desc>
+            <values>
+               <item>INFO</item>
+               <item>DEBUG</item>
+               <item>PROC</item>
+               <item>GUI</item>
+               <item>WARN</item>
+               <item>ERR</item>
+               <item>VERBOSE</item>
+            </values>
+            <actived>[1 0 0 1 0 0 0]</actived>
+         </ctl_levelsvalue>
+      </levels>
+      <execution>
+         <ctl_execution>
+            <name>Execute log</name>
+            <visible>1</visible>
+            <desc>single</desc>
+            <values>
+               <item>on</item>
+               <item>off</item>
+            </values>
+            <actived>[1 0]</actived>
+         </ctl_execution>
+      </execution>
+      <devices>
+         <ctl_outdevices>
+            <name>Logging device</name>
+            <visible>1</visible>
+            <desc>multiple</desc>
+            <values>
+               <item>file</item>
+               <item>generic-gui</item>
+               <item>console</item>
+               <item>log window</item>
+            </values>
+            <actived>[0 0 1 1]</actived>
+         </ctl_outdevices>
+      </devices>
+   </logs>
+   <input>
+      <formats>
+         <ctl_inputformat>
+            <name>Select input image file format</name>
+            <visible>1</visible>
+            <desc>multiple</desc>
+            <values>
+               <item>.czi</item>
+               <item>.zvi</item>
+               <item>.cxd</item>
+               <item>.ome</item>
+               <item>.ome.tiff</item>
+               <item>.mrc</item>
+               <item>.tif</item>
+               <item>.tiff</item>
+               <item>.lif</item>
+               <item>.lei</item>
+               <item>.ipl</item>
+               <item>.raw</item>
+               <item>.ics</item>
+               <item>.ids</item>
+               <item>.bmp</item>
+               <item>.png</item>
+               <item>.pic</item>
+               <item>.mvd2</item>
+            </values>
+            <actived>[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]</actived>
+         </ctl_inputformat>
+      </formats>
+   </input>
+   <output>
+      <formats>
+         <ctl_outputsformat>
+            <name>Select output file format</name>
+            <visible>0</visible>
+            <desc>multiple</desc>
+            <values>
+               <item>INFO</item>
+               <item>DEBUG</item>
+               <item>PROC</item>
+               <item>GUI</item>
+               <item>WARN</item>
+               <item>ERR</item>
+               <item>VERBOSE</item>
+            </values>
+            <actived>[1 1 1 1 1 1 1]</actived>
+         </ctl_outputsformat>
+      </formats>
+      <icy>
+         <ctl_enableicyconnection>
+            <name>Enable connection to ICY</name>
+            <visible>1</visible>
+            <desc>single</desc>
+            <values>
+               <item>on</item>
+               <item>off</item>
+            </values>
+            <actived>[1 0]</actived>
+         </ctl_enableicyconnection>
+         <ctl_connectionstring>
+            <name>ICY connection string</name>
+            <visible>1</visible>
+            <desc>text</desc>
+            <values>/Applications/icy.app/plugins/ylemontag/matlabcommunicator</values>
+         </ctl_connectionstring>
+      </icy>
+   </output>
+   <analysis_modules>
+      <Tracking>
+         <ctl_deleteseedtrack>
+            <name>Delete track control behaviour</name>
+            <extended>Specify how tracking module will delete complete seed tracks and how it will handle the remaining seeds</extended>
+            <visible>1</visible>
+            <desc>single</desc>
+            <values>
+               <item>Delete entire track and correspondent seeds</item>
+               <item>Disconnect seeds (retain orphan seeds)</item>
+            </values>
+            <actived>[1 0]</actived>
+         </ctl_deleteseedtrack>
+      </Tracking>
+   </analysis_modules>
+   <framework>
+      <memory>
+         <ctl_memoryvalue>
+            <name>Memory value</name>
+            <visible>1</visible>
+            <desc>text</desc>
+            <values>512</values>
+         </ctl_memoryvalue>
+      </memory>
+      <processors>
+         <ctl_processorsdefault>
+            <name>Default processors</name>
+            <visible>1</visible>
+            <desc>text</desc>
+            <values/>
+         </ctl_processorsdefault>
+      </processors>
+      <debug>
+         <ctl_debug>
+            <name>Debug mode</name>
+            <visible>1</visible>
+            <desc>single</desc>
+            <values>
+               <item>on</item>
+               <item>off</item>
+            </values>
+            <actived>[1 0]</actived>
+         </ctl_debug>
+      </debug>
+      <sendinformations>
+         <ctl_usageinformation>
+            <name>Sending usage informations</name>
+            <visible>1</visible>
+            <desc>single</desc>
+            <values>
+               <item>on</item>
+               <item>off</item>
+            </values>
+            <actived>[1 0]</actived>
+         </ctl_usageinformation>
+      </sendinformations>
+      <serverconnectionstring>
+         <ctl_serverstring>
+            <name>Connection string</name>
+            <visible>1</visible>
+            <desc>text</desc>
+            <values/>
+         </ctl_serverstring>
+      </serverconnectionstring>
+      <serverupboundprocesses>
+         <ctl_serverupboundprocesses>
+            <name>Automatic server queue execution after no. processes</name>
+            <visible>1</visible>
+            <desc>text</desc>
+            <values>1</values>
+         </ctl_serverupboundprocesses>
+      </serverupboundprocesses>
+   </framework>
+   <windows>
+      <autocentering>
+         <ctl_activate>
+            <name>Resize activation</name>
+            <visible>1</visible>
+            <desc>single</desc>
+            <values>
+               <item>on</item>
+               <item>off</item>
+            </values>
+            <actived>[1 0]</actived>
+         </ctl_activate>
+      </autocentering>
+   </windows>
+   <licence>
+      <NDA>
+         <ctl_activate>
+            <name>Non Disclosing Agreement (NDA)</name>
+            <visible>1</visible>
+            <desc>single</desc>
+            <values>
+               <item>on</item>
+               <item>off</item>
+            </values>
+            <actived>[0 1]</actived>
+         </ctl_activate>
+      </NDA>
+   </licence>
+</settingsobj>

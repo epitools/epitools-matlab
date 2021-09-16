@@ -58,7 +58,6 @@ setappdata(0  , 'hSegGui', gcf);
 setappdata(gcf, 'settings_objectname', varargin{1});
 setappdata(gcf, 'settings_modulename', 'Segmentation');
 
-
 % Update handles structure
 guidata(hObject, handles);
 
@@ -115,31 +114,24 @@ module_name = getappdata(hSegGui, 'settings_modulename');
     
     caption = sprintf('Minimal cell area = %.2f',stgObj.analysis_modules.(char(module_name)).settings.mincellsize);
     set(handles.min_cell_label, 'String', caption);
-    set(handles.min_cell_label, 'FontSize', 9);
-    	
+    
     caption = sprintf('Gaussian smoothing = %.2f',stgObj.analysis_modules.(char(module_name)).settings.sigma1);
     set(handles.sigma1_label, 'String', caption);
-    set(handles.sigma1_label, 'FontSize', 9);
     
     caption = sprintf('Minimal membrane intensity = %.2f',stgObj.analysis_modules.(char(module_name)).settings.threshold);
     set(handles.threshold_label, 'String', caption);
-    set(handles.threshold_label, 'FontSize', 9);
 
     caption = sprintf('Gaussian smoothing = %.2f',stgObj.analysis_modules.(char(module_name)).settings.sigma3);
     set(handles.sigma3_label, 'String', caption);
-    set(handles.sigma3_label, 'FontSize', 9);
    
     caption = sprintf('Maximal cell area = %.2f',stgObj.analysis_modules.(char(module_name)).settings.LargeCellSizeThres);
     set(handles.max_cell_label, 'String', caption);
-    set(handles.max_cell_label, 'FontSize', 9);
     
     caption = sprintf('Minimal intensity ratio = %.2f',stgObj.analysis_modules.(char(module_name)).settings.MergeCriteria);
     set(handles.merge_label, 'String', caption);
-    set(handles.merge_label, 'FontSize', 9);
     
     caption = sprintf('Minimal mean intensity = %.2f',stgObj.analysis_modules.(char(module_name)).settings.IBoundMax);
     set(handles.ibound_label, 'String', caption);
-    set(handles.ibound_label, 'FontSize', 9);
 
 
 % --- Outputs from this function are returned to the command line.

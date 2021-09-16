@@ -94,14 +94,37 @@ progressbar('Projecting images... (please wait)');
 vtk_path = [stgMain.data_analysisoutdir,'/vtk'];
 mkdir(vtk_path);
 
+
+% ask to load marker image
+usemarkers=0;
+
+[filename1, pathname1]=uigetfile('*.tif','Load Markers');
+
+if (filename1==0)
+  usemarkers=0;
+else
+  usemarkers=1;
+
+end
+
+
 for i=1:size(data,4)
     log2dev(sprintf('Processing time frame %u of %u ',i, size(data,4)), 'DEBUG');
     log2dev(sprintf('Processing time frame: %u/%u',i,size(data,4)),'INFO',0,'hMainGui', 'statusbar',{minv,maxv,i});
+    
+    if (usemarkers)
+      markers=double(imread(fullfile(pathname1,filename1),i));
+    else
+      markers=zeros(zeros(size(data,1), size(data,2)));
+    end
+    
+    
     [im,Surf,xg2,yg2,zg2] = createProjection(data(:,:,:,i),...
         stgModule.SmoothingRadius,...
         stgModule.ProjectionDepthThreshold,...
         stgModule.SurfSmoothness1,...
         stgModule.SurfSmoothness2,...
+        markers,...
         stgModule.InspectResults);
     ProjIm(:,:,i)   = im;
     Surfaces(:,:,i) = Surf;
