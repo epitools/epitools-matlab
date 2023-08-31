@@ -7,8 +7,8 @@ Here we present an open source image analysis toolkit for quantifying epithelial
 
 * EpiTools homepage: [https://epitools.github.io](https://epitools.github.io)
 * Napari Plugin repository: [https://github.com/epitools/epitools](https://github.com/epitools/epitools)
-* Matlab App repository: [https://github.com/epitools/epitools-matlab](https://github.com/epitools/epitools-matlab) - **NO LONGER MAINTAINED**
-* Icy Plugin repository: [https://github.com/epitools/epitools-icy](https://github.com/epitools/epitools-icy) - **NO LONGER MAINTAINED**
+* ~~Matlab App repository: [https://github.com/epitools/epitools-matlab](https://github.com/epitools/epitools-matlab)~~ - **NO LONGER MAINTAINED**
+* ~~Icy Plugin repository: [https://github.com/epitools/epitools-icy](https://github.com/epitools/epitools-icy)~~ - **NO LONGER MAINTAINED**
 
 
 ## Who built EpiTools? 
